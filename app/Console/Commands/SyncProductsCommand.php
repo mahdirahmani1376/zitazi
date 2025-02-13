@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -30,6 +31,8 @@ class SyncProductsCommand extends Command
     public function handle()
     {
         $products = Product::all();
+
+        $rate = Currency::getLatestRate();
 
         $bar = $this->output->createProgressBar($products->count());
 
