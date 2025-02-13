@@ -2,7 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Product;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class SyncProductsCommand extends Command
 {
@@ -25,6 +29,55 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
-        //
+        $products = Product::all();
+
+        $bar = $this->output->createProgressBar($products->count());
+
+        foreach ($products as $product)
+        {
+            if ($product->belongsToTrendyol()){
+                $this->syncTrendyol($product);
+            }
+            $bar->advance();
+        }
+
+        $bar->finish();
+    }
+
+    private function syncTrendyol(Product $product): Product
+    {
+        $headers = [
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
+        ];
+
+        $response = Http::acceptJson()->withHeaders($headers)->get($product->source_id);
+        $crawler = new Crawler($response);
+        
+        $priceElement = $crawler->filter('div.product-price-container span.prc-dsc')->first();
+        if ($priceElement->count() > 0) {
+            $price = (int) str_replace(',', '.', trim($priceElement->text()));
+        } else {
+            $price = null;
+            $stock = 0;
+        }
+
+        $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
+        if ($stock->count() > 0) {
+            $stock = 5;
+        } else {
+            $stock = 0;
+        }
+
+        $product->update([
+            'price' => $price,
+            'stock' => $stock
+        ]);
+
+        Log::info("product_update_{$product->id}",[
+            'before' => $product->getOriginal(),
+            'after' => $product->getChanges()
+        ]);
+
+        return $product;
     }
 }
