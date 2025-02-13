@@ -25,6 +25,8 @@ class SyncProductsCommand extends Command
      */
     protected $description = 'Command description';
 
+    private $rate;
+
     /**
      * Execute the console command.
      */
@@ -32,7 +34,7 @@ class SyncProductsCommand extends Command
     {
         $products = Product::all();
 
-        $rate = Currency::getLatestRate();
+        $this->rate = Currency::syncTryRate();
 
         $bar = $this->output->createProgressBar($products->count());
 
@@ -59,6 +61,7 @@ class SyncProductsCommand extends Command
         $priceElement = $crawler->filter('div.product-price-container span.prc-dsc')->first();
         if ($priceElement->count() > 0) {
             $price = (int) str_replace(',', '.', trim($priceElement->text()));
+            $price = $this->rate * $price;
         } else {
             $price = null;
             $stock = 0;
