@@ -7,10 +7,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-dom": "*",
         "laravel/framework": "^11.31",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "opcodesio/log-viewer": "^3.14",
+        "symfony/dom-crawler": "^7.2"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",
