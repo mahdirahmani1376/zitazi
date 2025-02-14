@@ -17,7 +17,9 @@ class Currency extends Model
 
     public static function syncTryRate()
     {
-        return Cache::remember('try_rate',60 * 60 * 24,function () {
+        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
+
+        return Cache::remember('try_rate',$timeUntilEndOfDay,function () {
             $response = Http::acceptJson()->withQueryParameters([
                 'api_key' => env('NAVASAN_KEY')
             ])->get('http://api.navasan.tech/latest')->json();
@@ -26,7 +28,7 @@ class Currency extends Model
             
             if (empty($rate))
             {
-                $rate = static::lastTryRate();
+                $rate = static::lastTryRate() ?? 2400;
             } else {
                 static::create([
                     'rate' => $rate,

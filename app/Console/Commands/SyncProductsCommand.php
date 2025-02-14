@@ -8,6 +8,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
+use Automattic\WooCommerce\Client;
+use Exception;
 
 class SyncProductsCommand extends Command
 {
@@ -40,9 +42,20 @@ class SyncProductsCommand extends Command
 
         foreach ($products as $product)
         {
-            if ($product->belongsToTrendyol()){
+            if ($product->belongsToTrendyol()){    
                 $this->syncTrendyol($product);
             }
+            // try {
+            //     if ($product->belongsToTrendyol()){    
+            //         $this->syncTrendyol($product);
+            //     }
+            // } catch (Exception $e)
+            // {
+            //     dump($e->getMessage());
+            //     Log::error("product_update_failed_id:{$product->id}",[
+            //         'error' => $e->getMessage(),
+            //     ]);
+            // }
             $bar->advance();
         }
 
@@ -58,10 +71,22 @@ class SyncProductsCommand extends Command
         $response = Http::acceptJson()->withHeaders($headers)->get($product->source_id);
         $crawler = new Crawler($response);
         
-        $priceElement = $crawler->filter('div.product-price-container span.prc-dsc')->first();
+        // $priceElement = $crawler->filter('div.product-price-container span.prc-dsc')->first();
+        $priceElement = $crawler->filter('body > script:nth-child(2)')->first();
         if ($priceElement->count() > 0) {
+            $pattern = '/"discountedPrice"\s*:\s*\{.*?\}/';
+            $price = preg_match($pattern,$priceElement->text(),$matches);
+            dd($matches);
+            if ($price)
+            {
+                $price = $price[1];
+            } else {
+                $price = null;
+            }
+            dd($price);
             $price = (int) str_replace(',', '.', trim($priceElement->text()));
             $price = $this->rate * $price;
+            $price = floor($price/1000)*1000;
         } else {
             $price = null;
             $stock = 0;
@@ -84,6 +109,31 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges()
         ]);
 
+        // $this->syncSource($product);
+
         return $product;
+    }
+
+    private function syncSource(Product $product)
+    {
+        $woocommerce = new Client(
+            env('BASE_URL'),
+            env('SECURITY_KEY'),
+            env('SECURITY_PASS'),
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+
+        $data = [
+            'regular_price' => $product->price,
+            "stock_quantity" => $product->stock,
+            "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
+        ];
+
+        $response = $woocommerce->put("products/{$product->own_id}",$data);
+        
+        return $response;
     }
 }
