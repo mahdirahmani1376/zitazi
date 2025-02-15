@@ -42,20 +42,17 @@ class SyncProductsCommand extends Command
 
         foreach ($products as $product)
         {
-            if ($product->belongsToTrendyol()){    
-                $this->syncTrendyol($product);
+            try {
+                if ($product->belongsToTrendyol()){    
+                    $this->syncTrendyol($product);
+                }
+            } catch (Exception $e)
+            {
+                dump($e->getMessage());
+                Log::error("product_update_failed_id:{$product->id}",[
+                    'error' => $e->getMessage(),
+                ]);
             }
-            // try {
-            //     if ($product->belongsToTrendyol()){    
-            //         $this->syncTrendyol($product);
-            //     }
-            // } catch (Exception $e)
-            // {
-            //     dump($e->getMessage());
-            //     Log::error("product_update_failed_id:{$product->id}",[
-            //         'error' => $e->getMessage(),
-            //     ]);
-            // }
             $bar->advance();
         }
 
@@ -71,26 +68,28 @@ class SyncProductsCommand extends Command
         $response = Http::acceptJson()->withHeaders($headers)->get($product->source_id);
         $crawler = new Crawler($response);
         
-        // $priceElement = $crawler->filter('div.product-price-container span.prc-dsc')->first();
-        $priceElement = $crawler->filter('body > script:nth-child(2)')->first();
-        if ($priceElement->count() > 0) {
-            $pattern = '/"discountedPrice"\s*:\s*\{.*?\}/';
-            $price = preg_match($pattern,$priceElement->text(),$matches);
-            dd($matches);
-            if ($price)
-            {
-                $price = $price[1];
-            } else {
-                $price = null;
+        $price = null;
+        $stock = 0;
+        $rialPrice = null;
+
+        foreach (range(2,5) as $i)
+        {
+            $priceElement = $crawler->filter("body > script:nth-child($i)")->first();
+            if ($priceElement->count() > 0) {
+                $pattern = '/"discountedPrice"\s*:\s*\{.*?\}/';
+                $price = preg_match($pattern,$priceElement->text(),$matches);
+                if ($matches)
+                {
+                    $json = json_decode('{'.$matches[0].'}',true);
+                    $price = $json['discountedPrice']['value'];
+                    $price = (int) str_replace(',', '.', trim($price));
+                    $rialPrice = $this->rate * $price;
+                    $rialPrice = floor($rialPrice/1000)*1000;
+                    break;
+                }
             }
-            dd($price);
-            $price = (int) str_replace(',', '.', trim($priceElement->text()));
-            $price = $this->rate * $price;
-            $price = floor($price/1000)*1000;
-        } else {
-            $price = null;
-            $stock = 0;
         }
+
 
         $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
         if ($stock->count() > 0) {
@@ -99,9 +98,15 @@ class SyncProductsCommand extends Command
             $stock = 0;
         }
 
+
+        if (! $price){
+            $stock = 0;
+        }
+
         $product->update([
             'price' => $price,
-            'stock' => $stock
+            'stock' => $stock,
+            'rial_price' => $rialPrice
         ]);
 
         Log::info("product_update_{$product->id}",[

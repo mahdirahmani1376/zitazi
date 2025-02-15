@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('own_id');
             $table->string('source_id');
             $table->string('source');
-            $table->integer('price')->default(0);
-            $table->integer('stock')->default(0);
+            $table->integer('price')->nullable();
+            $table->integer('stock')->nullable();
+            $table->integer('rial_price')->nullable();
             $table->timestamps();
         });
     }
