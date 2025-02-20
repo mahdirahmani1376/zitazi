@@ -101,7 +101,7 @@ class SheetReportCommand extends Command
             'source' => 'digikala'
         ]);
 
-        dump($report->toArray());
+        dump($report->toJson());
 
     }
 
@@ -134,8 +134,13 @@ class SheetReportCommand extends Command
             'source' => 'digikala'
         ]);
 
-        dump($report->toArray());
+        dump($report->toJson());
 
+
+    }
+
+    private function reportZitazi($data)
+    {
 
     }
 }
