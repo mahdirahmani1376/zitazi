@@ -85,7 +85,7 @@ class SyncProductsCommand extends Command
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
                     $rialPrice = floor($rialPrice/1000)*1000;
-                    $riaLprice = $rialPrice * 1.6;
+                    $rialPrice = $rialPrice * 1.6;
                     break;
                 }
             }
