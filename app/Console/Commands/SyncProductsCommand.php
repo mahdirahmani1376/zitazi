@@ -85,6 +85,7 @@ class SyncProductsCommand extends Command
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
                     $rialPrice = floor($rialPrice/1000)*1000;
+                    $riaLprice = $riaLprice * 1.6;
                     break;
                 }
             }
@@ -114,7 +115,7 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges()
         ]);
 
-        // $this->syncSource($product);
+        $this->syncSource($product);
 
         return $product;
     }
@@ -132,12 +133,17 @@ class SyncProductsCommand extends Command
         );
 
         $data = [
-            'regular_price' => $product->price,
+            'regular_price' => ''.$product->rial_price,
             "stock_quantity" => $product->stock,
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
         $response = $woocommerce->put("products/{$product->own_id}",$data);
+        
+        Log::info(
+            "product_update_source_{$product->own_id}",
+            (array) $response
+        );
         
         return $response;
     }
