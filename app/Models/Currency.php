@@ -6,6 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property int $rate
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Currency extends Model
 {
     protected $guarded = [];

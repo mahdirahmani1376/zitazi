@@ -6,7 +6,7 @@ use App\Enums\SourceEnum;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $own_id
@@ -23,6 +23,12 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereUpdatedAt($value)
+ * @property int|null $price
+ * @property int|null $stock
+ * @property int|null $rial_price
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereRialPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereStock($value)
  * @mixin \Eloquent
  */
 class Product extends Model
