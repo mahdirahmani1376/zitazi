@@ -1,22 +1,14 @@
 <?php
 
-if (! function_exists('read_csv_string')) {
-    function read_csv_string($csvFile, $delimiter = ',')
-        {
-            if (($handle = fopen($csvFile, "r")) !== FALSE) {
-                $headers = fgetcsv($handle); // Read the first line as headers
-                $data = [];
-
-                while (($row = fgetcsv($handle)) !== FALSE) {
-                    if (! empty($row[0]))
-                    {
-                        $data[] = array_combine($headers, $row); // Combine headers with row values
-                    }
-                }
-
-                fclose($handle);
-
-                return $data;
-            }
+if (! function_exists('parse_csv')) {
+    function parse_csv($csvData): array
+    {
+        $rows = array_map("str_getcsv", explode("\n", $csvData));
+        $header = array_shift($rows);
+        $csv    = array();
+        foreach($rows as $row) {
+            $csv[] = array_combine($header, $row);
         }
+        return $csv;
+    }
 };

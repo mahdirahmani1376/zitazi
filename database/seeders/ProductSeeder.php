@@ -15,17 +15,17 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $path = database_path('seeders/data/tr-lego.csv');
+        $path = database_path('seeders/data/data.csv');
         $file = $this->readCSV($path);
         foreach ($file as $key => $value)
         {
             if (! empty($value))
             {
                 Product::query()->updateOrCreate([
-                    'own_id' => $value['own_id']
+                    'own_id' => $value['Woocomerce-ID']
                 ],[
-                    'own_id' => $value['own_id'],
-                    'source_id' => $value['source_id'],
+                    'own_id' => $value['Woocomerce-ID'],
+                    'source_id' => $value['Trendyol-link'],
                     'source' => SourceEnum::TRENDYOL->value
                 ]);
             }

@@ -43,7 +43,7 @@ class SyncProductsCommand extends Command
         foreach ($products as $product)
         {
             try {
-                if ($product->belongsToTrendyol()){    
+                if ($product->belongsToTrendyol()){
                     $this->syncTrendyol($product);
                 }
             } catch (Exception $e)
@@ -67,7 +67,7 @@ class SyncProductsCommand extends Command
 
         $response = Http::acceptJson()->withHeaders($headers)->get($product->source_id);
         $crawler = new Crawler($response);
-        
+
         $price = null;
         $stock = 0;
         $rialPrice = null;
@@ -138,13 +138,14 @@ class SyncProductsCommand extends Command
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        $response = $woocommerce->put("products/{$product->own_id}",$data);
-        
+//        dd($data,$product->own_id);
+        $response = $woocommerce->get("products/{$product->own_id}",$data);
+        dd($response);
         Log::info(
             "product_update_source_{$product->own_id}",
             (array) $response
         );
-        
+
         return $response;
     }
 }
