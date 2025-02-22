@@ -91,7 +91,6 @@ class SyncProductsCommand extends Command
             }
         }
 
-
         $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
         if ($stock->count() > 0) {
             $stock = 5;
@@ -138,9 +137,7 @@ class SyncProductsCommand extends Command
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-//        dd($data,$product->own_id);
-        $response = $woocommerce->get("products/{$product->own_id}",$data);
-        dd($response);
+        $response = $woocommerce->put("products/{$product->own_id}",$data);
         Log::info(
             "product_update_source_{$product->own_id}",
             (array) $response

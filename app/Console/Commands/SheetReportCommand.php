@@ -39,7 +39,7 @@ class SheetReportCommand extends Command
         $sheetUrl = "https://docs.google.com/spreadsheets/d/1acouaqx5INPMNMG8d9-IKEqfbkfQkqf-kAy04eJZeRU/gviz/tq?tqx=out:csv";
         $response = Http::get($sheetUrl);
         $csvData = $response->body();
-        $data = $this->parseCsv($csvData);
+        $data = parse_csv($csvData);
 
         foreach($data as $item)
         {

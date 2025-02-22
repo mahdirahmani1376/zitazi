@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Enums\SourceEnum;
 use App\Models\Product;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Enums\SourceEnum;
 use Illuminate\Database\Seeder;
+use Automattic\WooCommerce\Client;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ProductSeeder extends Seeder
 {
@@ -15,21 +17,43 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $path = database_path('seeders/data/data.csv');
-        $file = $this->readCSV($path);
-        foreach ($file as $key => $value)
+        // $path = database_path('seeders/data/data.csv');
+        // $file = $this->readCSV($path);
+        Product::truncate();
+
+        $sheetUrl = "https://docs.google.com/spreadsheets/d/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/gviz/tq?tqx=out:csv";
+        $response = Http::get($sheetUrl);
+        $csvData = $response->body();
+        $data = parse_csv($csvData);
+
+        $bar = $this->command->getOutput()->progressStart(count($data));
+        
+        foreach ($data as $key => $value)
         {
-            if (! empty($value))
+            if (! empty($value) &&  ! empty($value['Trendyol-link']))
             {
-                Product::query()->updateOrCreate([
-                    'own_id' => $value['Woocomerce-ID']
-                ],[
-                    'own_id' => $value['Woocomerce-ID'],
-                    'source_id' => $value['Trendyol-link'],
-                    'source' => SourceEnum::TRENDYOL->value
+                // $product = Product::query()->updateOrCreate([
+                //     'own_id' => $value['Woocomerce-ID']
+                // ],[
+                //     'own_id' => $value['Woocomerce-ID'],
+                //     'source_id' => $value['Trendyol-link'],
+                //     'source' => SourceEnum::TRENDYOL->value
+                // ]);
+                $product = Product::query()->create([
+                        'own_id' => $value['Woocomerce-ID'],
+                        'source_id' => $value['Trendyol-link'],
+                        'source' => SourceEnum::TRENDYOL->value
                 ]);
+
+                $this->syncProduct($product);
+
+                $this->command->getOutput()->progressAdvance();
             }
+
         }
+
+        $this->command->getOutput()->progressFinish();
+
 
     }
 
@@ -49,6 +73,34 @@ class ProductSeeder extends Seeder
             fclose($handle);
 
             return $data;
+        }
+    }
+
+    private function syncProduct($product)
+    {
+        $woocommerce = new Client(
+            env('BASE_URL'),
+            env('SECURITY_KEY'),
+            env('SECURITY_PASS'),
+            [
+                'wp_api' => true,
+                'version' => 'wc/v3'
+            ]
+        );
+        
+        try {
+            $response = $woocommerce->get("products/{$product->own_id}");
+            $price = !empty($response?->price) ? $response?->price : null;
+            $stock = $response?->stock_status == "instock" ? 5 : 0;
+            $product->update([
+                'rial_price' => $price,
+                'stock' => $stock
+            ]);
+        } catch (\Exception $e)
+        {
+            $product->delete();
+            dump($product->own_id);
+            dump($e->getMessage());
         }
     }
 }
