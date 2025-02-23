@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Log;
 
 /**
  * 
@@ -38,20 +40,26 @@ class Currency extends Model
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
         return Cache::remember('try_rate',$timeUntilEndOfDay,function () {
-            $response = Http::acceptJson()->withQueryParameters([
-                'api_key' => env('NAVASAN_KEY')
-            ])->get('http://api.navasan.tech/latest')->json();
-    
-            $rate = data_get($response,'try.value');
-            
-            if (empty($rate))
+            try {
+                $response = Http::acceptJson()->withQueryParameters([
+                    'api_key' => env('NAVASAN_KEY')
+                ])->get('http://api.navasan.tech/latest')->json();
+        
+                $rate = data_get($response,'try.value');
+                
+                if (empty($rate))
+                {
+                    $rate = static::lastTryRate() ?? 2400;
+                } else {
+                    static::create([
+                        'rate' => $rate,
+                        'name' => 'try'
+                    ]);
+                }
+            } catch (\Exception $e)
             {
+                Log::error($e->getMessage());
                 $rate = static::lastTryRate() ?? 2400;
-            } else {
-                static::create([
-                    'rate' => $rate,
-                    'name' => 'try'
-                ]);
             }
 
             return $rate;

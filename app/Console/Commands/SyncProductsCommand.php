@@ -43,6 +43,8 @@ class SyncProductsCommand extends Command
 
         // $seeder->run();
 
+        ProductCompare::truncate();
+
         $this->headers = [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
         ];
@@ -163,7 +165,7 @@ class SyncProductsCommand extends Command
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
 
-            $digiPrice = collect(data_get($response,'data.product.default_variant.price.selling_price'));
+            $digiPrice = data_get($response,'data.product.default_variant.price.selling_price') / 10;
     
         } catch (\Exception $e)
         {
