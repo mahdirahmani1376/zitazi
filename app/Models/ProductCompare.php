@@ -26,5 +26,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ProductCompare extends Model
 {
-    //
+    protected $guarded = [];
 }

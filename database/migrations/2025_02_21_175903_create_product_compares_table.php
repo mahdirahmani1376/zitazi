@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('product_compares', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id');
-            $table->integer('digikala_price');
-            $table->integer('torob_price');
+            $table->integer('digikala_price')->nullable();
+            $table->integer('torob_price')->nullable();
             $table->timestamps();
         });
     }

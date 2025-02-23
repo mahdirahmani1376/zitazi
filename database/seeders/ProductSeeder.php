@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use App\Enums\SourceEnum;
+use App\Services\WoocommerceService;
 use Illuminate\Database\Seeder;
 use Automattic\WooCommerce\Client;
 use Illuminate\Support\Facades\File;
@@ -32,13 +33,6 @@ class ProductSeeder extends Seeder
         {
             if (! empty($value) &&  ! empty($value['Trendyol-link']))
             {
-                // $product = Product::query()->updateOrCreate([
-                //     'own_id' => $value['Woocomerce-ID']
-                // ],[
-                //     'own_id' => $value['Woocomerce-ID'],
-                //     'source_id' => $value['Trendyol-link'],
-                //     'source' => SourceEnum::TRENDYOL->value
-                // ]);
                 $product = Product::query()->create([
                         'own_id' => $value['Woocomerce-ID'],
                         'source_id' => $value['Trendyol-link'],
@@ -47,8 +41,21 @@ class ProductSeeder extends Seeder
 
                 $this->syncProduct($product);
 
-                $this->command->getOutput()->progressAdvance();
             }
+
+            else if (! empty($value) && ! empty($value['digikala_link']))
+            {
+                $product = Product::query()->create([
+                    'own_id' => $value['Woocomerce-ID'],
+                    'digikala_source' => $value['digikala_link'],
+                    'torob_source' => $value['torob_link'],
+                    'source' => SourceEnum::IRAN->value
+            ]);
+
+            $this->syncProduct($product);
+            }
+
+            $this->command->getOutput()->progressAdvance();
 
         }
 
@@ -78,15 +85,7 @@ class ProductSeeder extends Seeder
 
     private function syncProduct($product)
     {
-        $woocommerce = new Client(
-            env('BASE_URL'),
-            env('SECURITY_KEY'),
-            env('SECURITY_PASS'),
-            [
-                'wp_api' => true,
-                'version' => 'wc/v3'
-            ]
-        );
+        $woocommerce = WoocommerceService::getClient();
         
         try {
             $response = $woocommerce->get("products/{$product->own_id}");
@@ -99,8 +98,6 @@ class ProductSeeder extends Seeder
         } catch (\Exception $e)
         {
             $product->delete();
-            dump($product->own_id);
-            dump($e->getMessage());
         }
     }
 }

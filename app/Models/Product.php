@@ -45,4 +45,9 @@ class Product extends Model
     {
         return $this->source == SourceEnum::TRENDYOL;
     }
+
+    public function belongsToIran(): bool
+    {
+        return $this->source == SourceEnum::IRAN;
+    }
 }

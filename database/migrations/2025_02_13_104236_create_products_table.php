@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('price')->nullable();
             $table->integer('stock')->nullable();
             $table->integer('rial_price')->nullable();
+            $table->string('digikala_source')->nullable();
+            $table->string('torob_source')->nullable();
             $table->timestamps();
         });
     }

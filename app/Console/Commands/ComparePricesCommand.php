@@ -45,5 +45,7 @@ class ComparePricesCommand extends Command
         $variants = collect(data_get($response,'data.product.variants'));
 
         $priceAverage = $variants->pluck('price')->pluck('selling_price')->average();
+
+        return $priceAverage;
     }
 }
