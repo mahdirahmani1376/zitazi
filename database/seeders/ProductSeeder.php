@@ -48,7 +48,7 @@ class ProductSeeder extends Seeder
                 $product = Product::query()->create([
                     'own_id' => $value['Woocomerce-ID'],
                     'digikala_source' => $value['digikala_link'],
-                    'torob_source' => $value['torob_link'],
+                    'torob_source' => urldecode($value['torob_link']),
                     'source' => SourceEnum::IRAN->value
             ]);
 
