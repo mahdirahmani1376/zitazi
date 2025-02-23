@@ -115,7 +115,7 @@ class SheetReportCommand extends Command
             'url' => $url,
             'average' => $average,
             'total' => $products->count(),
-            'source' => 'digikala'
+            'source' => 'torob'
         ]);
 
     }
