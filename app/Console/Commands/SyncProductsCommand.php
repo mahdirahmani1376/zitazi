@@ -62,7 +62,7 @@ class SyncProductsCommand extends Command
         {
             try {
                 if ($product->belongsToTrendyol()){
-                    // $this->syncTrendyol($product);
+                    $this->syncTrendyol($product);
                 }
                 if ($product->belongsToIran()){
                     $this->syncIran($product);
