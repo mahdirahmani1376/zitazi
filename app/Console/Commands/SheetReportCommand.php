@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Product;
 use App\Models\Report;
+use App\Services\WoocommerceService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\Response;
@@ -46,24 +48,8 @@ class SheetReportCommand extends Command
             $this->reportDigikala($item);
             $this->reportTorob($item);
         }
-        
 
-        
-        
     }
-
-    private function parseCsv($csvData)
-    {
-        $rows = array_map("str_getcsv", explode("\n", $csvData));
-        $header = array_shift($rows);
-        $csv    = array();
-        foreach($rows as $row) {
-            $csv[] = array_combine($header, $row);
-        }
-
-        return $csv;
-    }
-
     private function reportDigikala($data)
     {
         $url = $data['digi_kala_api_link'];
@@ -79,29 +65,27 @@ class SheetReportCommand extends Command
                     ->range(2, $totalPages)
                     ->map(fn ($page) => $pool->get($url . "&page={$page}"));
             });
-    
+
             $responses = collect($responses)->map(function (Response $response){
                 return $response->collect();
             });
-    
+
             $response = $responses->prepend($response);
             $products = $response->pluck('data.products')->collapse()->keyBy('id');
         } else {
             $products = collect(data_get($response,'data.products'))->keyBy('id');
         }
-        
+
         $prices = $products->pluck('default_variant.price.selling_price');
 
         $average = (int)$prices->average();
-        
+
         $report = Report::query()->create([
             'url' => $url,
             'average' => $average,
             'total' => $products->count(),
             'source' => 'digikala'
         ]);
-
-        dump($report->toJson());
 
     }
 
@@ -134,13 +118,14 @@ class SheetReportCommand extends Command
             'source' => 'digikala'
         ]);
 
-        dump($report->toJson());
-
-
     }
 
     private function reportZitazi($data)
     {
-
+        $woocommerce = WoocommerceService::getClient();
+        foreach (Product::all() as $product)
+        {
+            $response = $woocommerce->get($product->own_id);
+        }
     }
 }
