@@ -10,5 +10,11 @@ Route::get('/report',function (){
    $digikala = \App\Models\Report::firstWhere('source','digikala');
    $torob = \App\Models\Report::firstWhere(['source' => 'torob']);
 
-   return compact('digikala','torob');
+   $data = [
+       'digikala' => $digikala,
+       'torob' => $torob
+   ];
+   return view('report',[
+       'data' => $data
+   ]);
 });
