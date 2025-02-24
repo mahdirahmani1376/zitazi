@@ -176,10 +176,10 @@ class SyncProductsCommand extends Command
             ]);
         }
 
+        $torobPrice = null;
         try {
             $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
     
-            $torobPrice = null;
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter("script#__NEXT_DATA__")->first();
             if ($element->count() > 0) {
