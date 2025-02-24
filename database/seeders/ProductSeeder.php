@@ -43,7 +43,7 @@ class ProductSeeder extends Seeder
 
             }
 
-            else if (! empty($value) && ! empty($value['digikala_dkp']))
+            else if (! empty($value) && ! empty($value['digikala_dkp']) || ! empty($value['torob_link']))
             {
                 $product = Product::query()->create([
                     'own_id' => $value['Woocomerce-ID'],
