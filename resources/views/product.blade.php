@@ -9,15 +9,11 @@
 <body>
     <h1>Download Products Excel</h1>
     
-    <input type="text" id="filename" placeholder="Enter filename (optional)">
     <button id="downloadBtn">Download Excel</button>
     
     <script>
         document.getElementById('downloadBtn').addEventListener('click', function () {
-            let filename = document.getElementById('filename').value.trim();
-            let url = '/products';
-            
-            // Initiate the file download
+            let url = '/product-download';
             window.location.href = url;
         });
     </script>

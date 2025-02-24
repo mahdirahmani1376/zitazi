@@ -59,7 +59,11 @@ Route::get('/compare',function (){
     ]);
 });
 
-Route::get('/products',function () {
+Route::get('/product-download',function () {
     $now = now()->toDateTimeString();
     return Excel::download(new ProductExport, "products_{$now}.xlsx");
+});
+
+Route::get('products',function () {
+    return view('product');
 });
