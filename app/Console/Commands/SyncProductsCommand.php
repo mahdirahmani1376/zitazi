@@ -133,7 +133,7 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges()
         ]);
 
-        $this->syncSource($product);
+        // $this->syncSource($product);
 
         return $product;
     }
