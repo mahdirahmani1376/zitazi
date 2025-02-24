@@ -39,7 +39,7 @@ class ProductSeeder extends Seeder
                         'source' => SourceEnum::TRENDYOL->value
                 ]);
 
-                $this->syncProduct($product);
+                // $this->syncProduct($product);
 
             }
 
@@ -52,7 +52,7 @@ class ProductSeeder extends Seeder
                     'source' => SourceEnum::IRAN->value
             ]);
 
-            $this->syncProduct($product);
+            // $this->syncProduct($product);
             }
 
             $this->command->getOutput()->progressAdvance();
