@@ -50,4 +50,9 @@ class Product extends Model
     {
         return $this->source == SourceEnum::IRAN;
     }
+
+    public function productCompare()
+    {
+        return $this->hasOne(ProductCompare::class,'product_id');
+    }
 }

@@ -1,7 +1,9 @@
 <?php
 
+use App\Exports\ProductExport;
 use App\Models\Product;
 use App\Models\ProductCompare;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -55,4 +57,9 @@ Route::get('/compare',function (){
     return view('product-compare',[
         'data' => $productCompares
     ]);
+});
+
+Route::get('/products',function () {
+    $now = now()->toDateTimeString();
+    return Excel::download(new ProductExport, "products_{$now}.xlsx");
 });
