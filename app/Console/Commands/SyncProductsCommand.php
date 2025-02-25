@@ -158,17 +158,12 @@ class SyncProductsCommand extends Command
     {
         $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
 
-        $digiPriceAverage = null;
-        $price = null;
-        $stock = 5;
-
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
 
             $digiPrice = data_get($response,'data.product.default_variant.price.selling_price') / 10;
 
             $digiPrice = $digiPrice ?? null;
-            $price = $digiPrice;
         } catch (\Exception $e)
         {
             Log::error('error_digi_fetch'.$product->id,[
@@ -185,7 +180,6 @@ class SyncProductsCommand extends Command
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(),true));
                 $torobPrice = data_get($data,'props.pageProps.baseProduct.price');
-                $price = $torobPrice;
 
             }
         } catch (\Exception $e)
@@ -194,12 +188,6 @@ class SyncProductsCommand extends Command
                 'error' => $e->getMessage()
             ]);
         }
-
-        $product->update([
-            'price' => $price,
-            'stock' => $stock,
-            'rial_price' => $price
-        ]);
 
         ProductCompare::create([
             'product_id'=> $product->id,
