@@ -28,7 +28,7 @@ class ProductSeeder extends Seeder
         $data = parse_csv($csvData);
 
         $bar = $this->command->getOutput()->progressStart(count($data));
-        
+
         foreach ($data as $key => $value)
         {
             if (! empty($value) &&  ! empty($value['Trendyol-link']))
@@ -64,29 +64,10 @@ class ProductSeeder extends Seeder
 
     }
 
-    public function readCSV($csvFile, $delimiter = ',')
-    {
-        if (($handle = fopen($csvFile, "r")) !== FALSE) {
-            $headers = fgetcsv($handle); // Read the first line as headers
-            $data = [];
-
-            while (($row = fgetcsv($handle)) !== FALSE) {
-                if (! empty($row[0]))
-                {
-                    $data[] = array_combine($headers, $row); // Combine headers with row values
-                }
-            }
-
-            fclose($handle);
-
-            return $data;
-        }
-    }
-
     private function syncProduct($product)
     {
         $woocommerce = WoocommerceService::getClient();
-        
+
         try {
             $response = $woocommerce->get("products/{$product->own_id}");
             $price = !empty($response?->price) ? $response?->price : null;

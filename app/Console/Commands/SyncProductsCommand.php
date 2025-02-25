@@ -21,7 +21,7 @@ class SyncProductsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-products';
+    protected $signature = 'app:sync-products {--not-sync}';
 
     /**
      * The console command description.
@@ -39,10 +39,6 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
-        // $seeder = new ProductSeeder();
-
-        // $seeder->run();
-
         ProductCompare::truncate();
 
         $this->headers = [
@@ -133,14 +129,16 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges()
         ]);
 
-        // $this->syncSource($product);
+        if (! $this->option('not-sync'))
+        {
+            $this->syncSource($product);
+        }
 
         return $product;
     }
 
     private function syncSource(Product $product)
     {
-
         $data = [
             'regular_price' => ''.$product->rial_price,
             "stock_quantity" => $product->stock,
@@ -161,6 +159,8 @@ class SyncProductsCommand extends Command
         $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
 
         $digiPriceAverage = null;
+        $price = null;
+        $stock = 5;
 
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
@@ -168,7 +168,7 @@ class SyncProductsCommand extends Command
             $digiPrice = data_get($response,'data.product.default_variant.price.selling_price') / 10;
 
             $digiPrice = $digiPrice ?? null;
-    
+            $price = $digiPrice;
         } catch (\Exception $e)
         {
             Log::error('error_digi_fetch'.$product->id,[
@@ -179,12 +179,14 @@ class SyncProductsCommand extends Command
         $torobPrice = null;
         try {
             $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
-    
+
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter("script#__NEXT_DATA__")->first();
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(),true));
                 $torobPrice = data_get($data,'props.pageProps.baseProduct.price');
+                $price = $torobPrice;
+
             }
         } catch (\Exception $e)
         {
@@ -192,6 +194,12 @@ class SyncProductsCommand extends Command
                 'error' => $e->getMessage()
             ]);
         }
+
+        $product->update([
+            'price' => $price,
+            'stock' => $stock,
+            'rial_price' => $price
+        ]);
 
         ProductCompare::create([
             'product_id'=> $product->id,
