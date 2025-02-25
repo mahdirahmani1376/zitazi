@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Enums\SourceEnum;
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -15,9 +16,11 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
     */
     public function collection()
     {
-        return Product::with('productCompare:digikala_price,torob_price,id')->orderBy('source')->get();
+        return Product::with('productCompare:digikala_price,torob_price,id')
+            ->where('source',SourceEnum::IRAN->value)
+            ->orderBy('source')
+            ->get();
     }
-
     public function headings(): array
     {
         return [
@@ -27,30 +30,30 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
             'source',
             'price',
             'stock',
-            'rial_price',
+            'zitazi_price',
             'digikala_dkp',
+            'digikala_price',
             'torob_url',
             'torob_price',
-            'created_at',
-            'updated_at'
+            'updated_at',
         ];
     }
 
-    public function map($product): array
+    public function map($row): array
     {
         return [
-            $product->id,
-            $product->own_id,
-            $product->source_id,
-            $product->source->value,
-            $product->price,
-            $product->stock,
-            $product->rial_price,
-            $product->digikala_source,
-            $product->digikala_price,
-            $product->torob_source,
-            $product->torob_price,
-            $product->updated_at->toDateTimestring(),
-         ]; 
+            'id' => $row->id,
+            'zitazi_id' =>$row->own_id,
+            'trendyol_url' =>$row->source_id,
+            'source' =>$row->source->value,
+            'price' =>$row->price,
+            'stock' =>$row->stock,
+            'zitazi_price' =>$row->rial_price,
+            'digikala_dkp' =>$row->digikala_source,
+            'digikala_price' => $row->product_compare?->digikala_price,
+            'torob_url' =>$row->torob_source,
+            'torob_price' =>$row->product_compare?->torob_price,
+            'updated_at' => $row->updated_at->toDateTimestring()
+        ];
      }
 }

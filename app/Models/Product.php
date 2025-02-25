@@ -4,9 +4,10 @@ namespace App\Models;
 
 use App\Enums\SourceEnum;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $own_id
@@ -51,7 +52,7 @@ class Product extends Model
         return $this->source == SourceEnum::IRAN;
     }
 
-    public function productCompare()
+    public function productCompare(): HasOne
     {
         return $this->hasOne(ProductCompare::class,'product_id');
     }
