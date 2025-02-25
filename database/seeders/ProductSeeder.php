@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use App\Enums\SourceEnum;
+use App\Models\Product;
 use App\Services\WoocommerceService;
 use Illuminate\Database\Seeder;
-use Automattic\WooCommerce\Client;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class ProductSeeder extends Seeder
 {
@@ -27,34 +24,26 @@ class ProductSeeder extends Seeder
         $csvData = $response->body();
         $data = parse_csv($csvData);
 
-        $bar = $this->command->getOutput()->progressStart(count($data));
+        $this->command->getOutput()->progressStart(count($data));
 
-        foreach ($data as $key => $value)
-        {
-            if (! empty($value) &&  ! empty($value['Trendyol-link']))
-            {
+        foreach ($data as $key => $value) {
+            if (!empty($value) && !empty($value['Trendyol-link'])) {
                 $product = Product::query()->create([
-                        'own_id' => $value['Woocomerce-ID'],
-                        'source_id' => $value['Trendyol-link'],
-                        'source' => SourceEnum::TRENDYOL->value
+                    'own_id'    => $value['Woocomerce-ID'],
+                    'source_id' => $value['Trendyol-link'],
+                    'source'    => SourceEnum::TRENDYOL->value
+                ]);
+            } else if (!empty($value) && !empty($value['digikala_dkp']) || !empty($value['torob_link'])) {
+                $product = Product::query()->create([
+                    'own_id'          => $value['Woocomerce-ID'],
+                    'digikala_source' => $value['digikala_dkp'],
+                    'torob_source'    => urldecode($value['torob_link']),
+                    'source'          => SourceEnum::IRAN->value
                 ]);
 
-                 $this->syncProduct($product);
-
             }
 
-            else if (! empty($value) && ! empty($value['digikala_dkp']) || ! empty($value['torob_link']))
-            {
-                $product = Product::query()->create([
-                    'own_id' => $value['Woocomerce-ID'],
-                    'digikala_source' => $value['digikala_dkp'],
-                    'torob_source' => urldecode($value['torob_link']),
-                    'source' => SourceEnum::IRAN->value
-            ]);
-
-             $this->syncProduct($product);
-            }
-
+            $this->syncProduct($product);
             $this->command->getOutput()->progressAdvance();
 
         }
@@ -74,10 +63,9 @@ class ProductSeeder extends Seeder
             $stock = $response?->stock_status == "instock" ? 5 : 0;
             $product->update([
                 'rial_price' => $price,
-                'stock' => $stock
+                'stock'      => $stock
             ]);
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $product->delete();
         }
     }
