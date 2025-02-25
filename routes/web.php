@@ -32,25 +32,25 @@ Route::get('/compare',function (){
         $priceDiffDigi = null;
         $digi10percent = null;
         $digiClass = 'bg-light';
-        if ($productCompare->digikala_price)
+        if ($productCompare->digikala_zitazi_price)
         {
-            $digi10percent = $productPrice < $productCompare->digikala_price * 1.1 && $productPrice > $productCompare->digikala_price * 0.9;
-            $digiClass = $digi10percent ? 'bg-success' : 'bg-danger'; 
+            $digi10percent = $productPrice < $productCompare->digikala_zitazi_price * 1.1 && $productPrice > $productCompare->digikala_zitazi_price * 0.9;
+            $digiClass = $digi10percent ? 'bg-success' : 'bg-danger';
         }
 
 
         $priceDiffTorob = null;
         $torob10percent = null;
         $torobClass = 'bg-light';
-        if ($productCompare->torob_price)
+        if ($productCompare->zitazi_torob_price)
         {
-            $torob10percent = $productPrice < $productCompare->torob_price * 1.1 && $productPrice > $productCompare->torob_price * 0.9;
-            $torobClass = $torob10percent ? 'bg-success' : 'bg-danger'; 
+            $torob10percent = $productPrice < $productCompare->zitazi_torob_price * 1.1 && $productPrice > $productCompare->zitazi_torob_price * 0.9;
+            $torobClass = $torob10percent ? 'bg-success' : 'bg-danger';
         }
 
 
-        $productCompare->setAttribute('price_digi',$productCompare->digikala_price);
-        $productCompare->setAttribute('price_torob',$productCompare->torob_price);
+        $productCompare->setAttribute('price_digi',$productCompare->digikala_zitazi_price);
+        $productCompare->setAttribute('price_torob',$productCompare->zitazi_torob_price);
         $productCompare->setAttribute('digi_class',$digiClass);
         $productCompare->setAttribute('torob_class',$torobClass);
     });

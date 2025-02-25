@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereProductId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereTorobPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereUpdatedAt($value)
+ * @property-read \App\Models\Product|null $product
  * @mixin \Eloquent
  */
 class ProductCompare extends Model

@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('product_compares', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id');
-            $table->integer('digikala_price')->nullable();
-            $table->integer('torob_price')->nullable();
+            $table->integer('digikala_zitazi_price')->nullable();
+            $table->integer('digikala_min_price')->nullable();
+            $table->integer('torob_min_price')->nullable();
+            $table->integer('zitazi_torob_price')->nullable();
+            $table->integer('zitazi_torob_price_recommend')->nullable();
+            $table->integer('zitazi_digikala_price_recommend')->nullable();
             $table->timestamps();
         });
     }

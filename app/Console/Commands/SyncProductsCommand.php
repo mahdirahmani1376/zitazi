@@ -57,9 +57,9 @@ class SyncProductsCommand extends Command
         foreach ($products as $product)
         {
             try {
-                if ($product->belongsToTrendyol()){
-                    $this->syncTrendyol($product);
-                }
+//                if ($product->belongsToTrendyol()){
+//                    $this->syncTrendyol($product);
+//                }
                 if ($product->belongsToIran()){
                     $this->syncIran($product);
                 }
@@ -171,7 +171,7 @@ class SyncProductsCommand extends Command
             ]);
         }
 
-        $torobPrice = null;
+        $zitaziTorobPrice = null;
         try {
             $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
 
@@ -179,7 +179,9 @@ class SyncProductsCommand extends Command
             $element = $crawler->filter("script#__NEXT_DATA__")->first();
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(),true));
-                $torobPrice = data_get($data,'props.pageProps.baseProduct.price');
+                $sellers= data_get($data,'props.pageProps.baseProduct.products_info.result');
+                $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id','=',12259)['price'] ?? null;
+                $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
 
             }
         } catch (\Exception $e)
@@ -191,8 +193,10 @@ class SyncProductsCommand extends Command
 
         ProductCompare::create([
             'product_id'=> $product->id,
-            'digikala_price'=> $digiPrice,
-            'torob_price'=> $torobPrice,
+            'digikala_zitazi_price'=> $digiPrice,
+            'digikala_min_price'=> $digiPrice,
+            'torob_min_price'=> $torobMinPrice,
+            'zitazi_torob_price' => $zitaziTorobPrice
         ]);
     }
 }
