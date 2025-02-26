@@ -158,6 +158,10 @@ class SyncProductsCommand extends Command
     {
         $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
 
+        $digiPrice = null;
+        $torobMinPrice = null;
+        $zitaziTorobPrice = null;
+
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
 
@@ -171,7 +175,6 @@ class SyncProductsCommand extends Command
             ]);
         }
 
-        $zitaziTorobPrice = null;
         try {
             $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
 
