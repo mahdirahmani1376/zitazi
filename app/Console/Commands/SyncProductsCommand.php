@@ -57,9 +57,9 @@ class SyncProductsCommand extends Command
         foreach ($products as $product)
         {
             try {
-//                if ($product->belongsToTrendyol()){
-//                    $this->syncTrendyol($product);
-//                }
+                if ($product->belongsToTrendyol()){
+                    $this->syncTrendyol($product);
+                }
                 if ($product->belongsToIran()){
                     $this->syncIran($product);
                 }

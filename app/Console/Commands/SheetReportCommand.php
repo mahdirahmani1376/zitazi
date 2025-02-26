@@ -18,7 +18,7 @@ class SheetReportCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'sheet-report';
+    protected $signature = 'app:sheet-report';
 
     /**
      * The console command description.

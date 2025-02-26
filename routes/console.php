@@ -49,3 +49,8 @@ Artisan::command('test-torob',function () {
         dd($zitaziPrice,$minPrice);
     }
 });
+
+Schedule::command('db:seed')->dailyAt('22:00');
+Schedule::command('app:sheet-report')->dailyAt('22:15');
+Schedule::command('app:sync-products')->dailyAt('06:00');
+Schedule::command('app:sync-products')->dailyAt('22:30');
