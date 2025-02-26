@@ -131,7 +131,7 @@ class SyncProductsCommand extends Command
 
         if (! $this->option('not-sync'))
         {
-            $this->syncSource($product);
+//            $this->syncSource($product);
         }
 
         return $product;
@@ -161,14 +161,19 @@ class SyncProductsCommand extends Command
         $digiPrice = null;
         $torobMinPrice = null;
         $zitaziTorobPrice = null;
+        $minDigiPrice = null;
+        $zitazi_digikala_price_recommend=null;
+        $zitazi_torob_price_recommend=null;
 
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
-
-            // todo fetch zitazi and other sellers
-            $digiPrice = data_get($response,'data.product.default_variant.price.selling_price') / 10;
-
-            $digiPrice = $digiPrice ?? null;
+            $variants = collect(data_get($response,'data.product.variants'))->keyBy('id');
+            $digiPrice = data_get($variants,'63213816.price.selling_price');
+            $minDigiPrice = $variants->pluck('price.selling_price')->min();
+            if ($digiPrice > $minDigiPrice)
+            {
+                $zitazi_digikala_price_recommend = $minDigiPrice * (0.99 / 0.05);
+            }
         } catch (\Exception $e)
         {
             Log::error('error_digi_fetch'.$product->id,[
@@ -186,6 +191,10 @@ class SyncProductsCommand extends Command
                 $sellers= data_get($data,'props.pageProps.baseProduct.products_info.result');
                 $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id','=',12259)['price'] ?? null;
                 $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
+                if ($zitaziTorobPrice > $torobMinPrice)
+                {
+                    $zitazi_torob_price_recommend = $torobMinPrice * (0.99 / 0.05);
+                }
 
             }
         } catch (\Exception $e)
@@ -198,9 +207,11 @@ class SyncProductsCommand extends Command
         ProductCompare::create([
             'product_id'=> $product->id,
             'digikala_zitazi_price'=> $digiPrice,
-            'digikala_min_price'=> $digiPrice,
+            'digikala_min_price'=> $minDigiPrice,
             'torob_min_price'=> $torobMinPrice,
-            'zitazi_torob_price' => $zitaziTorobPrice
+            'zitazi_torob_price' => $zitaziTorobPrice,
+            'zitazi_torob_price_recommend' => $zitazi_torob_price_recommend,
+            'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend
         ]);
     }
 }

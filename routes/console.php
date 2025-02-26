@@ -50,6 +50,20 @@ Artisan::command('test-torob',function () {
     }
 });
 
+Artisan::command('test-excel',function (){
+
+});
+
+Artisan::command('test-digi',function (){
+//    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/18087380/')->collect();
+    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
+
+    $variants = collect(data_get($response,'data.product.variants'))->keyBy('id');
+    $zitaziPrice = data_get($variants,'63213816.price.selling_price');
+    $minPrice = $variants->pluck('price.selling_price')->min();
+    dd($zitaziPrice,$minPrice);
+});
+
 Schedule::command('db:seed')->dailyAt('22:00');
 Schedule::command('app:sheet-report')->dailyAt('22:15');
 Schedule::command('app:sync-products')->dailyAt('06:00');

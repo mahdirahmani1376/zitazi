@@ -16,7 +16,7 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
     */
     public function collection()
     {
-        return Product::with('productCompare:digikala_price,torob_price,id')
+        return Product::with('productCompare')
             ->where('source',SourceEnum::IRAN->value)
             ->orderBy('source')
             ->get();
@@ -32,9 +32,13 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
             'stock',
             'zitazi_price',
             'digikala_dkp',
-            'digikala_price',
-            'torob_url',
-            'torob_price',
+            'digikala_zitazi_price',
+            'digikala_min_price',
+            'zitazi_digikala_price_recommend',
+            'torob_source',
+            'torob_min_price',
+            'zitazi_torob_price',
+            'zitazi_torob_price_recommend',
             'updated_at',
         ];
     }
@@ -50,9 +54,13 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
             'stock' =>$row->stock,
             'zitazi_price' =>$row->rial_price,
             'digikala_dkp' =>$row->digikala_source,
-            'digikala_price' => $row->product_compare?->digikala_price,
+            'digikala_zitazi_price' => $row->productCompare?->digikala_zitazi_price,
+            'digikala_min_price' => $row->productCompare?->digikala_min_price,
+            'zitazi_digikala_price_recommend' => $row->productCompare?->zitazi_digikala_price_recommend,
             'torob_url' =>$row->torob_source,
-            'torob_price' =>$row->product_compare?->torob_price,
+            'torob_min_price' => $row->productCompare?->torob_min_price,
+            'zitazi_torob_price' => $row->productCompare?->zitazi_torob_price,
+            'zitazi_torob_price_recommend' => $row->productCompare?->zitazi_torob_price_recommend,
             'updated_at' => $row->updated_at->toDateTimestring()
         ];
      }
