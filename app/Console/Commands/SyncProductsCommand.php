@@ -165,6 +165,7 @@ class SyncProductsCommand extends Command
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
 
+            // todo fetch zitazi and other sellers
             $digiPrice = data_get($response,'data.product.default_variant.price.selling_price') / 10;
 
             $digiPrice = $digiPrice ?? null;
