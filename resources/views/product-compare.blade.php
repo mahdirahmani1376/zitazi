@@ -97,7 +97,13 @@
                 {{ "ناموجود" }}
                 @endif
             </td>
-            <td>{{ number_format($productCompare->torob_min_price) }} تومان</td>
+            <td>
+                @if ($productCompare->torob_min_price)
+                {{ number_format($productCompare->torob_min_price) }} تومان
+                @else
+                {{ "ناموجود" }}    
+                @endif
+            </td>
             <td style="background-color : {{ $productCompare->torob_recommend }}">
                 @if ($productCompare->torob_recommend)
                 {{ number_format($productCompare->zitazi_torob_price_recommend) }} تومان
