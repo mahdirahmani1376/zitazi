@@ -69,10 +69,10 @@ Artisan::command('test-digi',function (){
     dd($zitaziPrice,$minPrice);
 });
 
-Schedule::command('db:seed')->dailyAt('22:00');
-Schedule::command('app:sheet-report')->dailyAt('22:15');
+Schedule::command('db:seed')->dailyAt('05:00');
+Schedule::command('app:sheet-report')->dailyAt('05:30');
 Schedule::command('app:sync-products')->dailyAt('06:00');
-Schedule::command('app:sync-products')->dailyAt('22:30');
+Schedule::command('app:sync-products')->dailyAt('18:30');
 
 Artisan::command('test-update',function () {
     dump(1);
