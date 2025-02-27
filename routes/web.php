@@ -11,8 +11,8 @@ Route::get('/', function () {
 });
 
 Route::get('/report',function (){
-   $digikala = \App\Models\Report::firstWhere('source','digikala');
-   $torob = \App\Models\Report::firstWhere(['source' => 'torob']);
+   $digikala = \App\Models\Report::query()->where('source','digikala')->orderByDesc('created_at')->first();
+   $torob = \App\Models\Report::query()->where(['source' => 'torob'])->orderByDesc('created_at')->first();
 
    $data = [
        'digikala' => $digikala,
