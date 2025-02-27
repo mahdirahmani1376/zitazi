@@ -17,29 +17,28 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
     public function collection()
     {
         return Product::with('productCompare')
-            ->where('source',SourceEnum::IRAN->value)
             ->orderBy('source')
             ->get();
     }
     public function headings(): array
     {
         return [
-            'id',
-            'zitazi_id',
-            'trendyol_url',
-            'source',
-            'price',
-            'stock',
-            'zitazi_price',
-            'digikala_dkp',
-            'digikala_zitazi_price',
-            'digikala_min_price',
-            'zitazi_digikala_price_recommend',
-            'torob_source',
-            'torob_min_price',
-            'zitazi_torob_price',
-            'zitazi_torob_price_recommend',
-            'updated_at',
+            'شناسه',
+            'شناسه زیتازی',
+            'آدرس ترندیول',
+            'منبع',
+            'قیمت مرجع ترندیول',
+            'موجودی',
+            'قیمت زیتازی',
+            'شناسه دیجی کالا',
+            'قیمت زیتازی در دیجی کالا',
+            'پایین ترین قیمت دیجی کالا',
+            'قیمت پیشنهادی دیجی کالا',
+            'منبع ترب',
+            'کم ترین قیمت ترب',
+            'قیمت زیتازی در ترب',
+            'قیمت پیشنهادی ترب',
+            'زمان آپدیت',
         ];
     }
 

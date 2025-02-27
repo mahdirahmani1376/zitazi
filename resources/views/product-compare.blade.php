@@ -44,10 +44,12 @@
         .url-link:hover {
             text-decoration: underline;
         }
+
+        .tableFixHead thead th { position: sticky; top: 0; z-index: 1; }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container tableFixHead">
     <h2 class="text-center mb-4">داده های فروشگاه‌ها</h2>
 
     <table class="table table-bordered table-striped">
@@ -55,8 +57,12 @@
         <tr>
             <th>شناسه محصول</th>
             <th>قیمت دیجی کالا</th>
+            <th>پایین ترین قیمت دیجی کالا</th>
+            <th>قیمت پیشنهادی دیجی کالا</th>
             <th>قیمت ترب</th>
-            <th>قیمت زیتازی</th>
+            <th>پایین ترین قیمت ترب</th>
+            <th>قیمت پیشنهادی ترب</th>
+            <th>قیمت در سایت زیتازی</th>
             <th>زمان به روز رسانی</th>
         </tr>
         </thead>
@@ -64,8 +70,32 @@
         @foreach ($data as $productCompare)
         <tr>
             <td>{{ $productCompare->product->own_id }}</td>
-            <td class="{{$productCompare->digi_class}}">{{ number_format($productCompare->price_digi) }} تومان</td>
-            <td class="{{$productCompare->torob_class}}">{{ number_format($productCompare->price_torob) }} تومان</td>
+            <td style="background-color: {{$productCompare->digi_class}}">
+                @if ($productCompare->digikala_zitazi_price)
+                {{ number_format($productCompare->digikala_zitazi_price) }} تومان
+                @else
+                {{ "ناموجود" }}
+                @endif
+            </td>
+            <td>
+                @if ($productCompare->digikala_min_price)
+                {{ number_format($productCompare->digikala_min_price) }} تومان
+                @else
+                {{ "ناموجود" }}
+                @endif
+            </td>
+            <td style="background-color : {{ $productCompare->digi_recommend }}">
+                @if ($productCompare->digi_recommend)
+                {{ number_format($productCompare->zitazi_digikala_price_recommend) }} تومان
+                @endif
+            </td>
+            <td style="background-color : {{$productCompare->torob_class}}">{{ number_format($productCompare->zitazi_torob_price) }} تومان</td>
+            <td>{{ number_format($productCompare->torob_min_price) }} تومان</td>
+            <td style="background-color : {{ $productCompare->torob_recommend }}">
+                @if ($productCompare->torob_recommend)
+                {{ number_format($productCompare->zitazi_torob_price_recommend) }} تومان
+                @endif
+            </td>
             <td>{{ number_format($productCompare->product->rial_price) }} تومان</td>
             <td>{{ $productCompare->updated_at }}</td>
         </tr>

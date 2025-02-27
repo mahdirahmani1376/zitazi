@@ -108,7 +108,7 @@ class SyncProductsCommand extends Command
 
         $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
         if ($stock->count() > 0) {
-            $stock = 5;
+            $stock = 88;
         } else {
             $stock = 0;
         }
@@ -131,7 +131,7 @@ class SyncProductsCommand extends Command
 
         if (! $this->option('not-sync'))
         {
-//            $this->syncSource($product);
+           $this->syncSource($product);
         }
 
         return $product;
@@ -167,13 +167,30 @@ class SyncProductsCommand extends Command
 
         try {
             $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
-            $variants = collect(data_get($response,'data.product.variants'))->keyBy('id');
-            $digiPrice = data_get($variants,'63213816.price.selling_price');
+
+            $variants = collect(data_get($response,'data.product.variants'))
+            ->map(function($item){
+                $item['seller_id'] = data_get($item,'seller.id');
+                return $item;
+            })->keyBy('seller_id');
+            $digiPrice = data_get($variants,'69.price.selling_price');
             $minDigiPrice = $variants->pluck('price.selling_price')->min();
+
+            if (! $digiPrice)
+            {
+                $digiPrice = data_get($response,'data.product.default_variant.price.selling_price');
+                Log::info('zitazi_not_available',[
+                    'url' => $url
+                ]);
+            }
             if ($digiPrice > $minDigiPrice)
             {
-                $zitazi_digikala_price_recommend = $minDigiPrice * (0.99 / 0.05);
+                $zitazi_digikala_price_recommend = $digiPrice * (99.5 / 100);
             }
+
+            $digiPrice = $digiPrice / 10;
+            $minDigiPrice = $minDigiPrice / 10;
+            $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
         } catch (\Exception $e)
         {
             Log::error('error_digi_fetch'.$product->id,[
@@ -193,7 +210,7 @@ class SyncProductsCommand extends Command
                 $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
                 if ($zitaziTorobPrice > $torobMinPrice)
                 {
-                    $zitazi_torob_price_recommend = $torobMinPrice * (0.99 / 0.05);
+                    $zitazi_torob_price_recommend = $zitaziTorobPrice * (99.5 / 100);
                 }
 
             }

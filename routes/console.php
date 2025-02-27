@@ -56,10 +56,15 @@ Artisan::command('test-excel',function (){
 
 Artisan::command('test-digi',function (){
 //    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/18087380/')->collect();
-    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
+    // $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
+    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/16723546/')->collect();
 
-    $variants = collect(data_get($response,'data.product.variants'))->keyBy('id');
-    $zitaziPrice = data_get($variants,'63213816.price.selling_price');
+    $variants = collect(data_get($response,'data.product.variants'))
+    ->map(function($item){
+        $item['seller_id'] = data_get($item,'seller.id');
+        return $item;
+    })->keyBy('seller_id');
+    $zitaziPrice = data_get($variants,'69.price.selling_price');
     $minPrice = $variants->pluck('price.selling_price')->min();
     dd($zitaziPrice,$minPrice);
 });

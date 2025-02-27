@@ -43,7 +43,7 @@ class ProductSeeder extends Seeder
 
             }
 
-//            $this->syncProduct($product);
+           $this->syncProduct($product);
             $this->command->getOutput()->progressAdvance();
 
         }
