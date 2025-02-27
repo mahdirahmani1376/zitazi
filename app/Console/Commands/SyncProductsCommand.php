@@ -39,7 +39,7 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
-        ProductCompare::truncate();
+        // ProductCompare::truncate();
 
         $this->headers = [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
@@ -221,14 +221,20 @@ class SyncProductsCommand extends Command
             ]);
         }
 
-        ProductCompare::create([
-            'product_id'=> $product->id,
-            'digikala_zitazi_price'=> $digiPrice,
-            'digikala_min_price'=> $minDigiPrice,
-            'torob_min_price'=> $torobMinPrice,
-            'zitazi_torob_price' => $zitaziTorobPrice,
-            'zitazi_torob_price_recommend' => $zitazi_torob_price_recommend,
-            'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend
-        ]);
+        ProductCompare::updateOrCreate(
+            [
+                'product_id'=> $product->id,
+            ]
+            ,
+            [
+                'digikala_zitazi_price'=> $digiPrice,
+                'digikala_min_price'=> $minDigiPrice,
+                'torob_min_price'=> $torobMinPrice,
+                'zitazi_torob_price' => $zitaziTorobPrice,
+                'zitazi_torob_price_recommend' => $zitazi_torob_price_recommend,
+                'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend
+            ]
+            );
+
     }
 }

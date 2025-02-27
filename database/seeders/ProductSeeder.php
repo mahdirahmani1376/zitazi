@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
     {
         // $path = database_path('seeders/data/data.csv');
         // $file = $this->readCSV($path);
-        Product::truncate();
+        // Product::truncate();
 
         $sheetUrl = "https://docs.google.com/spreadsheets/d/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/gviz/tq?tqx=out:csv";
         $response = Http::get($sheetUrl);
@@ -28,14 +28,20 @@ class ProductSeeder extends Seeder
 
         foreach ($data as $key => $value) {
             if (!empty($value) && !empty($value['Trendyol-link'])) {
-                $product = Product::query()->create([
-                    'own_id'    => $value['Woocomerce-ID'],
+                $product = Product::query()->updateOrCreate(
+                    [
+                        'own_id'    => $value['Woocomerce-ID']
+                    ],
+                    [
                     'source_id' => $value['Trendyol-link'],
                     'source'    => SourceEnum::TRENDYOL->value
                 ]);
             } else if (!empty($value) && !empty($value['digikala_dkp']) || !empty($value['torob_link'])) {
-                $product = Product::query()->create([
-                    'own_id'          => $value['Woocomerce-ID'],
+                $product = Product::query()->updateOrCreate(
+                    [
+                        'own_id'          => $value['Woocomerce-ID']
+                    ],
+                [
                     'digikala_source' => $value['digikala_dkp'],
                     'torob_source'    => urldecode($value['torob_link']),
                     'source'          => SourceEnum::IRAN->value
@@ -43,7 +49,7 @@ class ProductSeeder extends Seeder
 
             }
 
-           $this->syncProduct($product);
+            // $this->syncProduct($product);
             $this->command->getOutput()->progressAdvance();
 
         }
