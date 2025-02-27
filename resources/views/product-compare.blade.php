@@ -90,7 +90,13 @@
                 {{ number_format($productCompare->zitazi_digikala_price_recommend) }} تومان
                 @endif
             </td>
-            <td style="background-color : {{$productCompare->torob_class}}">{{ number_format($productCompare->zitazi_torob_price) }} تومان</td>
+            <td style="background-color : {{$productCompare->torob_class}}">
+                @if ($productCompare->zitazi_torob_price)
+                {{ number_format($productCompare->zitazi_torob_price) }} تومان
+                @else
+                {{ "ناموجود" }}
+                @endif
+            </td>
             <td>{{ number_format($productCompare->torob_min_price) }} تومان</td>
             <td style="background-color : {{ $productCompare->torob_recommend }}">
                 @if ($productCompare->torob_recommend)
