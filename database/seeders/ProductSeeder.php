@@ -39,10 +39,8 @@ class ProductSeeder extends Seeder
                 $createData
             );
 
-            if (! empty($product->trendyol_source))
-            {
-                $this->syncProduct($product);
-            }
+            $this->syncProduct($product);
+
             $this->command->getOutput()->progressAdvance();
             \DB::disconnect();
         }
