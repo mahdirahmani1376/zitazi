@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Actions\ProductCompareAction;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('dashboard');
 });
 
 Route::get('/report',function (){
