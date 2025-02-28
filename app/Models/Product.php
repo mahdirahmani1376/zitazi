@@ -43,18 +43,14 @@ class Product extends Model
 
     ];
 
-    protected $casts = [
-        'source' => SourceEnum::class,
-    ];
-
     public function belongsToTrendyol(): bool
     {
-        return $this->source == SourceEnum::TRENDYOL;
+        return !empty($this->trendyol_source);
     }
 
     public function belongsToIran(): bool
     {
-        return $this->source == SourceEnum::IRAN;
+        return !empty($this->digikala_source) || !empty($this->torob_source);
     }
 
     public function productCompare(): HasOne

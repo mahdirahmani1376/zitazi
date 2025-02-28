@@ -80,7 +80,7 @@ class SyncProductsCommand extends Command
     {
 
 
-        $response = Http::acceptJson()->withHeaders($this->headers)->get($product->source_id);
+        $response = Http::acceptJson()->withHeaders($this->headers)->get($product->trendyol_source);
         $crawler = new Crawler($response);
 
         $price = null;

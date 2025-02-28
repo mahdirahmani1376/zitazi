@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('own_id');
-            $table->string('source_id')->nullable();
-            $table->string('source');
+            $table->string('trendyol_source')->nullable();
             $table->integer('price')->nullable();
             $table->integer('stock')->nullable();
             $table->integer('rial_price')->nullable();

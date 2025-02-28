@@ -17,7 +17,6 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
     public function collection()
     {
         return Product::with('productCompare')
-            ->orderBy('source')
             ->get();
     }
     public function headings(): array
@@ -26,7 +25,6 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
             'شناسه',
             'شناسه زیتازی',
             'آدرس ترندیول',
-            'منبع',
             'قیمت مرجع ترندیول',
             'موجودی',
             'قیمت زیتازی',
@@ -47,8 +45,7 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
         return [
             'id' => $row->id,
             'zitazi_id' =>$row->own_id,
-            'trendyol_url' =>$row->source_id,
-            'source' =>$row->source->value,
+            'trendyol_url' =>$row->trendyol_source,
             'price' =>$row->price,
             'stock' =>$row->stock,
             'zitazi_price' =>$row->rial_price,

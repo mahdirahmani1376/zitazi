@@ -27,29 +27,22 @@ class ProductSeeder extends Seeder
         $this->command->getOutput()->progressStart(count($data));
 
         foreach ($data as $key => $value) {
-            if (!empty($value) && !empty($value['Trendyol-link'])) {
-                $product = Product::query()->updateOrCreate(
-                    [
-                        'own_id'    => $value['Woocomerce-ID']
-                    ],
-                    [
-                    'source_id' => $value['Trendyol-link'],
-                    'source'    => SourceEnum::TRENDYOL->value
-                ]);
-            } else if (!empty($value) && !empty($value['digikala_dkp']) || !empty($value['torob_link'])) {
-                $product = Product::query()->updateOrCreate(
-                    [
-                        'own_id'          => $value['Woocomerce-ID']
-                    ],
+            $createData = [
+                'digikala_source' => $value['digikala_dkp'] ?? null,
+                'trendyol_source' => $value['Trendyol-link'] ?? null,
+                'torob_source'    => urldecode($value['torob_link']) ?? null,
+            ];
+            $product = Product::query()->updateOrCreate(
                 [
-                    'digikala_source' => $value['digikala_dkp'],
-                    'torob_source'    => urldecode($value['torob_link']),
-                    'source'          => SourceEnum::IRAN->value
-                ]);
+                    'own_id'    => $value['Woocomerce-ID']
+                ],
+                $createData
+            );
 
+            if (! empty($product->trendyol_source))
+            {
+                $this->syncProduct($product);
             }
-
-            $this->syncProduct($product);
             $this->command->getOutput()->progressAdvance();
             \DB::disconnect();
         }
