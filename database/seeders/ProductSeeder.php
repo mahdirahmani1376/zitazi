@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\SourceEnum;
 use App\Models\Product;
 use App\Services\WoocommerceService;
 use Illuminate\Database\Seeder;

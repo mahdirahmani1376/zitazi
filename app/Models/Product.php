@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use App\Enums\SourceEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $own_id

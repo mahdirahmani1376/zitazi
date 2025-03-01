@@ -99,8 +99,8 @@ class SyncProductsCommand extends Command
                     $price = $json['discountedPrice']['value'];
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
-                    $rialPrice = floor($rialPrice/1000)*1000;
                     $rialPrice = $rialPrice * 1.6;
+                    $rialPrice = floor($rialPrice/10000)*10000;
                     break;
                 }
             }
@@ -185,7 +185,14 @@ class SyncProductsCommand extends Command
             }
             if ($digiPrice > $minDigiPrice)
             {
-                $zitazi_digikala_price_recommend = $digiPrice * (99.5 / 100);
+                if ($product->belongsToTrendyol())
+                {
+                    $zitazi_digikala_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
+                    $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
+                } else
+                {
+                    $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
+                }
             }
 
             $digiPrice = $digiPrice / 10;
@@ -210,7 +217,7 @@ class SyncProductsCommand extends Command
                 $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
                 if ($zitaziTorobPrice > $torobMinPrice)
                 {
-                    $zitazi_torob_price_recommend = $zitaziTorobPrice * (99.5 / 100);
+                    $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
                 }
 
             }

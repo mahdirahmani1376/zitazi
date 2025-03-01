@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Enums\SourceEnum;
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
