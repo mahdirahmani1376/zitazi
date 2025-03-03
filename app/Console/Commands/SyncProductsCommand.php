@@ -21,7 +21,7 @@ class SyncProductsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:sync-products {--not-sync}';
+    protected $signature = 'app:sync-products {--not-sync} {--override-id=}';
 
     /**
      * The console command description.
@@ -40,6 +40,11 @@ class SyncProductsCommand extends Command
     public function handle()
     {
         // ProductCompare::truncate();
+        if (! empty($this->option('override-id')))
+        {
+            $product = Product::find($this->option('override-id'));
+            $this->syncTrendyol($product);
+        }
 
         $this->headers = [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
