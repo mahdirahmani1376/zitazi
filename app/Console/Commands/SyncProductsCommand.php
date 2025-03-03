@@ -31,8 +31,8 @@ class SyncProductsCommand extends Command
     protected $description = 'Command description';
 
     private $rate;
-    private $headers;
-    private $woocommerce;
+    private array $headers;
+    private Client $woocommerce;
 
     /**
      * Execute the console command.
@@ -45,19 +45,19 @@ class SyncProductsCommand extends Command
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
         ];
 
-        if (! empty($this->option('override-id')))
-        {
-            $product = Product::find($this->option('override-id'));
-            $this->syncTrendyol($product);
-        }
-
+        $this->rate = Currency::syncTryRate();
 
         $this->woocommerce = WoocommerceService::getClient();
 
 
-        $products = Product::all();
+        if (! empty($this->option('override-id')))
+        {
+            $product = Product::find($this->option('override-id'));
+            $this->syncTrendyol($product);
+            return 0;
+        }
 
-        $this->rate = Currency::syncTryRate();
+        $products = Product::all();
 
         $bar = $this->output->createProgressBar($products->count());
 
@@ -85,8 +85,6 @@ class SyncProductsCommand extends Command
 
     private function syncTrendyol(Product $product): Product
     {
-
-
         $response = Http::acceptJson()->withHeaders($this->headers)->get($product->trendyol_source);
         $crawler = new Crawler($response);
 
@@ -121,8 +119,9 @@ class SyncProductsCommand extends Command
         }
 
 
-        if (! $price){
+        if (empty($price)){
             $stock = 0;
+            $price = null;
         }
 
         $product->update([
@@ -130,6 +129,7 @@ class SyncProductsCommand extends Command
             'stock' => $stock,
             'rial_price' => $rialPrice
         ]);
+
 
         Log::info("product_update_{$product->id}",[
             'before' => $product->getOriginal(),
@@ -152,7 +152,6 @@ class SyncProductsCommand extends Command
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        dump($product->toArray());
         $response = $this->woocommerce->post("products/{$product->own_id}",$data);
         Log::info(
             "product_update_source_{$product->own_id}",
