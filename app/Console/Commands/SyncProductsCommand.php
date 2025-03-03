@@ -40,15 +40,17 @@ class SyncProductsCommand extends Command
     public function handle()
     {
         // ProductCompare::truncate();
+
+        $this->headers = [
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
+        ];
+
         if (! empty($this->option('override-id')))
         {
             $product = Product::find($this->option('override-id'));
             $this->syncTrendyol($product);
         }
 
-        $this->headers = [
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
-        ];
 
         $this->woocommerce = WoocommerceService::getClient();
 
