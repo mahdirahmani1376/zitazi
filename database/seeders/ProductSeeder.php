@@ -27,13 +27,18 @@ class ProductSeeder extends Seeder
 
         foreach ($data as $key => $value) {
             $createData = [
-                'digikala_source' => $value['digikala_dkp'] ?? null,
-                'trendyol_source' => $value['Trendyol-link'] ?? null,
-                'torob_source'    => urldecode($value['torob_link']) ?? null,
+                'digikala_source' => data_get($value, 'digikala_dkp'),
+                'trendyol_source' => data_get($value, 'Trendyol-link'),
+                'torob_source'    => urldecode(data_get($value, 'torob_link')),
+                'min_price'       => !empty(data_get($value, 'Minimum_Price')) ? data_get($value, 'Minimum_Price') : null,
+                'category'        => data_get($value, 'Category'),
+                'brand'           => data_get($value, 'Brand'),
+                'owner'           => data_get($value, 'Owner'),
+                'product_name'    => data_get($value, 'Product Name')
             ];
             $product = Product::query()->updateOrCreate(
                 [
-                    'own_id'    => $value['Woocomerce-ID']
+                    'own_id' => $value['Woocomerce-ID']
                 ],
                 $createData
             );

@@ -104,7 +104,14 @@ class SyncProductsCommand extends Command
                     $price = $json['discountedPrice']['value'];
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
-                    $rialPrice = $rialPrice * 1.6;
+
+                    if ($product->belongsToIran())
+                    {
+                        $rialPrice = $rialPrice * 1.2;
+                    } else {
+                        $rialPrice = $rialPrice * 1.6;
+                    }
+
                     $rialPrice = floor($rialPrice/10000)*10000;
                     break;
                 }
@@ -226,7 +233,6 @@ class SyncProductsCommand extends Command
                 {
                     $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
                 }
-
             }
         } catch (\Exception $e)
         {
@@ -241,6 +247,8 @@ class SyncProductsCommand extends Command
             ]
             ,
             [
+                'zitazi_digi_ratio' => !empty($minDigiPrice) ? $product->rial_price / $minDigiPrice : null,
+                'zitazi_torob_ratio' => !empty($torobMinPrice) ? $product->rial_price / $torobMinPrice : null,
                 'digikala_zitazi_price'=> $digiPrice,
                 'digikala_min_price'=> $minDigiPrice,
                 'torob_min_price'=> $torobMinPrice,

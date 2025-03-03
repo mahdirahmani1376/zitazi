@@ -23,6 +23,18 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereTorobPrice($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereUpdatedAt($value)
  * @property-read \App\Models\Product|null $product
+ * @property int|null $digikala_zitazi_price
+ * @property int|null $digikala_min_price
+ * @property int|null $torob_min_price
+ * @property int|null $zitazi_torob_price
+ * @property int|null $zitazi_torob_price_recommend
+ * @property int|null $zitazi_digikala_price_recommend
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereDigikalaMinPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereDigikalaZitaziPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereTorobMinPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereZitaziDigikalaPriceRecommend($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereZitaziTorobPrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductCompare whereZitaziTorobPriceRecommend($value)
  * @mixin \Eloquent
  */
 class ProductCompare extends Model

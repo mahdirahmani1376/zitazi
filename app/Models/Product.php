@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $own_id
@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\ProductCompare|null $productCompare
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereDigikalaSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereTorobSource($value)
+ * @property string|null $trendyol_source
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product whereTrendyolSource($value)
  * @mixin \Eloquent
  */
 class Product extends Model
