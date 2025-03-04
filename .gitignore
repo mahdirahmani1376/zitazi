@@ -22,3 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 zitazi.session.sql
+zitazi.sql
+zitazi.sql:Zone.Identifier

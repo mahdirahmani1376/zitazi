@@ -23,6 +23,10 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
         return [
             'شناسه',
             'شناسه زیتازی',
+            'دسته بندی',
+            'برند',
+            "مالک",
+            'نام محصول',
             'آدرس ترندیول',
             'قیمت مرجع ترندیول',
             'موجودی',
@@ -43,9 +47,14 @@ class ProductExport implements FromCollection,WithHeadings,WithMapping
 
     public function map($row): array
     {
+        /** @var Product $row */
         return [
             'id' => $row->id,
             'zitazi_id' =>$row->own_id,
+            'category' => $row->category,
+            'brand' => $row->brand,
+            "owner" => $row->owner,
+            "product_name" => $row->product_name,
             'trendyol_url' =>$row->trendyol_source,
             'price' =>$row->price,
             'stock' =>$row->stock,

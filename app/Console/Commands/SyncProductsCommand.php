@@ -203,9 +203,13 @@ class SyncProductsCommand extends Command
                 {
                     $zitazi_digikala_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
                     $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
-                } else
+                } else if (! empty($product->min_price))
                 {
                     $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
+                    if ($zitazi_digikala_price_recommend < $product->min_price)
+                    {
+                        $zitazi_digikala_price_recommend = $product->min_price;
+                    }
                 }
             }
 
@@ -231,7 +235,19 @@ class SyncProductsCommand extends Command
                 $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
                 if ($zitaziTorobPrice > $torobMinPrice)
                 {
-                    $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
+                    if ($product->belongsToTrendyol())
+                    {
+                        $zitazi_torob_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
+                        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
+                    } else if (! empty($product->min_price))
+                    {
+                        $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
+                        if ($zitazi_torob_price_recommend < $product->min_price)
+                        {
+                            $zitazi_torob_price_recommend = $product->min_price;
+                        }
+                    }
+
                 }
             }
         } catch (\Exception $e)
@@ -247,8 +263,8 @@ class SyncProductsCommand extends Command
             ]
             ,
             [
-                'zitazi_digi_ratio' => !empty($minDigiPrice) ? $product->rial_price / $minDigiPrice : null,
-                'zitazi_torob_ratio' => !empty($torobMinPrice) ? $product->rial_price / $torobMinPrice : null,
+                'zitazi_digi_ratio' => !empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
+                'zitazi_torob_ratio' => !empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
                 'digikala_zitazi_price'=> $digiPrice,
                 'digikala_min_price'=> $minDigiPrice,
                 'torob_min_price'=> $torobMinPrice,
