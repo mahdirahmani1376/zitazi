@@ -77,4 +77,5 @@ Schedule::command('app:sync-products')->dailyAt('18:30');
 Artisan::command('test-update',function () {
     dump(1);
     Log::info('test-update');
+    sleep(5);
 });

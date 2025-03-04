@@ -203,12 +203,15 @@ class SyncProductsCommand extends Command
                 {
                     $zitazi_digikala_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
                     $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
-                } else if (! empty($product->min_price))
+                } else 
                 {
                     $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
-                    if ($zitazi_digikala_price_recommend < $product->min_price)
+                    if (! empty($product->min_price))
                     {
-                        $zitazi_digikala_price_recommend = $product->min_price;
+                        if ($zitazi_digikala_price_recommend < $product->min_price)
+                        {
+                            $zitazi_digikala_price_recommend = $product->min_price;
+                        }
                     }
                 }
             }
@@ -239,13 +242,17 @@ class SyncProductsCommand extends Command
                     {
                         $zitazi_torob_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
                         $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
-                    } else if (! empty($product->min_price))
+                    } else 
                     {
                         $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
-                        if ($zitazi_torob_price_recommend < $product->min_price)
+                        if (! empty($product->min_price))
                         {
-                            $zitazi_torob_price_recommend = $product->min_price;
+                            if ($zitazi_torob_price_recommend < $product->min_price)
+                            {
+                                $zitazi_torob_price_recommend = $product->min_price;
+                            }
                         }
+ 
                     }
 
                 }

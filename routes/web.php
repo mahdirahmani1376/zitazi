@@ -6,6 +6,7 @@ use App\Models\ProductCompare;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Actions\ProductCompareAction;
+use App\Jobs\updateJob;
 
 Route::get('/', function () {
     return view('dashboard');
@@ -40,7 +41,6 @@ Route::get('dashboard',function () {
 });
 
 Route::get('/update-products',function () {
-    Artisan::call('db:seed --class=ProductSeeder');
-    Artisan::call('app:sheet-report');
-    Artisan::call('app:sync-products');
+    updateJob::dispatch();
+    return 'آپدیت محصولات در حال انجام است';
 })->name('products.update');
