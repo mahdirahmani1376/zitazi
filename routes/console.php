@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\WoocommerceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\DomCrawler\Crawler;
@@ -78,4 +79,10 @@ Artisan::command('test-update',function () {
     dump(1);
     Log::info('test-update');
     sleep(5);
+});
+
+Artisan::command('test-products',function () {
+    $response = WoocommerceService::getClient()->get('products');
+
+    dd(collect($response)->pluck('id'));
 });

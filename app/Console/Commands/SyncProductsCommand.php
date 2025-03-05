@@ -202,7 +202,6 @@ class SyncProductsCommand extends Command
                 if ($product->belongsToTrendyol())
                 {
                     $zitazi_digikala_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
-                    $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
                 } else 
                 {
                     $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
@@ -214,6 +213,9 @@ class SyncProductsCommand extends Command
                         }
                     }
                 }
+
+                $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
+
             }
 
             $digiPrice = $digiPrice / 10;
@@ -242,6 +244,7 @@ class SyncProductsCommand extends Command
                     {
                         $zitazi_torob_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
                         $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
+
                     } else 
                     {
                         $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
@@ -251,6 +254,9 @@ class SyncProductsCommand extends Command
                             {
                                 $zitazi_torob_price_recommend = $product->min_price;
                             }
+
+                            $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
+                            $this->updateProductOnTorob($product,$zitazi_digikala_price_recommend);
                         }
  
                     }
@@ -281,5 +287,22 @@ class SyncProductsCommand extends Command
             ]
             );
 
+    }
+
+    private function updateProductOnTorob(Product $product,$zitazi_digikala_price_recommend)
+    {
+        $data = [
+            'regular_price' => ''.$zitazi_digikala_price_recommend,
+            "stock_quantity" => $product->stock,
+            "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
+        ];
+
+        $response = $this->woocommerce->post("products/{$product->own_id}",$data);
+        Log::info(
+            "product_update_source_{$product->own_id}",
+            (array) $response
+        );
+
+        return $response;
     }
 }
