@@ -294,6 +294,8 @@ class SyncProductsCommand extends Command
     private function updateProductOnTorob(Product $product,$zitazi_digikala_price_recommend)
     {
         $data = [
+            'price' => ''.$zitazi_digikala_price_recommend,
+            'sale_price' => null,
             'regular_price' => ''.$zitazi_digikala_price_recommend,
             "stock_quantity" => $product->stock,
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',
