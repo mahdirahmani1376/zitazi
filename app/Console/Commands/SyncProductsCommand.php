@@ -154,6 +154,8 @@ class SyncProductsCommand extends Command
     private function syncSource(Product $product)
     {
         $data = [
+            'price' => ''.$product->rial_price,
+            'sale_price' => null,
             'regular_price' => ''.$product->rial_price,
             "stock_quantity" => $product->stock,
             "stock_status" => $product->stock > 0 ? 'instock' : 'outofstock',

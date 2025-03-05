@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ExternalProduct;
 use App\Models\Product;
 use App\Models\Report;
 use App\Services\WoocommerceService;
@@ -76,13 +77,26 @@ class SheetReportCommand extends Command
             $products = collect(data_get($response,'data.products'))->keyBy('id');
         }
 
+        foreach ($products as $product)
+        {
+            ExternalProduct::query()->updateOrCreate([
+                'source_id' => data_get($product,'id')
+            ],
+            [
+                "title" => data_get($product,'title_fa'),
+                "price" => data_get($product,'default_variant.price.selling_price') / 10,
+                "category" => data_get($data,'Category'),
+                "source" => 'digikala',
+            ]);
+        }
+
         $prices = $products->pluck('default_variant.price.selling_price');
 
         $average = (int)$prices->average();
 
         $report = Report::query()->create([
             'url' => $url,
-            'average' => $average,
+            'average' => $average / 10,
             'total' => $products->count(),
             'source' => 'digikala'
         ]);
@@ -106,8 +120,22 @@ class SheetReportCommand extends Command
                 return collect(json_decode($element->text(),true));
             }
         });
-
+        
         $products = $responses->pluck('props.pageProps.products')->collapse();
+
+        foreach ($products as $product)
+        {
+            $p = ExternalProduct::query()->updateOrCreate([
+                // 'source_id' => data_get($product,'random_key')
+                'source_id' => 'https://torob.com' . urldecode(data_get($product,'web_client_absolute_url'))
+            ],
+            [
+                "title" => data_get($product,'name1'),
+                "price" => data_get($product,'price'),
+                "category" => data_get($data,'Category'),
+                "source" => 'torob',
+            ]);
+        }
 
         $average = (int)$products->pluck('price')->average();
 

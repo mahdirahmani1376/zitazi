@@ -6,6 +6,7 @@ use App\Models\ProductCompare;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Route;
 use App\Actions\ProductCompareAction;
+use App\Actions\Top100Action;
 use App\Jobs\updateJob;
 
 Route::get('/', function () {
@@ -44,3 +45,5 @@ Route::get('/update-products',function () {
     updateJob::dispatch();
     return 'آپدیت محصولات در حال انجام است';
 })->name('products.update');
+
+Route::get('top-100',Top100Action::class)->name('top-100');

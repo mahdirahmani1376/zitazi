@@ -40,6 +40,7 @@ onclick="window.location.href='{{ route('products.update') }}'"
 
 <a href="{{ route('products.compare') }}" class="btn btn-primary">صفحه مقایسه محصولات ترب و دیجی کالا</a>
 <a href="{{ route('products.report') }}" class="btn btn-primary">گزارش کلی میانگین محصولات</a>
+<a href="{{ route('top-100') }}" class="btn btn-primary">گزارش پرفروش ترین محصولات ترب و دیجی کالا</a>
 
 </div>
 
