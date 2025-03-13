@@ -39,8 +39,6 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
-        // ProductCompare::truncate();
-
         $this->headers = [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'
         ];
@@ -53,7 +51,12 @@ class SyncProductsCommand extends Command
         if (! empty($this->option('override-id')))
         {
             $product = Product::find($this->option('override-id'));
-            $this->syncTrendyol($product);
+            if ($product->belongsToTrendyol()){
+                $this->syncTrendyol($product);
+            }
+            if ($product->belongsToIran()){
+                $this->syncIran($product);
+            }
             return 0;
         }
 
@@ -85,7 +88,7 @@ class SyncProductsCommand extends Command
 
     private function syncTrendyol(Product $product): Product
     {
-        $response = Http::acceptJson()->withHeaders($this->headers)->get($product->trendyol_source);
+        $response = Http::withHeaders($this->headers)->get($product->trendyol_source);
         $crawler = new Crawler($response);
 
         $price = null;
@@ -104,14 +107,7 @@ class SyncProductsCommand extends Command
                     $price = $json['discountedPrice']['value'];
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
-
-                    if ($product->belongsToIran())
-                    {
-                        $rialPrice = $rialPrice * 1.2;
-                    } else {
-                        $rialPrice = $rialPrice * 1.6;
-                    }
-
+                    $rialPrice = $rialPrice * 1.6;
                     $rialPrice = floor($rialPrice/10000)*10000;
                     break;
                 }
@@ -143,7 +139,7 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges()
         ]);
 
-        if (! $this->option('not-sync'))
+        if (! $this->option('not-sync') && ! $product->belongsToIran())
         {
            $this->syncSource($product);
         }
@@ -172,7 +168,12 @@ class SyncProductsCommand extends Command
 
     private function syncIran(Product $product)
     {
-        $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
+
+        $url = null;
+        if ($product->digikala_source)
+        {
+            $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
+        }
 
         $digiPrice = null;
         $torobMinPrice = null;
@@ -181,54 +182,65 @@ class SyncProductsCommand extends Command
         $zitazi_digikala_price_recommend=null;
         $zitazi_torob_price_recommend=null;
 
-        try {
-            $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
-
-            $variants = collect(data_get($response,'data.product.variants'))
-            ->map(function($item){
-                $item['seller_id'] = data_get($item,'seller.id');
-                return $item;
-            })->keyBy('seller_id');
-            $digiPrice = data_get($variants,'69.price.selling_price');
-            $minDigiPrice = $variants->pluck('price.selling_price')->min();
-
-            if (! $digiPrice)
-            {
-                $digiPrice = data_get($response,'data.product.default_variant.price.selling_price');
-                Log::info('zitazi_not_available',[
-                    'url' => $url
-                ]);
-            }
-            if ($digiPrice > $minDigiPrice)
-            {
-                if ($product->belongsToTrendyol())
+        if ($url)
+        {
+            try {
+                $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
+    
+                $variants = collect(data_get($response,'data.product.variants'))
+                ->map(function($item){
+                    $item['seller_id'] = data_get($item,'seller.id');
+                    return $item;
+                })->keyBy('seller_id');
+                $digiPrice = data_get($variants,'69.price.selling_price');
+                $minDigiPrice = $variants->filter(function ($i){
+                    return $i['seller_id'] != 69;
+                })->pluck('price.selling_price')->min();
+    
+                $sellersCount = $variants->pluck('seller_id')->count();
+    
+                if (! $digiPrice)
                 {
-                    $zitazi_digikala_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
-                } else 
+                    $digiPrice = data_get($response,'data.product.default_variant.price.selling_price');
+                    Log::info('zitazi_not_available',[
+                        'url' => $url
+                    ]);
+                }
+    
+                if ($sellersCount > 1)
                 {
-                    $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
-                    if (! empty($product->min_price))
+                    if ($product->belongsToTrendyol())
                     {
-                        if ($zitazi_digikala_price_recommend < $product->min_price)
+                        $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
+                        $product->update();
+                    }
+    
+                    $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
+                    {
+                        if (! empty($product->min_price))
                         {
-                            $zitazi_digikala_price_recommend = $product->min_price;
+                            if ($zitazi_digikala_price_recommend < $product->min_price)
+                            {
+                                $zitazi_digikala_price_recommend = $product->min_price;
+                            }
                         }
                     }
+    
+                    $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
+    
                 }
-
-                $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend/10000)*10000;;
-
+    
+                $digiPrice = $digiPrice / 10;
+                $minDigiPrice = $minDigiPrice / 10;
+                $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
+            } catch (\Exception $e)
+            {
+                Log::error('error_digi_fetch'.$product->id,[
+                    'error' => $e->getMessage()
+                ]);
             }
-
-            $digiPrice = $digiPrice / 10;
-            $minDigiPrice = $minDigiPrice / 10;
-            $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
-        } catch (\Exception $e)
-        {
-            Log::error('error_digi_fetch'.$product->id,[
-                'error' => $e->getMessage()
-            ]);
         }
+
 
         try {
             $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
@@ -236,21 +248,27 @@ class SyncProductsCommand extends Command
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter("script#__NEXT_DATA__")->first();
             if ($element->count() > 0) {
+
                 $data = collect(json_decode($element->text(),true));
                 $sellers= data_get($data,'props.pageProps.baseProduct.products_info.result');
+
                 $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id','=',12259)['price'] ?? null;
-                $torobMinPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
-                if ($zitaziTorobPrice > $torobMinPrice)
+                $torobMinPrice = collect($sellers)->filter(function ($i){
+                    return data_get($i,'shop_id') != 12259;
+                })->pluck('price')->filter(fn($p) => $p > 0)->min();
+
+                if (count($sellers) > 1)
                 {
                     if ($product->belongsToTrendyol())
                     {
-                        $zitazi_torob_price_recommend = $product->price * Currency::syncTryRate() * 1.2;
-                        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
+                        $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
+                        $product->update();
+                    }
+                    
+                    $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
+                    $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
 
-                    } else 
-                    {
-                        $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
-                        if (! empty($product->min_price))
+                    if (! empty($product->min_price))
                         {
                             if ($zitazi_torob_price_recommend < $product->min_price)
                             {
@@ -258,11 +276,20 @@ class SyncProductsCommand extends Command
                             }
 
                             $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend/10000)*10000;
-                            $this->updateProductOnTorob($product,$zitazi_digikala_price_recommend);
-                        }
- 
-                    }
 
+                            if (! $this->option('not-sync'))
+                            {
+                                $this->updateProductOnTorob($product,$zitazi_torob_price_recommend);
+                            }
+
+                        }
+
+        
+
+                }
+                else if(! $this->option('not-sync') && count($sellers) == 1)
+                {
+                   $this->syncSource($product);
                 }
             }
         } catch (\Exception $e)
@@ -302,6 +329,7 @@ class SyncProductsCommand extends Command
         ];
 
         $response = $this->woocommerce->post("products/{$product->own_id}",$data);
+        
         Log::info(
             "product_update_source_{$product->own_id}",
             (array) $response
