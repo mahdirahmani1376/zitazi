@@ -133,6 +133,12 @@ class SyncProductsCommand extends Command
             $stock = 0;
         }
 
+        if ($stock == 0 && $product->belongsToDecalthon())
+        {
+            dump(1);
+            $product = $this->syncProductFromDecalthon($product);
+        }
+
         if (empty($price)) {
             $stock = 0;
             $price = null;
@@ -422,5 +428,36 @@ class SyncProductsCommand extends Command
         );
 
         return $response;
+    }
+
+    private function syncProductFromDecalthon(Product $product)
+    {
+        $response = Http::withHeaders($this->headers)
+            ->get($product->decathlon_url)
+            ->body();
+
+        $element = 'script[type="application/ld+json"]';
+
+        $crawler = new Crawler($response);
+        $element = $crawler->filter($element)->first();
+
+        if ($element->count() > 0) {
+            $data = collect(json_decode($element->text(), true));
+            $offer = collect($data->get('offers'))->collapse()[0];
+            $stock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+            $price = $offer['price'] ?? null;
+            $price = (int) str_replace(',', '.', trim($price));
+            $rialPrice = $this->rate * $price;
+            $rialPrice = $rialPrice * 1.6;
+            $rialPrice = floor($rialPrice / 10000) * 10000;
+
+            $product->price = $price;
+            $product->rial_price = $rialPrice;
+            $product->stock = $stock ?? 0;
+
+            $product->update();
+        }
+
+        return $product;
     }
 }
