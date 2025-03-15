@@ -75,6 +75,7 @@ Schedule::command('db:seed')->dailyAt('05:00');
 Schedule::command('app:sheet-report')->dailyAt('05:30');
 Schedule::command('app:sync-products')->dailyAt('06:00');
 Schedule::command('app:sync-products')->dailyAt('18:30');
+Schedule::command('app:index-zitazi-torob-products')->dailyAt('20:00');
 
 Artisan::command('test-update', function () {
     dump(1);
@@ -142,5 +143,10 @@ Artisan::command('testd', function () {
             'size' => $variation['size'],
         ]);
     }
+
+});
+
+
+Artisan::command('torob',function(){
 
 });
