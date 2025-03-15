@@ -78,9 +78,10 @@ class IndexZitaziTorobProducts extends Command
                     $bar->advance();
                 }
 
-                $bar->finish();
             }
     
+            $bar->finish();
+
         }
 
         $torobProducts = TorobProduct::query()->get();
