@@ -2,20 +2,18 @@
 
 namespace App\Models;
 
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Log;
 
 /**
- * 
- *
  * @property int $id
  * @property int $rate
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency query()
@@ -24,6 +22,7 @@ use Log;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereRate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Currency extends Model
@@ -32,32 +31,30 @@ class Currency extends Model
 
     public static function lastTryRate()
     {
-        return self::orderByDesc('created_at')->where('name','try')->first()?->rate;
+        return self::orderByDesc('created_at')->where('name', 'try')->first()?->rate;
     }
 
     public static function syncTryRate()
     {
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
-        return Cache::remember('try_rate',$timeUntilEndOfDay,function () {
+        return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
             try {
                 $response = Http::acceptJson()->withQueryParameters([
-                    'api_key' => env('NAVASAN_KEY')
+                    'api_key' => env('NAVASAN_KEY'),
                 ])->get('http://api.navasan.tech/latest')->json();
-        
-                $rate = data_get($response,'try.value');
-                
-                if (empty($rate))
-                {
+
+                $rate = data_get($response, 'try.value');
+
+                if (empty($rate)) {
                     $rate = static::lastTryRate() ?? 2400;
                 } else {
                     static::create([
                         'rate' => $rate,
-                        'name' => 'try'
+                        'name' => 'try',
                     ]);
                 }
-            } catch (\Exception $e)
-            {
+            } catch (\Exception $e) {
                 Log::error($e->getMessage());
                 $rate = static::lastTryRate() ?? 2400;
             }

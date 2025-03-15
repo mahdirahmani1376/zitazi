@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Artisan;
 
 class updateJob implements ShouldQueue
 {

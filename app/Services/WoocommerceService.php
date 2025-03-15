@@ -14,7 +14,7 @@ class WoocommerceService
             env('SECURITY_PASS'),
             [
                 'wp_api' => true,
-                'version' => 'wc/v3'
+                'version' => 'wc/v3',
             ]
         );
     }

@@ -33,6 +33,9 @@
     onclick="window.location.href='{{ route('products.download') }}'"
 >دانلود تمامی محصولات</button>
 
+<a href="{{ route('variations.download') }}" class="btn btn-primary">دانلود تنوع دکلتون</a>
+
+
 
 <button class="btn btn-primary" id="updateBtn"
 onclick="window.location.href='{{ route('products.update') }}'"
