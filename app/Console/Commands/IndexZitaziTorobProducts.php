@@ -96,7 +96,8 @@ class IndexZitaziTorobProducts extends Command
                     $response = $promise->wait();
                     $responseData = $response->json();
                     $sellers = data_get($responseData,'products_info.result');
-                    $clickable = count($sellers) > 1 ? false : true;
+                    // $clickable = count($sellers) > 1 ? false : true;
+                    $clickable = count($sellers) < 3 ? true : false;
 
                     $rank = 1;
                     foreach ($sellers as $seller)
