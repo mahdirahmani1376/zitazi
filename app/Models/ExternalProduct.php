@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * 
+ *
  * @property int $id
  * @property string|null $title
  * @property string|null $source
@@ -13,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct query()
@@ -25,7 +26,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct whereSourceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalProduct whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 class ExternalProduct extends Model
