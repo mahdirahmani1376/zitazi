@@ -147,6 +147,12 @@ Artisan::command('testd', function () {
 });
 
 
-Artisan::command('torob',function(){
-
+Artisan::command('torob_add_id',function(){
+    foreach (Product::whereNotNull('torob_source')->get() as $product)
+    {
+        
+        $product->update([
+            'torob_id' => !empty($product->torob_source) ? data_get(explode('/',urldecode($product->torob_source)),4) : null
+        ]);
+    }
 });

@@ -4,7 +4,9 @@ use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
 use App\Exports\DecalthonVariationExport;
 use App\Exports\ProductExport;
+use App\Exports\TorobProductsExport;
 use App\Jobs\updateJob;
+use App\Models\TorobProduct;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -55,3 +57,17 @@ Route::get('/variation-download', function () {
 
     return Excel::download(new DecalthonVariationExport, "variations_{$now}.xlsx");
 })->name('variations.download');
+
+
+Route::get('/torob-products',function () {
+    return view('torob-products',[
+        'data' => TorobProduct::all()
+    ]);
+})->name('torob-products.index');
+
+
+Route::get('/download-torob-products', function () {
+    $now = now()->toDateTimeString();
+
+    return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
+})->name('torob-products.download');

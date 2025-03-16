@@ -29,21 +29,23 @@
 
 <div class="container">
 <h2 class="text-center mb-4">داشبرد</h2>
-<button class="btn btn-primary" id="downloadBtn" 
-    onclick="window.location.href='{{ route('products.download') }}'"
->دانلود تمامی محصولات</button>
+
+<a href="{{ route('products.download') }}" class="btn btn-primary">دانلود تمامی محصولات</a>
+
 
 <a href="{{ route('variations.download') }}" class="btn btn-primary">دانلود تنوع دکلتون</a>
 
-
-
-<button class="btn btn-primary" id="updateBtn"
-onclick="window.location.href='{{ route('products.update') }}'"
->آپدیت محصولات</button>
+<a href="{{ route('products.update') }}" class="btn btn-primary">
+    آپدیت محصولات
+</a>
 
 <a href="{{ route('products.compare') }}" class="btn btn-primary">صفحه مقایسه محصولات ترب و دیجی کالا</a>
 <a href="{{ route('products.report') }}" class="btn btn-primary">گزارش کلی میانگین محصولات</a>
 <a href="{{ route('top-100') }}" class="btn btn-primary">گزارش پرفروش ترین محصولات ترب و دیجی کالا</a>
+<a href="{{ route('torob-products.index') }}" class="btn btn-primary">گزارش محصولات موجود در ترب</a>
+{{-- <a href="{{ route('torob-products.download') }}" class="btn btn-primary">
+    دانلود گزارش محصولات موجود در ترب
+</a> --}}
 
 </div>
 

@@ -26,14 +26,12 @@ class ProductSeeder extends Seeder
         $this->command->getOutput()->progressStart(count($data));
 
         foreach ($data as $key => $value) {
-            // if (empty($value['Decathlon_link'])){
-            // continue;
-            // }
 
             $createData = [
                 'digikala_source' => data_get($value, 'digikala_dkp'),
                 'trendyol_source' => data_get($value, 'Trendyol-link'),
                 'torob_source' => urldecode(data_get($value, 'torob_link')),
+                'torob_id' => !empty($value) ? data_get(explode('/',urldecode(data_get($value, 'torob_link'))),4) : null,
                 'min_price' => ! empty(data_get($value, 'Minimum_Price')) ? data_get($value, 'Minimum_Price') : null,
                 'category' => data_get($value, 'Category'),
                 'brand' => data_get($value, 'Brand'),

@@ -3,9 +3,10 @@
 namespace App\Exports;
 
 use App\Models\Product;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use App\Models\TorobProduct;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\FromCollection;
 
 class ProductExport implements FromCollection, WithHeadings, WithMapping
 {
@@ -14,8 +15,18 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
      */
     public function collection()
     {
-        return Product::with('productCompare')
+        $products = Product::with('productCompare')
+            // ->whereNotNull('torob_id')
             ->get();
+
+        $torobProducts = TorobProduct::get()->keyBy('random_key');
+
+        foreach ($products as $product)
+        {
+            $product->setAttribute('torob_product',$torobProducts->get($product->torob_id));
+        }
+
+        return $products;
     }
 
     public function headings(): array
@@ -41,6 +52,9 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
             'کم ترین قیمت ترب',
             'قیمت زیتازی در ترب',
             'قیمت پیشنهادی ترب',
+            'قیمت حال حاظر در ترب',
+            'رتبه ترب',
+            'تک فروشنده',
             'زمان آپدیت',
         ];
     }
@@ -69,6 +83,9 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
             'torob_min_price' => $row->productCompare?->torob_min_price,
             'zitazi_torob_price' => $row->productCompare?->zitazi_torob_price,
             'zitazi_torob_price_recommend' => $row->productCompare?->zitazi_torob_price_recommend,
+            'torob_price' => $row?->torob_product?->price,
+            'rank' => $row?->torob_product?->rank,
+            'clickable' => $row?->torob_product?->clickable,
             'updated_at' => $row->updated_at->toDateTimestring(),
         ];
     }

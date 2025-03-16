@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * 
+ *
  * @property int $id
  * @property string|null $product_id
  * @property string|null $sku
@@ -15,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Product|null $product
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation query()
@@ -28,7 +29,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation whereStock($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation whereUrl($value)
- *
+ * @property int|null $rial_price
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation whereRialPrice($value)
  * @mixin \Eloquent
  */
 class Variation extends Model
