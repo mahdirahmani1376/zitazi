@@ -27,7 +27,7 @@ class ProductSeeder extends Seeder
 
         foreach ($data as $key => $value) {
             // if (empty($value['Decathlon_link'])){
-            //     continue;
+            // continue;
             // }
 
             $createData = [
