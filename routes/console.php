@@ -150,9 +150,61 @@ Artisan::command('testd', function () {
 Artisan::command('torob_add_id',function(){
     foreach (Product::whereNotNull('torob_source')->get() as $product)
     {
-        
+
         $product->update([
             'torob_id' => !empty($product->torob_source) ? data_get(explode('/',urldecode($product->torob_source)),4) : null
         ]);
     }
+});
+
+Artisan::command('elele_test',function (){
+//    $url = 'https://www.elelebaby.com/elele-misto-4in1-bebek-mama-sandalyesi-ve-mama-oturagi-ic-pedli-yesil';
+    $url = 'https://www.elelebaby.com/elele-lula-travel-sistem-bebek-arabasi-siyah-gri';
+
+    $response = \Illuminate\Support\Facades\Http::withHeaders(
+        [
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
+        ]
+    )->get($url)->body();
+
+    $crawler = new Crawler($response);
+
+    foreach (range(2,5) as $i)
+    {
+        $dom = $crawler->filter("#formGlobal > script:nth-child($i)")->first();
+
+        if ($dom->count() > 0)
+        {
+            preg_match('/"productPriceKDVIncluded":([0-9]+\.[0-9]+)/', $dom->text(), $matches);
+
+            if (isset($matches[1])) {
+                $price = $matches[1];
+                dump($price);
+                $price = $price * 1.60 * \App\Models\Currency::syncTryRate();
+                $price = (int) ($price) * 10000 / 10000;
+                dump($price);
+                break;
+
+            }
+
+            dump($i);
+
+        }
+
+        $stockElement = 'input.Addtobasket.button.btnAddBasketOnDetail';
+        $stockResult = $crawler->filter($stockElement)->first();
+        $stock = 0;
+        if ($stockResult->count() > 0)
+        {
+            $stock = 88;
+        }
+
+        dump($stock);
+    }
+
+
+
+
+
+
 });
