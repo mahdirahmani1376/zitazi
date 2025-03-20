@@ -54,26 +54,34 @@
         <thead>
         <tr>
             <th>منبع</th>
+            <th>کتگوری</th>
             <th>میانگین قیمت</th>
             <th>مجموع تعداد</th>
+            <th>برترین ساب کتگوری ها</th>
             <th>زمان به روز رسانی</th>
         </tr>
         </thead>
         <tbody>
-        <!-- Digikala Row -->
-        <tr>
-            <td>{{ $data['digikala']['source'] }}</td>
-            <td>{{ number_format($data['digikala']['average']) }} تومان</td>
-            <td>{{ $data['digikala']['total'] }}</td>
-            <td>{{ \Carbon\Carbon::parse($data['digikala']['updated_at'])->format('Y-m-d H:i:s') }}</td>
-        </tr>
-        <!-- Torob Row -->
-        <tr>
-            <td>{{ $data['torob']['source'] }}</td>
-            <td>{{ number_format($data['torob']['average']) }} تومان</td>
-            <td>{{ $data['torob']['total'] }}</td>
-            <td>{{ \Carbon\Carbon::parse($data['torob']['updated_at'])->format('Y-m-d H:i:s') }}</td>
-        </tr>
+        @foreach($data as $row)
+            <!-- Digikala Row -->
+            <tr>
+                <td>{{ $row['digikala']['source'] }}</td>
+                <td>{{ $row['digikala']['zitazi_category'] }}</td>
+                <td>{{ number_format($row['digikala']['average']) }} تومان</td>
+                <td>{{ $row['digikala']['total'] }}</td>
+                <td>{{ $row['digikala']['top_digikala_sub_categories'] }}</td>
+                <td>{{ \Carbon\Carbon::parse($row['digikala']['updated_at'])->format('Y-m-d H:i:s') }}</td>
+            </tr>
+            <!-- Torob Row -->
+            <tr>
+                <td>{{ $row['torob']['source'] }}</td>
+                <td>{{ $row['torob']['zitazi_category'] }}</td>
+                <td>{{ number_format($row['torob']['average']) }} تومان</td>
+                <td>{{ $row['torob']['total'] }}</td>
+                <td>{{ $row['torob']['top_torob_sub_categories'] }}</td>
+                <td>{{ \Carbon\Carbon::parse($row['torob']['updated_at'])->format('Y-m-d H:i:s') }}</td>
+            </tr>
+        @endforeach
         </tbody>
     </table>
 </div>

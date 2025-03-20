@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $url
@@ -29,4 +30,42 @@ use Illuminate\Database\Eloquent\Model;
 class Report extends Model
 {
     protected $guarded = [];
+
+    public function topDigikalaSubCategories(): string
+    {
+        $data =  SubCategory::query()
+            ->selectRaw('name,count(name)')
+            ->groupBy('name')
+            ->whereHas('externalProduct',function ($q){
+                $q
+                    ->where('source','digikala')
+                    ->where('category',$this->zitazi_category);
+            })
+            ->orderByRaw('count(name) desc')
+            ->take(5)
+            ->get()
+            ->pluck('name')
+            ->toArray();
+
+        return implode(', ',$data);
+    }
+
+    public function topTorobSubCategories(): string
+    {
+        $data =  SubCategory::query()
+            ->selectRaw('name,count(name)')
+            ->groupBy('name')
+            ->whereHas('externalProduct',function ($q){
+                $q
+                    ->where('source','torob')
+                    ->where('category',$this->zitazi_category);
+            })
+            ->orderByRaw('count(name) desc')
+            ->get()
+            ->take(5)
+            ->pluck('name')
+            ->toArray();
+
+        return implode(', ',$data);
+    }
 }

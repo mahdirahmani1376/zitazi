@@ -6,6 +6,7 @@ use App\Services\WoocommerceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\DomCrawler\Crawler;
+use \Illuminate\Support\Facades\Http;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -58,7 +59,7 @@ Artisan::command('test-excel', function () {});
 Artisan::command('test-digi', function () {
     //    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/18087380/')->collect();
     // $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
-    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/16723546/')->collect();
+    $response = Http::get('https://api.digikala.com/v2/product/16723546/')->collect();
 
     $variants = collect(data_get($response, 'data.product.variants'))
         ->map(function ($item) {
@@ -207,4 +208,43 @@ Artisan::command('elele_test',function (){
 
 
 
+});
+
+Artisan::command('test',function () {
+   dump(Product::first());
+});
+
+Artisan::command('digi-cat',function () {
+   $url = 'https://api.digikala.com/v1/categories/stroller-and-carrier/search/?has_selling_stock=1&q=کالسکه&sort=7';
+
+   $response = Http::get($url)->json();
+
+   $products = data_get($response,'data.products');
+
+   $categories = [];
+   foreach ($products as $product)
+   {
+       $categories[$product['id']]['base_category'] = data_get($product,'data_layer.category');
+       foreach (range(2,7) as $i)
+       {
+           $text = "item_category{$i}";
+           if (! empty($category = data_get($product,"data_layer.{$text}")))
+           {
+               $categories[$product['id']]['sub_category'][] = $category;
+           }
+       }
+   }
+
+   dump($categories);
+
+});
+
+Artisan::command('subcat-group',function () {
+    $q =      \App\Models\SubCategory::query()
+        ->selectRaw('name,count(name)')
+        ->groupBy('name')
+        ->get()
+        ->toArray();
+
+    dump($q);
 });

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\ExternalProduct;
 use App\Models\Product;
 use App\Models\Report;
+use App\Models\SubCategory;
 use App\Services\WoocommerceService;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Pool;
@@ -45,7 +46,9 @@ class SheetReportCommand extends Command
         $data = parse_csv($csvData);
 
         foreach ($data as $item) {
+            $this->info('report_digi');
             $this->reportDigikala($item);
+            $this->info('report torob');
             $this->reportTorob($item);
         }
 
@@ -77,7 +80,7 @@ class SheetReportCommand extends Command
         }
 
         foreach ($products as $product) {
-            ExternalProduct::query()->updateOrCreate([
+            $externalProduct = ExternalProduct::query()->updateOrCreate([
                 'source_id' => data_get($product, 'id'),
             ],
                 [
@@ -86,6 +89,21 @@ class SheetReportCommand extends Command
                     'category' => data_get($data, 'Category'),
                     'source' => 'digikala',
                 ]);
+
+            foreach (range(2,7) as $i)
+            {
+                $text = "item_category{$i}";
+                if (! empty($category = data_get($product,"data_layer.{$text}")))
+                {
+                    SubCategory::updateOrCreate([
+                        'external_product_id' => $externalProduct->id
+                    ],[
+                        'name' => $category,
+                        'parent_category' => data_get($product,'data_layer.category'),
+                        'external_product_id' => $externalProduct->id
+                    ]);
+                }
+            }
         }
 
         $prices = $products->pluck('default_variant.price.selling_price');
@@ -97,6 +115,7 @@ class SheetReportCommand extends Command
             'average' => $average / 10,
             'total' => $products->count(),
             'source' => 'digikala',
+            'zitazi_category' => $data['Category']
         ]);
 
     }
@@ -104,6 +123,7 @@ class SheetReportCommand extends Command
     private function reportTorob($data)
     {
         $url = $data['Torob PLP link'];
+        $zitaziCategory = data_get($data, 'Category');
 
         $responses = Http::pool(function (Pool $pool) use ($url) {
             return collect()
@@ -119,8 +139,11 @@ class SheetReportCommand extends Command
             }
         });
 
-        $products = $responses->pluck('props.pageProps.products')->collapse();
 
+        $products = $responses->pluck('props.pageProps.products')->collapse();
+        $bar = $this->output->createProgressBar($products->count());
+
+        $externalProducts = [];
         foreach ($products as $product) {
             $p = ExternalProduct::query()->updateOrCreate([
                 // 'source_id' => data_get($product,'random_key')
@@ -129,10 +152,60 @@ class SheetReportCommand extends Command
                 [
                     'title' => data_get($product, 'name1'),
                     'price' => data_get($product, 'price'),
-                    'category' => data_get($data, 'Category'),
+                    'category' => $zitaziCategory,
                     'source' => 'torob',
                 ]);
+
+            $externalProducts[data_get($product,'random_key')]['model'] = $p;
+            $externalProducts[data_get($product,'random_key')]['product'] = $product;
+
         }
+
+        $responseProducts = Http::pool(function (Pool $pool) use ($products) {
+            return $products->map(function ($product) use ($pool) {
+                $url = data_get($product,'more_info_url');
+                try {
+                    $response = $pool->get($url);
+                    return $response;
+                } catch (\Exception $e)
+                {
+                    dump('error_response_'.$product['more_info_url']);
+                }
+            });
+        });
+
+        $responseProducts = collect($responseProducts)->each(function (?Response $response) use ($bar, $zitaziCategory, $products,$externalProducts) {
+            if (! $response instanceof Response)
+            {
+                $bar->advance();
+                return;
+            }
+            $data = $response->json();
+            $randomKey = data_get($data,'random_key');
+            /** @var ExternalProduct $externalProduct */
+            $externalProduct = $externalProducts[$randomKey]['model'] ?? null;
+            if (! $externalProduct)
+            {
+                $bar->advance();
+                return;
+            }
+
+            $breadCrumbs = array_slice($data['breadcrumbs'],2);
+            $parentCategory = $data['breadcrumbs'][1]['title'];
+            foreach ($breadCrumbs as $breadCrumb) {
+                SubCategory::updateOrCreate([
+                    'external_product_id' => $externalProduct->id
+                ],[
+                    'name' => $breadCrumb['title'],
+                    'parent_category' => $parentCategory,
+                ]);
+            }
+
+            $bar->advance();
+        });
+
+        $bar->finish();
+
 
         $average = (int) $products->pluck('price')->average();
 
@@ -141,6 +214,7 @@ class SheetReportCommand extends Command
             'average' => $average,
             'total' => $products->count(),
             'source' => 'torob',
+            'zitazi_category' => $zitaziCategory
         ]);
 
     }

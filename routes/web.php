@@ -6,6 +6,7 @@ use App\Exports\DecalthonVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\TorobProductsExport;
 use App\Jobs\updateJob;
+use App\Models\Report;
 use App\Models\TorobProduct;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,17 +16,40 @@ Route::get('/', function () {
 });
 
 Route::get('/report', function () {
-    $digikala = \App\Models\Report::query()->where('source', 'digikala')->orderByDesc('created_at')->first();
-    $torob = \App\Models\Report::query()->where(['source' => 'torob'])->orderByDesc('created_at')->first();
+    $uniqueCats = Report::query()
+        ->whereNotNull('zitazi_category')
+        ->distinct()
+        ->pluck('zitazi_category');
 
-    $data = [
-        'digikala' => $digikala,
-        'torob' => $torob,
-    ];
+    $data = [];
+
+    foreach ($uniqueCats as $category) {
+        $digikala = Report::query()
+            ->where('zitazi_category', $category)
+            ->where('source', 'digikala')
+            ->latest('created_at')
+            ->first();
+
+        $digikala->setAttribute('top_digikala_sub_categories',$digikala->topDigikalaSubCategories());
+
+        $torob = Report::query()
+            ->where('zitazi_category', $category)
+            ->where('source', 'torob')
+            ->latest('created_at')
+            ->first();
+
+        $torob->setAttribute('top_torob_sub_categories',$digikala->topTorobSubCategories());
+
+        $data[$category] = [
+            'digikala' => $digikala,
+            'torob' => $torob,
+        ];
+    }
 
     return view('report', [
         'data' => $data,
     ]);
+
 })->name('products.report');
 
 Route::get('/compare', ProductCompareAction::class)->name('products.compare');
