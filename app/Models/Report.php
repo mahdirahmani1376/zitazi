@@ -43,11 +43,17 @@ class Report extends Model
             })
             ->orderByRaw('count(name) desc')
             ->take(5)
-            ->get()
-            ->pluck('name')
-            ->toArray();
+            ->get();
 
-        return implode(', ',$data);
+        $totalCount = $data->sum('count(name)');
+
+        $data = $data->map(function ($item) use ($totalCount) {
+            $item['percentage'] = (int)(($item['count(name)'] / $totalCount) * 100);
+            return $item['name'] . ': ' . $item['percentage'];
+        });
+
+
+        return implode(', ' . PHP_EOL ,$data->toArray());
     }
 
     public function topTorobSubCategories(): string
@@ -61,11 +67,17 @@ class Report extends Model
                     ->where('category',$this->zitazi_category);
             })
             ->orderByRaw('count(name) desc')
-            ->get()
             ->take(5)
-            ->pluck('name')
-            ->toArray();
+            ->get();
 
-        return implode(', ',$data);
+        $totalCount = $data->sum('count(name)');
+
+        $data = $data->map(function ($item) use ($totalCount) {
+            $item['percentage'] = (int)(($item['count(name)'] / $totalCount) * 100);
+            return $item['name'] . ': ' . $item['percentage'];
+        });
+
+
+        return implode(', ' . PHP_EOL ,$data->toArray());
     }
 }
