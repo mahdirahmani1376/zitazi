@@ -180,6 +180,8 @@ class SheetReportCommand extends Command
                 $bar->advance();
                 return;
             }
+
+            /** @var Response $data */
             $data = $response->json();
             $randomKey = data_get($data,'random_key');
             /** @var ExternalProduct $externalProduct */
