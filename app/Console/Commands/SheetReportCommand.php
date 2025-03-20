@@ -174,7 +174,7 @@ class SheetReportCommand extends Command
             });
         });
 
-        $responseProducts = collect($responseProducts)->each(function (?Response $response) use ($bar, $zitaziCategory, $products,$externalProducts) {
+        $responseProducts = collect($responseProducts)->each(function ($response) use ($bar, $zitaziCategory, $products,$externalProducts) {
             if (! $response instanceof Response)
             {
                 $bar->advance();
