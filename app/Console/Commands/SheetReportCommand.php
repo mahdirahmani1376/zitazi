@@ -96,7 +96,9 @@ class SheetReportCommand extends Command
                 if (! empty($category = data_get($product,"data_layer.{$text}")))
                 {
                     SubCategory::updateOrCreate([
-                        'external_product_id' => $externalProduct->id
+                        'external_product_id' => $externalProduct->id,
+                        'name' => $category,
+                        'parent_category' => data_get($product,'data_layer.category'),
                     ],[
                         'name' => $category,
                         'parent_category' => data_get($product,'data_layer.category'),
@@ -196,7 +198,9 @@ class SheetReportCommand extends Command
             $parentCategory = $data['breadcrumbs'][1]['title'];
             foreach ($breadCrumbs as $breadCrumb) {
                 SubCategory::updateOrCreate([
-                    'external_product_id' => $externalProduct->id
+                    'external_product_id' => $externalProduct->id,
+                    'name' => $breadCrumb['title'],
+                    'parent_category' => $parentCategory,
                 ],[
                     'name' => $breadCrumb['title'],
                     'parent_category' => $parentCategory,
