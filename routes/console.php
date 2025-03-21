@@ -8,9 +8,18 @@ use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\DomCrawler\Crawler;
 use \Illuminate\Support\Facades\Http;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+ * schedule section
+ */
+Schedule::command('db:seed')->dailyAt('05:00');
+Schedule::command('app:sheet-report')->dailyAt('05:30');
+Schedule::command('app:sync-products')->dailyAt('06:00');
+Schedule::command('app:sync-products')->dailyAt('18:30');
+Schedule::command('app:index-zitazi-torob-products')->dailyAt('20:00');
+/*
+ *
+ */
+
 
 Artisan::command('test', function () {
 
@@ -32,7 +41,6 @@ Artisan::command('test', function () {
 
     dd($torobPrice);
 });
-
 Artisan::command('test-torob', function () {
     $headers = [
         'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
@@ -49,13 +57,12 @@ Artisan::command('test-torob', function () {
         $data = collect(json_decode($element->text(), true));
         $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
         $zitaziPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
-        $minPrice = collect($sellers)->pluck('price')->filter(fn ($p) => $p > 0)->min();
+        $minPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
         dd($zitaziPrice, $minPrice);
     }
 });
-
-Artisan::command('test-excel', function () {});
-
+Artisan::command('test-excel', function () {
+});
 Artisan::command('test-digi', function () {
     //    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/18087380/')->collect();
     // $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
@@ -71,30 +78,21 @@ Artisan::command('test-digi', function () {
     $minPrice = $variants->pluck('price.selling_price')->min();
     dd($zitaziPrice, $minPrice);
 });
-
-Schedule::command('db:seed')->dailyAt('05:00');
-Schedule::command('app:sheet-report')->dailyAt('05:30');
-Schedule::command('app:sync-products')->dailyAt('06:00');
-Schedule::command('app:sync-products')->dailyAt('18:30');
-Schedule::command('app:index-zitazi-torob-products')->dailyAt('20:00');
-
 Artisan::command('test-update', function () {
     dump(1);
     Log::info('test-update');
     sleep(5);
 });
-
 Artisan::command('test-products', function () {
     $response = WoocommerceService::getClient()->get('products');
 
     dd(collect($response)->pluck('id'));
 });
-
 Artisan::command('testd', function () {
     $product = Product::whereNotNull('decathlon_url')->first();
 
     $response = Http::acceptJson()
-    // ->get('https://www.decathlon.com.tr/p/erkek-su-gecirmez-outdoor-kar-montu-kislik-mont-kahverengi-sh500-10-degc/_/R-p-331992?mc=8641932')
+        // ->get('https://www.decathlon.com.tr/p/erkek-su-gecirmez-outdoor-kar-montu-kislik-mont-kahverengi-sh500-10-degc/_/R-p-331992?mc=8641932')
         ->get($product->url)
         ->body();
 
@@ -125,7 +123,7 @@ Artisan::command('testd', function () {
     // $pattern = '/^__DKT\s*=\s*(\{.*\})$/';
     foreach ($variations as &$variation) {
         $skuId = $variation['sku'];
-        $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
+        $pattern = '/"skuId"\s*:\s*"' . preg_quote($skuId, '/') . '"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
         if (preg_match($pattern, $jsonString, $matches)) {
             $size = $matches[1];
@@ -146,23 +144,19 @@ Artisan::command('testd', function () {
     }
 
 });
-
-
-Artisan::command('torob_add_id',function(){
-    foreach (Product::whereNotNull('torob_source')->get() as $product)
-    {
+Artisan::command('torob_add_id', function () {
+    foreach (Product::whereNotNull('torob_source')->get() as $product) {
 
         $product->update([
-            'torob_id' => !empty($product->torob_source) ? data_get(explode('/',urldecode($product->torob_source)),4) : null
+            'torob_id' => !empty($product->torob_source) ? data_get(explode('/', urldecode($product->torob_source)), 4) : null
         ]);
     }
 });
-
-Artisan::command('elele_test',function (){
+Artisan::command('elele_test', function () {
 //    $url = 'https://www.elelebaby.com/elele-misto-4in1-bebek-mama-sandalyesi-ve-mama-oturagi-ic-pedli-yesil';
     $url = 'https://www.elelebaby.com/elele-lula-travel-sistem-bebek-arabasi-siyah-gri';
 
-    $response = \Illuminate\Support\Facades\Http::withHeaders(
+    $response = Http::withHeaders(
         [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
         ]
@@ -170,19 +164,17 @@ Artisan::command('elele_test',function (){
 
     $crawler = new Crawler($response);
 
-    foreach (range(2,5) as $i)
-    {
+    foreach (range(2, 5) as $i) {
         $dom = $crawler->filter("#formGlobal > script:nth-child($i)")->first();
 
-        if ($dom->count() > 0)
-        {
+        if ($dom->count() > 0) {
             preg_match('/"productPriceKDVIncluded":([0-9]+\.[0-9]+)/', $dom->text(), $matches);
 
             if (isset($matches[1])) {
                 $price = $matches[1];
                 dump($price);
                 $price = $price * 1.60 * \App\Models\Currency::syncTryRate();
-                $price = (int) ($price) * 10000 / 10000;
+                $price = (int)($price) * 10000 / 10000;
                 dump($price);
                 break;
 
@@ -195,52 +187,39 @@ Artisan::command('elele_test',function (){
         $stockElement = 'input.Addtobasket.button.btnAddBasketOnDetail';
         $stockResult = $crawler->filter($stockElement)->first();
         $stock = 0;
-        if ($stockResult->count() > 0)
-        {
+        if ($stockResult->count() > 0) {
             $stock = 88;
         }
 
         dump($stock);
     }
+});
+Artisan::command('test', function () {
+    dump(Product::first());
+});
+Artisan::command('digi-cat', function () {
+    $url = 'https://api.digikala.com/v1/categories/stroller-and-carrier/search/?has_selling_stock=1&q=کالسکه&sort=7';
 
+    $response = Http::get($url)->json();
 
+    $products = data_get($response, 'data.products');
 
+    $categories = [];
+    foreach ($products as $product) {
+        $categories[$product['id']]['base_category'] = data_get($product, 'data_layer.category');
+        foreach (range(2, 7) as $i) {
+            $text = "item_category{$i}";
+            if (!empty($category = data_get($product, "data_layer.{$text}"))) {
+                $categories[$product['id']]['sub_category'][] = $category;
+            }
+        }
+    }
 
-
+    dump($categories);
 
 });
-
-Artisan::command('test',function () {
-   dump(Product::first());
-});
-
-Artisan::command('digi-cat',function () {
-   $url = 'https://api.digikala.com/v1/categories/stroller-and-carrier/search/?has_selling_stock=1&q=کالسکه&sort=7';
-
-   $response = Http::get($url)->json();
-
-   $products = data_get($response,'data.products');
-
-   $categories = [];
-   foreach ($products as $product)
-   {
-       $categories[$product['id']]['base_category'] = data_get($product,'data_layer.category');
-       foreach (range(2,7) as $i)
-       {
-           $text = "item_category{$i}";
-           if (! empty($category = data_get($product,"data_layer.{$text}")))
-           {
-               $categories[$product['id']]['sub_category'][] = $category;
-           }
-       }
-   }
-
-   dump($categories);
-
-});
-
-Artisan::command('subcat-group',function () {
-    $q =      \App\Models\SubCategory::query()
+Artisan::command('subcat-group', function () {
+    $q = \App\Models\SubCategory::query()
         ->selectRaw('name,count(name)')
         ->groupBy('name')
         ->get()
@@ -248,3 +227,47 @@ Artisan::command('subcat-group',function () {
 
     dump($q);
 });
+Artisan::command('ebek-test', function () {
+
+    $url = 'https://www.e-bebek.com/joie-i-juva-step-travel-sistem-bebek-arabasi-p-joi-t1608dasha001';
+
+    $response = Http::withHeaders(
+        [
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
+        ]
+    )->get($url)->body();
+
+    $crawler = new Crawler($response);
+
+//    foreach (range(41, 45) as $i) {
+//        $dom = $crawler->filter("head > script:nth-child({$i})")->first();
+        $dom = $crawler->filter('script[type="application/ld+json"]')->eq(0);
+//        dump($i);
+
+        if ($dom
+//            &&
+//            preg_match('/^\{"@co/', $dom->text(), $matches)
+        ) {
+            $data = json_decode($dom->text(), true);
+            $price = $data['offers']['price'];
+            dump($price);
+            $price = $price * 1.60 * \App\Models\Currency::syncTryRate();
+            $price = (int)($price) * 10000 / 10000;
+            dump($price);
+
+            $stock = $data['offers']['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+
+            dump($stock);
+
+//            break;
+
+//        }
+
+
+    }
+
+
+});
+
+
+
