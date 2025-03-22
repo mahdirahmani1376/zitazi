@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
@@ -173,7 +174,7 @@ Artisan::command('elele_test', function () {
             if (isset($matches[1])) {
                 $price = $matches[1];
                 dump($price);
-                $price = $price * 1.60 * \App\Models\Currency::syncTryRate();
+                $price = $price * 1.60 * Currency::syncTryRate();
                 $price = (int)($price) * 10000 / 10000;
                 dump($price);
                 break;
@@ -251,7 +252,7 @@ Artisan::command('ebek-test', function () {
             $data = json_decode($dom->text(), true);
             $price = $data['offers']['price'];
             dump($price);
-            $price = $price * 1.60 * \App\Models\Currency::syncTryRate();
+            $price = $price * 1.60 * Currency::syncTryRate();
             $price = (int)($price) * 10000 / 10000;
             dump($price);
 
@@ -265,6 +266,36 @@ Artisan::command('ebek-test', function () {
 
 
     }
+
+
+});
+Artisan::command('toyz_shop',function () {
+    $url = 'http://www.toyzzshop.com/monster-high-gizemli-sirlar-havali-pijama-partisi-serisi-surpriz-paket-hyv64?serial=92603';
+    $response = Http::withHeaders(
+        [
+            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
+        ]
+    )->get($url)->body();
+
+    $crawler = new Crawler($response);
+
+    $dom = $crawler->filter('script[type="application/ld+json"]')->eq(1);
+    if ($dom->count() > 0)
+    {
+        $data = json_decode($dom->text(), true);
+        $price = $data['offers']['lowPrice'];
+        $price = $price * 1.60 * Currency::syncTryRate();
+        $price = (int)($price) * 10000 / 10000;
+    }
+
+    preg_match('/"stock"\s*:\s*(\d+)/', $response, $matches);
+
+    if (!empty($matches[1])) {
+        $stock = intval($matches[1]);
+    }
+
+    dump($price,$stock);
+
 
 
 });
