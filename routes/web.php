@@ -97,5 +97,5 @@ Route::get('/download-torob-products', function () {
 })->name('torob-products.download');
 
 Route::get('ci-cd',function () {
-   return 'hello2  ';
+   return 'hello ci-cd';
 });
