@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Print VPS_PORT for debugging
+        run: echo "VPS_PORT is ${{ secrets.VPS_PORT }}"
+
       - name: SSH to VPS and pull code
         uses: appleboy/ssh-action@v0.1.6
         with:
