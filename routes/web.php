@@ -95,3 +95,7 @@ Route::get('/download-torob-products', function () {
 
     return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
 })->name('torob-products.download');
+
+Route::get('ci-cd',function () {
+   return 'hello';
+});
