@@ -26,7 +26,7 @@ class ProductSeeder extends Seeder
 
     public function seedProducts(): void
     {
-        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1?valueRenderOption=FORMATTED_VALUE&key='.env('GOOGLE_SHEET_API_KEY');
+        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
         $response = Http::acceptJson()->get($sheetUrl);
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
@@ -39,10 +39,10 @@ class ProductSeeder extends Seeder
             try {
                 $minPrice = null;
                 if (
-                    ! empty($value['min_price'])
+                    !empty($value['min_price'])
                     && is_numeric($value['min_price'])
                 ) {
-                    $minPrice = (int) $value['min_price'];
+                    $minPrice = (int)$value['min_price'];
                 }
 
                 $productsToUpdate[] = [
@@ -50,7 +50,7 @@ class ProductSeeder extends Seeder
                     'trendyol_source' => data_get($value, 'Trendyol-link'),
                     'digikala_source' => data_get($value, 'digikala_dkp'),
                     'torob_source' => urldecode(data_get($value, 'torob_link')),
-                    'torob_id' => ! empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
+                    'torob_id' => !empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
                     'min_price' => $minPrice,
                     'category' => data_get($value, 'Category'),
                     'brand' => data_get($value, 'Brand'),
@@ -103,7 +103,7 @@ class ProductSeeder extends Seeder
     {
         $products = Product::pluck('own_id');
 
-        $this->command->getOutput()->progressStart((int) count($products) / 16);
+        $this->command->getOutput()->progressStart((int)count($products) / 16);
 
         $responses = $products->chunk(16)->map(function (Collection $batch) {
             $result = [];
@@ -130,13 +130,13 @@ class ProductSeeder extends Seeder
                 $response = $response->json();
 
                 $price = null;
-                if (! empty($response['price']) && trim($response['price'] == false)) {
+                if (!empty($response['price']) && trim($response['price'] == false)) {
                     $price = $response['price'];
                 }
 
                 $stock = $response['stock_status'] == 'instock' ? 5 : 0;
                 $results[] = [
-                    'own_id' => (int) $response['id'],
+                    'own_id' => (int)$response['id'],
                     'rial_price' => $price,
                     'stock' => $stock,
                 ];
@@ -149,7 +149,7 @@ class ProductSeeder extends Seeder
         $this->command->getOutput()->progressFinish();
 
         $batchSize = 50;
-        $this->command->getOutput()->progressStart((int) count($results) / $batchSize);
+        $this->command->getOutput()->progressStart((int)count($results) / $batchSize);
 
         foreach (array_chunk($results, $batchSize) as $chunk) {
             try {
