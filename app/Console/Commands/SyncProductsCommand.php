@@ -135,7 +135,6 @@ class SyncProductsCommand extends Command
 
         if ($stock == 0 && $product->belongsToDecalthon())
         {
-            dump(1);
             $product = $this->syncProductFromDecalthon($product);
         }
 
@@ -177,7 +176,14 @@ class SyncProductsCommand extends Command
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
         Log::info(
             "product_update_source_{$product->id}",
-            (array) $response
+            [
+                'price' => data_get($response,'price'),
+                'sale_price' => data_get($response,'sale_price'),
+                'regular_price' => data_get($response,'regular_price'),
+                'stock_quantity' => data_get($response,'stock_quantity'),
+                'stock_status' => data_get($response,'stock_status'),
+                'own_id' => data_get($response,'id'),
+            ]
         );
 
         return $response;
@@ -329,7 +335,14 @@ class SyncProductsCommand extends Command
 
         Log::info(
             "product_update_source_{$product->own_id}",
-            (array) $response
+            [
+                'price' => data_get($response,'price'),
+                'sale_price' => data_get($response,'sale_price'),
+                'regular_price' => data_get($response,'regular_price'),
+                'stock_quantity' => data_get($response,'stock_quantity'),
+                'stock_status' => data_get($response,'stock_status'),
+                'own_id' => data_get($response,'id'),
+            ]
         );
 
         return $response;
@@ -426,7 +439,13 @@ class SyncProductsCommand extends Command
         $response = $this->woocommerce->post("products/{$variation->product->own_id}", $data);
         Log::info(
             "product_update_source_{$variation->product->own_id}",
-            (array) $response
+            [
+                'price' => data_get($response,'price'),
+                'sale_price' => data_get($response,'sale_price'),
+                'regular_price' => data_get($response,'regular_price'),
+                'stock_quantity' => data_get($response,'stock_quantity'),
+                'stock_status' => data_get($response,'stock_status'),
+            ]
         );
 
         return $response;
