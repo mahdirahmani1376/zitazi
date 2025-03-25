@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string|null $url
@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereTotal($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereUrl($value)
+ * @property string|null $zitazi_category
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Report whereZitaziCategory($value)
  * @mixin \Eloquent
  */
 class Report extends Model
