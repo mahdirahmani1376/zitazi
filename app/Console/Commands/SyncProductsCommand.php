@@ -331,17 +331,23 @@ class SyncProductsCommand extends Command
             'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
+        Log::info("product_update_data_{$product->id}",[
+            'body' => $data,
+            'product' => $product->toArray()
+        ]);
+
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
         Log::info(
-            "product_update_source_{$product->own_id}",
+            "product_update_source_{$product->id}",
             [
                 'price' => data_get($response,'price'),
                 'sale_price' => data_get($response,'sale_price'),
                 'regular_price' => data_get($response,'regular_price'),
                 'stock_quantity' => data_get($response,'stock_quantity'),
                 'stock_status' => data_get($response,'stock_status'),
-                'own_id' => data_get($response,'id'),
+                'zitazi_id' => data_get($response,'id'),
+                'product' => $product->toArray()
             ]
         );
 
