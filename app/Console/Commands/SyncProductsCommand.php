@@ -133,8 +133,7 @@ class SyncProductsCommand extends Command
             $stock = 0;
         }
 
-        if ($stock == 0 && $product->belongsToDecalthon())
-        {
+        if ($stock == 0 && $product->belongsToDecalthon()) {
             $product = $this->syncProductFromDecalthon($product);
         }
 
@@ -171,18 +170,18 @@ class SyncProductsCommand extends Command
             'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        Log::info("product_update_data_{$product->id}",$data);
+        Log::info("product_update_data_{$product->id}", $data);
 
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
         Log::info(
             "product_update_source_{$product->id}",
             [
-                'price' => data_get($response,'price'),
-                'sale_price' => data_get($response,'sale_price'),
-                'regular_price' => data_get($response,'regular_price'),
-                'stock_quantity' => data_get($response,'stock_quantity'),
-                'stock_status' => data_get($response,'stock_status'),
-                'own_id' => data_get($response,'id'),
+                'price' => data_get($response, 'price'),
+                'sale_price' => data_get($response, 'sale_price'),
+                'regular_price' => data_get($response, 'regular_price'),
+                'stock_quantity' => data_get($response, 'stock_quantity'),
+                'stock_status' => data_get($response, 'stock_status'),
+                'own_id' => data_get($response, 'id'),
             ]
         );
 
@@ -331,9 +330,9 @@ class SyncProductsCommand extends Command
             'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        Log::info("product_update_data_{$product->id}",[
+        Log::info("product_update_data_{$product->id}", [
             'body' => $data,
-            'product' => $product->toArray()
+            'product' => $product->toArray(),
         ]);
 
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
@@ -341,13 +340,13 @@ class SyncProductsCommand extends Command
         Log::info(
             "product_update_source_{$product->id}",
             [
-                'price' => data_get($response,'price'),
-                'sale_price' => data_get($response,'sale_price'),
-                'regular_price' => data_get($response,'regular_price'),
-                'stock_quantity' => data_get($response,'stock_quantity'),
-                'stock_status' => data_get($response,'stock_status'),
-                'zitazi_id' => data_get($response,'id'),
-                'product' => $product->toArray()
+                'price' => data_get($response, 'price'),
+                'sale_price' => data_get($response, 'sale_price'),
+                'regular_price' => data_get($response, 'regular_price'),
+                'stock_quantity' => data_get($response, 'stock_quantity'),
+                'stock_status' => data_get($response, 'stock_status'),
+                'zitazi_id' => data_get($response, 'id'),
+                'product' => $product->toArray(),
             ]
         );
 
@@ -446,11 +445,11 @@ class SyncProductsCommand extends Command
         Log::info(
             "product_update_source_{$variation->product->own_id}",
             [
-                'price' => data_get($response,'price'),
-                'sale_price' => data_get($response,'sale_price'),
-                'regular_price' => data_get($response,'regular_price'),
-                'stock_quantity' => data_get($response,'stock_quantity'),
-                'stock_status' => data_get($response,'stock_status'),
+                'price' => data_get($response, 'price'),
+                'sale_price' => data_get($response, 'sale_price'),
+                'regular_price' => data_get($response, 'regular_price'),
+                'stock_quantity' => data_get($response, 'stock_quantity'),
+                'stock_status' => data_get($response, 'stock_status'),
             ]
         );
 

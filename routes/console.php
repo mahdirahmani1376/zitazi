@@ -4,10 +4,9 @@ use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
-use \Illuminate\Support\Facades\Http;
 
 /*
  * schedule section
@@ -20,7 +19,6 @@ Schedule::command('app:index-zitazi-torob-products')->dailyAt('20:00');
 /*
  *
  */
-
 
 Artisan::command('test', function () {
 
@@ -58,12 +56,11 @@ Artisan::command('test-torob', function () {
         $data = collect(json_decode($element->text(), true));
         $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
         $zitaziPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
-        $minPrice = collect($sellers)->pluck('price')->filter(fn($p) => $p > 0)->min();
+        $minPrice = collect($sellers)->pluck('price')->filter(fn ($p) => $p > 0)->min();
         dd($zitaziPrice, $minPrice);
     }
 });
-Artisan::command('test-excel', function () {
-});
+Artisan::command('test-excel', function () {});
 Artisan::command('test-digi', function () {
     //    $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/18087380/')->collect();
     // $response = \Illuminate\Support\Facades\Http::get('https://api.digikala.com/v2/product/14851833/')->collect();
@@ -124,7 +121,7 @@ Artisan::command('testd', function () {
     // $pattern = '/^__DKT\s*=\s*(\{.*\})$/';
     foreach ($variations as &$variation) {
         $skuId = $variation['sku'];
-        $pattern = '/"skuId"\s*:\s*"' . preg_quote($skuId, '/') . '"\s*,\s*"size"\s*:\s*"([^"]+)"/';
+        $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
         if (preg_match($pattern, $jsonString, $matches)) {
             $size = $matches[1];
@@ -149,12 +146,12 @@ Artisan::command('torob_add_id', function () {
     foreach (Product::whereNotNull('torob_source')->get() as $product) {
 
         $product->update([
-            'torob_id' => !empty($product->torob_source) ? data_get(explode('/', urldecode($product->torob_source)), 4) : null
+            'torob_id' => ! empty($product->torob_source) ? data_get(explode('/', urldecode($product->torob_source)), 4) : null,
         ]);
     }
 });
 Artisan::command('elele_test', function () {
-//    $url = 'https://www.elelebaby.com/elele-misto-4in1-bebek-mama-sandalyesi-ve-mama-oturagi-ic-pedli-yesil';
+    //    $url = 'https://www.elelebaby.com/elele-misto-4in1-bebek-mama-sandalyesi-ve-mama-oturagi-ic-pedli-yesil';
     $url = 'https://www.elelebaby.com/elele-lula-travel-sistem-bebek-arabasi-siyah-gri';
 
     $response = Http::withHeaders(
@@ -175,7 +172,7 @@ Artisan::command('elele_test', function () {
                 $price = $matches[1];
                 dump($price);
                 $price = $price * 1.60 * Currency::syncTryRate();
-                $price = (int)($price) * 10000 / 10000;
+                $price = (int) ($price) * 10000 / 10000;
                 dump($price);
                 break;
 
@@ -210,7 +207,7 @@ Artisan::command('digi-cat', function () {
         $categories[$product['id']]['base_category'] = data_get($product, 'data_layer.category');
         foreach (range(2, 7) as $i) {
             $text = "item_category{$i}";
-            if (!empty($category = data_get($product, "data_layer.{$text}"))) {
+            if (! empty($category = data_get($product, "data_layer.{$text}"))) {
                 $categories[$product['id']]['sub_category'][] = $category;
             }
         }
@@ -240,36 +237,34 @@ Artisan::command('ebek-test', function () {
 
     $crawler = new Crawler($response);
 
-//    foreach (range(41, 45) as $i) {
-//        $dom = $crawler->filter("head > script:nth-child({$i})")->first();
-        $dom = $crawler->filter('script[type="application/ld+json"]')->eq(0);
-//        dump($i);
+    //    foreach (range(41, 45) as $i) {
+    //        $dom = $crawler->filter("head > script:nth-child({$i})")->first();
+    $dom = $crawler->filter('script[type="application/ld+json"]')->eq(0);
+    //        dump($i);
 
-        if ($dom
-//            &&
-//            preg_match('/^\{"@co/', $dom->text(), $matches)
-        ) {
-            $data = json_decode($dom->text(), true);
-            $price = $data['offers']['price'];
-            dump($price);
-            $price = $price * 1.60 * Currency::syncTryRate();
-            $price = (int)($price) * 10000 / 10000;
-            dump($price);
+    if ($dom
+        //            &&
+        //            preg_match('/^\{"@co/', $dom->text(), $matches)
+    ) {
+        $data = json_decode($dom->text(), true);
+        $price = $data['offers']['price'];
+        dump($price);
+        $price = $price * 1.60 * Currency::syncTryRate();
+        $price = (int) ($price) * 10000 / 10000;
+        dump($price);
 
-            $stock = $data['offers']['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+        $stock = $data['offers']['availability'] == 'https://schema.org/InStock' ? 88 : 0;
 
-            dump($stock);
+        dump($stock);
 
-//            break;
+        //            break;
 
-//        }
-
+        //        }
 
     }
 
-
 });
-Artisan::command('toyz_shop',function () {
+Artisan::command('toyz_shop', function () {
     $url = 'http://www.toyzzshop.com/monster-high-gizemli-sirlar-havali-pijama-partisi-serisi-surpriz-paket-hyv64?serial=92603';
     $response = Http::withHeaders(
         [
@@ -280,25 +275,19 @@ Artisan::command('toyz_shop',function () {
     $crawler = new Crawler($response);
 
     $dom = $crawler->filter('script[type="application/ld+json"]')->eq(1);
-    if ($dom->count() > 0)
-    {
+    if ($dom->count() > 0) {
         $data = json_decode($dom->text(), true);
         $price = $data['offers']['lowPrice'];
         $price = $price * 1.60 * Currency::syncTryRate();
-        $price = (int)($price) * 10000 / 10000;
+        $price = (int) ($price) * 10000 / 10000;
     }
 
     preg_match('/"stock"\s*:\s*(\d+)/', $response, $matches);
 
-    if (!empty($matches[1])) {
+    if (! empty($matches[1])) {
         $stock = intval($matches[1]);
     }
 
-    dump($price,$stock);
-
-
+    dump($price, $stock);
 
 });
-
-
-

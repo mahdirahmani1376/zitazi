@@ -30,7 +30,7 @@ Route::get('/report', function () {
             ->latest('created_at')
             ->first();
 
-        $digikala->setAttribute('top_digikala_sub_categories',$digikala->topDigikalaSubCategories());
+        $digikala->setAttribute('top_digikala_sub_categories', $digikala->topDigikalaSubCategories());
 
         $torob = Report::query()
             ->where('zitazi_category', $category)
@@ -38,7 +38,7 @@ Route::get('/report', function () {
             ->latest('created_at')
             ->first();
 
-        $torob->setAttribute('top_torob_sub_categories',$digikala->topTorobSubCategories());
+        $torob->setAttribute('top_torob_sub_categories', $digikala->topTorobSubCategories());
 
         $data[$category] = [
             'digikala' => $digikala,
@@ -82,13 +82,11 @@ Route::get('/variation-download', function () {
     return Excel::download(new DecalthonVariationExport, "variations_{$now}.xlsx");
 })->name('variations.download');
 
-
-Route::get('/torob-products',function () {
-    return view('torob-products',[
-        'data' => TorobProduct::all()
+Route::get('/torob-products', function () {
+    return view('torob-products', [
+        'data' => TorobProduct::all(),
     ]);
 })->name('torob-products.index');
-
 
 Route::get('/download-torob-products', function () {
     $now = now()->toDateTimeString();
@@ -96,6 +94,6 @@ Route::get('/download-torob-products', function () {
     return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
 })->name('torob-products.download');
 
-Route::get('ci-cd',function () {
-   return 'hello ci-cd';
+Route::get('ci-cd', function () {
+    return 'hello ci-cd';
 });

@@ -10,17 +10,16 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class TorobProductsExport implements FromCollection, WithHeadings, WithMapping
 {
-/**
+    /**
      * @return \Illuminate\Support\Collection
      */
     public function collection()
     {
         $torobProducts = TorobProduct::all();
-        $products = Product::whereIn('torob_id',$torobProducts->pluck('random_key'))->get()->keyBy('torob_id');
+        $products = Product::whereIn('torob_id', $torobProducts->pluck('random_key'))->get()->keyBy('torob_id');
 
-        foreach ($torobProducts as $torobProduct)
-        {
-            $torobProduct->setAttribute('product',$products->get($torobProduct->random_key));
+        foreach ($torobProducts as $torobProduct) {
+            $torobProduct->setAttribute('product', $products->get($torobProduct->random_key));
         }
 
         return $torobProducts;

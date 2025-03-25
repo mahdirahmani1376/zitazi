@@ -90,19 +90,17 @@ class SheetReportCommand extends Command
                     'source' => 'digikala',
                 ]);
 
-            foreach (range(2,7) as $i)
-            {
+            foreach (range(2, 7) as $i) {
                 $text = "item_category{$i}";
-                if (! empty($category = data_get($product,"data_layer.{$text}")))
-                {
+                if (! empty($category = data_get($product, "data_layer.{$text}"))) {
                     SubCategory::updateOrCreate([
                         'external_product_id' => $externalProduct->id,
                         'name' => $category,
-                        'parent_category' => data_get($product,'data_layer.category'),
-                    ],[
+                        'parent_category' => data_get($product, 'data_layer.category'),
+                    ], [
                         'name' => $category,
-                        'parent_category' => data_get($product,'data_layer.category'),
-                        'external_product_id' => $externalProduct->id
+                        'parent_category' => data_get($product, 'data_layer.category'),
+                        'external_product_id' => $externalProduct->id,
                     ]);
                 }
             }
@@ -117,7 +115,7 @@ class SheetReportCommand extends Command
             'average' => $average / 10,
             'total' => $products->count(),
             'source' => 'digikala',
-            'zitazi_category' => $data['Category']
+            'zitazi_category' => $data['Category'],
         ]);
 
     }
@@ -141,7 +139,6 @@ class SheetReportCommand extends Command
             }
         });
 
-
         $products = $responses->pluck('props.pageProps.products')->collapse();
         $bar = $this->output->createProgressBar($products->count());
 
@@ -158,50 +155,50 @@ class SheetReportCommand extends Command
                     'source' => 'torob',
                 ]);
 
-            $externalProducts[data_get($product,'random_key')]['model'] = $p;
-            $externalProducts[data_get($product,'random_key')]['product'] = $product;
+            $externalProducts[data_get($product, 'random_key')]['model'] = $p;
+            $externalProducts[data_get($product, 'random_key')]['product'] = $product;
 
         }
 
         $responseProducts = Http::pool(function (Pool $pool) use ($products) {
             return $products->map(function ($product) use ($pool) {
-                $url = data_get($product,'more_info_url');
+                $url = data_get($product, 'more_info_url');
                 try {
                     $response = $pool->get($url);
+
                     return $response;
-                } catch (\Exception $e)
-                {
+                } catch (\Exception $e) {
                     dump('error_response_'.$product['more_info_url']);
                 }
             });
         });
 
-        $responseProducts = collect($responseProducts)->each(function ($response) use ($bar, $zitaziCategory, $products,$externalProducts) {
-            if (! $response instanceof Response)
-            {
+        $responseProducts = collect($responseProducts)->each(function ($response) use ($bar, $externalProducts) {
+            if (! $response instanceof Response) {
                 $bar->advance();
+
                 return;
             }
 
             /** @var Response $data */
             $data = $response->json();
-            $randomKey = data_get($data,'random_key');
+            $randomKey = data_get($data, 'random_key');
             /** @var ExternalProduct $externalProduct */
             $externalProduct = $externalProducts[$randomKey]['model'] ?? null;
-            if (! $externalProduct)
-            {
+            if (! $externalProduct) {
                 $bar->advance();
+
                 return;
             }
 
-            $breadCrumbs = array_slice($data['breadcrumbs'],2);
+            $breadCrumbs = array_slice($data['breadcrumbs'], 2);
             $parentCategory = $data['breadcrumbs'][1]['title'];
             foreach ($breadCrumbs as $breadCrumb) {
                 SubCategory::updateOrCreate([
                     'external_product_id' => $externalProduct->id,
                     'name' => $breadCrumb['title'],
                     'parent_category' => $parentCategory,
-                ],[
+                ], [
                     'name' => $breadCrumb['title'],
                     'parent_category' => $parentCategory,
                 ]);
@@ -212,7 +209,6 @@ class SheetReportCommand extends Command
 
         $bar->finish();
 
-
         $average = (int) $products->pluck('price')->average();
 
         $report = Report::query()->create([
@@ -220,7 +216,7 @@ class SheetReportCommand extends Command
             'average' => $average,
             'total' => $products->count(),
             'source' => 'torob',
-            'zitazi_category' => $zitaziCategory
+            'zitazi_category' => $zitaziCategory,
         ]);
 
     }

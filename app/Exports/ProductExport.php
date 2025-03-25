@@ -4,9 +4,9 @@ namespace App\Exports;
 
 use App\Models\Product;
 use App\Models\TorobProduct;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ProductExport implements FromCollection, WithHeadings, WithMapping
 {
@@ -21,9 +21,8 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
 
         $torobProducts = TorobProduct::get()->keyBy('random_key');
 
-        foreach ($products as $product)
-        {
-            $product->setAttribute('torob_product',$torobProducts->get($product->torob_id));
+        foreach ($products as $product) {
+            $product->setAttribute('torob_product', $torobProducts->get($product->torob_id));
         }
 
         return $products;
