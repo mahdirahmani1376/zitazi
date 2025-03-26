@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class DecalthonVariationExport implements FromCollection, WithHeadings, WithMapping
+class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -21,11 +21,12 @@ class DecalthonVariationExport implements FromCollection, WithHeadings, WithMapp
     public function headings(): array
     {
         return [
-            'شناسه تنوع',
-            'شناسه محصول',
-            'شناسه زیتازی',
+            'شناسه تنوع در وب سرویس',
+            'شناسه محصول در وب سرویس',
+            'شناسه محصول زیتازی',
+            'شناسه تنوع زیتازی',
             'شناسه تنوع دکلتون',
-            'قیمت ',
+            'قیمت',
             'قیمت ریالی',
             'لینک تنوع',
             'موجودی',
@@ -40,7 +41,8 @@ class DecalthonVariationExport implements FromCollection, WithHeadings, WithMapp
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,
-            'zitazi_id' => $row->product->own_id,
+            'zitazi_product_id' => $row->product->own_id,
+            'zitazi_variation_id' => $row->product->own_id,
             'sku' => $row->sku,
             'price' => $row->price,
             'rial_price' => $row->rial_price,

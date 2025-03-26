@@ -364,6 +364,7 @@ class SyncProductsCommand extends Command
         $crawler = new Crawler($response);
         $element = $crawler->filter($element)->first();
         $jsonString = $crawler->filter('#__dkt')->first()->text();
+        $productId = null;
 
         $variations = [];
         if ($element->count() > 0) {
@@ -383,7 +384,8 @@ class SyncProductsCommand extends Command
             }
         }
 
-        foreach ($variations as &$variation) {
+
+        foreach ($variations as $variation) {
             $skuId = $variation['sku'];
             $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
@@ -391,9 +393,6 @@ class SyncProductsCommand extends Command
                 $size = $matches[1];
                 $variation['size'] = $size;
             }
-        }
-
-        foreach ($variations as $variation) {
             $price = (int) str_replace(',', '.', trim($variation['price']));
             $rialPrice = $this->rate * $price;
             $rialPrice = $rialPrice * 1.6;
@@ -420,8 +419,9 @@ class SyncProductsCommand extends Command
                 'sku' => $variation['sku'],
             ], $createData);
 
+
             if (! $this->option('not-sync') && ! $product->belongsToIran()) {
-                //    $this->syncSourceDecalthon($variation);
+                    $this->syncSourceDecalthon($variation);
             }
         }
 
@@ -441,9 +441,14 @@ class SyncProductsCommand extends Command
             'stock_status' => $variation->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        $response = $this->woocommerce->post("products/{$variation->product->own_id}", $data);
         Log::info(
-            "product_update_source_{$variation->product->own_id}",
+            "product_update_data_{$variation->id}",
+            $data
+        );
+
+        $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
+        Log::info(
+            "product_update_source_{$variation->id}",
             [
                 'price' => data_get($response, 'price'),
                 'sale_price' => data_get($response, 'sale_price'),
