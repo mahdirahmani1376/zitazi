@@ -26,3 +26,4 @@ jobs:
           script: |
             cd /var/www/zitazi
             git pull origin master
+            php artisan migrate --force
