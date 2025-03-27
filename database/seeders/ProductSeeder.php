@@ -31,7 +31,7 @@ class ProductSeeder extends Seeder
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
 
-//        $data = array_slice($data, 0, 10);
+        //        $data = array_slice($data, 0, 10);
 
         $productsToUpdate = [];
 

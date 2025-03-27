@@ -96,12 +96,12 @@ Route::get('/download-torob-products', function () {
     return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
 })->name('torob-products.download');
 
-Route::post('import',function (Request $request){
+Route::post('import', function (Request $request) {
     $request->validate([
-        'file' => 'required|mimes:xlsx,csv,xls|max:2048'
+        'file' => 'required|mimes:xlsx,csv,xls|max:2048',
     ]);
 
-   Excel::import(new ImportDecathlonVariation(),$request->file('file'));
+    Excel::import(new ImportDecathlonVariation, $request->file('file'));
 
     return back()->with('success', 'فایل با موفقیت ایمپورت شد');
 })->name('variations.import');

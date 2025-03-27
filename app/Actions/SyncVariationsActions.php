@@ -3,8 +3,6 @@
 namespace App\Actions;
 
 use App\Models\Currency;
-use App\Models\Product;
-use App\Models\ProductCompare;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
@@ -16,6 +14,7 @@ use Symfony\Component\DomCrawler\Crawler;
 class SyncVariationsActions
 {
     private Client $woocommerce;
+
     private mixed $rate;
 
     public function __construct()
@@ -46,7 +45,7 @@ class SyncVariationsActions
         Log::info("variation_update_{$variation->id}", [
             'before' => $variation->getOriginal(),
             'after' => $variation->getChanges(),
-            'data' => $data
+            'data' => $data,
         ]);
 
         $this->syncZitazi($variation);
@@ -56,9 +55,9 @@ class SyncVariationsActions
     private function syncZitazi(Variation $variation)
     {
         $data = [
-            'price' => '' . $variation->rial_price,
+            'price' => ''.$variation->rial_price,
             'sale_price' => null,
-            'regular_price' => '' . $variation->rial_price,
+            'regular_price' => ''.$variation->rial_price,
             'stock_quantity' => $variation->stock,
             'stock_status' => $variation->stock > 0 ? 'instock' : 'outofstock',
         ];
@@ -108,7 +107,7 @@ class SyncVariationsActions
         $variations = collect($variations)->keyBy('sku');
         $stock = $variations[$variation->sku]['stock'];
 
-        $price = (int)str_replace(',', '.', trim($variation['price']));
+        $price = (int) str_replace(',', '.', trim($variation['price']));
         $rialPrice = $this->rate * $price;
         $rialPrice = $rialPrice * 1.6;
 
@@ -128,5 +127,4 @@ class SyncVariationsActions
 
         return $data;
     }
-
 }

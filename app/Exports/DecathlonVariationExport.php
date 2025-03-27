@@ -36,21 +36,21 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
             'زمان آپدیت',
         ];
 
-//        return [
-//            'variation_id',
-//            'product_id',
-//            'product_name',
-//            'zitazi_product_id',
-//            'zitazi_varition_id',
-//            'decathlon_variation_id',
-//            'trendyol_zitazi_product_id',
-//            'price',
-//            'rial_price',
-//            'url',
-//            'stock',
-//            'size',
-//            'updated_at',
-//        ];
+        //        return [
+        //            'variation_id',
+        //            'product_id',
+        //            'product_name',
+        //            'zitazi_product_id',
+        //            'zitazi_varition_id',
+        //            'decathlon_variation_id',
+        //            'trendyol_zitazi_product_id',
+        //            'price',
+        //            'rial_price',
+        //            'url',
+        //            'stock',
+        //            'size',
+        //            'updated_at',
+        //        ];
     }
 
     public function map($row): array

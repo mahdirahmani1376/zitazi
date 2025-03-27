@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ImportDecathlonVariation implements ToModel,WithHeadingRow
+class ImportDecathlonVariation implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        $result =  Variation::updateOrCreate(
+        $result = Variation::updateOrCreate(
             ['id' => $row['شناسه تنوع در وب سرویس']],
             [
                 'own_id' => $row['شناسه تنوع زیتازی'],
@@ -19,10 +19,10 @@ class ImportDecathlonVariation implements ToModel,WithHeadingRow
             ]
         );
 
-        Log::info("product-import-update",[
+        Log::info('product-import-update', [
             'before' => $result->getOriginal(),
             'after' => $result->getChanges(),
-            'data' => $row
+            'data' => $row,
         ]);
 
         return $result;

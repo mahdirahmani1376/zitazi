@@ -280,7 +280,6 @@ Artisan::command('toyz_shop', function () {
 
 });
 
-
-Artisan::command('sync-variations',function (\App\Actions\SyncVariationsActions $syncVariationsActions){
+Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions $syncVariationsActions) {
     $syncVariationsActions();
 });

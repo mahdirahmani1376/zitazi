@@ -5,16 +5,10 @@ namespace Database\Seeders;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
-use Illuminate\Http\Client\Pool;
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
-use Throwable;
 
 class VariationSeeder extends Seeder
 {
@@ -22,10 +16,10 @@ class VariationSeeder extends Seeder
 
     public function run(): void
     {
-//        Variation::truncate();
+        //        Variation::truncate();
 
         $products = Product::query()
-            ->whereNot('decathlon_url','=','')
+            ->whereNot('decathlon_url', '=', '')
             ->get();
 
         $this->rate = Currency::syncTryRate();
@@ -61,14 +55,12 @@ class VariationSeeder extends Seeder
                 }
             }
 
-
             foreach ($variations as $variation) {
                 $skuId = $variation['sku'];
                 $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
                 $jsonString = $crawler->filter('#__dkt')->first();
-                if ($jsonString->count() > 0)
-                {
+                if ($jsonString->count() > 0) {
                     if (preg_match($pattern, $jsonString->text(), $matches)) {
                         $size = $matches[1];
                         $variation['size'] = $size;
@@ -76,6 +68,7 @@ class VariationSeeder extends Seeder
                 } else {
                     dump("no variation found for {$product->id}");
                     Log::info("no variation found for {$product->id}");
+
                     continue;
                 }
 
@@ -110,7 +103,6 @@ class VariationSeeder extends Seeder
         });
 
         $bar->finish();
-
 
     }
 }

@@ -6,7 +6,6 @@ use App\Actions\SyncVariationsActions;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
-use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
 use Exception;
@@ -36,6 +35,7 @@ class SyncProductsCommand extends Command
     private array $headers;
 
     private Client $woocommerce;
+
     private SyncVariationsActions $syncVariationAction;
 
     /**
@@ -348,5 +348,4 @@ class SyncProductsCommand extends Command
 
         return $response;
     }
-
 }
