@@ -1,6 +1,6 @@
 <?php
 
-use App\Jobs\SyncVariationJob;
+use App\Jobs\SyncVariationsJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,14 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
             function () use ($schedule) {
                 $schedule->command('app:sync-products')->after(
                     function () use ($schedule) {
-                        $schedule->job(SyncVariationJob::class);
+                        $schedule->job(SyncVariationsJob::class);
                     }
                 );
             }
         );
         $schedule->command('app:sheet-report')->dailyAt('06:00');
         $schedule->command('app:sync-products')->dailyAt('18:30');
-        $schedule->job(SyncVariationJob::class)->dailyAt('19:00');
+        $schedule->job(SyncVariationsJob::class)->dailyAt('19:00');
         $schedule->command('app:index-zitazi-torob-products')->dailyAt('20:00');
 
     })

@@ -84,7 +84,7 @@ class IndexZitaziTorobProducts extends Command
 
             $endTime = microtime(true);
             $duration = $endTime - $startTime;
-            Log::info('Finished app:sync-products at ' . Carbon::now()->toDateTimeString() .
+            Log::info('Finished app:index-zitazi-torob-products at ' . Carbon::now()->toDateTimeString() .
                 '. Duration: ' . number_format($duration, 2) . ' seconds.');
 
         }

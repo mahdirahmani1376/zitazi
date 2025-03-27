@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SyncVariationJob;
+use App\Jobs\SyncVariationsJob;
 use Illuminate\Console\Command;
 
 class SyncVariationCommand extends Command
@@ -14,6 +14,6 @@ class SyncVariationCommand extends Command
     public function handle(): void
     {
         $sync = $this->option('sync') == true;
-        SyncVariationJob::dispatchSync($sync);
+        SyncVariationsJob::dispatchSync($sync);
     }
 }

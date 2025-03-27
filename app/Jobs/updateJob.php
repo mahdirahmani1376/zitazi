@@ -23,8 +23,9 @@ class updateJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('db:seed --class=ProductSeeder');
+        Artisan::call('db:seed');
         Artisan::call('app:sheet-report');
         Artisan::call('app:sync-products');
+        Artisan::call('app:sync-variations');
     }
 }
