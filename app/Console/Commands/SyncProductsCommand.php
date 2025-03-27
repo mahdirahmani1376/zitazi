@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\SyncVariationsActions;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
@@ -35,6 +36,7 @@ class SyncProductsCommand extends Command
     private array $headers;
 
     private Client $woocommerce;
+    private SyncVariationsActions $syncVariationAction;
 
     /**
      * Execute the console command.
@@ -48,6 +50,7 @@ class SyncProductsCommand extends Command
         $this->rate = Currency::syncTryRate();
 
         $this->woocommerce = WoocommerceService::getClient();
+        $this->syncVariationAction = app(SyncVariationsActions::class);
 
         if (! empty($this->option('override-id'))) {
             $product = Product::find($this->option('override-id'));
@@ -57,21 +60,9 @@ class SyncProductsCommand extends Command
             if ($product->belongsToIran()) {
                 $this->syncIran($product);
             }
-//            if ($product->belongsToDecalthon()) {
-//                $this->syncDecalthon($product);
-//            }
 
             return 0;
         }
-
-//        if (! empty($this->option('d'))) {
-//            $products = Product::whereNotNull('decathlon_url')->get();
-//            foreach ($products as $product) {
-//                $this->syncDecalthon($product);
-//            }
-//
-//            return 0;
-//        }
 
         $products = Product::all();
 
@@ -82,9 +73,6 @@ class SyncProductsCommand extends Command
                 if ($product->belongsToTrendyol()) {
                     $this->syncTrendyol($product);
                 }
-//                if ($product->belongsToDecalthon()) {
-//                    $this->syncDecalthon($product);
-//                }
                 if ($product->belongsToIran()) {
                     $this->syncIran($product);
                 }
@@ -133,9 +121,17 @@ class SyncProductsCommand extends Command
             $stock = 0;
         }
 
-//        if ($stock == 0 && $product->belongsToDecalthon()) {
-//            $product = $this->syncProductFromDecalthon($product);
-//        }
+        if (
+            $stock == 0
+            && $product->belongsToDecalthon()
+            && $product->decathlonVariation()->exists()
+        ) {
+            [
+                $price,
+                $stock,
+                $rialPrice,
+            ] = ($this->syncVariationAction)->getVariationData($product->decathlonVariation);
+        }
 
         if (empty($price)) {
             $stock = 0;
@@ -353,142 +349,4 @@ class SyncProductsCommand extends Command
         return $response;
     }
 
-    private function syncDecalthon(Product $product)
-    {
-        $response = Http::withHeaders($this->headers)
-            ->get($product->decathlon_url)
-            ->body();
-
-        $element = 'script[type="application/ld+json"]';
-
-        $crawler = new Crawler($response);
-        $element = $crawler->filter($element)->first();
-        $jsonString = $crawler->filter('#__dkt')->first()->text();
-        $productId = null;
-
-        $variations = [];
-        if ($element->count() > 0) {
-
-            $data = collect(json_decode($element->text(), true));
-            $productId = data_get($data, 'productID');
-            $offers = collect($data->get('offers'))->collapse();
-            foreach ($offers as $offer) {
-                $stock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
-                $variations[] = [
-                    'product_id' => $productId,
-                    'sku' => $offer['sku'] ?? null,
-                    'price' => $offer['price'] ?? null,
-                    'url' => $offer['url'] ?? null,
-                    'stock' => $stock ?? 0,
-                ];
-            }
-        }
-
-
-        foreach ($variations as $variation) {
-            $skuId = $variation['sku'];
-            $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
-
-            if (preg_match($pattern, $jsonString, $matches)) {
-                $size = $matches[1];
-                $variation['size'] = $size;
-            }
-            $price = (int) str_replace(',', '.', trim($variation['price']));
-            $rialPrice = $this->rate * $price;
-            $rialPrice = $rialPrice * 1.6;
-
-            $rialPrice = floor($rialPrice / 10000) * 10000;
-
-            if (empty($price) || empty($rialPrice)) {
-                $stock = 0;
-                $price = null;
-                $rialPrice = null;
-            }
-
-            $createData = [
-                'product_id' => $product->id,
-                'sku' => $variation['sku'],
-                'price' => $variation['price'],
-                'url' => $variation['url'],
-                'stock' => $variation['stock'],
-                'size' => $variation['size'],
-                'rial_price' => $rialPrice,
-            ];
-
-            $variation = Variation::updateOrCreate([
-                'sku' => $variation['sku'],
-            ], $createData);
-
-
-            if (! $this->option('not-sync') && ! $product->belongsToIran()) {
-//                    $this->syncSourceDecalthon($variation);
-            }
-        }
-
-        $product->update([
-            'decathlon_id' => $productId,
-        ]);
-
-    }
-
-    private function syncSourceDecalthon(Variation $variation)
-    {
-        $data = [
-            'price' => ''.$variation->rial_price,
-            'sale_price' => null,
-            'regular_price' => ''.$variation->rial_price,
-            'stock_quantity' => $variation->stock,
-            'stock_status' => $variation->stock > 0 ? 'instock' : 'outofstock',
-        ];
-
-        Log::info(
-            "product_update_data_{$variation->id}",
-            $data
-        );
-
-        $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
-        Log::info(
-            "product_update_source_{$variation->id}",
-            [
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-            ]
-        );
-
-        return $response;
-    }
-
-    private function syncProductFromDecalthon(Product $product)
-    {
-        $response = Http::withHeaders($this->headers)
-            ->get($product->decathlon_url)
-            ->body();
-
-        $element = 'script[type="application/ld+json"]';
-
-        $crawler = new Crawler($response);
-        $element = $crawler->filter($element)->first();
-
-        if ($element->count() > 0) {
-            $data = collect(json_decode($element->text(), true));
-            $offer = collect($data->get('offers'))->collapse()[0];
-            $stock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
-            $price = $offer['price'] ?? null;
-            $price = (int) str_replace(',', '.', trim($price));
-            $rialPrice = $this->rate * $price;
-            $rialPrice = $rialPrice * 1.6;
-            $rialPrice = floor($rialPrice / 10000) * 10000;
-
-            $product->price = $price;
-            $product->rial_price = $rialPrice;
-            $product->stock = $stock ?? 0;
-
-            $product->update();
-        }
-
-        return $product;
-    }
 }
