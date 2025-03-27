@@ -5,9 +5,11 @@ use App\Actions\Top100Action;
 use App\Exports\DecathlonVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\TorobProductsExport;
+use App\Imports\ImportDecathlonVariation;
 use App\Jobs\updateJob;
 use App\Models\Report;
 use App\Models\TorobProduct;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -93,6 +95,16 @@ Route::get('/download-torob-products', function () {
 
     return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
 })->name('torob-products.download');
+
+Route::post('import',function (Request $request){
+    $request->validate([
+        'file' => 'required|mimes:xlsx,csv,xls|max:2048'
+    ]);
+
+   Excel::import(new ImportDecathlonVariation(),$request->file('file'));
+
+    return back()->with('success', 'فایل با موفقیت ایمپورت شد');
+})->name('variations.import');
 
 Route::get('ci-cd', function () {
     return 'hello ci-cd';
