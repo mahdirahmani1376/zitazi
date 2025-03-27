@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,110 +13,104 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 use Throwable;
 
 class VariationSeeder extends Seeder
 {
+    private mixed $rate;
+
     public function run(): void
     {
 //        Variation::truncate();
-//        $this->seedVariations();
-        $this->syncVariations();
-    }
 
-    private function seedVariations(): void
-    {
-        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet3?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
-        $response = Http::acceptJson()->get($sheetUrl);
-        $csvData = $response->json()['values'];
-        $data = parse_sheet_response($csvData);
+        $products = Product::query()
+            ->whereNot('decathlon_url','=','')
+            ->get();
 
-        $variationData = [];
+        $this->rate = Currency::syncTryRate();
 
-        $data = collect($data)
-            ->filter(function ($item) {
-                return $item['Product Type'] == 'variable'
-                    &&
-                    !empty($item['Parent Product ID'])
-                    &&
-                    !empty($item['ID'])
-                    && empty($item['source_sku'])
-                    ;
-            })->each(function ($item) use (&$variationData) {
-                $product = Product::firstWhere('own_id', '=', $item['Parent Product ID']);
+        $bar = $this->command->getOutput()->createProgressBar(count($products));
 
-                if (!empty($product)) {
-                    $variationData[] = [
-                        'own_id' => $item['ID'],
-                        'product_id' => $product->id,
-                        'updated_at' => now()->toDateString(),
-                        'created_at' => now()->toDateString(),
+        $products->each(function (Product $product) use ($bar) {
+            $response = Http::withHeaders([
+                'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
+            ])->get($product->decathlon_url)->body();
+
+            $element = 'script[type="application/ld+json"]';
+
+            $crawler = new Crawler($response);
+            $element = $crawler->filter($element)->first();
+            $productId = null;
+
+            $variations = [];
+            if ($element->count() > 0) {
+
+                $data = collect(json_decode($element->text(), true));
+                $productId = data_get($data, 'productID');
+                $offers = collect($data->get('offers'))->collapse();
+                foreach ($offers as $offer) {
+                    $stock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+                    $variations[] = [
+                        'product_id' => $productId,
+                        'sku' => $offer['sku'] ?? null,
+                        'price' => $offer['price'] ?? null,
+                        'url' => $offer['url'] ?? null,
+                        'stock' => $stock ?? 0,
                     ];
                 }
-            });
-
-
-        $batchSize = 10;
-        $chunks = array_chunk($variationData, $batchSize);
-        $this->command->getOutput()->progressStart(count($chunks));
-
-        $createData = [];
-        foreach ($chunks as $chunk) {
-            try {
-                DB::table('variations')->upsert(
-                    $chunk,
-                    ['own_id'],
-                    [
-                        'product_id',
-                        'updated_at',
-                        'created_at'
-                    ]
-                );
-            } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
             }
 
-            $this->command->getOutput()->progressAdvance();
-        }
 
-        $this->command->getOutput()->progressFinish();
+            foreach ($variations as $variation) {
+                $skuId = $variation['sku'];
+                $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
-    }
+                $jsonString = $crawler->filter('#__dkt')->first();
+                if ($jsonString->count() > 0)
+                {
+                    if (preg_match($pattern, $jsonString->text(), $matches)) {
+                        $size = $matches[1];
+                        $variation['size'] = $size;
+                    }
+                } else {
+                    dump("no variation found for {$product->id}");
+                    Log::info("no variation found for {$product->id}");
+                    continue;
+                }
 
-    private function syncVariations(): void
-    {
-        $variations = Variation::withWhereHas('product', function ($q) {
-            $q->where(function (Builder $query) {
-                $query->WhereNot('decathlon_url','=','');
-            });
-        })
-        ->limit(1)
-        ->get()
-        ->chunk(16);
+                $price = (int) str_replace(',', '.', trim($variation['price']));
+                $rialPrice = $this->rate * $price;
+                $rialPrice = $rialPrice * 1.6;
 
-        $bar = $this->command->getOutput()->createProgressBar(count($variations));
+                $rialPrice = floor($rialPrice / 10000) * 10000;
 
-        $responses = $variations->map(function (Collection $chunk) use ($bar) {
-            $result = Http::pool(function (Pool $pool) use ($chunk) {
-                return $chunk->map(function (Variation $variation) use ($pool) {
-                    return $pool->get($variation->product->decathlon_url);
-                });
-            });
+                if (empty($price) || empty($rialPrice)) {
+                    $stock = 0;
+                    $price = null;
+                    $rialPrice = null;
+                }
+
+                $createData = [
+                    'product_id' => $product->id,
+                    'sku' => $variation['sku'],
+                    'price' => $variation['price'],
+                    'url' => $variation['url'],
+                    'stock' => $variation['stock'],
+                    'size' => $variation['size'],
+                    'rial_price' => $rialPrice,
+                ];
+
+                $variation = Variation::updateOrCreate([
+                    'sku' => $variation['sku'],
+                ], $createData);
+            }
 
             $bar->advance();
-
-            return $result;
         });
 
-        $responses = $responses->collapse()->map(function ($item){
-            return $item->body();
-        });
-
-        dd($responses->toArray());
-
+        $bar->finish();
 
 
     }
-
 }

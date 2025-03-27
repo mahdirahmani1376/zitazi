@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('variations', function (Blueprint $table) {
-            $table->unsignedBigInteger('own_id')->unique();
+            $table->unsignedBigInteger('own_id')->unique()->nullable();
         });
     }
 

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * 
+ *
  * @property int $id
  * @property string|null $name
  * @property int|null $price
@@ -17,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $clickable
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct query()
@@ -33,7 +34,6 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct whereStockStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TorobProduct whereWebClientAbsoluteUrl($value)
- *
  * @mixin \Eloquent
  */
 class TorobProduct extends Model

@@ -57,21 +57,21 @@ class SyncProductsCommand extends Command
             if ($product->belongsToIran()) {
                 $this->syncIran($product);
             }
-            if ($product->belongsToDecalthon()) {
-                $this->syncDecalthon($product);
-            }
+//            if ($product->belongsToDecalthon()) {
+//                $this->syncDecalthon($product);
+//            }
 
             return 0;
         }
 
-        if (! empty($this->option('d'))) {
-            $products = Product::whereNotNull('decathlon_url')->get();
-            foreach ($products as $product) {
-                $this->syncDecalthon($product);
-            }
-
-            return 0;
-        }
+//        if (! empty($this->option('d'))) {
+//            $products = Product::whereNotNull('decathlon_url')->get();
+//            foreach ($products as $product) {
+//                $this->syncDecalthon($product);
+//            }
+//
+//            return 0;
+//        }
 
         $products = Product::all();
 
@@ -82,9 +82,9 @@ class SyncProductsCommand extends Command
                 if ($product->belongsToTrendyol()) {
                     $this->syncTrendyol($product);
                 }
-                if ($product->belongsToDecalthon()) {
-                    $this->syncDecalthon($product);
-                }
+//                if ($product->belongsToDecalthon()) {
+//                    $this->syncDecalthon($product);
+//                }
                 if ($product->belongsToIran()) {
                     $this->syncIran($product);
                 }
@@ -133,9 +133,9 @@ class SyncProductsCommand extends Command
             $stock = 0;
         }
 
-        if ($stock == 0 && $product->belongsToDecalthon()) {
-            $product = $this->syncProductFromDecalthon($product);
-        }
+//        if ($stock == 0 && $product->belongsToDecalthon()) {
+//            $product = $this->syncProductFromDecalthon($product);
+//        }
 
         if (empty($price)) {
             $stock = 0;
@@ -421,7 +421,7 @@ class SyncProductsCommand extends Command
 
 
             if (! $this->option('not-sync') && ! $product->belongsToIran()) {
-                    $this->syncSourceDecalthon($variation);
+//                    $this->syncSourceDecalthon($variation);
             }
         }
 

@@ -23,6 +23,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
         return [
             'شناسه تنوع در وب سرویس',
             'شناسه محصول در وب سرویس',
+            'نام محصول',
             'شناسه محصول زیتازی',
             'شناسه تنوع زیتازی',
             'شناسه تنوع دکلتون',
@@ -41,8 +42,9 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,
+            'product_name' => $row->product->product_name,
             'zitazi_product_id' => $row->product->own_id,
-            'zitazi_variation_id' => $row->product->own_id,
+            'zitazi_variation_id' => $row->own_id,
             'sku' => $row->sku,
             'price' => $row->price,
             'rial_price' => $row->rial_price,
