@@ -16,7 +16,7 @@ class VariationSeeder extends Seeder
 
     public function run(): void
     {
-        //        Variation::truncate();
+        // Variation::truncate();
 
         $products = Product::query()
             ->whereNot('decathlon_url', '=', '')
@@ -97,6 +97,24 @@ class VariationSeeder extends Seeder
                 $variation = Variation::updateOrCreate([
                     'sku' => $variation['sku'],
                 ], $createData);
+
+            }
+
+            $defaultVariation = $product->defaultVariation();
+
+            if (!empty($defaultVariation))
+            {
+                $price = $defaultVariation->price;
+                $rialPrice = $defaultVariation->rial_price;
+                $minPrice = $rialPrice * 1.2;
+                $stock = $defaultVariation->stock;
+
+                $product->update([
+                    'min_price' =>  $minPrice,
+                    'rial_price' => $rialPrice,
+                    'price' => $price,
+                    'stock' => $stock
+                ]);
             }
 
             $bar->advance();
