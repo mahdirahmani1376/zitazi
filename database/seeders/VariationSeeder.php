@@ -38,7 +38,9 @@ class VariationSeeder extends Seeder
                     &&
                     !empty($item['Parent Product ID'])
                     &&
-                    !empty($item['ID']);
+                    !empty($item['ID'])
+                    && empty($item['source_sku'])
+                    ;
             })->each(function ($item) use (&$variationData) {
                 $product = Product::firstWhere('own_id', '=', $item['Parent Product ID']);
 
@@ -57,6 +59,7 @@ class VariationSeeder extends Seeder
         $chunks = array_chunk($variationData, $batchSize);
         $this->command->getOutput()->progressStart(count($chunks));
 
+        $createData = [];
         foreach ($chunks as $chunk) {
             try {
                 DB::table('variations')->upsert(
@@ -110,6 +113,7 @@ class VariationSeeder extends Seeder
         });
 
         dd($responses->toArray());
+
 
 
     }
