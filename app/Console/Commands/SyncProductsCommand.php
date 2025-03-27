@@ -10,6 +10,7 @@ use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
@@ -43,6 +44,8 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
+        $startTime = microtime(true);
+
         $this->headers = [
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
         ];
@@ -89,6 +92,14 @@ class SyncProductsCommand extends Command
         }
 
         $bar->finish();
+
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+        Log::info('Finished app:sync-products at ' . Carbon::now()->toDateTimeString() .
+            '. Duration: ' . number_format($duration, 2) . ' seconds.');
+
+        return 0;
+
     }
 
     private function syncTrendyol(Product $product): Product

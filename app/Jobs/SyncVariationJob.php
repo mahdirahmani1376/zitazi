@@ -15,6 +15,10 @@ class SyncVariationJob implements ShouldQueue
 
     public function handle(): void
     {
+        $startTime = microtime(true);
         app(SyncVariationsActions::class);
+        $endTime = microtime(true);
+        $duration = $endTime - $startTime;
+
     }
 }
