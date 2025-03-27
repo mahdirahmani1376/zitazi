@@ -52,10 +52,13 @@ class SyncProductsCommand extends Command
         $this->woocommerce = WoocommerceService::getClient();
         $this->syncVariationAction = app(SyncVariationsActions::class);
 
-        if (! empty($this->option('override-id'))) {
+        if (!empty($this->option('override-id'))) {
             $product = Product::find($this->option('override-id'));
             if ($product->belongsToTrendyol()) {
                 $this->syncTrendyol($product);
+            }
+            if ($product->belongsToElele()) {
+                $this->syncElele($product);
             }
             if ($product->belongsToIran()) {
                 $this->syncIran($product);
@@ -103,9 +106,9 @@ class SyncProductsCommand extends Command
                 $pattern = '/"discountedPrice"\s*:\s*\{.*?\}/';
                 $price = preg_match($pattern, $priceElement->text(), $matches);
                 if ($matches) {
-                    $json = json_decode('{'.$matches[0].'}', true);
+                    $json = json_decode('{' . $matches[0] . '}', true);
                     $price = $json['discountedPrice']['value'];
-                    $price = (int) str_replace(',', '.', trim($price));
+                    $price = (int)str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
                     $rialPrice = $rialPrice * 1.6;
                     $rialPrice = floor($rialPrice / 10000) * 10000;
@@ -149,7 +152,7 @@ class SyncProductsCommand extends Command
             'after' => $product->getChanges(),
         ]);
 
-        if (! $this->option('not-sync') && ! $product->belongsToIran()) {
+        if (!$this->option('not-sync') && !$product->belongsToIran()) {
             $this->syncSource($product);
         }
 
@@ -159,9 +162,9 @@ class SyncProductsCommand extends Command
     private function syncSource(Product $product)
     {
         $data = [
-            'price' => ''.$product->rial_price,
+            'price' => '' . $product->rial_price,
             'sale_price' => null,
-            'regular_price' => ''.$product->rial_price,
+            'regular_price' => '' . $product->rial_price,
             'stock_quantity' => $product->stock,
             'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
@@ -216,7 +219,7 @@ class SyncProductsCommand extends Command
 
                 $sellersCount = $variants->pluck('seller_id')->count();
 
-                if (! $digiPrice) {
+                if (!$digiPrice) {
                     $digiPrice = data_get($response, 'data.product.default_variant.price.selling_price');
                     Log::info('zitazi_not_available', [
                         'url' => $url,
@@ -231,7 +234,7 @@ class SyncProductsCommand extends Command
 
                     $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
 
-                    if (! empty($product->min_price)) {
+                    if (!empty($product->min_price)) {
                         if ($zitazi_digikala_price_recommend < $product->min_price) {
                             $zitazi_digikala_price_recommend = $product->min_price;
                         }
@@ -245,7 +248,7 @@ class SyncProductsCommand extends Command
                 $minDigiPrice = $minDigiPrice / 10;
                 $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
             } catch (\Exception $e) {
-                Log::error('error_digi_fetch'.$product->id, [
+                Log::error('error_digi_fetch' . $product->id, [
                     'error' => $e->getMessage(),
                 ]);
             }
@@ -264,7 +267,7 @@ class SyncProductsCommand extends Command
                 $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
                 $torobMinPrice = collect($sellers)->filter(function ($i) {
                     return data_get($i, 'shop_id') != 12259;
-                })->pluck('price')->filter(fn ($p) => $p > 0)->min();
+                })->pluck('price')->filter(fn($p) => $p > 0)->min();
 
                 if (count($sellers) > 1) {
                     if ($product->belongsToTrendyol()) {
@@ -275,25 +278,25 @@ class SyncProductsCommand extends Command
                     $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
                     $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
 
-                    if (! empty($product->min_price)) {
+                    if (!empty($product->min_price)) {
                         if ($zitazi_torob_price_recommend < $product->min_price) {
                             $zitazi_torob_price_recommend = $product->min_price;
                         }
 
                         $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
 
-                        if (! $this->option('not-sync')) {
+                        if (!$this->option('not-sync')) {
                             $this->updateProductOnTorob($product, $zitazi_torob_price_recommend);
                         }
 
                     }
 
-                } elseif (! $this->option('not-sync') && count($sellers) == 1) {
+                } elseif (!$this->option('not-sync') && count($sellers) == 1) {
                     $this->syncSource($product);
                 }
             }
         } catch (\Exception $e) {
-            Log::error('error_torob_fetch'.$product->id, [
+            Log::error('error_torob_fetch' . $product->id, [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -303,8 +306,8 @@ class SyncProductsCommand extends Command
                 'product_id' => $product->id,
             ],
             [
-                'zitazi_digi_ratio' => ! empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
-                'zitazi_torob_ratio' => ! empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
+                'zitazi_digi_ratio' => !empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
+                'zitazi_torob_ratio' => !empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
                 'digikala_zitazi_price' => $digiPrice,
                 'digikala_min_price' => $minDigiPrice,
                 'torob_min_price' => $torobMinPrice,
@@ -319,9 +322,9 @@ class SyncProductsCommand extends Command
     private function updateProductOnTorob(Product $product, $zitazi_digikala_price_recommend)
     {
         $data = [
-            'price' => ''.$zitazi_digikala_price_recommend,
+            'price' => '' . $zitazi_digikala_price_recommend,
             'sale_price' => null,
-            'regular_price' => ''.$zitazi_digikala_price_recommend,
+            'regular_price' => '' . $zitazi_digikala_price_recommend,
             'stock_quantity' => $product->stock,
             'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
         ];
@@ -347,5 +350,61 @@ class SyncProductsCommand extends Command
         );
 
         return $response;
+    }
+
+    private function syncElele(Product $product)
+    {
+        $response = Http::withHeaders(
+            [
+                'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
+            ]
+        )->get($product->elele_source)->body();
+
+        $crawler = new Crawler($response);
+
+        foreach (range(2, 5) as $i) {
+            $dom = $crawler->filter("#formGlobal > script:nth-child($i)")->first();
+
+            if ($dom->count() > 0) {
+                preg_match('/"productPriceKDVIncluded":([0-9]+\.[0-9]+)/', $dom->text(), $matches);
+
+                if (isset($matches[1])) {
+                    $price = $matches[1];
+                    $rialPrice = $price * 1.60 * $this->rate;
+                    $rialPrice = (int)($rialPrice) * 10000 / 10000;
+                    break;
+
+                }
+            }
+
+            $stockElement = 'input.Addtobasket.button.btnAddBasketOnDetail';
+            $stockResult = $crawler->filter($stockElement)->first();
+            $stock = 0;
+            if ($stockResult->count() > 0) {
+                $stock = 88;
+            }
+        }
+
+        if (empty($price)) {
+            $stock = 0;
+            $price = null;
+        }
+
+        $product->update([
+            'price' => $price,
+            'stock' => $stock,
+            'rial_price' => $rialPrice,
+        ]);
+
+        Log::info("product_update_{$product->id}", [
+            'before' => $product->getOriginal(),
+            'after' => $product->getChanges(),
+        ]);
+
+        if (!$this->option('not-sync') && !$product->belongsToIran()) {
+            $this->syncSource($product);
+        }
+
+        return $product;
     }
 }

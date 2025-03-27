@@ -36,6 +36,10 @@ class ProductSeeder extends Seeder
         $productsToUpdate = [];
 
         foreach ($data as $key => $value) {
+//            if (empty($value['Elele_link']))
+//            {
+//                continue;
+//            }
             try {
                 $minPrice = null;
                 if (
@@ -58,6 +62,7 @@ class ProductSeeder extends Seeder
                     'product_name' => data_get($value, 'Product Name'),
                     'decathlon_url' => data_get($value, 'Decathlon_link'),
                     'decathlon_id' => data_get($value, 'decathlon_id'),
+                    'elele_source' => data_get($value, 'Elele_link'),
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());
@@ -85,6 +90,7 @@ class ProductSeeder extends Seeder
                         'product_name',
                         'decathlon_url',
                         'decathlon_id',
+                        'elele_source',
                         'updated_at',
                     ]
                 );

@@ -16,6 +16,11 @@ class Product extends Model
         return ! empty($this->trendyol_source);
     }
 
+    public function belongsToElele(): bool
+    {
+        return ! empty($this->elele_source);
+    }
+
     public function belongsToIran(): bool
     {
         return ! empty($this->digikala_source) || ! empty($this->torob_source) && ! $this->belongsToDecalthon();
