@@ -8,18 +8,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
 
-/*
- * schedule section
- */
-Schedule::command('db:seed')->dailyAt('05:00');
-Schedule::command('app:sheet-report')->dailyAt('05:30');
-Schedule::command('app:sync-products')->dailyAt('06:00');
-Schedule::command('app:sync-products')->dailyAt('18:30');
-Schedule::command('app:index-zitazi-torob-products')->dailyAt('20:00');
-/*
- *
- */
-
 Artisan::command('test', function () {
 
     // dd(urldecode('https://torob.com/p/fed4cdaf-1292-4efc-9105-ad7a4cb7c8ab/%D8%AA%D9%84%D8%B3%DA%A9%D9%88%D9%BE-%D9%86%D8%AC%D9%88%D9%85%DB%8C-%D9%88-%D8%B7%D8%A8%DB%8C%D8%B9%D8%AA%DA%AF%D8%B1%D8%AF%DB%8C-%D8%B2%DB%8C%D8%AA%D8%A7%D8%B2%DB%8C-master-70-%D8%A8%D8%A7-%D8%A8%D8%B2%D8%B1%DA%AF%D9%86%D9%85%D8%A7%DB%8C%DB%8C-210-%D8%A8%D8%B1%D8%A7%D8%A8%D8%B1-%D8%A7%D8%B1%D8%B3%D8%A7%D9%84-%D9%81%D9%88%D8%B1%DB%8C'));

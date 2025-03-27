@@ -6,7 +6,6 @@ use App\Models\Variation;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 class ImportDecathlonVariation implements ToModel,WithHeadingRow
 {
