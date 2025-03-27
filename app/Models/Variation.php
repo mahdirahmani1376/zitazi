@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $product_id
@@ -44,5 +45,10 @@ class Variation extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function trendyolProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class,'trendyol_product_id');
     }
 }

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $own_id
@@ -85,5 +86,10 @@ class Product extends Model
     public function belongsToDecalthon()
     {
         return ! empty($this->decathlon_url);
+    }
+
+    public function decathlonVariation(): HasOne
+    {
+        return $this->hasOne(Variation::class,'trendyol_product_id');
     }
 }
