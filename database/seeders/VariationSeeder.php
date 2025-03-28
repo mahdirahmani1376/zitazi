@@ -102,18 +102,17 @@ class VariationSeeder extends Seeder
 
             $defaultVariation = $product->defaultVariation();
 
-            if (!empty($defaultVariation))
-            {
+            if (! empty($defaultVariation)) {
                 $price = $defaultVariation->price;
                 $rialPrice = $defaultVariation->rial_price;
                 $minPrice = $rialPrice * 1.2;
                 $stock = $defaultVariation->stock;
 
                 $product->update([
-                    'min_price' =>  $minPrice,
+                    'min_price' => $minPrice,
                     'rial_price' => $rialPrice,
                     'price' => $price,
-                    'stock' => $stock
+                    'stock' => $stock,
                 ]);
             }
 

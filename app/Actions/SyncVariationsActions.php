@@ -17,6 +17,13 @@ class SyncVariationsActions
 
     private mixed $rate;
 
+    public static function dispatch(): void
+    {
+        $object = new static;
+
+        $object();
+    }
+
     public function __construct()
     {
         $this->rate = Currency::syncTryRate();

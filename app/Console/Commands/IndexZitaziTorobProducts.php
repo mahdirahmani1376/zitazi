@@ -46,7 +46,7 @@ class IndexZitaziTorobProducts extends Command
 
             $totalCount = $response['count'];
 
-            $pages = (int)$totalCount / 25;
+            $pages = (int) $totalCount / 25;
 
             $bar = $this->output->createProgressBar($totalCount);
 
@@ -68,7 +68,7 @@ class IndexZitaziTorobProducts extends Command
                     TorobProduct::query()->updateOrCreate([
                         'random_key' => $result['random_key'],
                     ], [
-                        'web_client_absolute_url' => 'https://torob.com' . urldecode($result['web_client_absolute_url']),
+                        'web_client_absolute_url' => 'https://torob.com'.urldecode($result['web_client_absolute_url']),
                         'name1' => $result['name1'],
                         'price' => $result['price'],
                         'stock_status' => $result['stock_status'],
@@ -84,8 +84,8 @@ class IndexZitaziTorobProducts extends Command
 
             $endTime = microtime(true);
             $duration = $endTime - $startTime;
-            Log::info('Finished app:index-zitazi-torob-products at ' . Carbon::now()->toDateTimeString() .
-                '. Duration: ' . number_format($duration, 2) . ' seconds.');
+            Log::info('Finished app:index-zitazi-torob-products at '.Carbon::now()->toDateTimeString().
+                '. Duration: '.number_format($duration, 2).' seconds.');
 
         }
 

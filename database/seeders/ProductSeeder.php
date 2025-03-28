@@ -57,7 +57,7 @@ class ProductSeeder extends Seeder
                     'decathlon_url' => data_get($value, 'Decathlon_link'),
                     'decathlon_id' => data_get($value, 'decathlon_id'),
                     'elele_source' => data_get($value, 'Elele_link'),
-                    'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
+                    'promotion' => ! empty($value['Promotion']) ? $value['Promotion'] : 0,
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());

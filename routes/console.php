@@ -283,6 +283,6 @@ Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions
     $syncVariationsActions();
 });
 
-Artisan::command('test-job',function (){
+Artisan::command('test-job', function () {
     \App\Jobs\TestJob::dispatch();
 });

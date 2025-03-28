@@ -39,9 +39,9 @@ class Product extends Model
     public function defaultVariation(): ?Variation
     {
         return $this->variations()
-        ->whereNot('stock','=',0)
-        ->whereNotNull('price')
-        ->first();
+            ->whereNot('stock', '=', 0)
+            ->whereNotNull('price')
+            ->first();
     }
 
     public function belongsToDecalthon()
@@ -63,5 +63,4 @@ class Product extends Model
     {
         return $this->promotion;
     }
-
 }

@@ -2,10 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Actions\SyncProductsAction;
+use App\Actions\SyncVariationsActions;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class updateJob implements ShouldQueue
@@ -27,15 +31,25 @@ class updateJob implements ShouldQueue
     {
         $startTime = microtime(true);
 
-        Artisan::call('db:seed');
+        app(DatabaseSeeder::class)->run();
+
+        SyncProductsAction::dispatch();
+
+        SyncVariationsActions::dispatch();
+
         Artisan::call('app:sheet-report');
-        Artisan::call('app:sync-products');
-        Artisan::call('app:sync-variations');
+
+        Bus::chain([
+            SeedJob::dispatch(),
+            SyncProductsJob::dispatch(),
+            SyncVariationsJob::dispatch(),
+            SheerReportJob::dispatch(),
+        ])->dispatch();
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
-        Log::info('Finished update-job ' . Carbon::now()->toDateTimeString() .
-            '. Duration: ' . number_format($duration, 2) . ' seconds.');
+        Log::info('Finished update-job '.Carbon::now()->toDateTimeString().
+            '. Duration: '.number_format($duration, 2).' seconds.');
 
     }
 }

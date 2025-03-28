@@ -57,7 +57,6 @@ class SheetReportCommand extends Command
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
 
-
     }
 
     private function reportDigikala($data)

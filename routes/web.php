@@ -10,9 +10,9 @@ use App\Jobs\updateJob;
 use App\Models\Report;
 use App\Models\TorobProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Redis;
 
 Route::get('/', function () {
     return view('dashboard');
@@ -112,7 +112,7 @@ Route::get('ci-cd', function () {
     return 'hello ci-cd';
 });
 
-Route::get('redis-test',function () {
+Route::get('redis-test', function () {
     Redis::set('test', 'Hello, Redis!');
     echo Redis::get('test');
 });

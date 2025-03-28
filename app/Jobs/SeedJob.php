@@ -15,9 +15,7 @@ class SeedJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function handle(): void
     {
@@ -27,8 +25,8 @@ class SeedJob implements ShouldQueue
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
-        Log::info('Finished seed-job ' . Carbon::now()->toDateTimeString() .
-            '. Duration: ' . number_format($duration, 2) . ' seconds.');
+        Log::info('Finished seed-job '.Carbon::now()->toDateTimeString().
+            '. Duration: '.number_format($duration, 2).' seconds.');
 
     }
 }
