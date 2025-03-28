@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SyncProductsJob;
 use App\Jobs\SyncVariationsJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
@@ -18,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('db:seed')->dailyAt('05:00')->after(
             function () use ($schedule) {
-                $schedule->command('app:sync-products')->after(
+                $schedule->job(SyncProductsJob::class)->after(
                     function () use ($schedule) {
                         $schedule->job(SyncVariationsJob::class);
                     }
@@ -26,8 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         );
         $schedule->command('app:sheet-report')->dailyAt('06:00');
-        $schedule->command('app:sync-products')->dailyAt('18:30');
-        $schedule->job(SyncVariationsJob::class)->dailyAt('19:00');
+        $schedule
+            ->job(SyncProductsJob::class)->dailyAt('18:30')
+                ->after(function () use ($schedule){
+                    $schedule->job(SyncVariationsJob::class)->dailyAt('19:00');
+                });
         $schedule->command('app:index-zitazi-torob-products')->dailyAt('20:00');
 
     })
