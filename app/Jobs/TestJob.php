@@ -15,10 +15,12 @@ class TestJob implements ShouldQueue
 
     public function __construct()
     {
-        Log::info('test-job-success');
     }
 
     public function handle(): void
     {
+        Log::info('test-job-success');
+        Redis::set('test', 'Hello, Redis!');
+        echo Redis::get('test');
     }
 }
