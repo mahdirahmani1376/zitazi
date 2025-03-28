@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
-class updateJob implements ShouldQueue
+class UpdateJob implements ShouldQueue
 {
     use Queueable;
 

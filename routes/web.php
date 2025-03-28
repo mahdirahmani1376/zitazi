@@ -6,7 +6,7 @@ use App\Exports\DecathlonVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\TorobProductsExport;
 use App\Imports\ImportDecathlonVariation;
-use App\Jobs\updateJob;
+use App\Jobs\UpdateJob;
 use App\Models\Report;
 use App\Models\TorobProduct;
 use Illuminate\Http\Request;
@@ -72,7 +72,7 @@ Route::get('dashboard', function () {
 });
 
 Route::get('/update-products', function () {
-    updateJob::dispatch();
+    UpdateJob::dispatch();
 
     return back()->with('success', 'آپدیت محصولات در حال انجام است');
 
