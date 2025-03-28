@@ -282,3 +282,7 @@ Artisan::command('toyz_shop', function () {
 Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions $syncVariationsActions) {
     $syncVariationsActions();
 });
+
+Artisan::command('test-job',function (){
+    \App\Jobs\TestJob::dispatch();
+});
