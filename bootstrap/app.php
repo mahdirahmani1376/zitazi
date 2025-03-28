@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SeedJob;
 use App\Jobs\SyncProductsJob;
 use App\Jobs\SyncVariationsJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -17,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed')->dailyAt('05:00')->after(
+        $schedule->job(SeedJob::class)->dailyAt('05:00')->after(
             function () use ($schedule) {
                 $schedule->job(SyncProductsJob::class)->after(
                     function () use ($schedule) {
