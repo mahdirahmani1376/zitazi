@@ -33,12 +33,16 @@ class UpdateJob implements ShouldQueue
     {
         $startTime = microtime(true);
 
-        Bus::chain([
-            new SeedJob(),
-            new SyncProductsJob(),
-            new SyncVariationsJob(),
-            new SheerReportJob(),
-        ])->dispatch();
+//        Bus::chain([
+//            new SeedJob(),
+//            new SyncProductsJob(),
+//            new SyncVariationsJob(),
+//            new SheerReportJob(),
+//        ])->dispatch();
+        Artisan::call('db:seed');
+        Artisan::call('app:sync-products');
+        Artisan::call('app:sync-variations');
+        Artisan::call('app:sheet-report');
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
