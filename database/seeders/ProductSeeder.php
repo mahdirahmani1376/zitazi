@@ -58,6 +58,7 @@ class ProductSeeder extends Seeder
                     'decathlon_id' => data_get($value, 'decathlon_id'),
                     'elele_source' => data_get($value, 'Elele_link'),
                     'promotion' => ! empty($value['Promotion']) ? $value['Promotion'] : 0,
+                    'updated_at' => now()->toDateString(),
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());
@@ -103,7 +104,7 @@ class ProductSeeder extends Seeder
 
     private function syncProducts(): void
     {
-        $products = Product::pluck('own_id');
+        $products = Product::limit(1)->pluck('own_id');
 
         $this->command->getOutput()->progressStart((int) count($products) / 16);
 
@@ -133,7 +134,7 @@ class ProductSeeder extends Seeder
                 $response = $response->json();
 
                 $price = null;
-                if (! empty($response['price']) && trim($response['price'] == false)) {
+                if (! empty($response['price'])) {
                     $price = $response['price'];
                 }
 
@@ -142,6 +143,7 @@ class ProductSeeder extends Seeder
                     'own_id' => (int) $response['id'],
                     'rial_price' => $price,
                     'stock' => $stock,
+                    'updated_at' => now()->toDateString(),
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());

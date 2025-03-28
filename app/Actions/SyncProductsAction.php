@@ -124,9 +124,6 @@ class SyncProductsAction
 
     private function syncSource(Product $product): void
     {
-        if ($product->onPromotion()) {
-            return;
-        }
         $stock = 'outofstock';
 
         if (! empty($product->stock) && $product->stock > 0) {
@@ -141,20 +138,7 @@ class SyncProductsAction
             'stock_status' => $stock,
         ];
 
-        Log::info("product_update_data_{$product->id}", $data);
-
-        $response = $this->woocommerce->post("products/{$product->own_id}", $data);
-        Log::info(
-            "product_update_source_{$product->id}",
-            [
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-                'own_id' => data_get($response, 'id'),
-            ]
-        );
+        $this->updateZitazi($product,$data);
     }
 
     private function syncIran(Product $product): void
@@ -288,37 +272,25 @@ class SyncProductsAction
 
     private function updateProductOnTorob(Product $product, $zitazi_digikala_price_recommend): void
     {
-        if ($product->onPromotion()) {
-            return;
-        }
-
         $data = [
             'price' => ''.$zitazi_digikala_price_recommend,
             'sale_price' => null,
             'regular_price' => ''.$zitazi_digikala_price_recommend,
-            'stock_quantity' => $product->stock,
-            'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
+
         ];
 
-        Log::info("product_update_data_{$product->id}", [
-            'body' => $data,
-            'product' => $product->toArray(),
-        ]);
+        if ($product->isForeign())
+        {
+            $stock = 'outofstock';
+            if (! empty($product->stock) && $product->stock > 0) {
+                $stock = 'instock';
+            }
 
-        $response = $this->woocommerce->post("products/{$product->own_id}", $data);
+            $data['stock_quantity'] = $product->stock;
+            $data['stock_status'] = $stock;
+        }
 
-        Log::info(
-            "product_update_source_{$product->id}",
-            [
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-                'zitazi_id' => data_get($response, 'id'),
-                'product' => $product->toArray(),
-            ]
-        );
+        $this->updateZitazi($product,$data);
     }
 
     private function syncElele(Product $product): void
@@ -374,5 +346,32 @@ class SyncProductsAction
             $this->syncSource($product);
         }
 
+    }
+
+    private function updateZitazi(Product $product,array $data): void
+    {
+        if ($product->onPromotion()) {
+            return;
+        }
+
+        Log::info("product_update_data_{$product->id}", [
+            'body' => $data,
+            'product' => $product->toArray(),
+        ]);
+
+        $response = $this->woocommerce->post("products/{$product->own_id}", $data);
+
+        Log::info(
+            "product_update_source_{$product->id}",
+            [
+                'price' => data_get($response, 'price'),
+                'sale_price' => data_get($response, 'sale_price'),
+                'regular_price' => data_get($response, 'regular_price'),
+                'stock_quantity' => data_get($response, 'stock_quantity'),
+                'stock_status' => data_get($response, 'stock_status'),
+                'zitazi_id' => data_get($response, 'id'),
+                'product' => $product->toArray(),
+            ]
+        );
     }
 }
