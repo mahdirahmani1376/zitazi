@@ -31,15 +31,9 @@ class ProductSeeder extends Seeder
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
 
-        //        $data = array_slice($data, 0, 10);
-
         $productsToUpdate = [];
 
         foreach ($data as $key => $value) {
-//            if (empty($value['Elele_link']))
-//            {
-//                continue;
-//            }
             try {
                 $minPrice = null;
                 if (
@@ -63,6 +57,7 @@ class ProductSeeder extends Seeder
                     'decathlon_url' => data_get($value, 'Decathlon_link'),
                     'decathlon_id' => data_get($value, 'decathlon_id'),
                     'elele_source' => data_get($value, 'Elele_link'),
+                    'promotion' => data_get($value, 'Promotion'),
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());

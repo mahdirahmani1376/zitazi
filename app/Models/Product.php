@@ -54,4 +54,14 @@ class Product extends Model
         return $this->hasOne(Variation::class, 'trendyol_product_id');
     }
 
+    public function isForeign(): bool
+    {
+        return $this->belongsToTrendyol() || $this->belongsToElele();
+    }
+
+    public function onPromotion()
+    {
+        return $this->promotion;
+    }
+
 }

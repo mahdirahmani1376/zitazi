@@ -172,12 +172,23 @@ class SyncProductsCommand extends Command
 
     private function syncSource(Product $product)
     {
+        if ($product->onPromotion())
+        {
+            return;
+        }
+        $stock = 'outofstock';
+
+        if (! empty($product->stock) && $product->stock > 0)
+        {
+            $stock = 'instock';
+        }
+
         $data = [
             'price' => '' . $product->rial_price,
             'sale_price' => null,
             'regular_price' => '' . $product->rial_price,
             'stock_quantity' => $product->stock,
-            'stock_status' => $product->stock > 0 ? 'instock' : 'outofstock',
+            'stock_status' => $stock
         ];
 
         Log::info("product_update_data_{$product->id}", $data);
@@ -194,8 +205,6 @@ class SyncProductsCommand extends Command
                 'own_id' => data_get($response, 'id'),
             ]
         );
-
-        return $response;
     }
 
     private function syncIran(Product $product)
@@ -271,7 +280,6 @@ class SyncProductsCommand extends Command
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter('script#__NEXT_DATA__')->first();
             if ($element->count() > 0) {
-
                 $data = collect(json_decode($element->text(), true));
                 $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
 
@@ -280,7 +288,7 @@ class SyncProductsCommand extends Command
                     return data_get($i, 'shop_id') != 12259;
                 })->pluck('price')->filter(fn($p) => $p > 0)->min();
 
-                if (count($sellers) > 1) {
+                if (! empty($sellers) && count($sellers) > 1) {
                     if ($product->belongsToTrendyol()) {
                         $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
                         $product->update();
@@ -302,7 +310,7 @@ class SyncProductsCommand extends Command
 
                     }
 
-                } elseif (!$this->option('not-sync') && count($sellers) == 1) {
+                } elseif (!$this->option('not-sync') && $product->isForeign()) {
                     $this->syncSource($product);
                 }
             }
@@ -332,6 +340,11 @@ class SyncProductsCommand extends Command
 
     private function updateProductOnTorob(Product $product, $zitazi_digikala_price_recommend)
     {
+        if ($product->onPromotion())
+        {
+            return;
+        }
+
         $data = [
             'price' => '' . $zitazi_digikala_price_recommend,
             'sale_price' => null,
