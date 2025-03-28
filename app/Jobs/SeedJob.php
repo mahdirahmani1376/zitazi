@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Artisan;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,7 +22,7 @@ class SeedJob implements ShouldQueue
     {
         $startTime = microtime(true);
 
-        app(DatabaseSeeder::class)->run();
+        Artisan::call('db:seed');
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
