@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 class SyncProductsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $timeout = 3600;
 
     public function handle(): void
     {
