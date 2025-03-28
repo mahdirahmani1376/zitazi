@@ -74,7 +74,8 @@ Route::get('dashboard', function () {
 Route::get('/update-products', function () {
     updateJob::dispatch();
 
-    return 'آپدیت محصولات در حال انجام است';
+    return back()->with('success', 'آپدیت محصولات در حال انجام است');
+
 })->name('products.update');
 
 Route::get('top-100', Top100Action::class)->name('top-100');
