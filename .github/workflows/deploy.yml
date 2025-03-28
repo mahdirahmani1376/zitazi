@@ -27,4 +27,4 @@ jobs:
             cd /var/www/zitazi
             git pull origin master
             php artisan migrate --force
-            compose install
+            composer install
