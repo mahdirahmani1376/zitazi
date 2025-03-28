@@ -31,14 +31,6 @@ class updateJob implements ShouldQueue
     {
         $startTime = microtime(true);
 
-        app(DatabaseSeeder::class)->run();
-
-        SyncProductsAction::dispatch();
-
-        SyncVariationsActions::dispatch();
-
-        Artisan::call('app:sheet-report');
-
         Bus::chain([
             SeedJob::dispatch(),
             SyncProductsJob::dispatch(),
