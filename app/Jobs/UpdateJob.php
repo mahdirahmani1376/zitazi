@@ -32,10 +32,10 @@ class UpdateJob implements ShouldQueue
         $startTime = microtime(true);
 
         Bus::chain([
-            SeedJob::dispatch(),
-            SyncProductsJob::dispatch(),
-            SyncVariationsJob::dispatch(),
-            SheerReportJob::dispatch(),
+            new SeedJob(),
+            new SyncProductsJob(),
+            new SyncVariationsJob(),
+            new SheerReportJob(),
         ])->dispatch();
 
         $endTime = microtime(true);
