@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Actions\SyncProductsAction;
 use App\Models\Product;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class SyncProductJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels,Batchable;
 
     public function __construct(
         public Product $product,
