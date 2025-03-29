@@ -7,6 +7,7 @@ use App\Models\Variation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class SyncVariationCommand extends Command
 {
@@ -30,8 +31,8 @@ class SyncVariationCommand extends Command
             });
 
         Bus::batch($jobs)
-            ->then(fn() => $this->info('All variations updated successfully.'))
-            ->catch(fn() => $this->error('Some jobs failed.'))
+            ->then(fn() => Log::info('All variations updated successfully.'))
+            ->catch(fn() => Log::error('Some jobs failed.'))
             ->dispatch();
     }
 }
