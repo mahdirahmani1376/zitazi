@@ -30,7 +30,7 @@ class SyncVariationCommand extends Command
             });
 
         Bus::batch($jobs)
-            ->then(fn() => $this->info('All products updated successfully.'))
+            ->then(fn() => $this->info('All variations updated successfully.'))
             ->catch(fn() => $this->error('Some jobs failed.'))
             ->dispatch();
     }
