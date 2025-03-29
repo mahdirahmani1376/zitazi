@@ -192,7 +192,7 @@ return [
             'tries' => 1,
             'timeout' => 60 * 60,
             'nice' => 0,
-            'processes' => 16,
+            'processes' => 2,
         ],
     ],
 

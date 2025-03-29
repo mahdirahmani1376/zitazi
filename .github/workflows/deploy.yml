@@ -26,8 +26,6 @@ jobs:
           script: |
             cd /var/www/zitazi
 
-            php artisan horizon:terminate
-
             echo "🔄 Pulling latest code..."
             git pull origin master
 
