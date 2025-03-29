@@ -16,7 +16,7 @@ jobs:
       - name: Print VPS_PORT for debugging
         run: echo "VPS_PORT is ${{ secrets.VPS_PORT }}"
 
-      - name: SSH to VPS and pull code
+      - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -25,6 +25,21 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             cd /var/www/zitazi
+
+            echo "🔄 Pulling latest code..."
             git pull origin master
-            composer install
+
+            echo "📦 Installing dependencies..."
+            composer install --no-dev --optimize-autoloader
+
+            echo "🔄 Running migrations..."
             php artisan migrate --force
+
+
+            echo "🔄 Restarting Horizon..."
+            sudo supervisorctl reread
+            sudo supervisorctl update
+            sudo supervisorctl restart horizon
+
+            echo "♻️ Restarting PHP-FPM (if using Nginx)..."
+            sudo systemctl restart php8.3-fpm || true  # Change to your PHP version

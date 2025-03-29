@@ -55,19 +55,22 @@ class SyncProductsCommand extends Command
         $jobs = Product::all()->map(fn($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
-            ->then(fn() => $this->info('All products updated successfully.'))
-            ->catch(fn() => $this->error('Some jobs failed.'))
+            ->then(function () use ($startTime) {
+                $endTime = microtime(true);
+
+                $duration = $endTime - $startTime;
+                $text = 'Finished app:sync-products at '.Carbon::now()->toDateTimeString().
+                    '. Duration: '.number_format($duration, 2).' seconds.';
+                Log::info($text);
+                })
+            ->catch(function (\Throwable $e){
+                Log::error('app:sync-products failed',[
+                    'error' => $e->getMessage()
+                ]);
+            })
             ->dispatch();
 
-        $endTime = microtime(true);
-
-        $duration = $endTime - $startTime;
-        $text = 'Finished app:sync-products at '.Carbon::now()->toDateTimeString().
-            '. Duration: '.number_format($duration, 2).' seconds.';
-        $this->info($text);
-        Log::info($text);
-
-//        return 0;
+        return 0;
 
     }
 }

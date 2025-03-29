@@ -25,11 +25,11 @@ class SyncProductJob implements ShouldQueue
 
     public $timeout = 3600;
 
-    public function handle(SyncProductsAction $syncProductsAction): void
+    public function handle(): void
     {
 //        $startTime = microtime(true);
 
-        $syncProductsAction($this->product);
+        app(SyncProductsAction::class)($this->product);
 
         $endTime = microtime(true);
 //        $duration = $endTime - $startTime;
