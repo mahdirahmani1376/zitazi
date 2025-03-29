@@ -23,7 +23,9 @@ class SyncVariationCommand extends Command
                 $query
                     ->whereNot('url', '=', '')
                     ->whereNotNull('own_id');
-            })->map(function (Variation $variation) {
+            })
+            ->get()
+            ->map(function (Variation $variation) {
                 return new SyncVariationsJob($variation);
             });
 
