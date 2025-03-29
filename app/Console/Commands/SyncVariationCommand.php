@@ -33,6 +33,7 @@ class SyncVariationCommand extends Command
         Bus::batch($jobs)
             ->then(fn() => Log::info('All variations updated successfully.'))
             ->catch(fn() => Log::error('Some jobs failed.'))
+            ->name('Import Variations')
             ->dispatch();
     }
 }

@@ -68,6 +68,7 @@ class SyncProductsCommand extends Command
                     'error' => $e->getMessage()
                 ]);
             })
+            ->name('Import Products')
             ->dispatch();
 
         return 0;
