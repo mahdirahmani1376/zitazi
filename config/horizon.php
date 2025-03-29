@@ -192,13 +192,14 @@ return [
             'tries' => 1,
             'timeout' => 60 * 60,
             'nice' => 0,
+            'processes' => 16,
         ],
     ],
 
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 16,
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
@@ -206,7 +207,7 @@ return [
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => 16,
             ],
         ],
     ],

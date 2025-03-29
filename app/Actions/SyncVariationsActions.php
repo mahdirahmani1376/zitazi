@@ -30,16 +30,9 @@ class SyncVariationsActions
         $this->woocommerce = WoocommerceService::getClient();
     }
 
-    public function __invoke(bool $sync = true): void
+    public function __invoke(Variation $variation,bool $sync = true): void
     {
-        Variation::query()
-            ->where(function (Builder $query) {
-                $query
-                    ->whereNot('url', '=', '')
-                    ->whereNotNull('own_id');
-            })->each(function (Variation $variation) {
-                $this->updateVariation($variation);
-            });
+        $this->updateVariation($variation);
 
     }
 

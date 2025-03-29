@@ -3,10 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Actions\SyncProductsAction;
+use App\Jobs\SheetReportJob;
+use App\Jobs\SyncProductJob;
 use App\Models\Product;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class SyncProductsCommand extends Command
@@ -49,31 +52,22 @@ class SyncProductsCommand extends Command
             return 0;
         }
 
-        $products = Product::all();
+        $jobs = Product::all()->map(fn($product) => new SyncProductJob($product));
 
-        $bar = $this->output->createProgressBar($products->count());
-
-
-        foreach ($products as $product) {
-            try {
-                $syncAction($product);
-            } catch (Exception $e) {
-                dump($e->getMessage());
-                Log::error("product_update_failed_id:{$product->id}", [
-                    'error' => $e->getMessage(),
-                ]);
-            }
-            $bar->advance();
-        }
-
-        $bar->finish();
+        Bus::batch($jobs)
+            ->then(fn() => $this->info('All products updated successfully.'))
+            ->catch(fn() => $this->error('Some jobs failed.'))
+            ->dispatch();
 
         $endTime = microtime(true);
-        $duration = $endTime - $startTime;
-        Log::info('Finished app:sync-products at '.Carbon::now()->toDateTimeString().
-            '. Duration: '.number_format($duration, 2).' seconds.');
 
-        return 0;
+        $duration = $endTime - $startTime;
+        $text = 'Finished app:sync-products at '.Carbon::now()->toDateTimeString().
+            '. Duration: '.number_format($duration, 2).' seconds.';
+        $this->info($text);
+        Log::info($text);
+
+//        return 0;
 
     }
 }
