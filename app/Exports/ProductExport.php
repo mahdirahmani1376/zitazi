@@ -85,7 +85,7 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
             'torob_price' => $row?->torob_product?->price,
             'rank' => $row?->torob_product?->rank,
             'clickable' => $row?->torob_product?->clickable,
-            'updated_at' => $row->updated_at->toDateTimestring(),
+            'updated_at' => $row->updated_at?->toDateTimestring(),
         ];
     }
 }
