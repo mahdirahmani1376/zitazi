@@ -55,7 +55,7 @@ class SyncProductsAction
         }
     }
 
-    private function syncTrendyol(Product $product): void
+    public function syncTrendyol(Product $product): void
     {
         $response = Http::withHeaders($this->headers)->get($product->trendyol_source);
         $crawler = new Crawler($response);
@@ -87,6 +87,12 @@ class SyncProductsAction
         } else {
             $stock = 0;
         }
+
+        dd([
+            'price' => $price,
+            'stock' => $stock,
+            'rial_price' => $rialPrice,
+        ]);
 
         if (
             $stock == 0
@@ -141,7 +147,7 @@ class SyncProductsAction
         $this->updateZitazi($product,$data);
     }
 
-    private function syncIran(Product $product): void
+    public function syncIran(Product $product): void
     {
 
         $url = null;
@@ -293,13 +299,17 @@ class SyncProductsAction
         $this->updateZitazi($product,$data);
     }
 
-    private function syncElele(Product $product): void
+    public function syncElele(Product $product): void
     {
         $response = Http::withHeaders(
             [
                 'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
             ]
         )->get($product->elele_source)->body();
+
+        $price = null;
+        $stock = 0;
+        $rialPrice = null;
 
         $crawler = new Crawler($response);
 
@@ -312,7 +322,7 @@ class SyncProductsAction
                 if (isset($matches[1])) {
                     $price = $matches[1];
                     $rialPrice = $price * 1.60 * $this->rate;
-                    $rialPrice = (int) ($rialPrice) * 10000 / 10000;
+                    $rialPrice = floor($rialPrice / 10000) * 10000;
                     break;
 
                 }

@@ -32,16 +32,18 @@ class SyncProductsCommand extends Command
     {
         $startTime = microtime(true);
 
+        $syncAction = app(SyncProductsAction::class);
+
         if (! empty($this->option('override-id'))) {
             $product = Product::find($this->option('override-id'));
             if ($product->belongsToTrendyol()) {
-                $this->syncTrendyol($product);
+                $syncAction->syncTrendyol($product);
             }
             if ($product->belongsToElele()) {
-                $this->syncElele($product);
+                $syncAction->syncElele($product);
             }
             if ($product->belongsToIran()) {
-                $this->syncIran($product);
+                $syncAction->syncIran($product);
             }
 
             return 0;
@@ -51,7 +53,6 @@ class SyncProductsCommand extends Command
 
         $bar = $this->output->createProgressBar($products->count());
 
-        $syncAction = app(SyncProductsAction::class);
 
         foreach ($products as $product) {
             try {
