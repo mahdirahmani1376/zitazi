@@ -12,9 +12,8 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $result = Variation::updateOrCreate(
-            ['id' => $row['شناسه تنوع در وب سرویس']],
+            ['id' => $row['شناسه تنوع زیتازی']],
             [
-                'own_id' => $row['شناسه تنوع زیتازی'],
                 'trendyol_product_id' => $row['شناسه جایگزین ترندیول'],
             ]
         );
