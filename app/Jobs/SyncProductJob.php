@@ -27,14 +27,6 @@ class SyncProductJob implements ShouldQueue
 
     public function handle(): void
     {
-//        $startTime = microtime(true);
-
         app(SyncProductsAction::class)($this->product);
-
-        $endTime = microtime(true);
-//        $duration = $endTime - $startTime;
-//        Log::info('Finished app:sync-products at '.Carbon::now()->toDateTimeString().
-//            '. Duration: '.number_format($duration, 2).' seconds.');
-
     }
 }

@@ -104,7 +104,7 @@ class ProductSeeder extends Seeder
 
     private function syncProducts(): void
     {
-        $products = Product::limit(1)->pluck('own_id');
+        $products = Product::all()->pluck('own_id');
 
         $this->command->getOutput()->progressStart((int) count($products) / 16);
 

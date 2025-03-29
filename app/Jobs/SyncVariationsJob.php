@@ -27,12 +27,6 @@ class SyncVariationsJob implements ShouldQueue
 
     public function handle(SyncVariationsActions $syncVariationsActions): void
     {
-        $startTime = microtime(true);
         $syncVariationsActions($this->variation);
-        $endTime = microtime(true);
-        $duration = $endTime - $startTime;
-        Log::info('Finished app:sync-variations at '.Carbon::now()->toDateTimeString().
-            '. Duration: '.number_format($duration, 2).' seconds.');
-
     }
 }

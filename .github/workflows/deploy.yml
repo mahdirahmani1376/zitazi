@@ -26,6 +26,8 @@ jobs:
           script: |
             cd /var/www/zitazi
 
+            php artisan horizon:terminate
+
             echo "🔄 Pulling latest code..."
             git pull origin master
 
@@ -37,9 +39,9 @@ jobs:
 
 
             echo "🔄 Restarting Horizon..."
-            sudo supervisorctl reread
-            sudo supervisorctl update
-            sudo supervisorctl restart horizon
+            supervisorctl reread
+            supervisorctl update
+            supervisorctl restart horizon
 
             echo "♻️ Restarting PHP-FPM (if using Nginx)..."
-            sudo systemctl restart php8.3-fpm || true  # Change to your PHP version
+            systemctl reload php8.3-fpm || true  # Change to your PHP version
