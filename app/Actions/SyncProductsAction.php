@@ -88,12 +88,6 @@ class SyncProductsAction
             $stock = 0;
         }
 
-        dd([
-            'price' => $price,
-            'stock' => $stock,
-            'rial_price' => $rialPrice,
-        ]);
-
         if (
             $stock == 0
             && $product->belongsToDecalthon()
