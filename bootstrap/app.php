@@ -18,23 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed')->dailyAt('05:00')->then(
-            function () use ($schedule) {
-                $schedule->command('app:sync-products')->then(
-                    function () use ($schedule) {
-                        $schedule->command('app:sync-variations');
-                    }
-                );
-            }
-        );
-        $schedule->command('app:sheet-report')->dailyAt('06:00');
-        $schedule
-            ->command('app:sync-products')->dailyAt('18:30')
-            ->then(function () use ($schedule) {
-                $schedule->command('app:sync-variations')->dailyAt('19:00');
-            });
-        $schedule->command('app:index-zitazi-torob-products')->dailyAt('20:00');
-
+        $schedule->command('db:seed')->dailyAt('05:00');
+        $schedule->command('app:sync-products')->dailyAt('06:00');
+        $schedule->command('app:sync-variations')->dailyAt('07:00');
+        $schedule->command('app:sheet-report')->dailyAt('08:00');
+        $schedule->command('app:index-zitazi-torob-products')->dailyAt('08:30');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
