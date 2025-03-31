@@ -6,8 +6,6 @@ use App\Models\Currency;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -17,13 +15,14 @@ class SyncVariationsActions
 
     private mixed $rate;
 
-    public function __construct()
-    {
+    public function __construct(
+        public SendHttpRequestAction $sendHttpRequestAction
+    ) {
         $this->rate = Currency::syncTryRate();
         $this->woocommerce = WoocommerceService::getClient();
     }
 
-    public function __invoke(Variation $variation,bool $sync = true): void
+    public function __invoke(Variation $variation, bool $sync = true): void
     {
         $this->updateVariation($variation);
 
@@ -70,9 +69,7 @@ class SyncVariationsActions
 
     public function getVariationData(Variation $variation)
     {
-        $response = Http::withHeaders([
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
-        ])->get($variation->url)->body();
+        $response = ($this->sendHttpRequestAction)('get', $variation->url)->body();
 
         $element = 'script[type="application/ld+json"]';
 

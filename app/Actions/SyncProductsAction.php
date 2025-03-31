@@ -7,7 +7,6 @@ use App\Models\Product;
 use App\Models\ProductCompare;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -15,29 +14,14 @@ class SyncProductsAction
 {
     private mixed $rate;
 
-    private array $headers;
-
     private Client $woocommerce;
 
     private SyncVariationsActions $syncVariationAction;
 
-    public static function dispatch(): void
-    {
-        $object = new static;
-
-        foreach (Product::all() as $product) {
-            $object($product);
-        }
-    }
-
-    public function __construct()
-    {
-        $this->headers = [
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
-        ];
-
+    public function __construct(
+        public SendHttpRequestAction $sendHttpRequestAction
+    ) {
         $this->rate = Currency::syncTryRate();
-
         $this->woocommerce = WoocommerceService::getClient();
         $this->syncVariationAction = app(SyncVariationsActions::class);
     }
@@ -57,7 +41,7 @@ class SyncProductsAction
 
     public function syncTrendyol(Product $product): void
     {
-        $response = Http::withHeaders($this->headers)->get($product->trendyol_source);
+        $response = ($this->sendHttpRequestAction)('get', $product->trendyol_source)->body();
         $crawler = new Crawler($response);
 
         $price = null;
@@ -138,7 +122,7 @@ class SyncProductsAction
             'stock_status' => $stock,
         ];
 
-        $this->updateZitazi($product,$data);
+        $this->updateZitazi($product, $data);
     }
 
     public function syncIran(Product $product): void
@@ -158,7 +142,7 @@ class SyncProductsAction
 
         if ($url) {
             try {
-                $response = Http::withHeaders($this->headers)->acceptJson()->get($url)->collect();
+                $response = ($this->sendHttpRequestAction)('get', $url)->collect();
 
                 $variants = collect(data_get($response, 'data.product.variants'))
                     ->map(function ($item) {
@@ -209,7 +193,7 @@ class SyncProductsAction
         }
 
         try {
-            $responseTorob = Http::withHeaders($this->headers)->acceptJson()->get($product->torob_source)->body();
+            $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source)->body();
 
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter('script#__NEXT_DATA__')->first();
@@ -279,8 +263,7 @@ class SyncProductsAction
 
         ];
 
-        if ($product->isForeign())
-        {
+        if ($product->isForeign()) {
             $stock = 'outofstock';
             if (! empty($product->stock) && $product->stock > 0) {
                 $stock = 'instock';
@@ -290,16 +273,12 @@ class SyncProductsAction
             $data['stock_status'] = $stock;
         }
 
-        $this->updateZitazi($product,$data);
+        $this->updateZitazi($product, $data);
     }
 
     public function syncElele(Product $product): void
     {
-        $response = Http::withHeaders(
-            [
-                'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
-            ]
-        )->get($product->elele_source)->body();
+        $response = ($this->sendHttpRequestAction)('get', $product->elele_source)->body();
 
         $price = null;
         $stock = 0;
@@ -352,7 +331,7 @@ class SyncProductsAction
 
     }
 
-    private function updateZitazi(Product $product,array $data): void
+    private function updateZitazi(Product $product, array $data): void
     {
         if ($product->onPromotion()) {
             return;

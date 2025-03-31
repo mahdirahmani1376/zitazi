@@ -3,10 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Actions\SyncProductsAction;
-use App\Jobs\SheetReportJob;
 use App\Jobs\SyncProductJob;
 use App\Models\Product;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
@@ -52,7 +50,7 @@ class SyncProductsCommand extends Command
             return 0;
         }
 
-        $jobs = Product::all()->map(fn($product) => new SyncProductJob($product));
+        $jobs = Product::all()->map(fn ($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {
@@ -62,10 +60,10 @@ class SyncProductsCommand extends Command
                 $text = 'Finished app:sync-products at '.Carbon::now()->toDateTimeString().
                     '. Duration: '.number_format($duration, 2).' seconds.';
                 Log::info($text);
-                })
-            ->catch(function (\Throwable $e){
-                Log::error('app:sync-products failed',[
-                    'error' => $e->getMessage()
+            })
+            ->catch(function (\Throwable $e) {
+                Log::error('app:sync-products failed', [
+                    'error' => $e->getMessage(),
                 ]);
             })
             ->name('Import Products')

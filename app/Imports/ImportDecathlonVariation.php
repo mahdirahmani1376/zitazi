@@ -11,8 +11,7 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
-        if (empty($row['شناسه تنوع زیتازی']))
-        {
+        if (empty($row['شناسه تنوع زیتازی'])) {
             return;
         }
 

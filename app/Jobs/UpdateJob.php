@@ -2,9 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Actions\SyncProductsAction;
-use App\Actions\SyncVariationsActions;
-use Database\Seeders\DatabaseSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Carbon;
@@ -33,12 +30,12 @@ class UpdateJob implements ShouldQueue
     {
         $startTime = microtime(true);
 
-//        Bus::chain([
-//            new SeedJob(),
-//            new SyncProductsJob(),
-//            new SyncVariationsJob(),
-//            new SheerReportJob(),
-//        ])->dispatch();
+        //        Bus::chain([
+        //            new SeedJob(),
+        //            new SyncProductsJob(),
+        //            new SyncVariationsJob(),
+        //            new SheerReportJob(),
+        //        ])->dispatch();
         Artisan::call('db:seed');
         Artisan::call('app:sync-products');
         Artisan::call('app:sync-variations');

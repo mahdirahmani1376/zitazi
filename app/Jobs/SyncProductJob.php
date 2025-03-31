@@ -10,18 +10,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class SyncProductJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels,Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable,SerializesModels;
 
     public function __construct(
         public Product $product,
-    )
-    {
-    }
+    ) {}
 
     public $timeout = 3600;
 
