@@ -19,7 +19,6 @@ class SendHttpRequestAction
 
     public function __invoke($method, $url): Response
     {
-        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
         $cacheKey = md5($url);
 
@@ -34,7 +33,7 @@ class SendHttpRequestAction
         $response = Http::withHeaders($this->headers)->$method($url);
 
         // Cache only the response body
-        Cache::put($cacheKey, $response->body(), $timeUntilEndOfDay);
+        Cache::put($cacheKey, $response->body(), now()->addDay());
 
         return $response;
 
