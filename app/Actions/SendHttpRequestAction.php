@@ -29,11 +29,16 @@ class SendHttpRequestAction
             return new Response(new \GuzzleHttp\Psr7\Response(200, [], $cachedResponse));
         }
 
+        /** @var Response $response */
         // Make the HTTP request
         $response = Http::withHeaders($this->headers)->$method($url);
 
-        // Cache only the response body
-        Cache::put($cacheKey, $response->body(), now()->addDay());
+        if ($response->successful())
+        {
+            // Cache only the response body
+            Cache::put($cacheKey, $response->body(), now()->addDay());
+        }
+
 
         return $response;
 
