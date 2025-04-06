@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Actions\SyncProductsAction;
 use App\Jobs\SyncProductJob;
 use App\Models\Product;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SyncProductsCommand extends Command
 {
@@ -61,7 +63,7 @@ class SyncProductsCommand extends Command
                     '. Duration: '.number_format($duration, 2).' seconds.';
                 Log::info($text);
             })
-            ->catch(function (\Throwable $e) {
+            ->catch(function (Batch $batch, Throwable $e) {
                 Log::error('app:sync-products failed', [
                     'error' => $e->getMessage(),
                 ]);

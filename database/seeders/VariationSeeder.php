@@ -3,16 +3,13 @@
 namespace Database\Seeders;
 
 use App\Jobs\SeedVariationsForProductJob;
-use App\Jobs\SyncProductJob;
 use App\Models\Currency;
 use App\Models\Product;
-use App\Models\Variation;
+use Illuminate\Bus\Batch;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
 use Throwable;
 
 class VariationSeeder extends Seeder
@@ -25,6 +22,7 @@ class VariationSeeder extends Seeder
 
         $jobs = Product::query()
             ->whereNot('decathlon_url','=','')
+            ->get()
             ->map(fn ($product) => new SeedVariationsForProductJob($product,$rate));
 
         Bus::batch($jobs)
@@ -36,7 +34,7 @@ class VariationSeeder extends Seeder
                     '. Duration: '.number_format($duration, 2).' seconds.';
                 Log::info($text);
             })
-            ->catch(function (\Throwable $e) {
+            ->catch(function (Batch $batch, Throwable $e) {
                 Log::error('seed variations failed', [
                     'error' => $e->getMessage(),
                 ]);

@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Jobs\SyncChunkProductsWithZitaziJob;
 use App\Models\Product;
+use Illuminate\Bus\Batch;
 use Illuminate\Database\Seeder;
-use Illuminate\Http\Client\Pool;
-use Illuminate\Http\Client\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +21,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->seedProducts();
+//        $this->seedProducts();
 
         $this->syncProducts();
     }
@@ -104,19 +106,13 @@ class ProductSeeder extends Seeder
 
     private function syncProducts(): void
     {
-        $products = Product::all()->pluck('own_id');
+        $products = Product::pluck('own_id');
 
-        $this->command->getOutput()->progressStart((int) count($products) / 16);
+        $startTime = microtime(true);
 
-        $responses = $products->chunk(16)->map(function (Collection $batch) {
+        $jobs = $products->chunk(16)->map(function (Collection $batch) {
             try {
-                $result = Http::pool(function (Pool $pool) use ($batch) {
-                    return $batch->map(function ($ownId) use ($pool) {
-                        return $pool
-                            ->withBasicAuth(env('SECURITY_KEY'), env('SECURITY_PASS'))
-                            ->get("https://zitazi.com/wp-json/wc/v3/products/{$ownId}");
-                    });
-                });
+                return new SyncChunkProductsWithZitaziJob($batch);
             } catch (Throwable $e) {
                 dump($e->getMessage());
                 Log::error($e->getMessage());
@@ -128,45 +124,22 @@ class ProductSeeder extends Seeder
             return $result;
         });
 
-        $results = [];
-        collect($responses)->collapse()->each(function (Response $response) use (&$results) {
-            try {
-                $response = $response->json();
+        Bus::batch($jobs)
+            ->then(function () use ($startTime) {
+                $endTime = microtime(true);
 
-                $price = null;
-                if (! empty($response['price'])) {
-                    $price = $response['price'];
-                }
-
-                $stock = $response['stock_status'] == 'instock' ? 5 : 0;
-                $results[] = [
-                    'own_id' => (int) $response['id'],
-                    'rial_price' => $price,
-                    'stock' => $stock,
-                    'updated_at' => now()->toDateString(),
-                ];
-            } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
-            }
-        });
-
-        $this->command->getOutput()->progressFinish();
-
-        $batchSize = 50;
-        $this->command->getOutput()->progressStart((int) count($results) / $batchSize);
-
-        foreach (array_chunk($results, $batchSize) as $chunk) {
-            try {
-                DB::table('products')->upsert($chunk, ['own_id'], ['rial_price', 'stock', 'updated_at']);
-            } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
-            }
-            $this->command->getOutput()->progressAdvance();
-        }
-
-        $this->command->getOutput()->progressFinish();
+                $duration = $endTime - $startTime;
+                $text = 'Finished sync products at ' . Carbon::now()->toDateTimeString() .
+                    '. Duration: ' . number_format($duration, 2) . ' seconds.';
+                Log::info($text);
+            })
+            ->catch(function (Batch $batch, Throwable $e) {
+                Log::error('seed products failed', [
+                    'error' => $e->getMessage(),
+                ]);
+            })
+            ->name('Seed products')
+            ->dispatch();
 
     }
 }

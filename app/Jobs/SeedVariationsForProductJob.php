@@ -18,6 +18,8 @@ class SeedVariationsForProductJob implements ShouldQueue
 {
     use Dispatchable, Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 2;
+
     public function __construct(
         private readonly Product $product,
         private                  $rate)

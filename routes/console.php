@@ -286,3 +286,7 @@ Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions
 Artisan::command('test-job', function () {
     \App\Jobs\TestJob::dispatch();
 });
+
+Artisan::command('cancel-batch {--batch=}', function ($batch) {
+    \Illuminate\Container\Container::getInstance()->make(\Illuminate\Bus\BatchRepository::class)?->find($this->option('batch'))->cancel();
+});
