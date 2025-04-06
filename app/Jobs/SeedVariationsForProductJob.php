@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Product;
 use App\Models\Variation;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,11 +16,11 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class SeedVariationsForProductJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
         private readonly Product $product,
-        private $rate)
+        private                  $rate)
     {
     }
 
@@ -57,7 +58,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
         foreach ($variations as $variation) {
             $skuId = $variation['sku'];
-            $pattern = '/"skuId"\s*:\s*"'.preg_quote($skuId, '/').'"\s*,\s*"size"\s*:\s*"([^"]+)"/';
+            $pattern = '/"skuId"\s*:\s*"' . preg_quote($skuId, '/') . '"\s*,\s*"size"\s*:\s*"([^"]+)"/';
 
             $jsonString = $crawler->filter('#__dkt')->first();
             if ($jsonString->count() > 0) {
@@ -72,7 +73,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                 continue;
             }
 
-            $price = (int) str_replace(',', '.', trim($variation['price']));
+            $price = (int)str_replace(',', '.', trim($variation['price']));
             $rialPrice = $this->rate * $price;
             $rialPrice = $rialPrice * 1.6;
 
@@ -102,7 +103,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
         $defaultVariation = $product->defaultVariation();
 
-        if (! empty($defaultVariation)) {
+        if (!empty($defaultVariation)) {
             $price = $defaultVariation->price;
             $rialPrice = $defaultVariation->rial_price;
             $minPrice = $rialPrice * 1.2;
