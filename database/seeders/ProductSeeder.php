@@ -87,8 +87,8 @@ class ProductSeeder extends Seeder
                         'decathlon_url',
                         'decathlon_id',
                         'elele_source',
-                        'updated_at',
                         'promotion',
+                        'updated_at',
                     ]
                 );
             } catch (Throwable $e) {
