@@ -20,6 +20,8 @@ class SyncChunkProductsWithZitaziJob implements ShouldQueue
 {
     use Dispatchable, Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 2;
+    public $backoff = 10;
     public function __construct(
         private Collection $batch
     )
