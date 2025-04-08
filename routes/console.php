@@ -290,3 +290,7 @@ Artisan::command('test-job', function () {
 Artisan::command('cancel-batch {--batch=}', function ($batch) {
     \Illuminate\Container\Container::getInstance()->make(\Illuminate\Bus\BatchRepository::class)?->find($this->option('batch'))->cancel();
 });
+
+Artisan::command('test', function () {
+    \App\Jobs\FailedJob::dispatch();
+});
