@@ -103,9 +103,16 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls|max:2048',
     ]);
 
+
+    $errors = session('import_errors') ?? [];
+    Session::forget('import_errors'); // clear it after reading
+
     Excel::import(new ImportDecathlonVariation, $request->file('file'));
 
-    return back()->with('success', 'فایل با موفقیت ایمپورت شد');
+    return back()
+        ->with('success', 'با موفقیت انجام شد')
+        ->with('error', $errors ?? []);
+
 })->name('variations.import');
 
 Route::get('ci-cd', function () {

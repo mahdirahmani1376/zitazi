@@ -59,25 +59,50 @@
 <body>
 
 <div class="container">
-    @if(session('success'))
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
-            <div id="successToast" class="toast align-items-center text-white bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        {{ session('success') }}
+    @if(session('success') || session('error'))
+        <div class="toast-container position-fixed bottom-0 end-0 p-3"
+             style="z-index: 1050; max-height: 300px; overflow-y: auto; width: 350px;">
+            {{-- Success Toast --}}
+            @if(session('success'))
+                <div class="toast align-items-center text-white bg-success border-0 mb-2" role="alert"
+                     aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            {{ session('success') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close"></button>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-            </div>
+            @endif
+
+            {{-- Error Toasts --}}
+            @if(session('error'))
+                @foreach(session('error') as $e)
+                    <div class="toast align-items-center text-white bg-danger border-0 mb-2" role="alert"
+                         aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                {{ $e['message'] }}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                    aria-label="Close"></button>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                let toast = new bootstrap.Toast(document.getElementById("successToast"));
-                toast.show();
+                document.querySelectorAll('.toast').forEach(function (toastEl) {
+                    new bootstrap.Toast(toastEl).show();
+                });
             });
         </script>
     @endif
+
+
 
     <!-- Sidebar (Right Menu) -->
     <div class="menu sidebar">
