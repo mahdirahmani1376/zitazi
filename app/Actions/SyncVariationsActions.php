@@ -6,6 +6,7 @@ use App\Models\Currency;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
+use Automattic\WooCommerce\HttpClient\HttpClientException;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -66,11 +67,11 @@ class SyncVariationsActions
                     'stock_status' => data_get($response, 'stock_status'),
                 ]
             );
-        } catch (\Automattic\WooCommerce\HttpClient\HttpClientException $e) {
+        } catch (HttpClientException $e) {
             $body = $e->getResponse()->getBody();
             $json = json_decode($body, true);
 
-            Log::error('WooCommerce error', [
+            Log::error('WooCommerce error variation', [
                 'code' => $json['code'] ?? 'unknown',
                 'message' => $json['message'] ?? 'No message',
                 'variation_id' => $variation->id

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCompare;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
+use Automattic\WooCommerce\HttpClient\HttpClientException;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -342,20 +343,31 @@ class SyncProductsAction
             'product' => $product->toArray(),
         ]);
 
-        $response = $this->woocommerce->post("products/{$product->own_id}", $data);
+        try {
+            $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
-        Log::info(
-            "product_update_source_{$product->id}",
-            [
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-                'zitazi_id' => data_get($response, 'id'),
-                'product' => $product->toArray(),
-            ]
-        );
+            Log::info(
+                "product_update_source_{$product->id}",
+                [
+                    'price' => data_get($response, 'price'),
+                    'sale_price' => data_get($response, 'sale_price'),
+                    'regular_price' => data_get($response, 'regular_price'),
+                    'stock_quantity' => data_get($response, 'stock_quantity'),
+                    'stock_status' => data_get($response, 'stock_status'),
+                    'zitazi_id' => data_get($response, 'id'),
+                    'product' => $product->toArray(),
+                ]
+            );
+        } catch (HttpClientException $e) {
+            $body = $e->getResponse()->getBody();
+            $json = json_decode($body, true);
+
+            Log::error('WooCommerce error product', [
+                'code' => $json['code'] ?? 'unknown',
+                'message' => $json['message'] ?? 'No message',
+                'product_id' => $product->id
+            ]);
+        }
     }
 
     private function getProfitRatioForProduct(Product $product)
