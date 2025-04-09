@@ -95,7 +95,19 @@ class SyncVariationsActions
         }
 
         $variations = collect($variations)->keyBy('sku');
-        $stock = data_get($variations, "{$variations->sku}.stock", 0);
+        if (!(isset($variations[$variation['sku']]))) {
+            Log::error('sync-variations-action-sku-not-found', [
+                'sku' => $variation['sku'],
+                'variation_url' => $variation->url
+            ]);
+            return [
+                'price' => null,
+                'stock' => 0,
+                'rial_price' => null,
+            ];
+        }
+
+        $stock = data_get($variations, "{$variation->sku}.stock", 0);
 
         $price = (int) str_replace(',', '.', trim($variation['price']));
         $rialPrice = $this->rate * $price;
