@@ -58,7 +58,7 @@ class SyncProductsAction
                     $price = $json['discountedPrice']['value'];
                     $price = (int) str_replace(',', '.', trim($price));
                     $rialPrice = $this->rate * $price;
-                    $rialPrice = $rialPrice * 1.6;
+                    $rialPrice = $rialPrice * $this->getProfitRatioForProduct($product);
                     $rialPrice = floor($rialPrice / 10000) * 10000;
                     break;
                 }
@@ -294,7 +294,7 @@ class SyncProductsAction
 
                 if (isset($matches[1])) {
                     $price = $matches[1];
-                    $rialPrice = $price * 1.60 * $this->rate;
+                    $rialPrice = $price * $this->getProfitRatioForProduct($product) * $this->rate;
                     $rialPrice = floor($rialPrice / 10000) * 10000;
                     break;
 
@@ -357,4 +357,14 @@ class SyncProductsAction
             ]
         );
     }
+
+    private function getProfitRatioForProduct(Product $product)
+    {
+        if (!empty($product->markup)) {
+            return 1 + ($product->markup / 100);
+        }
+
+        return 1.6;
+    }
+
 }
