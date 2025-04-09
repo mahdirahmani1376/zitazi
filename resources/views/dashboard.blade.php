@@ -78,6 +78,29 @@
             });
         </script>
     @endif
+        @if(session('error'))
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+                <div id="errorToast" class="toast align-items-center text-white bg-danger border-0 show" role="alert"
+                     aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        @foreach(session('error') as $error)
+                            <div class="toast-body">
+                                {{ session('error') }}
+                            </div>
+                        @endforeach
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                                aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    let toast = new bootstrap.Toast(document.getElementById("errorToast"));
+                    toast.show();
+                });
+            </script>
+        @endif
 
     <!-- Sidebar (Right Menu) -->
     <div class="menu sidebar">
