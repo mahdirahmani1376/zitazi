@@ -54,17 +54,34 @@ class SyncVariationsActions
             'stock_status' => $variation->stock > 0 ? 'instock' : 'outofstock',
         ];
 
-        $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
-        Log::info(
-            "product_update_source_{$variation->id}",
-            [
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-            ]
-        );
+        try {
+            $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
+            Log::info(
+                "product_update_source_{$variation->id}",
+                [
+                    'price' => data_get($response, 'price'),
+                    'sale_price' => data_get($response, 'sale_price'),
+                    'regular_price' => data_get($response, 'regular_price'),
+                    'stock_quantity' => data_get($response, 'stock_quantity'),
+                    'stock_status' => data_get($response, 'stock_status'),
+                ]
+            );
+        } catch (\Automattic\WooCommerce\HttpClient\HttpClientException $e) {
+            $body = $e->getResponse()->getBody();
+            $json = json_decode($body, true);
+
+            Log::error('WooCommerce error', [
+                'code' => $json['code'] ?? 'unknown',
+                'message' => $json['message'] ?? 'No message',
+                'variation_id' => $variation->id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('error-sync-variation', [
+                'error' => $e->getMessage(),
+                'variation_id' => $variation->id
+            ]);
+        }
+
     }
 
     public function getVariationData(Variation $variation)
