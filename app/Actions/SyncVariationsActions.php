@@ -95,7 +95,7 @@ class SyncVariationsActions
         }
 
         $variations = collect($variations)->keyBy('sku');
-        $stock = $variations[$variation->sku]['stock'];
+        $stock = data_get($variations, "{$variations->sku}.stock", 0);
 
         $price = (int) str_replace(',', '.', trim($variation['price']));
         $rialPrice = $this->rate * $price;
