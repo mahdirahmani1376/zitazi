@@ -4,6 +4,7 @@ use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
 use App\Exports\DecathlonVariationExport;
 use App\Exports\ProductExport;
+use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
 use App\Imports\ImportDecathlonVariation;
 use App\Jobs\UpdateJob;
@@ -123,3 +124,9 @@ Route::get('redis-test', function () {
     Redis::set('test', 'Hello, Redis!');
     echo Redis::get('test');
 });
+
+Route::get('/sync-logs-download', function () {
+    $now = now()->toDateTimeString();
+
+    return Excel::download(new SyncLogExport(), "sync_logs_{$now}.xlsx");
+})->name('sync-logs-download');

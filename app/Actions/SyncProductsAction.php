@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
+use App\Models\SyncLog;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
@@ -90,16 +91,13 @@ class SyncProductsAction
             $price = null;
         }
 
-        $product->update([
+        $data = [
             'price' => $price,
             'stock' => $stock,
             'rial_price' => $rialPrice,
-        ]);
+        ];
 
-        Log::info("product_update_{$product->id}", [
-            'before' => $product->getOriginal(),
-            'after' => $product->getChanges(),
-        ]);
+        $this->updateAndLogProduct($product, $data);
 
         if (! $product->belongsToIran()) {
             $this->syncSource($product);
@@ -315,16 +313,13 @@ class SyncProductsAction
             $price = null;
         }
 
-        $product->update([
+        $data = [
             'price' => $price,
             'stock' => $stock,
             'rial_price' => $rialPrice,
-        ]);
+        ];
 
-        Log::info("product_update_{$product->id}", [
-            'before' => $product->getOriginal(),
-            'after' => $product->getChanges(),
-        ]);
+        $this->updateAndLogProduct($product, $data);
 
         if (! $product->belongsToIran()) {
             $this->syncSource($product);
@@ -334,6 +329,7 @@ class SyncProductsAction
 
     private function updateZitazi(Product $product, array $data): void
     {
+        return;
         if ($product->onPromotion()) {
             return;
         }
@@ -377,6 +373,31 @@ class SyncProductsAction
         }
 
         return 1.6;
+    }
+
+    private function updateAndLogProduct(Product $product, array $data): void
+    {
+        $oldStock = $product->stock;
+        $oldPrice = $product->rial_price;
+
+        $product->update($data);
+
+        if ($oldStock != $product->stock || $oldPrice != $product->rial_price) {
+            $data = [
+                'old_stock' => $oldStock,
+                'new_stock' => $product->stock,
+                'old_price' => $oldPrice,
+                'new_price' => $product->rial_price,
+                'variation_id' => $product->own_id
+            ];
+
+            SyncLog::create($data);
+        }
+
+        Log::info("product_update_{$product->id}", [
+            'before' => $product->getOriginal(),
+            'after' => $product->getChanges(),
+        ]);
     }
 
 }

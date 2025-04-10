@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Currency;
+use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
@@ -33,13 +34,7 @@ class SyncVariationsActions
     {
         $data = $this->getVariationData($variation);
 
-        $variation->update($data);
-
-        Log::info("variation_update_{$variation->id}", [
-            'before' => $variation->getOriginal(),
-            'after' => $variation->getChanges(),
-            'data' => $data,
-        ]);
+        $this->logUpdateForVariation($variation, $data);
 
         $this->syncZitazi($variation);
 
@@ -146,5 +141,31 @@ class SyncVariationsActions
         ];
 
         return $data;
+    }
+
+    private function logUpdateForVariation(Variation $variation, $data): void
+    {
+        $oldStock = $variation->stock;
+        $oldPrice = $variation->rial_price;
+
+        $variation->update($data);
+
+        if ($oldStock != $variation->stock || $oldPrice != $variation->rial_price) {
+            $data = [
+                'old_stock' => $oldStock,
+                'new_stock' => $variation->stock,
+                'old_price' => $oldPrice,
+                'new_price' => $variation->rial_price,
+                'variation_id' => $variation->own_id
+            ];
+
+            SyncLog::create($data);
+        }
+
+        Log::info("variation_update_{$variation->id}", [
+            'before' => $variation->getOriginal(),
+            'after' => $variation->getChanges(),
+            'data' => $data,
+        ]);
     }
 }
