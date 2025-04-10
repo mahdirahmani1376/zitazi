@@ -83,7 +83,7 @@ class ProductSeeder extends Seeder
                         'torob_source',
                         'torob_id',
                         'min_price',
-                        'mark-up',
+                        'markup',
                         'category',
                         'brand',
                         'owner',
