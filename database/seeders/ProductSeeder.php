@@ -52,7 +52,7 @@ class ProductSeeder extends Seeder
                     'torob_source' => urldecode(data_get($value, 'torob_link')),
                     'torob_id' => ! empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
                     'min_price' => $minPrice,
-                    'markup' => data_get($value, 'Mark-up'),
+                    'markup' => is_numeric($value['Mark-up']) ? $value['Mark-up'] : null,
                     'category' => data_get($value, 'Category'),
                     'brand' => data_get($value, 'Brand'),
                     'owner' => data_get($value, 'Owner'),

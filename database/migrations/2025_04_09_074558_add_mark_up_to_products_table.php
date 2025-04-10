@@ -8,7 +8,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->integer('markup')->nullable()->after('min_price');
+            $table->integer('markup')
+                ->nullable()
+                ->after('min_price');
         });
     }
 
