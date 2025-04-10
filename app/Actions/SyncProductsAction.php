@@ -388,7 +388,7 @@ class SyncProductsAction
                 'new_stock' => $product->stock,
                 'old_price' => $oldPrice,
                 'new_price' => $product->rial_price,
-                'variation_id' => $product->own_id
+                'product_own_id' => $product->own_id
             ];
 
             SyncLog::create($data);

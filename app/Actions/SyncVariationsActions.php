@@ -156,7 +156,8 @@ class SyncVariationsActions
                 'new_stock' => $variation->stock,
                 'old_price' => $oldPrice,
                 'new_price' => $variation->rial_price,
-                'variation_id' => $variation->own_id
+                'variation_own_id' => $variation->own_id,
+                'product_own_id' => $variation->product->own_id
             ];
 
             SyncLog::create($data);
