@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
+    public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
     protected $guarded = [
 
     ];
@@ -24,6 +25,16 @@ class Product extends Model
     public function belongsToIran(): bool
     {
         return ! empty($this->digikala_source) || ! empty($this->torob_source) && ! $this->belongsToDecalthon();
+    }
+
+    public function belongsToDigikala(): bool
+    {
+        return !empty($this->digikala_source);
+    }
+
+    public function belongsToTorob(): bool
+    {
+        return !empty($this->digikala_source);
     }
 
     public function productCompare(): HasOne

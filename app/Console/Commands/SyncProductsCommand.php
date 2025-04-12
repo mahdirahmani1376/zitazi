@@ -7,8 +7,10 @@ use App\Jobs\SyncProductJob;
 use App\Models\Product;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -52,7 +54,11 @@ class SyncProductsCommand extends Command
             return 0;
         }
 
-        $jobs = Product::all()->map(fn ($product) => new SyncProductJob($product));
+        $jobs = Product::query()
+            ->when(!empty(Cache::get(Product::TOROB_LOCK_FOR_UPDATE)), function (Builder $query) {
+                $query->where('torob_source', '=', '');
+            })
+            ->map(fn($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {

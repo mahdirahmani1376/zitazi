@@ -9,6 +9,7 @@ use App\Models\SyncLog;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -133,23 +134,16 @@ class SyncProductsAction
 
     public function syncIran(Product $product): void
     {
-        $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
-
-        $url = null;
+        $digikalaUrl = null;
         if ($product->digikala_source) {
-            $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
+            $digikalaUrl = "https://api.digikala.com/v2/product/$product->digikala_source/";
         }
 
-        $digiPrice = null;
-        $torobMinPrice = null;
-        $zitaziTorobPrice = null;
-        $minDigiPrice = null;
-        $zitazi_digikala_price_recommend = null;
-        $zitazi_torob_price_recommend = null;
+        $data = [];
 
-        if ($url) {
+        if ($digikalaUrl) {
             try {
-                $response = ($this->sendHttpRequestAction)('get', $url)->collect();
+                $response = ($this->sendHttpRequestAction)('get', $digikalaUrl)->collect();
 
                 $variants = collect(data_get($response, 'data.product.variants'))
                     ->map(function ($item) {
@@ -167,7 +161,7 @@ class SyncProductsAction
                 if (! $digiPrice) {
                     $digiPrice = data_get($response, 'data.product.default_variant.price.selling_price');
                     Log::info('zitazi_not_available', [
-                        'url' => $url,
+                        'url' => $digikalaUrl,
                     ]);
                 }
 
@@ -192,6 +186,12 @@ class SyncProductsAction
                 $digiPrice = $digiPrice / 10;
                 $minDigiPrice = $minDigiPrice / 10;
                 $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
+
+                $data['zitazi_digi_ratio'] = !empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null;
+                $data['zitazi_digikala_price_recommend'] = $zitazi_digikala_price_recommend;
+                $data['digikala_zitazi_price'] = $digiPrice;
+                $data['digikala_min_price'] = $minDigiPrice;
+
             } catch (\Exception $e) {
                 Log::error('error_digi_fetch'.$product->id, [
                     'error' => $e->getMessage(),
@@ -199,66 +199,74 @@ class SyncProductsAction
             }
         }
 
-        try {
-            $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
-            dump($responseTorob);
-            $crawler = new Crawler($responseTorob);
-            $element = $crawler->filter('script#__NEXT_DATA__')->first();
-            if ($element->count() > 0) {
-                $data = collect(json_decode($element->text(), true));
-                $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
+        if ($product->torob_source) {
+            try {
+                $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders);
 
-                $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
-                $torobMinPrice = collect($sellers)->filter(function ($i) {
-                    return data_get($i, 'shop_id') != 12259;
-                })->pluck('price')->filter(fn ($p) => $p > 0)->min();
+                if ($responseTorob->status() != 200) {
+                    Log::error('torob-api-failed', [
+                        'body' => $responseTorob->body()
+                    ]);
+                    Cache::set(Product::TOROB_LOCK_FOR_UPDATE, true, now()->addDay());
+                } else {
+                    $responseTorob = $responseTorob->body();
+                    $crawler = new Crawler($responseTorob);
+                    $element = $crawler->filter('script#__NEXT_DATA__')->first();
+                    if ($element->count() > 0) {
+                        $data = collect(json_decode($element->text(), true));
+                        $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
 
-                if (! empty($sellers) && count($sellers) > 1) {
-                    if ($product->belongsToTrendyol()) {
-                        $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
-                        $product->update();
-                    }
+                        $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
+                        $data['zitazi_torob_price'] = $zitaziTorobPrice;
 
-                    $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
-                    $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
+                        $torobMinPrice = collect($sellers)->filter(function ($i) {
+                            return data_get($i, 'shop_id') != 12259;
+                        })->pluck('price')->filter(fn($p) => $p > 0)->min();
+                        $data['torob_min_price'] = $torobMinPrice;
 
-                    if (! empty($product->min_price)) {
-                        if ($zitazi_torob_price_recommend < $product->min_price) {
-                            $zitazi_torob_price_recommend = $product->min_price;
+
+                        if (!empty($sellers) && count($sellers) > 1) {
+                            if ($product->belongsToTrendyol()) {
+                                $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
+                                $product->update();
+                            }
+
+                            $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
+                            $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
+
+                            if (!empty($product->min_price)) {
+                                if ($zitazi_torob_price_recommend < $product->min_price) {
+                                    $zitazi_torob_price_recommend = $product->min_price;
+                                }
+
+                                $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
+                                $data['zitazi_torob_price_recommend'] = $zitazi_torob_price_recommend;
+                                $data['zitazi_torob_ratio'] = !empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null;
+
+                                $this->updateProductOnTorob($product, $zitazi_torob_price_recommend);
+
+                            }
+
+                        } elseif ($product->isForeign()) {
+                            $this->syncSource($product);
                         }
-
-                        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
-
-                        $this->updateProductOnTorob($product, $zitazi_torob_price_recommend);
-
                     }
-
-                } elseif ($product->isForeign()) {
-                    $this->syncSource($product);
                 }
+
+
+            } catch (\Exception $e) {
+                Log::error('error_torob_fetch' . $product->id, [
+                    'error' => $e->getMessage(),
+                ]);
             }
-        } catch (\Exception $e) {
-            Log::error('error_torob_fetch'.$product->id, [
-                'error' => $e->getMessage(),
-            ]);
         }
 
         ProductCompare::updateOrCreate(
             [
                 'product_id' => $product->id,
             ],
-            [
-                'zitazi_digi_ratio' => ! empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
-                'zitazi_torob_ratio' => ! empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
-                'digikala_zitazi_price' => $digiPrice,
-                'digikala_min_price' => $minDigiPrice,
-                'torob_min_price' => $torobMinPrice,
-                'zitazi_torob_price' => $zitaziTorobPrice,
-                'zitazi_torob_price_recommend' => $zitazi_torob_price_recommend,
-                'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend,
-            ]
+            $data
         );
-
     }
 
     private function updateProductOnTorob(Product $product, $zitazi_digikala_price_recommend): void
@@ -341,24 +349,23 @@ class SyncProductsAction
             return;
         }
 
-        Log::info("product_update_data_{$product->id}", [
-            'body' => $data,
-            'product' => $product->toArray(),
-        ]);
-
         try {
             $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
             Log::info(
-                "product_update_source_{$product->id}",
+                "product_update_{$product->id}",
                 [
-                    'price' => data_get($response, 'price'),
-                    'sale_price' => data_get($response, 'sale_price'),
-                    'regular_price' => data_get($response, 'regular_price'),
-                    'stock_quantity' => data_get($response, 'stock_quantity'),
-                    'stock_status' => data_get($response, 'stock_status'),
-                    'zitazi_id' => data_get($response, 'id'),
+                    'body' => $data,
                     'product' => $product->toArray(),
+                    'response' => [
+                        'price' => data_get($response, 'price'),
+                        'sale_price' => data_get($response, 'sale_price'),
+                        'regular_price' => data_get($response, 'regular_price'),
+                        'stock_quantity' => data_get($response, 'stock_quantity'),
+                        'stock_status' => data_get($response, 'stock_status'),
+                        'zitazi_id' => data_get($response, 'id'),
+                        'product' => $product->toArray(),
+                    ]
                 ]
             );
         } catch (HttpClientException $e) {
@@ -369,6 +376,10 @@ class SyncProductsAction
                 'code' => $json['code'] ?? 'unknown',
                 'message' => $json['message'] ?? 'No message',
                 'product_id' => $product->id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('General update erro', [
+                'error' => $e->getMessage()
             ]);
         }
     }

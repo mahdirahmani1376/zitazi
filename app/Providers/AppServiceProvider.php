@@ -23,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::unguard();
         HeadingRowFormatter::default('none'); // Disable automatic transformation
+
     }
 }
