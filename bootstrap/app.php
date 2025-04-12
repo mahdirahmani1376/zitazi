@@ -19,8 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('app:sync-products')->dailyAt('06:00');
         $schedule->command('app:sync-variations')->dailyAt('07:00');
         $schedule->command('app:sheet-report')->dailyAt('08:00');
-        $schedule->command('app:index-zitazi-torob-products')->dailyAt('08:30');
-        $schedule->command('telescope:prune --hours=24')->daily();
+//        $schedule->command('app:index-zitazi-torob-products')->dailyAt('08:30');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
