@@ -49,7 +49,14 @@ class BaseCrawler
             return;
         }
 
+        $stockStatus = 'outOfStock';
+        if ($dto->stock_quantity || $dto->price > 0) {
+            $stockStatus = 'inStock';
+        }
+
         $data = $dto->getUpdateBody();
+
+        $data['stock_status'] = $stockStatus;
         $data['sale_price'] = null;
 
         try {
