@@ -5,7 +5,7 @@ namespace App\DTO;
 class ZitaziUpdateDTO
 {
     public function __construct(
-        public int   $price,
+        public int $price,
         public mixed $stock_quantity,
     )
     {

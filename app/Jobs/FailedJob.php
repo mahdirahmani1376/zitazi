@@ -16,6 +16,6 @@ class FailedJob implements ShouldQueue
     public function handle(): void
     {
         Log::info('test');
-        throw new \Exception("Intentional failure to test retry");
+        throw new \Exception('Intentional failure to test retry');
     }
 }

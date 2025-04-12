@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Product extends Model
 {
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
+
     protected $guarded = [
 
     ];

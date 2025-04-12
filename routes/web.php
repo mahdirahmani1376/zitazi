@@ -104,7 +104,6 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls|max:2048',
     ]);
 
-
     $errors = session('import_errors') ?? [];
     Session::forget('import_errors'); // clear it after reading
 
@@ -128,5 +127,5 @@ Route::get('redis-test', function () {
 Route::get('/sync-logs-download', function () {
     $now = now()->toDateTimeString();
 
-    return Excel::download(new SyncLogExport(), "sync_logs_{$now}.xlsx");
+    return Excel::download(new SyncLogExport, "sync_logs_{$now}.xlsx");
 })->name('sync-logs-download');

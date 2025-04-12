@@ -20,12 +20,11 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
             return $this->updateVariationFromRow($row);
         } catch (\Exception $e) {
             Log::error('error-import', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
 
     }
-
 
     public function updateVariationFromRow(array $row)
     {
@@ -55,9 +54,9 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
         }
 
         $variationCheck = Variation::where([
-            'own_id' => $row['شناسه تنوع زیتازی']
+            'own_id' => $row['شناسه تنوع زیتازی'],
         ])->whereNot([
-            'sku' => $row['شناسه تنوع دکلتون']
+            'sku' => $row['شناسه تنوع دکلتون'],
         ])->exists();
 
         if ($variationCheck) {

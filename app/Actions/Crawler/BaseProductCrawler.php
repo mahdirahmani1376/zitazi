@@ -14,10 +14,12 @@ use Automattic\WooCommerce\HttpClient\HttpClientException;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
-class BaseCrawler
+class BaseProductCrawler
 {
     protected mixed $rate;
+
     protected SyncVariationsActions $syncVariationAction;
+
     private Client $woocommerce;
 
     public function __construct(
@@ -33,14 +35,23 @@ class BaseCrawler
     public static function CrawlProduct(Product $product): void
     {
         if ($product->belongsToTrendyol()) {
-
+            app(TrendyolCrawler::class)->crawl($product->digikala_source);
         }
         if ($product->belongsToElele()) {
-
+            app(EleleCrawler::class)->crawl($product->digikala_source);
         }
         if ($product->belongsToIran()) {
-            app(DigikalaBaseCrawlerProduct::class)->crawl($product->digikala_source);
+            app(DigikalaCrawler::class)->crawl($product->digikala_source);
         }
+    }
+
+    protected function getProfitRatioForProduct(Product $product): float|int
+    {
+        if (!empty($product->markup)) {
+            return 1 + ($product->markup / 100);
+        }
+
+        return 1.6;
     }
 
     protected function updateZitazi(Product $product, ZitaziUpdateDTO $dto): void
@@ -85,37 +96,9 @@ class BaseCrawler
                     'stock_status' => data_get($response, 'stock_status'),
                     'zitazi_id' => data_get($response, 'id'),
                     'product' => $product->toArray(),
-                ]
+                ],
             ]
         );
-    }
-
-    private function handleHttpClientException(HttpClientException $e, Product $product): void
-    {
-        $body = $e->getResponse()->getBody();
-        $json = json_decode($body, true);
-
-        Log::error('WooCommerce error product', [
-            'code' => $json['code'] ?? 'unknown',
-            'message' => $json['message'] ?? 'No message',
-            'product_id' => $product->id
-        ]);
-    }
-
-    private function handelGeneralException(Exception $e): void
-    {
-        Log::error('General update erro', [
-            'error' => $e->getMessage()
-        ]);
-    }
-
-    protected function getProfitRatioForProduct(Product $product)
-    {
-        if (!empty($product->markup)) {
-            return 1 + ($product->markup / 100);
-        }
-
-        return 1.6;
     }
 
     protected function updateAndLogProduct(Product $product, array $data): void
@@ -131,7 +114,7 @@ class BaseCrawler
                 'new_stock' => $product->stock,
                 'old_price' => $oldPrice,
                 'new_price' => $product->rial_price,
-                'product_own_id' => $product->own_id
+                'product_own_id' => $product->own_id,
             ];
 
             SyncLog::create($data);
@@ -143,4 +126,22 @@ class BaseCrawler
         ]);
     }
 
+    private function handleHttpClientException(HttpClientException $e, Product $product): void
+    {
+        $body = $e->getResponse()->getBody();
+        $json = json_decode($body, true);
+
+        Log::error('WooCommerce error product', [
+            'code' => $json['code'] ?? 'unknown',
+            'message' => $json['message'] ?? 'No message',
+            'product_id' => $product->id,
+        ]);
+    }
+
+    private function handelGeneralException(Exception $e): void
+    {
+        Log::error('General update erro', [
+            'error' => $e->getMessage(),
+        ]);
+    }
 }

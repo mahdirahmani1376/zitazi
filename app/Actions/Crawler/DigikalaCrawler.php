@@ -7,9 +7,8 @@ use App\Models\Product;
 use App\Models\ProductCompare;
 use Illuminate\Support\Facades\Log;
 
-class DigikalaBaseCrawlerProduct extends BaseCrawler implements ProductAbstractCrawler
+class DigikalaCrawler extends BaseProductCrawler implements ProductAbstractCrawler
 {
-
     public function crawl(Product $product)
     {
         $digikalaUrl = "https://api.digikala.com/v2/product/$product->digikala_source/";

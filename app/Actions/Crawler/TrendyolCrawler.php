@@ -5,9 +5,8 @@ namespace App\Actions\Crawler;
 use App\DTO\ZitaziUpdateDTO;
 use Symfony\Component\DomCrawler\Crawler;
 
-class TrendyolCrawlerProduct extends BaseCrawler implements ProductAbstractCrawler
+class TrendyolCrawler extends BaseProductCrawler implements ProductAbstractCrawler
 {
-
     public function crawl($product)
     {
         $response = ($this->sendHttpRequestAction)('get', $product->trendyol_source)->body();
@@ -65,8 +64,8 @@ class TrendyolCrawlerProduct extends BaseCrawler implements ProductAbstractCrawl
         ];
 
         $updateData = ZitaziUpdateDTO::createFromArray([
-            "price" => $rialPrice,
-            "stock_quantity" => $stock,
+            'price' => $rialPrice,
+            'stock_quantity' => $stock,
         ]);
 
         $this->updateAndLogProduct($product, $data);

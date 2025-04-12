@@ -41,15 +41,7 @@ class SyncProductsCommand extends Command
 
         if (! empty($this->option('override-id'))) {
             $product = Product::find($this->option('override-id'));
-            if ($product->belongsToTrendyol()) {
-                $syncAction->syncTrendyol($product);
-            }
-            if ($product->belongsToElele()) {
-                $syncAction->syncElele($product);
-            }
-            if ($product->belongsToIran()) {
-                $syncAction->syncIran($product);
-            }
+            $syncAction($product);
 
             return 0;
         }
