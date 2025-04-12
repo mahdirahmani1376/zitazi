@@ -52,6 +52,7 @@ class SyncProductsCommand extends Command
             return 0;
         }
 
+        // todo fix torob to use cache
         $jobs = Product::where('torob_source', '=', '')->get()->map(fn($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)

@@ -16,6 +16,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
     {
         return Variation::with('product')
             ->orderBy('product_id')
+            ->whereNull('own_id')
             ->get();
     }
 
