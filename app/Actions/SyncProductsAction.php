@@ -212,7 +212,7 @@ class SyncProductsAction
 
         try {
             $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
-
+            dump($responseTorob);
             $crawler = new Crawler($responseTorob);
             $element = $crawler->filter('script#__NEXT_DATA__')->first();
             if ($element->count() > 0) {
