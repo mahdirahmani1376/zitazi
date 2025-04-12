@@ -15,9 +15,7 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
      */
     public function collection()
     {
-        $products = Product::with('productCompare')
-            // ->whereNotNull('torob_id')
-            ->get();
+        $products = Product::with('productCompare')->get();
 
         $torobProducts = TorobProduct::get()->keyBy('random_key');
 
