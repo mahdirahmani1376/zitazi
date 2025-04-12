@@ -7,8 +7,14 @@ use App\Models\Product;
 
 class SyncProductsAction
 {
+    public function __construct(
+        public BaseProductCrawler $baseProductCrawler
+    )
+    {
+    }
+
     public function __invoke(Product $product): void
     {
-        BaseProductCrawler::CrawlProduct($product);
+        $this->baseProductCrawler->crawlProduct($product);
     }
 }

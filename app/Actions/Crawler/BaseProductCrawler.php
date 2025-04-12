@@ -18,7 +18,6 @@ class BaseProductCrawler
 {
     protected mixed $rate;
     protected SyncVariationsActions $syncVariationAction;
-
     /** @var ProductAbstractCrawler[] */
     protected array $crawlers;
     private Client $woocommerce;
@@ -35,7 +34,6 @@ class BaseProductCrawler
         $this->syncVariationAction = app(SyncVariationsActions::class);
 
     }
-
     public function crawl(Product $product)
     {
         foreach ($this->crawlers as $crawler) {
