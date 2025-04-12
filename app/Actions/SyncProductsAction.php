@@ -133,8 +133,6 @@ class SyncProductsAction
 
     public function syncIran(Product $product): void
     {
-        $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
-
         $url = null;
         if ($product->digikala_source) {
             $url = "https://api.digikala.com/v2/product/$product->digikala_source/";
