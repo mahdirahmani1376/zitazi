@@ -2,19 +2,19 @@
 
 namespace App\Actions;
 
-use App\Actions\Crawler\BaseProductCrawler;
+use App\Actions\Crawler\CrawlerManager;
 use App\Models\Product;
 
 class SyncProductsAction
 {
     public function __construct(
-        public BaseProductCrawler $baseProductCrawler
+        public CrawlerManager $baseProductCrawler
     )
     {
     }
 
     public function __invoke(Product $product): void
     {
-        $this->baseProductCrawler->crawlProduct($product);
+        $this->baseProductCrawler->crawl($product);
     }
 }

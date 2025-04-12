@@ -14,7 +14,7 @@ use Automattic\WooCommerce\HttpClient\HttpClientException;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
-class BaseProductCrawler
+class CrawlerManager
 {
     protected mixed $rate;
     protected SyncVariationsActions $syncVariationAction;
