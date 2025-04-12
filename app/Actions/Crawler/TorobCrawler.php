@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
-class TorobCrawlerManager extends CrawlerManager implements ProductAbstractCrawler
+class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product): void
     {

@@ -2,13 +2,13 @@
 
 namespace App\Actions;
 
-use App\Actions\Crawler\CrawlerManager;
+use App\Actions\Crawler\BaseCrawler;
 use App\Models\Product;
 
 class SyncProductsAction
 {
     public function __construct(
-        public CrawlerManager $baseProductCrawler
+        public BaseCrawler $baseProductCrawler
     )
     {
     }

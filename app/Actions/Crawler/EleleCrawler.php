@@ -7,7 +7,7 @@ use App\Exceptions\UnProcessableResponseException;
 use App\Models\Product;
 use Symfony\Component\DomCrawler\Crawler;
 
-class EleleCrawlerManager extends CrawlerManager implements ProductAbstractCrawler
+class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl(Product $product): void
     {

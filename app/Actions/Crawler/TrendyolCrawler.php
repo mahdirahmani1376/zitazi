@@ -6,7 +6,7 @@ use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use Symfony\Component\DomCrawler\Crawler;
 
-class TrendyolCrawlerManager extends CrawlerManager implements ProductAbstractCrawler
+class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product)
     {

@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCompare;
 use Illuminate\Support\Facades\Log;
 
-class DigikalaCrawlerManager extends CrawlerManager implements ProductAbstractCrawler
+class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl(Product $product)
     {

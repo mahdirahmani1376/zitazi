@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use App\Actions\Crawler\CrawlerManager;
-use App\Actions\Crawler\DigikalaCrawlerManager;
-use App\Actions\Crawler\EleleCrawlerManager;
-use App\Actions\Crawler\TorobCrawlerManager;
-use App\Actions\Crawler\TrendyolCrawlerManager;
+use App\Actions\Crawler\BaseCrawler;
+use App\Actions\Crawler\DigikalaCrawler;
+use App\Actions\Crawler\EleleCrawler;
+use App\Actions\Crawler\TorobCrawler;
+use App\Actions\Crawler\TrendyolCrawler;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -29,12 +29,12 @@ class AppServiceProvider extends ServiceProvider
         Model::unguard();
         HeadingRowFormatter::default('none'); // Disable automatic transformation
 
-        $this->app->singleton(CrawlerManager::class, function () {
-            return new CrawlerManager([
-                DigikalaCrawlerManager::class,
-                TorobCrawlerManager::class,
-                TrendyolCrawlerManager::class,
-                EleleCrawlerManager::class
+        $this->app->singleton(BaseCrawler::class, function () {
+            return new BaseCrawler([
+                DigikalaCrawler::class,
+                TorobCrawler::class,
+                TrendyolCrawler::class,
+                EleleCrawler::class
             ]);
         });
 
