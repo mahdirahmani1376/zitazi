@@ -30,7 +30,7 @@ class SyncProductsAction
 
         $this->torobHeaders = [
             'Cookie' =>
-                'returning_user=true; _ga_RWKMFFVXJX=GS1.1.1744456689.12.1.1744458779.0.0.0; _ga=GA1.1.1811146057.1742477026; search_session=eaqkxqxrtxvbjfkedvseopqxycjkfijj; is_torob_user_logged_in=True; display_mode=; _ga_DG18N985FG=GS1.1.1744457392.1.1.1744457452.0.0.0; _gid=GA1.2.2113594680.1744457393; _ga_S1W5P3WLLJ=GS1.1.1744457415.1.1.1744457477.0.0.0; trb_clearance=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDQ0NjAzODUsIm5iZiI6MTc0NDQ1ODU4NSwic3ViIjoiY2UzNzE4NDE1YzRkODNlNzE3YjVlNzk2ZTgwZjE3MDczNTBlYTVhZmJjMmNmMmFiOTEzZWFjNDY4MTMwMmFmOCJ9.oTNA0AXgjwizceJXFj01xud-AcnzfVy1JVpz9ughyH8; csrftoken=Umzus7ARY9anfSp4e0QHSebSNLtmXZhy; user_access_dict="eyJ1c2VyX3R5cGUiOiAic2hvcF9zdGFmZiIsICJpbnN0YW5jZXMiOiB7fX0="',
+                'returning_user=true; _ga_RWKMFFVXJX=GS1.1.1744456689.12.1.1744460675.0.0.0; _ga=GA1.1.1811146057.1742477026; search_session=eaqkxqxrtxvbjfkedvseopqxycjkfijj; is_torob_user_logged_in=True; display_mode=; _ga_DG18N985FG=GS1.1.1744457392.1.1.1744457452.0.0.0; _gid=GA1.2.2113594680.1744457393; _ga_S1W5P3WLLJ=GS1.1.1744457415.1.1.1744457477.0.0.0; csrftoken=Umzus7ARY9anfSp4e0QHSebSNLtmXZhy; user_access_dict="eyJ1c2VyX3R5cGUiOiAic2hvcF9zdGFmZiIsICJpbnN0YW5jZXMiOiB7fX0="; trb_clearance=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDQ0NjI0OTcsIm5iZiI6MTc0NDQ2MDY5Nywic3ViIjoiY2UzNzE4NDE1YzRkODNlNzE3YjVlNzk2ZTgwZjE3MDczNTBlYTVhZmJjMmNmMmFiOTEzZWFjNDY4MTMwMmFmOCJ9.2DUPDuh8b8Uq4IeXyauF2HcAEy7fXuo18PBnghHjSA4',
             'user-agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
         ];
     }
@@ -133,6 +133,7 @@ class SyncProductsAction
 
     public function syncIran(Product $product): void
     {
+        $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
 
         $url = null;
         if ($product->digikala_source) {
