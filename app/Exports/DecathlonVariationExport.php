@@ -16,7 +16,6 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
     {
         return Variation::with('product')
             ->orderBy('product_id')
-            ->whereNull('own_id')
             ->get();
     }
 
@@ -35,6 +34,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
             'لینک تنوع',
             'موجودی',
             'سایز',
+            'برند',
             'زمان آپدیت',
         ];
     }
@@ -55,6 +55,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
             'url' => $row->url,
             'stock' => $row->stock,
             'size' => $row->size,
+            'brand' => $row->product?->brand,
             'updated_at' => $row->updated_at->toDateTimestring(),
         ];
     }
