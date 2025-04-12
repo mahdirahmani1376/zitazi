@@ -9,6 +9,7 @@ use App\Models\SyncLog;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -199,40 +200,46 @@ class SyncProductsAction
 
         try {
             $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $this->torobHeaders)->body();
-            dump($responseTorob);
-            $crawler = new Crawler($responseTorob);
-            $element = $crawler->filter('script#__NEXT_DATA__')->first();
-            if ($element->count() > 0) {
-                $data = collect(json_decode($element->text(), true));
-                $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
+            if ($responseTorob->status() != 200) {
+                Log::error('torob-api-failed', [
+                    'body' => $responseTorob->body()
+                ]);
+                Cache::set(Product::TOROB_LOCK_FOR_UPDATE, true, now()->addDay());
+            } else {
+                $crawler = new Crawler($responseTorob);
+                $element = $crawler->filter('script#__NEXT_DATA__')->first();
+                if ($element->count() > 0) {
+                    $data = collect(json_decode($element->text(), true));
+                    $sellers = data_get($data, 'props.pageProps.baseProduct.products_info.result');
 
-                $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
-                $torobMinPrice = collect($sellers)->filter(function ($i) {
-                    return data_get($i, 'shop_id') != 12259;
-                })->pluck('price')->filter(fn ($p) => $p > 0)->min();
+                    $zitaziTorobPrice = collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
+                    $torobMinPrice = collect($sellers)->filter(function ($i) {
+                        return data_get($i, 'shop_id') != 12259;
+                    })->pluck('price')->filter(fn($p) => $p > 0)->min();
 
-                if (! empty($sellers) && count($sellers) > 1) {
-                    if ($product->belongsToTrendyol()) {
-                        $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
-                        $product->update();
-                    }
-
-                    $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
-                    $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
-
-                    if (! empty($product->min_price)) {
-                        if ($zitazi_torob_price_recommend < $product->min_price) {
-                            $zitazi_torob_price_recommend = $product->min_price;
+                    if (!empty($sellers) && count($sellers) > 1) {
+                        if ($product->belongsToTrendyol()) {
+                            $product->min_price = $product->price * Currency::syncTryRate() * 1.2;
+                            $product->update();
                         }
 
+                        $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
                         $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
 
-                        $this->updateProductOnTorob($product, $zitazi_torob_price_recommend);
+                        if (!empty($product->min_price)) {
+                            if ($zitazi_torob_price_recommend < $product->min_price) {
+                                $zitazi_torob_price_recommend = $product->min_price;
+                            }
 
+                            $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
+
+                            $this->updateProductOnTorob($product, $zitazi_torob_price_recommend);
+
+                        }
+
+                    } elseif ($product->isForeign()) {
+                        $this->syncSource($product);
                     }
-
-                } elseif ($product->isForeign()) {
-                    $this->syncSource($product);
                 }
             }
         } catch (\Exception $e) {
