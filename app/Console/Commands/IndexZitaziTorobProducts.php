@@ -94,35 +94,39 @@ class IndexZitaziTorobProducts extends Command
         $bar = $this->output->createProgressBar($torobProducts->count());
 
         foreach ($torobProducts->chunk(16) as $torobChunk) {
-            $responses = Http::pool(function (Pool $pool) use ($torobChunk, $bar) {
-                return $torobChunk->map(function (TorobProduct $torobProduct) use ($pool, $bar) {
-                    $promise = $pool->get($torobProduct->more_info_url);
-                    $response = $promise->wait();
-                    $responseData = $response->json();
-                    $sellers = data_get($responseData, 'products_info.result');
-                    // $clickable = count($sellers) > 1 ? false : true;
-                    $clickable = count($sellers) < 3 ? true : false;
+            try {
+                $responses = Http::pool(function (Pool $pool) use ($torobChunk, $bar) {
+                    return $torobChunk->map(function (TorobProduct $torobProduct) use ($pool, $bar) {
+                        $promise = $pool->get($torobProduct->more_info_url);
+                        $response = $promise->wait();
+                        $responseData = $response->json();
+                        $sellers = data_get($responseData, 'products_info.result');
+                        // $clickable = count($sellers) > 1 ? false : true;
+                        $clickable = count($sellers) < 3;
 
-                    $rank = 1;
-                    foreach ($sellers as $seller) {
-                        if ($seller['shop_id'] == 12259) {
-                            break;
+                        $rank = 1;
+                        foreach ($sellers as $seller) {
+                            if ($seller['shop_id'] == 12259) {
+                                break;
+                            }
+
+                            $rank++;
                         }
 
-                        $rank++;
-                    }
+                        $torobProduct->update([
+                            'clickable' => $clickable,
+                            'rank' => $rank,
+                        ]);
 
-                    $torobProduct->update([
-                        'clickable' => $clickable,
-                        'rank' => $rank,
-                    ]);
+                        $bar->advance();
 
-                    $bar->advance();
+                        return $torobProduct;
+                    });
 
-                    return $torobProduct;
                 });
-
-            });
+            } catch (\Exception $e) {
+                Log::error('error-in-indexing-torob');
+            }
 
         }
 
