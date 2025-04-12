@@ -52,7 +52,7 @@ class SyncProductsCommand extends Command
             return 0;
         }
 
-        $jobs = Product::all()->map(fn ($product) => new SyncProductJob($product));
+        $jobs = Product::where('torob_source', '=', '')->get()->map(fn($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {
