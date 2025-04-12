@@ -7,7 +7,6 @@ use App\Actions\Crawler\DigikalaCrawler;
 use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\TorobCrawler;
 use App\Actions\Crawler\TrendyolCrawler;
-use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -39,7 +38,5 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        $this->app->make(BaseProductCrawler::class)->crawl(Product::find(100));
-        dd(1);
     }
 }
