@@ -29,21 +29,9 @@ class SyncProductsAction
         $this->syncVariationAction = app(SyncVariationsActions::class);
 
         $this->torobHeaders = [
-            'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
-            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8',
-            'Accept-Language' => 'en-US,en;q=0.5',
-            'Accept-Encoding' => 'gzip, deflate, br, zstd',
-            'Upgrade-Insecure-Requests' => '1',
-            'Sec-Fetch-Dest' => 'document',
-            'Sec-Fetch-Mode' => 'navigate',
-            'Sec-Fetch-Site' => 'none',
-            'Sec-Fetch-User' => '?1',
-            'Connection' => 'keep-alive',
-            'Cookie' => 'returning_user=true; _ga_RWKMFFVXJX=GS1.1.1744456689.12.1.1744457761.0.0.0; _ga=GA1.1.1811146057.1742477026; search_session=eaqkxqxrtxvbjfkedvseopqxycjkfijj; is_torob_user_logged_in=False; trb_clearance=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDQ0NTg0ODMsIm5iZiI6MTc0NDQ1NjY4Mywic3ViIjoiY2UzNzE4NDE1YzRkODNlNzE3YjVlNzk2ZTgwZjE3MDczNTBlYTVhZmJjMmNmMmFiOTEzZWFjNDY4MTMwMmFmOCJ9.qy7ExoKh22gLwoaV49zrG7ZpzOWBDLnMnmdvuI9aPP0; display_mode=; _ga_DG18N985FG=GS1.1.1744457392.1.1.1744457452.0.0.0; _gid=GA1.2.2113594680.1744457393; _ga_S1W5P3WLLJ=GS1.1.1744457415.1.1.1744457477.0.0.0',
-            'Priority' => 'u=0, i',
-            'Pragma' => 'no-cache',
-            'Cache-Control' => 'no-cache',
-            'TE' => 'trailers'
+            'Cookie' =>
+                'returning_user=true; _ga_RWKMFFVXJX=GS1.1.1744456689.12.1.1744458779.0.0.0; _ga=GA1.1.1811146057.1742477026; search_session=eaqkxqxrtxvbjfkedvseopqxycjkfijj; is_torob_user_logged_in=True; display_mode=; _ga_DG18N985FG=GS1.1.1744457392.1.1.1744457452.0.0.0; _gid=GA1.2.2113594680.1744457393; _ga_S1W5P3WLLJ=GS1.1.1744457415.1.1.1744457477.0.0.0; trb_clearance=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDQ0NjAzODUsIm5iZiI6MTc0NDQ1ODU4NSwic3ViIjoiY2UzNzE4NDE1YzRkODNlNzE3YjVlNzk2ZTgwZjE3MDczNTBlYTVhZmJjMmNmMmFiOTEzZWFjNDY4MTMwMmFmOCJ9.oTNA0AXgjwizceJXFj01xud-AcnzfVy1JVpz9ughyH8; csrftoken=Umzus7ARY9anfSp4e0QHSebSNLtmXZhy; user_access_dict="eyJ1c2VyX3R5cGUiOiAic2hvcF9zdGFmZiIsICJpbnN0YW5jZXMiOiB7fX0="',
+            'user-agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0',
         ];
     }
 
