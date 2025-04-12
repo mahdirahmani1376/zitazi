@@ -77,4 +77,9 @@ class DigikalaCrawler extends BaseProductCrawler implements ProductAbstractCrawl
             ]);
         }
     }
+
+    public function supports(Product $product): bool
+    {
+        return !empty($product->digikala_source);
+    }
 }

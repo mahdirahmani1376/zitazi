@@ -3,6 +3,7 @@
 namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Models\Product;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolCrawler extends BaseProductCrawler implements ProductAbstractCrawler
@@ -49,7 +50,7 @@ class TrendyolCrawler extends BaseProductCrawler implements ProductAbstractCrawl
                 $price,
                 $stock,
                 $rialPrice,
-            ] = ($this->syncVariationAction)->getVariationData($product->decathlonVariation);
+            ] = app(DecathlonCrawler::class)->getVariationData($product->decathlonVariation);
         }
 
         if (empty($price)) {
@@ -71,7 +72,12 @@ class TrendyolCrawler extends BaseProductCrawler implements ProductAbstractCrawl
         $this->updateAndLogProduct($product, $data);
 
         if (!$product->belongsToIran()) {
-            $this->updateZitazi($product, $updateData);
+            $this->syncProductWithZitazi($product, $updateData);
         }
+    }
+
+    public function supports(Product $product): bool
+    {
+        return !empty($product->trendyol_source);
     }
 }

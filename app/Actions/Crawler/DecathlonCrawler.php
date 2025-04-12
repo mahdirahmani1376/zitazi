@@ -143,4 +143,9 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 
         return $data;
     }
+
+    public function supports(Variation $variation): bool
+    {
+        return !empty($variation->url);
+    }
 }

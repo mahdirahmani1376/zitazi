@@ -17,31 +17,31 @@ use Illuminate\Support\Facades\Log;
 class BaseProductCrawler
 {
     protected mixed $rate;
-
     protected SyncVariationsActions $syncVariationAction;
 
+    /** @var ProductAbstractCrawler[] */
+    protected array $crawlers;
     private Client $woocommerce;
+    protected SendHttpRequestAction $sendHttpRequestAction;
 
     public function __construct(
-        public SendHttpRequestAction $sendHttpRequestAction
+        array $crawlers
     )
     {
+        $this->crawlers = $crawlers;
+        $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
         $this->rate = Currency::syncTryRate();
         $this->woocommerce = WoocommerceService::getClient();
         $this->syncVariationAction = app(SyncVariationsActions::class);
 
     }
 
-    public static function CrawlProduct(Product $product): void
+    public function crawl(Product $product)
     {
-        if ($product->belongsToTrendyol()) {
-            app(TrendyolCrawler::class)->crawl($product->digikala_source);
-        }
-        if ($product->belongsToElele()) {
-            app(EleleCrawler::class)->crawl($product->digikala_source);
-        }
-        if ($product->belongsToIran()) {
-            app(DigikalaCrawler::class)->crawl($product->digikala_source);
+        foreach ($this->crawlers as $crawler) {
+            if ($crawler->supports($product)) {
+                $crawler->crawl($product);
+            }
         }
     }
 
@@ -54,7 +54,7 @@ class BaseProductCrawler
         return 1.6;
     }
 
-    protected function updateZitazi(Product $product, ZitaziUpdateDTO $dto): void
+    protected function syncProductWithZitazi(Product $product, ZitaziUpdateDTO $dto): void
     {
         if ($product->onPromotion()) {
             return;
@@ -75,7 +75,7 @@ class BaseProductCrawler
         } catch (HttpClientException $e) {
             $this->handleHttpClientException($e, $product);
         } catch (Exception $e) {
-            $this->handelGeneralException($e);
+            $this->handleGeneralException($e);
         }
     }
 
@@ -138,7 +138,7 @@ class BaseProductCrawler
         ]);
     }
 
-    private function handelGeneralException(Exception $e): void
+    private function handleGeneralException(Exception $e): void
     {
         Log::error('General update erro', [
             'error' => $e->getMessage(),

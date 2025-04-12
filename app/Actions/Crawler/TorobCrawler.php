@@ -96,7 +96,7 @@ class TorobCrawler extends BaseProductCrawler implements ProductAbstractCrawler
             ]
         );
 
-        $this->updateZitazi($product, ZitaziUpdateDTO::createFromArray([
+        $this->syncProductWithZitazi($product, ZitaziUpdateDTO::createFromArray([
             'price' => '' . $zitaziTorobPriceRecommend,
         ]));
     }
@@ -149,6 +149,11 @@ class TorobCrawler extends BaseProductCrawler implements ProductAbstractCrawler
             'stock_status' => $stock,
         ];
 
-        $this->updateZitazi($product, ZitaziUpdateDTO::createFromArray($updateData));
+        $this->syncProductWithZitazi($product, ZitaziUpdateDTO::createFromArray($updateData));
+    }
+
+    public function supports(Product $product): bool
+    {
+        return !empty($product->torob_source);
     }
 }

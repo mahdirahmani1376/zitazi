@@ -60,8 +60,13 @@ class EleleCrawler extends BaseProductCrawler implements ProductAbstractCrawler
         $this->updateAndLogProduct($product, $data);
 
         if (!$product->belongsToIran()) {
-            $this->updateZitazi($product, $updateData);
+            $this->syncProductWithZitazi($product, $updateData);
         }
 
+    }
+
+    public function supports(Product $product): bool
+    {
+        return !empty($product->elele_source);
     }
 }
