@@ -37,11 +37,6 @@ class BaseVariationCrawler
             return;
         }
 
-        $data = [
-            'price' => '' . $dto->price,
-            'stock_quantity' => $dto->stock_quantity,
-        ];
-
         $stockStatus = 'outOfStock';
         if ($dto->stock_quantity || $dto->price > 0) {
             $stockStatus = 'inStock';
