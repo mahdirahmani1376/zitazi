@@ -23,6 +23,6 @@ class SyncProductJob implements ShouldQueue
 
     public function handle(): void
     {
-        app(SyncProductsAction::class)($this->product);
+        app(SyncProductsAction::class)->execute($this->product);
     }
 }

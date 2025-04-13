@@ -18,7 +18,6 @@ class SendHttpRequestAction
         /** @var Response $response */
         $response = Http::withHeaders($headers)->$method($url);
 
-
         return $response;
 
     }

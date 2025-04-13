@@ -18,10 +18,12 @@ use Throwable;
 
 class SyncChunkProductsWithZitaziJob implements ShouldQueue
 {
-    use Dispatchable, Batchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 2;
+
     public $backoff = 10;
+
     public function __construct(
         private Collection $batch
     )
@@ -63,14 +65,12 @@ class SyncChunkProductsWithZitaziJob implements ShouldQueue
             }
         });
 
-
         try {
             DB::table('products')->upsert($results, ['own_id'], ['rial_price', 'stock', 'updated_at']);
         } catch (Throwable $e) {
             dump($e->getMessage());
             Log::error($e->getMessage());
         }
-
 
     }
 }

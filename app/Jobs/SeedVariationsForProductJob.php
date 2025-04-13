@@ -16,13 +16,13 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class SeedVariationsForProductJob implements ShouldQueue
 {
-    use Dispatchable, Batchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 2;
 
     public function __construct(
         private readonly Product $product,
-        private                  $rate)
+        private $rate)
     {
     }
 

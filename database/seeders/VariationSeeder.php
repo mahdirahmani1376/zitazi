@@ -21,9 +21,9 @@ class VariationSeeder extends Seeder
         $rate = Currency::syncTryRate();
 
         $jobs = Product::query()
-            ->whereNot('decathlon_url','=','')
+            ->whereNot('decathlon_url', '=', '')
             ->get()
-            ->map(fn ($product) => new SeedVariationsForProductJob($product,$rate));
+            ->map(fn($product) => new SeedVariationsForProductJob($product, $rate));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {
@@ -42,7 +42,5 @@ class VariationSeeder extends Seeder
             ->name('Seed variations')
             ->dispatch();
 
-
     }
-
 }

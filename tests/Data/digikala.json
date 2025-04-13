@@ -1,0 +1,1235 @@
+{
+    "status": 200,
+    "data": {
+        "product": {
+            "id": 14243079,
+            "title_fa": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+            "title_en": "",
+            "url": {
+                "base": null,
+                "uri": "\/product\/dkp-14243079\/\u0633\u0627\u062e\u062a\u0646\u06cc-\u0644\u06af\u0648-\u0645\u062f\u0644-cherry-blossoms-40725"
+            },
+            "status": "marketable",
+            "has_quick_view": false,
+            "data_layer": {
+                "brand": "\u0644\u06af\u0648",
+                "category": "[MA,\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0641\u06a9\u0631\u06cc]",
+                "metric6": 3,
+                "dimension2": 16,
+                "dimension6": 0,
+                "dimension7": "special-offer",
+                "dimension9": 5,
+                "dimension11": 0,
+                "dimension20": "marketable",
+                "item_category2": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc\u060c \u06a9\u0648\u062f\u06a9 \u0648 \u0646\u0648\u0632\u0627\u062f",
+                "item_category3": "\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                "item_category4": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc",
+                "item_category5": "\u0641\u06a9\u0631\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc"
+            },
+            "product_type": "product",
+            "test_title_fa": "",
+            "test_title_en": "",
+            "digiplus": {
+                "services": [
+                    "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                    "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a",
+                    "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                ],
+                "services_summary": [
+                    "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646"
+                ],
+                "service_list": [
+                    {
+                        "title": "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                        "badge": {
+                            "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0628\u06cc\u0634\u062a\u0631",
+                            "icon": "cube-badge-new-seller"
+                        }
+                    },
+                    {
+                        "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a"
+                    },
+                    {
+                        "title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                    }
+                ],
+                "is_jet_eligible": false,
+                "cash_back": 0,
+                "is_general_location_jet_eligible": false,
+                "fast_shipping_text": null
+            },
+            "images": {
+                "main": {
+                    "storage_ids": [],
+                    "url": [
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/a4f031f3850d1dd1a3c2179cc7f6e9c6ab2695ce_1706426685.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                    ],
+                    "thumbnail_url": null,
+                    "temporary_id": null,
+                    "webp_url": [
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/a4f031f3850d1dd1a3c2179cc7f6e9c6ab2695ce_1706426685.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                    ]
+                },
+                "list": [
+                    {
+                        "storage_ids": [],
+                        "url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/5ee56dddc9d701ac258acccda34caafa66d0287e_1706426687.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                        ],
+                        "thumbnail_url": null,
+                        "temporary_id": null,
+                        "webp_url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/5ee56dddc9d701ac258acccda34caafa66d0287e_1706426687.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                        ]
+                    },
+                    {
+                        "storage_ids": [],
+                        "url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/9a509fe27a1127a649a4c17ebcf754fc7e96a6f5_1706426684.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                        ],
+                        "thumbnail_url": null,
+                        "temporary_id": null,
+                        "webp_url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/9a509fe27a1127a649a4c17ebcf754fc7e96a6f5_1706426684.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                        ]
+                    },
+                    {
+                        "storage_ids": [],
+                        "url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/ff7b34c5997e63ed8b9c9b99c38f68f62eaf0829_1706426688.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                        ],
+                        "thumbnail_url": null,
+                        "temporary_id": null,
+                        "webp_url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/ff7b34c5997e63ed8b9c9b99c38f68f62eaf0829_1706426688.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                        ]
+                    },
+                    {
+                        "storage_ids": [],
+                        "url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/6514ab98c94b24e6bce9450c7ecc5f416e42ea67_1706426689.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                        ],
+                        "thumbnail_url": null,
+                        "temporary_id": null,
+                        "webp_url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/6514ab98c94b24e6bce9450c7ecc5f416e42ea67_1706426689.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                        ]
+                    },
+                    {
+                        "storage_ids": [],
+                        "url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/0b55a38d0ca7642f608ccf90ad4bf2090a4316eb_1706426691.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                        ],
+                        "thumbnail_url": null,
+                        "temporary_id": null,
+                        "webp_url": [
+                            "https:\/\/dkstatics-public.digikala.com\/digikala-products\/0b55a38d0ca7642f608ccf90ad4bf2090a4316eb_1706426691.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/format,webp\/quality,q_90"
+                        ]
+                    }
+                ]
+            },
+            "rating": {
+                "rate": 100,
+                "count": 3
+            },
+            "colors": [
+                {
+                    "id": 32,
+                    "title": "\u0686\u0646\u062f \u0631\u0646\u06af",
+                    "hex_code": "#C71585"
+                }
+            ],
+            "default_variant": {
+                "id": 63793643,
+                "lead_time": 0,
+                "rank": 72.685,
+                "rate": 100,
+                "statistics": {
+                    "totally_satisfied": {
+                        "rate_count": 1,
+                        "rate": 100
+                    },
+                    "satisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "neutral": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "dissatisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "totally_dissatisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "total_count": 1,
+                    "total_rate": 100
+                },
+                "status": "marketable",
+                "properties": {
+                    "is_fast_shipping": false,
+                    "is_ship_by_seller": true,
+                    "is_multi_warehouse": false,
+                    "has_similar_variants": true,
+                    "is_rural": false,
+                    "in_digikala_warehouse": false
+                },
+                "digiplus": {
+                    "services": [
+                        "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                        "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a",
+                        "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                    ],
+                    "services_summary": [
+                        "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646"
+                    ],
+                    "service_list": [
+                        {
+                            "title": "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                            "badge": {
+                                "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0628\u06cc\u0634\u062a\u0631",
+                                "icon": "cube-badge-new-seller"
+                            }
+                        },
+                        {
+                            "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a"
+                        },
+                        {
+                            "title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                        }
+                    ],
+                    "is_jet_eligible": false,
+                    "cash_back": 0,
+                    "is_general_location_jet_eligible": false,
+                    "fast_shipping_text": null
+                },
+                "warranty": {
+                    "id": 272,
+                    "title_fa": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627",
+                    "title_en": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627"
+                },
+                "color": {
+                    "id": 32,
+                    "title": "\u0686\u0646\u062f \u0631\u0646\u06af",
+                    "hex_code": "#C71585"
+                },
+                "seller": {
+                    "id": 1662307,
+                    "title": "\u0644\u06af\u0648 \u0622\u0631\u0645\u0627\u0646\u06cc",
+                    "code": "GUYZK",
+                    "url": "https:\/\/www.digikala.com\/seller\/GUYZK\/",
+                    "rating": {
+                        "total_rate": 93,
+                        "total_count": 6,
+                        "commitment": 100,
+                        "no_return": 100,
+                        "on_time_shipping": 100
+                    },
+                    "properties": {
+                        "is_trusted": false,
+                        "is_official": false,
+                        "is_roosta": false,
+                        "is_new": false
+                    },
+                    "stars": 5,
+                    "grade": {
+                        "label": "\u0639\u0627\u0644\u06cc",
+                        "color": "#00a049"
+                    },
+                    "logo": null,
+                    "registration_date": "3 \u0645\u0627\u0647 \u0648 3 \u0631\u0648\u0632"
+                },
+                "digiclub": {
+                    "point": 150
+                },
+                "price": {
+                    "selling_price": 23500000,
+                    "rrp_price": 28000000,
+                    "order_limit": 4,
+                    "is_incredible": false,
+                    "is_promotion": true,
+                    "is_locked_for_digiplus": false,
+                    "bnpl_active": false,
+                    "discount_percent": 16,
+                    "badge": {
+                        "title": "\u0641\u0631\u0648\u0634 \u0648\u06cc\u0698\u0647",
+                        "color": "#E6123D",
+                        "icon": null
+                    },
+                    "is_digiplus_promotion": false,
+                    "is_digiplus_early_access": false,
+                    "is_application_incredible": false,
+                    "is_lightening_deal": false,
+                    "is_plus_early_access": false
+                },
+                "shipment_methods": {
+                    "description": "\u0645\u0648\u062c\u0648\u062f \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                    "has_lead_time": true,
+                    "providers": [
+                        {
+                            "title": "\u0627\u0631\u0633\u0627\u0644 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                            "description": "\u0627\u06cc\u0646 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u0645\u0648\u062c\u0648\u062f \u0648 \u0622\u0645\u0627\u062f\u0647 \u067e\u0631\u062f\u0627\u0632\u0634 \u0627\u0633\u062a \u0648 \u0627\u0645\u06a9\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0645\u0633\u062a\u0642\u06cc\u0645 \u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u062f\u0627\u0631\u062f.",
+                            "has_lead_time": false,
+                            "type": "seller",
+                            "label": {
+                                "title": "\u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                "description": null
+                            },
+                            "price": null,
+                            "shipping_mode": "seller",
+                            "delivery_day": "other_days"
+                        }
+                    ]
+                },
+                "has_importer_price": false,
+                "manufacture_price_not_exist": false,
+                "has_best_price_in_last_month": false,
+                "buy_box_notices": [],
+                "variant_badges": []
+            },
+            "properties": {
+                "is_fast_shipping": false,
+                "is_ship_by_seller": true,
+                "free_shipping_badge": false,
+                "is_multi_warehouse": false,
+                "is_fake": false,
+                "has_gift": false,
+                "min_price_in_last_month": 23200000,
+                "is_non_inventory": false,
+                "is_ad": false,
+                "ad": [],
+                "is_jet_eligible": false,
+                "is_medical_supplement": false,
+                "has_printed_price": false
+            },
+            "badges": [],
+            "has_true_to_size": false,
+            "product_badges": [
+                {
+                    "id": 101,
+                    "type": "simple",
+                    "slot": "pdp_above_add_to_cart",
+                    "priority": 3,
+                    "payload": {
+                        "icon": null,
+                        "svg_icon": "https:\/\/dkstatics-public.digikala.com\/digikala-static\/0e6f8a5cd47918608fecad3cd61d3a584a32d47b_1716833780.svg",
+                        "text": "100+ \u0628\u0627\u0632\u062f\u06cc\u062f \u062f\u0631 24 \u0633\u0627\u0639\u062a \u0627\u062e\u06cc\u0631",
+                        "text_color": "#007E94"
+                    }
+                }
+            ],
+            "videos": [
+                {
+                    "title": "\u0644\u06af\u0648 cherry blossoms \u06a9\u062f 40725",
+                    "url": "https:\/\/digikala.arvanvod.ir\/yPe610dO49\/2j1KJ56eGy\/origin_eMYXwYZONtJk7fxVSkXflODxNejIk4QRcWJmoJzL.mp4",
+                    "cover": "https:\/\/digikala.arvanvod.ir\/yPe610dO49\/2j1KJ56eGy\/thumbnail.jpg?x-oss-process=image\/resize,m_fill,h_115,w_115"
+                }
+            ],
+            "category": {
+                "id": 6033,
+                "title_fa": "\u0633\u0627\u062e\u062a\u0646\u06cc",
+                "title_en": "\u0633\u0627\u062e\u062a\u0646\u06cc",
+                "code": "building",
+                "content_description": "",
+                "content_box": "",
+                "return_reason_alert": "\u062f\u0631\u062e\u0648\u0627\u0633\u062a \u0645\u0631\u062c\u0648\u0639 \u06a9\u0631\u062f\u0646 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u06af\u0631\u0648\u0647 \u0633\u0627\u062e\u062a\u0646\u06cc \u0628\u0627 \u062f\u0644\u06cc\u0644 \u0022\u0627\u0646\u0635\u0631\u0627\u0641 \u0627\u0632 \u062e\u0631\u06cc\u062f\u0022 \u062a\u0646\u0647\u0627 \u062f\u0631 \u0635\u0648\u0631\u062a\u06cc \u0642\u0627\u0628\u0644 \u062a\u0627\u06cc\u06cc\u062f \u0627\u0633\u062a \u06a9\u0647 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u0634\u0631\u0627\u06cc\u0637 \u0627\u0648\u0644\u06cc\u0647 \u0628\u0627\u0634\u062f (\u062f\u0631 \u0635\u0648\u0631\u062a \u067e\u0644\u0645\u067e \u0628\u0648\u062f\u0646\u060c \u06a9\u0627\u0644\u0627 \u0646\u0628\u0627\u06cc\u062f \u0628\u0627\u0632 \u0634\u062f\u0647 \u0628\u0627\u0634\u062f)."
+            },
+            "brand": {
+                "id": 403,
+                "code": "lego",
+                "title_fa": "\u0644\u06af\u0648",
+                "title_en": "Lego",
+                "url": {
+                    "base": null,
+                    "uri": "\/brand\/lego\/"
+                },
+                "visibility": true,
+                "logo": {
+                    "storage_ids": [],
+                    "url": [
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-brands\/3512.jpg?x-oss-process=image\/resize,m_lfit,h_120,w_120\/quality,q_80"
+                    ],
+                    "thumbnail_url": null,
+                    "temporary_id": null,
+                    "webp_url": null
+                },
+                "is_premium": false,
+                "is_miscellaneous": false,
+                "is_name_similar": false
+            },
+            "review": {
+                "description": "\u0628\u0627 \u0627\u06cc\u0646 \u0647\u062f\u06cc\u0647 \u062c\u0634\u0646 \u0634\u06a9\u0648\u0641\u0647 \u0647\u0627\u06cc \u06af\u06cc\u0644\u0627\u0633 LEGO\u00ae (40725) \u0628\u0631\u0627\u06cc \u06af\u0644\u0641\u0631\u0648\u0634\u0627\u0646 \u0645\u0634\u062a\u0627\u0642 \u0648 \u062f\u0648\u0633\u062a\u062f\u0627\u0631\u0627\u0646 \u0637\u0628\u06cc\u0639\u062a 8 \u0633\u0627\u0644 \u0628\u0647 \u0628\u0627\u0644\u0627\u060c \u0648\u0631\u0648\u062f \u0628\u0647\u0627\u0631 \u0648 \u0634\u0631\u0648\u0639 \u0647\u0627\u06cc \u062c\u062f\u06cc\u062f \u0631\u0627 \u0645\u0634\u062e\u0635 \u06a9\u0646\u06cc\u062f. \u0627\u06cc\u0646 \u0645\u062c\u0645\u0648\u0639\u0647 \u062f\u0627\u0631\u0627\u06cc 2 \u0634\u0627\u062e\u0647 \u0634\u06a9\u0648\u0641\u0647 \u06af\u06cc\u0644\u0627\u0633 \u0642\u0627\u0628\u0644 \u0633\u0627\u062e\u062a \u0627\u0633\u062a \u06a9\u0647 \u0645\u06cc \u062a\u0648\u0627\u0646 \u0622\u0646\u0647\u0627 \u0631\u0627 \u0628\u0627 \u062c\u0648\u0627\u0646\u0647 \u0647\u0627\u06cc \u0638\u0631\u06cc\u0641 \u062f\u0631 \u0633\u0627\u06cc\u0647 \u0647\u0627\u06cc \u0633\u0641\u06cc\u062f \u0648 \u0635\u0648\u0631\u062a\u06cc \u062a\u0632\u0626\u06cc\u0646 \u06a9\u0631\u062f\u060c \u0627\u06cc\u0646 \u0645\u062c\u0645\u0648\u0639\u0647 \u062f\u0648\u0633\u062a\u062f\u0627\u0631\u0627\u0646 \u06af\u0644 \u0631\u0627 \u062a\u0634\u0648\u06cc\u0642 \u0645\u06cc \u06a9\u0646\u062f \u062a\u0627 \u0634\u06a9\u0648\u0641\u0647 \u0647\u0627\u06cc \u0644\u06af\u0648 \u0633\u0641\u0627\u0631\u0634\u06cc \u0627\u06cc\u062c\u0627\u062f \u06a9\u0646\u0646\u062f. \u0634\u06a9\u0648\u0641\u0647\u200c\u0647\u0627\u06cc \u0622\u062c\u0631\u06cc \u0639\u0644\u0627\u0648\u0647 \u0628\u0631 \u0627\u06cc\u0646\u06a9\u0647 \u0647\u062f\u06cc\u0647\u200c\u0627\u06cc \u0628\u0631\u0627\u06cc \u062c\u0634\u0646 \u0628\u0631\u0627\u06cc \u0628\u0686\u0647\u200c\u0647\u0627 \u0647\u0633\u062a\u0646\u062f\u060c \u0647\u062f\u06cc\u0647\u200c\u0627\u06cc \u0639\u0627\u0644\u06cc \u0628\u0631\u0627\u06cc \u0628\u0632\u0631\u06af\u200c\u062a\u0631\u0647\u0627 \u0647\u0633\u062a\u0646\u062f \u06a9\u0647 \u0627\u0632 \u062f\u0631\u06cc\u0627\u0641\u062a \u0627\u06cc\u0646 \u06af\u0644\u200c\u0647\u0627\u06cc \u0645\u0646\u062d\u0635\u0631\u0628\u0647\u200c\u0641\u0631\u062f \u062f\u0631 \u0631\u0648\u0632 \u0648\u0644\u0646\u062a\u0627\u06cc\u0646 \u06cc\u0627 \u0631\u0648\u0632 \u0645\u0627\u062f\u0631 \u062e\u0648\u0634\u062d\u0627\u0644 \u062e\u0648\u0627\u0647\u0646\u062f \u0634\u062f. \u067e\u0633 \u0627\u0632 \u062a\u06a9\u0645\u06cc\u0644\u060c \u0627\u06cc\u0646 \u0633\u062a \u06cc\u06a9 \u062f\u06a9\u0648\u0631 \u06af\u0644\u062f\u0627\u0631 \u0632\u06cc\u0628\u0627 \u0627\u06cc\u062c\u0627\u062f \u0645\u06cc \u06a9\u0646\u062f \u06a9\u0647 \u062d\u0633 \u0634\u0627\u062f\u06cc \u0628\u0647\u0627\u0631\u06cc \u0631\u0627 \u0628\u0647 \u0647\u0631 \u0641\u0636\u0627\u06cc\u06cc \u0627\u0636\u0627\u0641\u0647 \u0645\u06cc \u06a9\u0646\u062f. \u0647\u0645\u0686\u0646\u06cc\u0646 \u0645\u06cc\u200c\u062a\u0648\u0627\u0646 \u0622\u0646 \u0631\u0627 \u0628\u0627 \u0633\u0627\u06cc\u0631 \u06af\u0644\u200c\u0647\u0627\u06cc \u0644\u06af\u0648 (\u06a9\u0647 \u062c\u062f\u0627\u06af\u0627\u0646\u0647 \u0641\u0631\u0648\u062e\u062a\u0647 \u0645\u06cc\u200c\u0634\u0648\u062f) \u062a\u0631\u06a9\u06cc\u0628 \u06a9\u0631\u062f \u062a\u0627 \u06cc\u06a9 \u062f\u0633\u062a\u0647 \u06af\u0644 \u067e\u0631 \u062c\u0646\u0628 \u0648 \u062c\u0648\u0634 \u0627\u06cc\u062c\u0627\u062f \u06a9\u0646\u062f.",
+                "attributes": [
+                    {
+                        "title": "\u062c\u0646\u0633",
+                        "values": [
+                            "\u067e\u0644\u0627\u0633\u062a\u06cc\u06a9"
+                        ]
+                    }
+                ]
+            },
+            "pros_and_cons": {
+                "advantages": [],
+                "disadvantages": []
+            },
+            "suggestion": {
+                "count": 0,
+                "percentage": 0
+            },
+            "variants": [
+                {
+                    "id": 63793643,
+                    "lead_time": 0,
+                    "rank": 72.685,
+                    "rate": 100,
+                    "statistics": {
+                        "totally_satisfied": {
+                            "rate_count": 1,
+                            "rate": 100
+                        },
+                        "satisfied": {
+                            "rate_count": 0,
+                            "rate": 0
+                        },
+                        "neutral": {
+                            "rate_count": 0,
+                            "rate": 0
+                        },
+                        "dissatisfied": {
+                            "rate_count": 0,
+                            "rate": 0
+                        },
+                        "totally_dissatisfied": {
+                            "rate_count": 0,
+                            "rate": 0
+                        },
+                        "total_count": 1,
+                        "total_rate": 100
+                    },
+                    "status": "marketable",
+                    "properties": {
+                        "is_fast_shipping": false,
+                        "is_ship_by_seller": true,
+                        "is_multi_warehouse": false,
+                        "has_similar_variants": true,
+                        "is_rural": false,
+                        "in_digikala_warehouse": false
+                    },
+                    "digiplus": {
+                        "services": [
+                            "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                            "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a",
+                            "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                        ],
+                        "services_summary": [
+                            "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646"
+                        ],
+                        "service_list": [
+                            {
+                                "title": "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                                "badge": {
+                                    "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0628\u06cc\u0634\u062a\u0631",
+                                    "icon": "cube-badge-new-seller"
+                                }
+                            },
+                            {
+                                "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a"
+                            },
+                            {
+                                "title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                            }
+                        ],
+                        "is_jet_eligible": false,
+                        "cash_back": 0,
+                        "is_general_location_jet_eligible": false,
+                        "fast_shipping_text": null
+                    },
+                    "warranty": {
+                        "id": 272,
+                        "title_fa": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627",
+                        "title_en": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627"
+                    },
+                    "color": {
+                        "id": 32,
+                        "title": "\u0686\u0646\u062f \u0631\u0646\u06af",
+                        "hex_code": "#C71585"
+                    },
+                    "seller": {
+                        "id": 1662307,
+                        "title": "\u0644\u06af\u0648 \u0622\u0631\u0645\u0627\u0646\u06cc",
+                        "code": "GUYZK",
+                        "url": "https:\/\/www.digikala.com\/seller\/GUYZK\/",
+                        "rating": {
+                            "total_rate": 93,
+                            "total_count": 6,
+                            "commitment": 100,
+                            "no_return": 100,
+                            "on_time_shipping": 100
+                        },
+                        "properties": {
+                            "is_trusted": false,
+                            "is_official": false,
+                            "is_roosta": false,
+                            "is_new": false
+                        },
+                        "stars": 5,
+                        "grade": {
+                            "label": "\u0639\u0627\u0644\u06cc",
+                            "color": "#00a049"
+                        },
+                        "logo": null,
+                        "registration_date": "3 \u0645\u0627\u0647 \u0648 3 \u0631\u0648\u0632"
+                    },
+                    "digiclub": {
+                        "point": 150
+                    },
+                    "price": {
+                        "selling_price": 23500000,
+                        "rrp_price": 28000000,
+                        "order_limit": 4,
+                        "is_incredible": false,
+                        "is_promotion": true,
+                        "is_locked_for_digiplus": false,
+                        "bnpl_active": false,
+                        "discount_percent": 16,
+                        "badge": {
+                            "title": "\u0641\u0631\u0648\u0634 \u0648\u06cc\u0698\u0647",
+                            "color": "#E6123D",
+                            "icon": null
+                        },
+                        "is_digiplus_promotion": false,
+                        "is_digiplus_early_access": false,
+                        "is_application_incredible": false,
+                        "is_lightening_deal": false,
+                        "is_plus_early_access": false
+                    },
+                    "shipment_methods": {
+                        "description": "\u0645\u0648\u062c\u0648\u062f \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                        "has_lead_time": true,
+                        "providers": [
+                            {
+                                "title": "\u0627\u0631\u0633\u0627\u0644 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                "description": "\u0627\u06cc\u0646 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u0645\u0648\u062c\u0648\u062f \u0648 \u0622\u0645\u0627\u062f\u0647 \u067e\u0631\u062f\u0627\u0632\u0634 \u0627\u0633\u062a \u0648 \u0627\u0645\u06a9\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0645\u0633\u062a\u0642\u06cc\u0645 \u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u062f\u0627\u0631\u062f.",
+                                "has_lead_time": false,
+                                "type": "seller",
+                                "label": {
+                                    "title": "\u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                    "description": null
+                                },
+                                "price": null,
+                                "shipping_mode": "seller",
+                                "delivery_day": "other_days"
+                            }
+                        ]
+                    },
+                    "has_importer_price": false,
+                    "manufacture_price_not_exist": false,
+                    "has_best_price_in_last_month": false,
+                    "buy_box_notices": [],
+                    "variant_badges": []
+                },
+                {
+                    "id": 64787682,
+                    "lead_time": 0,
+                    "rank": 63.9433,
+                    "rate": 0,
+                    "statistics": null,
+                    "status": "marketable",
+                    "properties": {
+                        "is_fast_shipping": false,
+                        "is_ship_by_seller": true,
+                        "is_multi_warehouse": false,
+                        "has_similar_variants": true,
+                        "is_rural": false,
+                        "in_digikala_warehouse": false
+                    },
+                    "digiplus": {
+                        "services": [
+                            "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                            "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a",
+                            "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                        ],
+                        "services_summary": [
+                            "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646"
+                        ],
+                        "service_list": [
+                            {
+                                "title": "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                                "badge": {
+                                    "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0628\u06cc\u0634\u062a\u0631",
+                                    "icon": "cube-badge-new-seller"
+                                }
+                            },
+                            {
+                                "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a"
+                            },
+                            {
+                                "title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                            }
+                        ],
+                        "is_jet_eligible": false,
+                        "cash_back": 0,
+                        "is_general_location_jet_eligible": false,
+                        "fast_shipping_text": null
+                    },
+                    "warranty": {
+                        "id": 272,
+                        "title_fa": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627",
+                        "title_en": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627"
+                    },
+                    "color": {
+                        "id": 32,
+                        "title": "\u0686\u0646\u062f \u0631\u0646\u06af",
+                        "hex_code": "#C71585"
+                    },
+                    "seller": {
+                        "id": 872383,
+                        "title": "\u0644\u06af\u0648 \u0627\u0633\u062a\u0648\u0631",
+                        "code": "DZKUU",
+                        "url": "https:\/\/www.digikala.com\/seller\/DZKUU\/",
+                        "rating": {
+                            "total_rate": 75,
+                            "total_count": 117,
+                            "commitment": 90,
+                            "no_return": 100,
+                            "on_time_shipping": 100
+                        },
+                        "properties": {
+                            "is_trusted": false,
+                            "is_official": false,
+                            "is_roosta": false,
+                            "is_new": false
+                        },
+                        "stars": 3,
+                        "grade": {
+                            "label": "\u062e\u0648\u0628",
+                            "color": "#b1b64d"
+                        },
+                        "logo": null,
+                        "registration_date": "3 \u0633\u0627\u0644 \u0648 3 \u0645\u0627\u0647"
+                    },
+                    "digiclub": {
+                        "point": 150
+                    },
+                    "price": {
+                        "selling_price": 25300000,
+                        "rrp_price": 25300000,
+                        "order_limit": 1,
+                        "is_incredible": false,
+                        "is_promotion": false,
+                        "is_locked_for_digiplus": false,
+                        "bnpl_active": false,
+                        "marketable_stock": 1,
+                        "discount_percent": 0,
+                        "is_plus_early_access": false
+                    },
+                    "shipment_methods": {
+                        "description": "\u0645\u0648\u062c\u0648\u062f \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                        "has_lead_time": true,
+                        "providers": [
+                            {
+                                "title": "\u0627\u0631\u0633\u0627\u0644 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                "description": "\u0627\u06cc\u0646 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u0645\u0648\u062c\u0648\u062f \u0648 \u0622\u0645\u0627\u062f\u0647 \u067e\u0631\u062f\u0627\u0632\u0634 \u0627\u0633\u062a \u0648 \u0627\u0645\u06a9\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0645\u0633\u062a\u0642\u06cc\u0645 \u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u062f\u0627\u0631\u062f.",
+                                "has_lead_time": false,
+                                "type": "seller",
+                                "label": {
+                                    "title": "\u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                    "description": null
+                                },
+                                "price": null,
+                                "shipping_mode": "seller",
+                                "delivery_day": "other_days"
+                            }
+                        ]
+                    },
+                    "has_importer_price": false,
+                    "manufacture_price_not_exist": false,
+                    "has_best_price_in_last_month": false,
+                    "buy_box_notices": [],
+                    "variant_badges": [
+                        {
+                            "id": -1,
+                            "type": "simple",
+                            "slot": "pdp_above_add_to_cart",
+                            "priority": 0,
+                            "payload": {
+                                "text": "\u062a\u0646\u0647\u0627 1 \u0639\u062f\u062f \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0628\u0627\u0642\u06cc \u0645\u0627\u0646\u062f\u0647",
+                                "text_color": "#d32f2f",
+                                "icon": null,
+                                "svg_icon": "https:\/\/dkstatics-public.digikala.com\/digikala-static\/54419b9303246cde131fcb5b251b86f2ab4aeb71_1716833765.svg"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "second_default_variant": {
+                "id": 63793643,
+                "lead_time": 0,
+                "rank": 72.685,
+                "rate": 100,
+                "statistics": {
+                    "totally_satisfied": {
+                        "rate_count": 1,
+                        "rate": 100
+                    },
+                    "satisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "neutral": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "dissatisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "totally_dissatisfied": {
+                        "rate_count": 0,
+                        "rate": 0
+                    },
+                    "total_count": 1,
+                    "total_rate": 100
+                },
+                "status": "marketable",
+                "properties": {
+                    "is_fast_shipping": false,
+                    "is_ship_by_seller": true,
+                    "is_multi_warehouse": false,
+                    "has_similar_variants": true,
+                    "is_rural": false,
+                    "in_digikala_warehouse": false
+                },
+                "digiplus": {
+                    "services": [
+                        "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                        "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a",
+                        "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                    ],
+                    "services_summary": [
+                        "\u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646"
+                    ],
+                    "service_list": [
+                        {
+                            "title": "\u06f4 \u0627\u0631\u0633\u0627\u0644 \u0631\u0627\u06cc\u06af\u0627\u0646 \u0639\u0627\u062f\u06cc",
+                            "badge": {
+                                "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0628\u06cc\u0634\u062a\u0631",
+                                "icon": "cube-badge-new-seller"
+                            }
+                        },
+                        {
+                            "title": "\u06f2 \u0627\u0631\u0633\u0627\u0644 \u0633\u0648\u067e\u0631\u0645\u0627\u0631\u06a9\u062a"
+                        },
+                        {
+                            "title": "\u067e\u0634\u062a\u06cc\u0628\u0627\u0646\u06cc \u0627\u062e\u062a\u0635\u0627\u0635\u06cc"
+                        }
+                    ],
+                    "is_jet_eligible": false,
+                    "cash_back": 0,
+                    "is_general_location_jet_eligible": false,
+                    "fast_shipping_text": null
+                },
+                "warranty": {
+                    "id": 272,
+                    "title_fa": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627",
+                    "title_en": "\u06af\u0627\u0631\u0627\u0646\u062a\u06cc \u0627\u0635\u0627\u0644\u062a \u0648 \u0633\u0644\u0627\u0645\u062a \u0641\u06cc\u0632\u06cc\u06a9\u06cc \u06a9\u0627\u0644\u0627"
+                },
+                "color": {
+                    "id": 32,
+                    "title": "\u0686\u0646\u062f \u0631\u0646\u06af",
+                    "hex_code": "#C71585"
+                },
+                "seller": {
+                    "id": 1662307,
+                    "title": "\u0644\u06af\u0648 \u0622\u0631\u0645\u0627\u0646\u06cc",
+                    "code": "GUYZK",
+                    "url": "https:\/\/www.digikala.com\/seller\/GUYZK\/",
+                    "rating": {
+                        "total_rate": 93,
+                        "total_count": 6,
+                        "commitment": 100,
+                        "no_return": 100,
+                        "on_time_shipping": 100
+                    },
+                    "properties": {
+                        "is_trusted": false,
+                        "is_official": false,
+                        "is_roosta": false,
+                        "is_new": false
+                    },
+                    "stars": 5,
+                    "grade": {
+                        "label": "\u0639\u0627\u0644\u06cc",
+                        "color": "#00a049"
+                    },
+                    "logo": null,
+                    "registration_date": "3 \u0645\u0627\u0647 \u0648 3 \u0631\u0648\u0632"
+                },
+                "digiclub": {
+                    "point": 150
+                },
+                "price": {
+                    "selling_price": 23500000,
+                    "rrp_price": 28000000,
+                    "order_limit": 4,
+                    "is_incredible": false,
+                    "is_promotion": true,
+                    "is_locked_for_digiplus": false,
+                    "bnpl_active": false,
+                    "discount_percent": 16,
+                    "badge": {
+                        "title": "\u0641\u0631\u0648\u0634 \u0648\u06cc\u0698\u0647",
+                        "color": "#E6123D",
+                        "icon": null
+                    },
+                    "is_digiplus_promotion": false,
+                    "is_digiplus_early_access": false,
+                    "is_application_incredible": false,
+                    "is_lightening_deal": false,
+                    "is_plus_early_access": false
+                },
+                "shipment_methods": {
+                    "description": "\u0645\u0648\u062c\u0648\u062f \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                    "has_lead_time": true,
+                    "providers": [
+                        {
+                            "title": "\u0627\u0631\u0633\u0627\u0644 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                            "description": "\u0627\u06cc\u0646 \u06a9\u0627\u0644\u0627 \u062f\u0631 \u0627\u0646\u0628\u0627\u0631 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u0645\u0648\u062c\u0648\u062f \u0648 \u0622\u0645\u0627\u062f\u0647 \u067e\u0631\u062f\u0627\u0632\u0634 \u0627\u0633\u062a \u0648 \u0627\u0645\u06a9\u0627\u0646 \u0627\u0631\u0633\u0627\u0644 \u0645\u0633\u062a\u0642\u06cc\u0645 \u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647 \u062f\u0627\u0631\u062f.",
+                            "has_lead_time": false,
+                            "type": "seller",
+                            "label": {
+                                "title": "\u062a\u0648\u0633\u0637 \u0641\u0631\u0648\u0634\u0646\u062f\u0647",
+                                "description": null
+                            },
+                            "price": null,
+                            "shipping_mode": "seller",
+                            "delivery_day": "other_days"
+                        }
+                    ]
+                },
+                "has_importer_price": false,
+                "manufacture_price_not_exist": false,
+                "has_best_price_in_last_month": false,
+                "buy_box_notices": [],
+                "variant_badges": []
+            },
+            "questions_count": 1,
+            "comments_count": 2,
+            "comments_overview": [],
+            "breadcrumb": [
+                {
+                    "title": "\u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                    "url": {
+                        "base": null,
+                        "uri": "\/"
+                    }
+                },
+                {
+                    "title": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc\u060c \u06a9\u0648\u062f\u06a9 \u0648 \u0646\u0648\u0632\u0627\u062f",
+                    "url": {
+                        "base": null,
+                        "uri": "\/main\/mother-and-child\/"
+                    }
+                },
+                {
+                    "title": "\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                    "url": {
+                        "base": null,
+                        "uri": "\/search\/category-entertainment-and-games-equipment\/"
+                    }
+                },
+                {
+                    "title": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc",
+                    "url": {
+                        "base": null,
+                        "uri": "\/search\/category-toys\/"
+                    }
+                },
+                {
+                    "title": "\u0641\u06a9\u0631\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                    "url": {
+                        "base": null,
+                        "uri": "\/search\/category-intellectual-and-educational\/"
+                    }
+                },
+                {
+                    "title": "\u0641\u06a9\u0631\u06cc",
+                    "url": {
+                        "base": null,
+                        "uri": "\/search\/category-intellectual\/"
+                    }
+                },
+                {
+                    "title": "\u0633\u0627\u062e\u062a\u0646\u06cc",
+                    "url": {
+                        "base": null,
+                        "uri": "\/search\/category-building\/"
+                    }
+                },
+                {
+                    "title": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                    "url": {
+                        "base": null,
+                        "uri": "\/product\/dkp-14243079\/%D8%B3%D8%A7%D8%AE%D8%AA%D9%86%DB%8C-%D9%84%DA%AF%D9%88-%D9%85%D8%AF%D9%84-cherry-blossoms-40725"
+                    }
+                }
+            ],
+            "has_size_guide": false,
+            "specifications": [
+                {
+                    "title": "\u0645\u0634\u062e\u0635\u0627\u062a",
+                    "attributes": [
+                        {
+                            "title": "\u0627\u0628\u0639\u0627\u062f",
+                            "values": [
+                                "150x80x350 \u0645\u06cc\u0644\u06cc\u200c\u0645\u062a\u0631"
+                            ]
+                        },
+                        {
+                            "title": "\u0648\u0632\u0646",
+                            "values": [
+                                "400 \u06af\u0631\u0645"
+                            ]
+                        },
+                        {
+                            "title": "\u062c\u0646\u0633",
+                            "values": [
+                                "\u067e\u0644\u0627\u0633\u062a\u06cc\u06a9 "
+                            ]
+                        },
+                        {
+                            "title": "\u062a\u0639\u062f\u0627\u062f \u0642\u0637\u0639\u0627\u062a",
+                            "values": [
+                                "430 "
+                            ]
+                        },
+                        {
+                            "title": "\u0627\u0642\u0644\u0627\u0645 \u0647\u0645\u0631\u0627\u0647",
+                            "values": [
+                                "430 \u0642\u0637\u0639\u0647 \u0644\u06af\u0648 "
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "expert_reviews": {
+                "attributes": [],
+                "description": "\u0628\u0627 \u0627\u06cc\u0646 \u0647\u062f\u06cc\u0647 \u062c\u0634\u0646 \u0634\u06a9\u0648\u0641\u0647 \u0647\u0627\u06cc \u06af\u06cc\u0644\u0627\u0633 LEGO\u00ae (40725) \u0628\u0631\u0627\u06cc \u06af\u0644\u0641\u0631\u0648\u0634\u0627\u0646 \u0645\u0634\u062a\u0627\u0642 \u0648 \u062f\u0648\u0633\u062a\u062f\u0627\u0631\u0627\u0646 \u0637\u0628\u06cc\u0639\u062a 8 \u0633\u0627\u0644 \u0628\u0647 \u0628\u0627\u0644\u0627\u060c \u0648\u0631\u0648\u062f \u0628\u0647\u0627\u0631 \u0648 \u0634\u0631\u0648\u0639 \u0647\u0627\u06cc \u062c\u062f\u06cc\u062f \u0631\u0627 \u0645\u0634\u062e\u0635 \u06a9\u0646\u06cc\u062f. \u0627\u06cc\u0646 \u0645\u062c\u0645\u0648\u0639\u0647 \u062f\u0627\u0631\u0627\u06cc 2 \u0634\u0627\u062e\u0647 \u0634\u06a9\u0648\u0641\u0647 \u06af\u06cc\u0644\u0627\u0633 \u0642\u0627\u0628\u0644 \u0633\u0627\u062e\u062a \u0627\u0633\u062a \u06a9\u0647 \u0645\u06cc \u062a\u0648\u0627\u0646 \u0622\u0646\u0647\u0627 \u0631\u0627 \u0628\u0627 \u062c\u0648\u0627\u0646\u0647 \u0647\u0627\u06cc \u0638\u0631\u06cc\u0641 \u062f\u0631 \u0633\u0627\u06cc\u0647 \u0647\u0627\u06cc \u0633\u0641\u06cc\u062f \u0648 \u0635\u0648\u0631\u062a\u06cc \u062a\u0632\u0626\u06cc\u0646 \u06a9\u0631\u062f\u060c \u0627\u06cc\u0646 \u0645\u062c\u0645\u0648\u0639\u0647 \u062f\u0648\u0633\u062a\u062f\u0627\u0631\u0627\u0646 \u06af\u0644 \u0631\u0627 \u062a\u0634\u0648\u06cc\u0642 \u0645\u06cc \u06a9\u0646\u062f \u062a\u0627 \u0634\u06a9\u0648\u0641\u0647 \u0647\u0627\u06cc \u0644\u06af\u0648 \u0633\u0641\u0627\u0631\u0634\u06cc \u0627\u06cc\u062c\u0627\u062f \u06a9\u0646\u0646\u062f. \u0634\u06a9\u0648\u0641\u0647\u200c\u0647\u0627\u06cc \u0622\u062c\u0631\u06cc \u0639\u0644\u0627\u0648\u0647 \u0628\u0631 \u0627\u06cc\u0646\u06a9\u0647 \u0647\u062f\u06cc\u0647\u200c\u0627\u06cc \u0628\u0631\u0627\u06cc \u062c\u0634\u0646 \u0628\u0631\u0627\u06cc \u0628\u0686\u0647\u200c\u0647\u0627 \u0647\u0633\u062a\u0646\u062f\u060c \u0647\u062f\u06cc\u0647\u200c\u0627\u06cc \u0639\u0627\u0644\u06cc \u0628\u0631\u0627\u06cc \u0628\u0632\u0631\u06af\u200c\u062a\u0631\u0647\u0627 \u0647\u0633\u062a\u0646\u062f \u06a9\u0647 \u0627\u0632 \u062f\u0631\u06cc\u0627\u0641\u062a \u0627\u06cc\u0646 \u06af\u0644\u200c\u0647\u0627\u06cc \u0645\u0646\u062d\u0635\u0631\u0628\u0647\u200c\u0641\u0631\u062f \u062f\u0631 \u0631\u0648\u0632 \u0648\u0644\u0646\u062a\u0627\u06cc\u0646 \u06cc\u0627 \u0631\u0648\u0632 \u0645\u0627\u062f\u0631 \u062e\u0648\u0634\u062d\u0627\u0644 \u062e\u0648\u0627\u0647\u0646\u062f \u0634\u062f. \u067e\u0633 \u0627\u0632 \u062a\u06a9\u0645\u06cc\u0644\u060c \u0627\u06cc\u0646 \u0633\u062a \u06cc\u06a9 \u062f\u06a9\u0648\u0631 \u06af\u0644\u062f\u0627\u0631 \u0632\u06cc\u0628\u0627 \u0627\u06cc\u062c\u0627\u062f \u0645\u06cc \u06a9\u0646\u062f \u06a9\u0647 \u062d\u0633 \u0634\u0627\u062f\u06cc \u0628\u0647\u0627\u0631\u06cc \u0631\u0627 \u0628\u0647 \u0647\u0631 \u0641\u0636\u0627\u06cc\u06cc \u0627\u0636\u0627\u0641\u0647 \u0645\u06cc \u06a9\u0646\u062f. \u0647\u0645\u0686\u0646\u06cc\u0646 \u0645\u06cc\u200c\u062a\u0648\u0627\u0646 \u0622\u0646 \u0631\u0627 \u0628\u0627 \u0633\u0627\u06cc\u0631 \u06af\u0644\u200c\u0647\u0627\u06cc \u0644\u06af\u0648 (\u06a9\u0647 \u062c\u062f\u0627\u06af\u0627\u0646\u0647 \u0641\u0631\u0648\u062e\u062a\u0647 \u0645\u06cc\u200c\u0634\u0648\u062f) \u062a\u0631\u06a9\u06cc\u0628 \u06a9\u0631\u062f \u062a\u0627 \u06cc\u06a9 \u062f\u0633\u062a\u0647 \u06af\u0644 \u067e\u0631 \u062c\u0646\u0628 \u0648 \u062c\u0648\u0634 \u0627\u06cc\u062c\u0627\u062f \u06a9\u0646\u062f.",
+                "short_review": "",
+                "admin_rates": [],
+                "review_sections": [],
+                "technical_properties": {
+                    "advantages": [],
+                    "disadvantages": []
+                }
+            },
+            "meta": {
+                "brand_category_url": {
+                    "base": null,
+                    "uri": "\/search\/category-building\/lego\/"
+                }
+            },
+            "last_comments": [
+                {
+                    "id": 73411114,
+                    "title": null,
+                    "body": "\u062a\u0646\u0647\u0627 \u0627\u06cc\u0631\u0627\u062f\u0634 \u0642\u06cc\u0645\u062a\u0634 \u0647\u0633\u062a \u0648\u06af\u0631\u0646\u0647 \u0628\u06cc\u0646\u0638\u06cc\u0631\u0647 ",
+                    "created_at": "19 \u0641\u0631\u0648\u0631\u062f\u06cc\u0646 1404",
+                    "rate": 5,
+                    "reactions": {
+                        "likes": 0,
+                        "dislikes": 0
+                    },
+                    "files": [],
+                    "recommendation_status": null,
+                    "is_buyer": true,
+                    "user_name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u062c\u0648\u0627\u062f\u06cc",
+                    "is_anonymous": false,
+                    "purchased_item": [],
+                    "advantages": [],
+                    "disadvantages": [],
+                    "relative_date": "5 \u0631\u0648\u0632 \u067e\u06cc\u0634"
+                },
+                {
+                    "id": 66321962,
+                    "title": "",
+                    "body": "\u0627\u0633\u062a\u0631\u0633 \u062f\u0627\u0634\u062a\u0645 \u06a9\u0647 \u0628\u0647 \u0645\u0648\u0642\u0639 \u0628\u0647 \u062f\u0633\u062a\u0645 \u0646\u0631\u0633\u0647\u060c \u0627\u0645\u0627 \u0633\u0631 \u062a\u0627\u06cc\u0645 \u0627\u0639\u0644\u0627\u0645 \u0634\u062f\u0647 \u0628\u0631\u0627\u0645 \u0641\u0631\u0633\u062a\u0627\u062f\u0646 \u0648 \u0648\u0627\u0642\u0639\u0627 \u0642\u0634\u0646\u06af \u0628\u0648\u062f\r\n\u0628\u0633\u062a\u0647 \u0628\u0646\u062f\u06cc \u0647\u0645 \u0645\u0646\u0627\u0633\u0628 \u0628\u0648\u062f\r\n\u0645\u0645\u0646\u0648\u0646",
+                    "created_at": "16 \u0645\u0647\u0631 1403",
+                    "rate": 5,
+                    "reactions": {
+                        "likes": 4,
+                        "dislikes": 0
+                    },
+                    "files": [],
+                    "recommendation_status": null,
+                    "is_buyer": true,
+                    "user_name": "\u06a9\u0627\u0631\u0628\u0631 \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                    "is_anonymous": true,
+                    "purchased_item": [],
+                    "advantages": [],
+                    "disadvantages": [],
+                    "relative_date": "16 \u0645\u0647\u0631"
+                }
+            ],
+            "last_questions": [
+                {
+                    "id": 6670082,
+                    "status": "accepted",
+                    "text": "\u0633\u0644\u0627\u0645. \u0627\u0635\u0644\u0647\u061f \u06a9\u06cc\u0641\u06cc\u062a \u0633\u0627\u062e\u062a \u0648 \u0631\u0646\u06af \u0642\u0637\u0639\u0627\u062a \u0645\u062b\u0644 \u0639\u06a9\u0633\u200c\u0647\u0627\u0633\u062a\u061f \u0645\u0645\u06a9\u0646\u0647 \u0628\u0639\u0636\u06cc \u0642\u0637\u0639\u0627\u062a \u0632\u062f\u06af\u06cc \u0648 \u067e\u0631\u06cc\u062f\u06af\u06cc \u0648 \u0627\u0636\u0627\u0641\u0647 \u062f\u0627\u0634\u062a\u0647 \u0628\u0627\u0634\u0647\u061f",
+                    "answer_count": 2,
+                    "sender": "\u0633\u06cc\u0645\u06cc\u0646 \u06a9\u0627\u0638\u0645\u06cc",
+                    "created_at": "25 \u0645\u0631\u062f\u0627\u062f 1403"
+                }
+            ],
+            "tags": [],
+            "digify_touchpoint": "",
+            "show_type": "normal",
+            "has_offline_shop_stock": false,
+            "st_cmp_tacker": {
+                "neo": "tLKGJSDeZIUEflQbMZPi3dEhlo6pjP7C5COYRBidkVvFeksAoEnTuBa7W1sJP7FXMCdfZMEPhYbc6zmu1JJL1myDikdPb8jxmpzrNYvy4Y1X5RgYedv9JSyJpXbUH6oQWvThu05044VuTCn1MKxOZW8Ny87pGcVGVfDoDrptiEQHQiWeJXwNgg473PZIVSf9veeaW147DBhZAdzV5Hdf2p1RbsRde3VG",
+                "cx": "eyJjaXBoZXJ0ZXh0IjoiV3ZJY0twUTlPWGk1RGxrMk5OcFpGS1wvbElFR2lUaEF2U1daRThEVW9pcXBtNjBIWmVDYkYySWcrZ3pVd2VCelMxQ3RPeXpLTjhLZ3g5WVBFdzRCNXo2b3Y0UjhpOFVHSFNVcDFmdVFaZUUyTFM1bHlYTUJJ",
+                "dx": "cWg3S2E5dDdMXC9JMlZrUTFtWStoeDlhd25lZ0JHZXg4TEVUYnE0ampDMytFcEFKTG5EbDZmM0JHY21aQXl6c1BBUVgwZGJiSHQ3VzFNRW04UmJVMVAzcUFJRU1hYzZ6UFBEcGNnSXVcLzVRWHNPTzlBU3dsSkllU3N6STBnUzFKQmlI",
+                "data-fx": "eFhPTjEydDVOVU1LUHRiSXBjS2NaM0psT2RqNkZoQkJSeG81SE90WG1lbmlmMnN6MlN3akxTc1VcL1BQZ2ZZOWw2RmdJWE8rMnZ5VjZ1Z1wvTE0rRjNGdVJSOFd6ZUpFWG9VUjJCbW9sWFAxRmppeGh3RGdybzlFZGg3KzIzTm5mazk5",
+                "zero": "NDhURW1Tc1pWVkZ5ZisrdXRUang4OEFZOXNCNGlDSW5qRVRJUWdHRjZrTFJQTjVPSFFQbkVEQmZOa0krZVBQOVVRTzNENnlVIiwiaXYiOiJmZTU4ZjQ1MTcwZjE4YjFjODc4ZWUzNTI1OTE0N2YxZSIsIml0ZXJhdGlvbnMiOjk5OX0="
+            }
+        },
+        "data_layer": {
+            "event": "eec.productDetail",
+            "ecommerce": {
+                "detail": {
+                    "actionField": {
+                        "list": "category-\u0633\u0627\u062e\u062a\u0646\u06cc"
+                    },
+                    "products": [
+                        {
+                            "brand": "\u0644\u06af\u0648",
+                            "category": "[MA,\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0641\u06a9\u0631\u06cc]",
+                            "metric6": 3,
+                            "dimension2": 16,
+                            "dimension6": 0,
+                            "dimension7": "special-offer",
+                            "dimension9": 5,
+                            "dimension11": 0,
+                            "dimension20": "marketable",
+                            "item_category2": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc\u060c \u06a9\u0648\u062f\u06a9 \u0648 \u0646\u0648\u0632\u0627\u062f",
+                            "item_category3": "\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                            "item_category4": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc",
+                            "item_category5": "\u0641\u06a9\u0631\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                            "name": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                            "id": 14243079,
+                            "price": 23500000,
+                            "metric8": 1,
+                            "dimension3": "marketplace",
+                            "dimension10": 0,
+                            "dimension15": 0,
+                            "metric15": 0,
+                            "metric11": 2,
+                            "metric12": 0
+                        }
+                    ]
+                }
+            }
+        },
+        "seo": {
+            "title": "\u0642\u06cc\u0645\u062a \u0648 \u062e\u0631\u06cc\u062f \u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+            "description": "\u062e\u0631\u06cc\u062f \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725 \u0628\u0627 \u0631\u0646\u06af\u0628\u0646\u062f\u06cc \u0686\u0646\u062f \u0631\u0646\u06af \u0628\u0647 \u0647\u0645\u0631\u0627\u0647 \u0645\u0642\u0627\u06cc\u0633\u0647\u060c \u0628\u0631\u0631\u0633\u06cc \u0645\u0634\u062e\u0635\u0627\u062a \u0648 \u0644\u06cc\u0633\u062a \u0642\u06cc\u0645\u062a \u0627\u0645\u0631\u0648\u0632 \u062f\u0631 \u0641\u0631\u0648\u0634\u06af\u0627\u0647 \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+            "twitter_card": {
+                "title": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                "image": "https:\/\/dkstatics-public.digikala.com\/digikala-products\/a4f031f3850d1dd1a3c2179cc7f6e9c6ab2695ce_1706426685.jpg?x-oss-process=image\/resize,m_lfit,h_350,w_350\/quality,q_60",
+                "price": 0,
+                "description": "\u062e\u0631\u06cc\u062f \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725 \u0628\u0627 \u0631\u0646\u06af\u0628\u0646\u062f\u06cc \u0686\u0646\u062f \u0631\u0646\u06af \u0628\u0647 \u0647\u0645\u0631\u0627\u0647 \u0645\u0642\u0627\u06cc\u0633\u0647\u060c \u0628\u0631\u0631\u0633\u06cc \u0645\u0634\u062e\u0635\u0627\u062a \u0648 \u0644\u06cc\u0633\u062a \u0642\u06cc\u0645\u062a \u0627\u0645\u0631\u0648\u0632 \u062f\u0631 \u0641\u0631\u0648\u0634\u06af\u0627\u0647 \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627"
+            },
+            "open_graph": {
+                "title": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                "url": "https:\/\/www.digikala.com\/product\/dkp-14243079\/\u0633\u0627\u062e\u062a\u0646\u06cc-\u0644\u06af\u0648-\u0645\u062f\u0644-cherry-blossoms-40725",
+                "image": "https:\/\/dkstatics-public.digikala.com\/digikala-products\/a4f031f3850d1dd1a3c2179cc7f6e9c6ab2695ce_1706426685.jpg?x-oss-process=image\/resize,m_lfit,h_350,w_350\/quality,q_60",
+                "availability": "in stock",
+                "type": "product",
+                "site": "\u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                "price": 0,
+                "description": null
+            },
+            "header": {
+                "title": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                "description": "\u062e\u0631\u06cc\u062f \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725 \u0628\u0627 \u0631\u0646\u06af\u0628\u0646\u062f\u06cc \u0686\u0646\u062f \u0631\u0646\u06af \u0628\u0647 \u0647\u0645\u0631\u0627\u0647 \u0645\u0642\u0627\u06cc\u0633\u0647\u060c \u0628\u0631\u0631\u0633\u06cc \u0645\u0634\u062e\u0635\u0627\u062a \u0648 \u0644\u06cc\u0633\u062a \u0642\u06cc\u0645\u062a \u0627\u0645\u0631\u0648\u0632 \u062f\u0631 \u0641\u0631\u0648\u0634\u06af\u0627\u0647 \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                "canonical_url": "https:\/\/www.digikala.com\/product\/dkp-14243079\/%D8%B3%D8%A7%D8%AE%D8%AA%D9%86%DB%8C-%D9%84%DA%AF%D9%88-%D9%85%D8%AF%D9%84-cherry-blossoms-40725"
+            },
+            "markup_schema": [
+                {
+                    "@type": "Product",
+                    "@context": "https:\/\/www.schema.org",
+                    "name": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                    "alternateName": "",
+                    "image": [
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/5ee56dddc9d701ac258acccda34caafa66d0287e_1706426687.jpg?x-oss-process=image\/resize,h_1600\/quality,q_80",
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/9a509fe27a1127a649a4c17ebcf754fc7e96a6f5_1706426684.jpg?x-oss-process=image\/resize,h_1600\/quality,q_80",
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/ff7b34c5997e63ed8b9c9b99c38f68f62eaf0829_1706426688.jpg?x-oss-process=image\/resize,h_1600\/quality,q_80",
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/6514ab98c94b24e6bce9450c7ecc5f416e42ea67_1706426689.jpg?x-oss-process=image\/resize,h_1600\/quality,q_80",
+                        "https:\/\/dkstatics-public.digikala.com\/digikala-products\/0b55a38d0ca7642f608ccf90ad4bf2090a4316eb_1706426691.jpg?x-oss-process=image\/resize,h_1600\/quality,q_80"
+                    ],
+                    "description": "\u062e\u0631\u06cc\u062f \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725 \u0628\u0627 \u0631\u0646\u06af\u0628\u0646\u062f\u06cc \u0686\u0646\u062f \u0631\u0646\u06af \u0628\u0647 \u0647\u0645\u0631\u0627\u0647 \u0645\u0642\u0627\u06cc\u0633\u0647\u060c \u0628\u0631\u0631\u0633\u06cc \u0645\u0634\u062e\u0635\u0627\u062a \u0648 \u0644\u06cc\u0633\u062a \u0642\u06cc\u0645\u062a \u0627\u0645\u0631\u0648\u0632 \u062f\u0631 \u0641\u0631\u0648\u0634\u06af\u0627\u0647 \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                    "mpn": 14243079,
+                    "sku": 14243079,
+                    "category": "https:\/\/www.digikala.com\/search\/category-building\/",
+                    "brand": {
+                        "@type": "Brand",
+                        "name": "\u0644\u06af\u0648",
+                        "url": "https:\/\/www.digikala.com\/brand\/lego\/",
+                        "@id": "https:\/\/www.digikala.com\/brand\/lego\/#brand"
+                    },
+                    "aggregateRating": {
+                        "@type": "AggregateRating",
+                        "ratingValue": 5,
+                        "reviewCount": 3
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "priceCurrency": "IRR",
+                        "price": 23500000,
+                        "itemCondition": "https:\/\/schema.org\/NewCondition",
+                        "availability": "https:\/\/schema.org\/InStock"
+                    },
+                    "review": {
+                        "@type": "Review",
+                        "reviewRating": {
+                            "@type": "Rating",
+                            "bestRating": 5,
+                            "ratingValue": 5
+                        },
+                        "author": {
+                            "@type": "Person",
+                            "name": "\u06a9\u0627\u0645\u0631\u0627\u0646 \u062c\u0648\u0627\u062f\u06cc"
+                        },
+                        "datePublished": "2025-04-08",
+                        "reviewBody": "\u062a\u0646\u0647\u0627 \u0627\u06cc\u0631\u0627\u062f\u0634 \u0642\u06cc\u0645\u062a\u0634 \u0647\u0633\u062a \u0648\u06af\u0631\u0646\u0647 \u0628\u06cc\u0646\u0638\u06cc\u0631\u0647 ",
+                        "name": ""
+                    }
+                },
+                [
+                    {
+                        "@context": "https:\/\/schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "\u0641\u0631\u0648\u0634\u06af\u0627\u0647 \u0627\u06cc\u0646\u062a\u0631\u0646\u062a\u06cc \u062f\u06cc\u062c\u06cc\u200c\u06a9\u0627\u0644\u0627",
+                                "item": {
+                                    "@type": "Corporation",
+                                    "@id": "https:\/\/www.digikala.com\/#corporation"
+                                }
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc\u060c \u06a9\u0648\u062f\u06a9 \u0648 \u0646\u0648\u0632\u0627\u062f",
+                                "item": "https:\/\/www.digikala.com\/main\/mother-and-child\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": "\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                                "item": "https:\/\/www.digikala.com\/search\/category-entertainment-and-games-equipment\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 4,
+                                "name": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc",
+                                "item": "https:\/\/www.digikala.com\/search\/category-toys\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 5,
+                                "name": "\u0641\u06a9\u0631\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                                "item": "https:\/\/www.digikala.com\/search\/category-intellectual-and-educational\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 6,
+                                "name": "\u0641\u06a9\u0631\u06cc",
+                                "item": "https:\/\/www.digikala.com\/search\/category-intellectual\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 7,
+                                "name": "\u0633\u0627\u062e\u062a\u0646\u06cc",
+                                "item": "https:\/\/www.digikala.com\/search\/category-building\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 8,
+                                "name": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725"
+                            }
+                        ]
+                    },
+                    {
+                        "@context": "https:\/\/schema.org",
+                        "@type": "BreadcrumbList",
+                        "itemListElement": [
+                            {
+                                "@type": "ListItem",
+                                "position": 1,
+                                "name": "\u0644\u06af\u0648",
+                                "item": {
+                                    "@type": "Brand",
+                                    "@id": "https:\/\/www.digikala.com\/brand\/lego\/#brand"
+                                }
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 2,
+                                "name": "\u0633\u0627\u062e\u062a\u0646\u06cc \u0644\u06af\u0648",
+                                "item": "https:\/\/www.digikala.com\/search\/category-building\/lego\/"
+                            },
+                            {
+                                "@type": "ListItem",
+                                "position": 3,
+                                "name": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725"
+                            }
+                        ]
+                    }
+                ]
+            ]
+        },
+        "intrack": {
+            "eventName": "product_detail_pageview",
+            "eventData": {
+                "currency": "IRR",
+                "deviceType": "desktop",
+                "name": "\u0644\u06af\u0648 \u0633\u0631\u06cc Cherry Blossoms \u06a9\u062f 40725",
+                "productId": 14243079,
+                "productImageUrl": [
+                    "https:\/\/dkstatics-public.digikala.com\/digikala-products\/a4f031f3850d1dd1a3c2179cc7f6e9c6ab2695ce_1706426685.jpg?x-oss-process=image\/resize,m_lfit,h_800,w_800\/quality,q_90"
+                ],
+                "quantity": null,
+                "leafCategory": "\u0633\u0627\u062e\u062a\u0646\u06cc",
+                "unitPrice": 23500000,
+                "url": "\/product\/dkp-14243079\/\u0633\u0627\u062e\u062a\u0646\u06cc-\u0644\u06af\u0648-\u0645\u062f\u0644-cherry-blossoms-40725",
+                "supplyCategory": "MA",
+                "categoryLevel1": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc\u060c \u06a9\u0648\u062f\u06a9 \u0648 \u0646\u0648\u0632\u0627\u062f",
+                "categoryLevel2": "\u0633\u0631\u06af\u0631\u0645\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                "categoryLevel3": "\u0627\u0633\u0628\u0627\u0628 \u0628\u0627\u0632\u06cc",
+                "categoryLevel4": "\u0641\u06a9\u0631\u06cc \u0648 \u0622\u0645\u0648\u0632\u0634\u06cc",
+                "categoryLevel5": "\u0641\u06a9\u0631\u06cc"
+            },
+            "userId": null
+        },
+        "landing_touchpoint": [],
+        "dynamic_touch_points": [],
+        "promotion_banner": {
+            "product_promotion": null,
+            "dkjet_promotion": null
+        },
+        "bigdata_tracker_data": {
+            "page_name": "product",
+            "page_info": {
+                "product_id": 14243079
+            }
+        },
+        "dynamic_pdp_carousel": [],
+        "dk_service": []
+    }
+}
