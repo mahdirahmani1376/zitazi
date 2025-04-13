@@ -5,6 +5,7 @@ namespace App\Actions\Crawler;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
@@ -55,8 +56,8 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
         }
 
         if (empty($price)) {
-            $stock = 0;
-            $price = null;
+            Log::error("failed_to_fetch_trendyol_price_for_product_{$product->id}");
+            return;
         }
 
         $data = [
