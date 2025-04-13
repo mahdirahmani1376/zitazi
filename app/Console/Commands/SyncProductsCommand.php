@@ -50,6 +50,7 @@ class SyncProductsCommand extends Command
             ->when(!empty(Cache::get(Product::TOROB_LOCK_FOR_UPDATE)), function (Builder $query) {
                 $query->where('torob_source', '=', '');
             })
+            ->get()
             ->map(fn($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
