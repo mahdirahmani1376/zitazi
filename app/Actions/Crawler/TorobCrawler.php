@@ -18,6 +18,7 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
     public function crawl($product): void
     {
         if (Cache::get(Product::TOROB_LOCK_FOR_UPDATE)) {
+            Log::info("skipping-torob-update-{$product->id}");
             return;
         };
 

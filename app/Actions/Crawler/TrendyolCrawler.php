@@ -4,6 +4,7 @@ namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
@@ -66,7 +67,7 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
 
         $this->updateAndLogProduct($product, $data);
 
-        if (!$product->belongsToIran()) {
+        if (!$product->belongsToIran() || Cache::get(Product::TOROB_LOCK_FOR_UPDATE)) {
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'price' => $rialPrice,
                 'stock_quantity' => $stock,
