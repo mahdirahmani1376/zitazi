@@ -41,7 +41,7 @@ class SyncProductsCommand extends Command
 
         if (! empty($this->option('override-id'))) {
             $product = Product::find($this->option('override-id'));
-            $syncAction($product);
+            $syncAction->execute($product);
 
             return 0;
         }

@@ -59,6 +59,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
             $minDigiPrice = $minDigiPrice / 10;
             $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
 
+
             ProductCompare::updateOrCreate(
                 [
                     'product_id' => $product->id,

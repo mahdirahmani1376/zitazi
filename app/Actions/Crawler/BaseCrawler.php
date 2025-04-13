@@ -18,29 +18,16 @@ class BaseCrawler
 {
     protected mixed $rate;
     protected SyncVariationsActions $syncVariationAction;
-    /** @var ProductAbstractCrawler[] */
-    protected array $crawlers;
     private Client $woocommerce;
     protected SendHttpRequestAction $sendHttpRequestAction;
 
     public function __construct(
-        array $crawlers
     )
     {
-        $this->crawlers = $crawlers;
         $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
         $this->rate = Currency::syncTryRate();
         $this->woocommerce = WoocommerceService::getClient();
         $this->syncVariationAction = app(SyncVariationsActions::class);
-
-    }
-    public function crawl(Product $product)
-    {
-        foreach ($this->crawlers as $crawler) {
-            if ($crawler->supports($product)) {
-                $crawler->crawl($product);
-            }
-        }
     }
 
     protected function getProfitRatioForProduct(Product $product): float|int
@@ -79,6 +66,10 @@ class BaseCrawler
 
     private function sendZitaziUpdateRequest(Product $product, array $data): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
         Log::info(

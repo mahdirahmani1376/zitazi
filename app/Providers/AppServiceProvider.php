@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Actions\Crawler\BaseCrawler;
+use App\Actions\Crawler\CrawlerManager;
 use App\Actions\Crawler\DigikalaCrawler;
 use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\TorobCrawler;
@@ -29,12 +29,12 @@ class AppServiceProvider extends ServiceProvider
         Model::unguard();
         HeadingRowFormatter::default('none'); // Disable automatic transformation
 
-        $this->app->singleton(BaseCrawler::class, function () {
-            return new BaseCrawler([
-                DigikalaCrawler::class,
-                TorobCrawler::class,
-                TrendyolCrawler::class,
-                EleleCrawler::class
+        $this->app->singleton(CrawlerManager::class, function () {
+            return new CrawlerManager([
+                new TrendyolCrawler(),
+                new EleleCrawler(),
+                new DigikalaCrawler(),
+                new TorobCrawler(),
             ]);
         });
 

@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
+    use HasFactory;
+
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
-
-    protected $guarded = [
-
-    ];
 
     public function belongsToTrendyol(): bool
     {
@@ -28,14 +27,25 @@ class Product extends Model
         return ! empty($this->digikala_source) || ! empty($this->torob_source) && ! $this->belongsToDecalthon();
     }
 
+    public function belongsToTorob()
+    {
+        return !empty($this->torob_source);
+    }
+
     public function belongsToDigikala(): bool
     {
         return !empty($this->digikala_source);
     }
 
-    public function belongsToTorob(): bool
+    public function onlyHasTorobSource(): bool
     {
-        return !empty($this->digikala_source);
+        return !empty($this->torob_source) && empty($this->trendyol_source);
+    }
+
+
+    public function belongsToTrendyolAndTorob(): bool
+    {
+        return !empty($this->torob_source) && !empty($this->trendyol_source);
     }
 
     public function productCompare(): HasOne
