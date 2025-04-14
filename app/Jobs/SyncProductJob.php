@@ -23,6 +23,9 @@ class SyncProductJob implements ShouldQueue
 
     public function handle(): void
     {
+        if ($this->batch()->cancelled()) {
+            return;
+        }
         app(SyncProductsAction::class)->execute($this->product);
     }
 }
