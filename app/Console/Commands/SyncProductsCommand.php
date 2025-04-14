@@ -48,7 +48,11 @@ class SyncProductsCommand extends Command
 
         $jobs = Product::query()
             ->when(!empty(Cache::get(Product::TOROB_LOCK_FOR_UPDATE)), function (Builder $query) {
-                $query->where('torob_source', '=', '');
+                $query->whereNot(function (Builder $query) {
+                    $query
+                        ->where('torob_source', '!=', '')
+                        ->where('trendyol_source', '=', '');
+                });
             })
             ->get()
             ->map(fn($product) => new SyncProductJob($product));
