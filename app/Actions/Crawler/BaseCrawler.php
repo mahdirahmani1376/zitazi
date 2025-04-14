@@ -45,9 +45,9 @@ class BaseCrawler
             return;
         }
 
-        $stockStatus = 'outOfStock';
-        if ($dto->stock_quantity || $dto->price > 0) {
-            $stockStatus = 'inStock';
+        $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
+        if (!empty($dto->stock_quantity)) {
+            $stockStatus = ZitaziUpdateDTO::IN_STOCK;
         }
 
         $data = $dto->getUpdateBody();
@@ -108,11 +108,6 @@ class BaseCrawler
 
             SyncLog::create($data);
         }
-
-        Log::info("product_update_{$product->id}", [
-            'before' => $product->getOriginal(),
-            'after' => $product->getChanges(),
-        ]);
     }
 
     private function handleHttpClientException(HttpClientException $e, Product $product): void

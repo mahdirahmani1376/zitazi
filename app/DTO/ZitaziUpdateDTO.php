@@ -4,6 +4,8 @@ namespace App\DTO;
 
 class ZitaziUpdateDTO
 {
+    public const OUT_OF_STOCK = 'outofstock';
+    public const IN_STOCK = 'instock';
     public function __construct(
         public int $price,
         public mixed $stock_quantity,
@@ -14,7 +16,7 @@ class ZitaziUpdateDTO
     public static function createFromArray(array $data): static
     {
         return new static(
-            price: $data['price'],
+            price: $data['regular_price'],
             stock_quantity: $data['stock_quantity'] ?? null,
         );
     }

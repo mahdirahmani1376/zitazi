@@ -3,9 +3,9 @@
 namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Exceptions\UnProcessableResponseException;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
@@ -16,7 +16,6 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
         $crawler = new Crawler($response);
 
         $price = null;
-        $stock = 0;
         $rialPrice = null;
 
         foreach (range(2, 5) as $i) {
@@ -56,8 +55,11 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
         }
 
         if (empty($price)) {
-            Log::error("failed_to_fetch_trendyol_price_for_product_{$product->id}");
-            return;
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_status' => ZitaziUpdateDTO::OUT_OF_STOCK,
+            ]);
+            $this->syncProductWithZitazi($product, $updateData);
+            throw UnProcessableResponseException::make("failed_to_fetch_trendyol_price_for_product_{$product->id}");
         }
 
         $data = [
