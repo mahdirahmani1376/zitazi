@@ -8,6 +8,8 @@ use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\TorobCrawler;
 use App\Actions\Crawler\TrendyolCrawler;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\ServiceProvider;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
@@ -38,5 +40,8 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
+        Bus::pipeThrough([
+            SkipIfBatchCancelled::class
+        ]);
     }
 }
