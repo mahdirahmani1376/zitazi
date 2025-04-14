@@ -89,7 +89,7 @@ class ProductTest extends TestCase
 
         app(SyncProductsAction::class)->execute($product);
 
-        dd($product->toArray());
+        dump($product->toArray());
     }
 
     public function test_trendyol_torob_lock()
@@ -108,7 +108,7 @@ class ProductTest extends TestCase
 
         app(SyncProductsAction::class)->execute($product);
 
-        dd($product->toArray());
+        dump($product->toArray());
     }
 
 }
