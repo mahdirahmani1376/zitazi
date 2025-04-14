@@ -56,7 +56,7 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
 
         if (empty($price)) {
             $updateData = ZitaziUpdateDTO::createFromArray([
-                'stock_status' => ZitaziUpdateDTO::OUT_OF_STOCK,
+                'stock_quantity' => 0,
             ]);
             $this->syncProductWithZitazi($product, $updateData);
             throw UnProcessableResponseException::make("failed_to_fetch_trendyol_price_for_product_{$product->id}");

@@ -7,7 +7,7 @@ class ZitaziUpdateDTO
     public const OUT_OF_STOCK = 'outofstock';
     public const IN_STOCK = 'instock';
     public function __construct(
-        public int $price,
+        public mixed $price,
         public mixed $stock_quantity,
     )
     {
@@ -16,7 +16,7 @@ class ZitaziUpdateDTO
     public static function createFromArray(array $data): static
     {
         return new static(
-            price: $data['price'],
+            price: $data['price'] ?? null,
             stock_quantity: $data['stock_quantity'] ?? null,
         );
     }
