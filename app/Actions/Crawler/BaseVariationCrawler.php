@@ -37,9 +37,9 @@ class BaseVariationCrawler
             return;
         }
 
-        $stockStatus = 'outOfStock';
+        $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
         if ($dto->stock_quantity || $dto->price > 0) {
-            $stockStatus = 'inStock';
+            $stockStatus = ZitaziUpdateDTO::IN_STOCK;
         }
 
         $data = $dto->getUpdateBody();
