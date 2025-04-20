@@ -52,13 +52,12 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
                 }
 
                 $zitazi_digikala_price_recommend = floor($zitazi_digikala_price_recommend / 10000) * 10000;
+                $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
 
             }
 
             $digiPrice = $digiPrice / 10;
             $minDigiPrice = $minDigiPrice / 10;
-            $zitazi_digikala_price_recommend = $zitazi_digikala_price_recommend / 10;
-
 
             ProductCompare::updateOrCreate(
                 [
@@ -66,7 +65,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
                 ],
                 [
                     'zitazi_digi_ratio' => !empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
-                    'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend,
+                    'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend ?? null,
                     'digikala_zitazi_price' => $digiPrice,
                     'digikala_min_price' => $minDigiPrice,
                 ]
