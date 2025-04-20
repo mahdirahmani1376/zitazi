@@ -294,3 +294,13 @@ Artisan::command('cancel-batch {batch}', function ($batch) {
 Artisan::command('test', function () {
     \App\Jobs\FailedJob::dispatch();
 });
+
+Artisan::command('sync-torob', function () {
+    Artisan::call('db:seed --class=ProductSeeder');
+
+    $products = Product::where('torob_source', '!=', '')->get()->map(function (Product $product) {
+        return new \App\Jobs\SyncProductJob($product);
+    });
+
+    \Illuminate\Support\Facades\Bus::batch($products)->name('sync-torob')->dispatch();
+});
