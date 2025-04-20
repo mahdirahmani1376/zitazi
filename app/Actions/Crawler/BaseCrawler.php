@@ -54,6 +54,7 @@ class BaseCrawler
 
         $data['stock_status'] = $stockStatus;
         $data['sale_price'] = null;
+        $data['regular_price'] = $dto->price;
 
         try {
             $this->sendZitaziUpdateRequest($product, $data);

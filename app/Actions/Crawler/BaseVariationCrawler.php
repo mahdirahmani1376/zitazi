@@ -46,16 +46,24 @@ class BaseVariationCrawler
 
         $data['stock_status'] = $stockStatus;
         $data['sale_price'] = null;
+        $data['regular_price'] = $dto->price;
+
         try {
             $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
             Log::info(
-                "product_update_source_{$variation->id}",
+                "variation_update_{$variation->id}",
                 [
-                    'price' => data_get($response, 'price'),
-                    'sale_price' => data_get($response, 'sale_price'),
-                    'regular_price' => data_get($response, 'regular_price'),
-                    'stock_quantity' => data_get($response, 'stock_quantity'),
-                    'stock_status' => data_get($response, 'stock_status'),
+                    'body' => $data,
+                    'variation' => $variation->toArray(),
+                    'response' => [
+                        'price' => data_get($response, 'price'),
+                        'sale_price' => data_get($response, 'sale_price'),
+                        'regular_price' => data_get($response, 'regular_price'),
+                        'stock_quantity' => data_get($response, 'stock_quantity'),
+                        'stock_status' => data_get($response, 'stock_status'),
+                        'zitazi_id' => data_get($response, 'id'),
+                        'variation' => $variation->toArray(),
+                    ],
                 ]
             );
         } catch (HttpClientException $e) {
@@ -96,10 +104,5 @@ class BaseVariationCrawler
             SyncLog::create($data);
         }
 
-        Log::info("variation_update_{$variation->id}", [
-            'before' => $variation->getOriginal(),
-            'after' => $variation->getChanges(),
-            'data' => $data,
-        ]);
     }
 }
