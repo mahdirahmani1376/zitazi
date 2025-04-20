@@ -296,7 +296,11 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('sync-torob', function () {
-    $products = Product::where('torob_source', '!=', '')->get()->map(function (Product $product) {
+    $products = Product::where(
+        'torob_source', '!=', '')
+        ->where('trendyol_source', '=', '')
+        ->where('decathlon_url', '=', '')
+        ->get()->map(function (Product $product) {
         return new \App\Jobs\SyncProductJob($product);
     });
 
