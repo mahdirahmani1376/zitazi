@@ -300,9 +300,9 @@ Artisan::command('sync-torob', function () {
         return new \App\Jobs\SyncProductJob($product);
     });
 
-    Artisan::call('db:seed --class=ProductSeeder');
+//    Artisan::call('db:seed --class=ProductSeeder');
 
-
+    \Illuminate\Support\Facades\Cache::forget(Product::TOROB_LOCK_FOR_UPDATE);
 
     \Illuminate\Support\Facades\Bus::batch($products)->name('sync-torob')->dispatch();
 });
