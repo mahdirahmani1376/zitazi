@@ -35,6 +35,8 @@ class SyncProductsCommand extends Command
      */
     public function handle()
     {
+        Cache::forget(Product::TOROB_LOCK_FOR_UPDATE);
+
         $startTime = microtime(true);
 
         $syncAction = app(SyncProductsAction::class);
