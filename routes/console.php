@@ -296,11 +296,13 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('sync-torob', function () {
-    Artisan::call('db:seed --class=ProductSeeder');
-
     $products = Product::where('torob_source', '!=', '')->get()->map(function (Product $product) {
         return new \App\Jobs\SyncProductJob($product);
     });
+
+    Artisan::call('db:seed --class=ProductSeeder');
+
+
 
     \Illuminate\Support\Facades\Bus::batch($products)->name('sync-torob')->dispatch();
 });
