@@ -46,7 +46,7 @@ class BaseVariationCrawler
 
         $data['stock_status'] = $stockStatus;
         $data['sale_price'] = null;
-        $data['regular_price'] = $dto->price;
+        $data['regular_price'] = '' . $dto->price;
 
         try {
             $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);

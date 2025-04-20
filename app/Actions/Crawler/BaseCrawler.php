@@ -54,7 +54,7 @@ class BaseCrawler
 
         $data['stock_status'] = $stockStatus;
         $data['sale_price'] = null;
-        $data['regular_price'] = $dto->price;
+        $data['regular_price'] = '' . $dto->price;
 
         try {
             $this->sendZitaziUpdateRequest($product, $data);
@@ -73,6 +73,7 @@ class BaseCrawler
 
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
+        dd($response);
         Log::info(
             "product_update_{$product->id}",
             [
