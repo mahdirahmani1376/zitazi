@@ -42,6 +42,8 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
             ]);
         }
 
+        sleep(5);
+
     }
 
     private function LogResponseAndSetLockCache(Response $responseTorob): void
