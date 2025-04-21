@@ -128,15 +128,15 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
     private function getZitaziTorobPriceRecommend(mixed $torobMinPrice, Product $product): int|float
     {
         $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
-        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
 
         if (!empty($product->min_price)) {
             if ($zitazi_torob_price_recommend < $product->min_price) {
                 $zitazi_torob_price_recommend = $product->min_price;
             }
 
-            $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
         }
+        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
+
 
         return $zitazi_torob_price_recommend;
     }
