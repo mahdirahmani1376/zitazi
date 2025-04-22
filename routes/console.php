@@ -300,6 +300,7 @@ Artisan::command('sync-torob', function () {
         'torob_source', '!=', '')
         ->where('trendyol_source', '=', '')
         ->where('decathlon_url', '=', '')
+        ->where('elele_source', '=', '')
         ->get()->map(function (Product $product) {
         return new \App\Jobs\SyncProductJob($product);
     });
