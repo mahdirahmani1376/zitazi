@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Actions\Crawler\CrawlerManager;
+use App\Actions\Crawler\DecathlonCrawler;
 use App\Actions\Crawler\DigikalaCrawler;
 use App\Actions\Crawler\EleleCrawler;
-use App\Actions\Crawler\TorobCrawler;
 use App\Actions\Crawler\TrendyolCrawler;
+use App\Models\Variation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
 use Illuminate\Support\Facades\Bus;
@@ -36,12 +37,15 @@ class AppServiceProvider extends ServiceProvider
                 new TrendyolCrawler(),
                 new EleleCrawler(),
                 new DigikalaCrawler(),
-                new TorobCrawler(),
+//                new TorobCrawler(),
             ]);
         });
 
         Bus::pipeThrough([
             SkipIfBatchCancelled::class
         ]);
+
+
+        app(DecathlonCrawler::class)->crawl(Variation::where('sku', '=', 1339011)->first());
     }
 }
