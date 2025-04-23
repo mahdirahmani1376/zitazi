@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
                 new TrendyolCrawler(),
                 new EleleCrawler(),
                 new DigikalaCrawler(),
-                new TorobCrawler(),
+//                new TorobCrawler(),
             ]);
         });
 
