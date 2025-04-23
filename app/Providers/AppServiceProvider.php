@@ -46,7 +46,5 @@ class AppServiceProvider extends ServiceProvider
             SkipIfBatchCancelled::class
         ]);
 
-
-        app(DecathlonCrawler::class)->crawl(Variation::where('sku', '=', 1339011)->first());
     }
 }
