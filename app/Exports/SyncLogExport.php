@@ -14,11 +14,8 @@ class SyncLogExport implements FromCollection, WithHeadings, WithMapping
      */
     public function collection()
     {
-        dd(SyncLog::orderBy('created_at')
-            ->where('created_at', '>', now()->subDays(7))
-            ->get()->count());
         return SyncLog::orderBy('created_at')
-            ->where('created_at', '>', now()->subDays(7))
+            ->where('created_at', '>', now()->subDays(1))
             ->get();
     }
 
