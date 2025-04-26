@@ -20,20 +20,6 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
         try {
             $headers = [
                 'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:137.0) Gecko/20100101 Firefox/137.0',
-//                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-//                'Accept-Language' => 'en-US,en;q=0.5',
-//                'Accept-Encoding' => 'gzip, deflate, br, zstd',
-//                'Upgrade-Insecure-Requests' => '1',
-//                'Sec-Fetch-Dest' => 'document',
-//                'Sec-Fetch-Mode' => 'navigate',
-//                'Sec-Fetch-Site' => 'none',
-//                'Sec-Fetch-User' => '?1',
-//                'Connection' => 'keep-alive',
-//                'Cookie' => 'returning_user=true; _ga_RWKMFFVXJX=GS1.1.1745659793.26.1.1745659826.0.0.0; _ga=GA1.1.1811146057.1742477026; search_session=eaqkxqxrtxvbjfkedvseopqxycjkfijj; _ga_DG18N985FG=GS1.1.1744457392.1.1.1744457452.0.0.0; _ga_S1W5P3WLLJ=GS1.1.1744457415.1.1.1744457477.0.0.0; csrftoken=Umzus7ARY9anfSp4e0QHSebSNLtmXZhy; trb_clearance=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDU2NjE1OTAsIm5iZiI6MTc0NTY1OTc5MCwic3ViIjoiMzc2MzFiMjhlMjRkNzg2NTJiYjNiZGEyNmJiZTFjYTAyNmJhNzU0ZDZkNDhkNWEyMjc1ZDliOThiMDQwYTU1ZiJ9.axhd_azU0Rf8uvvFiVrUQdrlF0azDEsUPtIgl_YXRes; display_mode=; is_torob_user_logged_in=True; user_access_dict="eyJ1c2VyX3R5cGUiOiAic2hvcF9zdGFmZiIsICJpbnN0YW5jZXMiOiB7fX0="',
-//                'Priority' => 'u=0, i',
-//                'Pragma' => 'no-cache',
-//                'Cache-Control' => 'no-cache',
-//                'TE' => 'trailers'
             ];
 
             $responseTorob = ($this->sendHttpRequestAction)('get', $product->torob_source, $headers);
