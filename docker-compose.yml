@@ -49,6 +49,18 @@ services:
       - app-network
     container_name: zitazi-mysql
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "8080:80"  # Exposing port 8080 for phpMyAdmin web interface
+    environment:
+      MYSQL_ROOT_PASSWORD: 123  # This should match your MySQL root password
+      PMA_HOST: mysql  # Host for phpMyAdmin to connect to the MySQL container
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+
   redis:
     image: redis:latest
     ports:
