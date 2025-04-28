@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      args:
+        USER_ID: ${UID}
+        GROUP_ID: ${GID}
     volumes:
       - ./src:/var/www/html
       - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
