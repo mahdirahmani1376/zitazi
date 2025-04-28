@@ -4,17 +4,12 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        USER_ID: ${UID}
-        GROUP_ID: ${GID}
     volumes:
       - ./src:/var/www/html
     networks:
       - app-network
     environment:
       - SERVER_NAME=${SERVER_NAME}
-    env_file:
-      - ./src/.env
     container_name: zitazi-php
 
   nginx:
@@ -30,8 +25,6 @@ services:
       - app-network
     environment:
       - SERVER_NAME=${SERVER_NAME}
-    env_file:
-      - ./src/.env
     container_name: zitazi-nginx
 
   mysql:
