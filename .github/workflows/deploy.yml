@@ -35,13 +35,13 @@ jobs:
             docker-compose up -d --build
 
             echo "📦 Running composer install inside container..."
-            docker-compose exec php composer install --no-dev --optimize-autoloader
+            docker-compose exec zitazi-php composer install --no-dev --optimize-autoloader
 
             echo "🧹 Running artisan migrate inside container..."
-            docker-compose exec php php artisan migrate --force
+            docker-compose exec zitazi-php php artisan migrate --force
 
             echo "🚀 Restarting Horizon inside container..."
-            docker-compose exec php php artisan horizon:terminate
+            docker-compose exec zitazi-horizon php artisan horizon:terminate
 
             echo "🧹 Cleaning unused Docker images and containers..."
             docker image prune -af
