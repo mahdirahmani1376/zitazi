@@ -312,3 +312,8 @@ Artisan::command('sync-torob', function () {
 
     \Illuminate\Support\Facades\Bus::batch($products)->name('sync-torob')->dispatch();
 });
+
+Artisan::command('test',function () {
+    \Illuminate\Support\Facades\Cache::set('test','test');
+   \Illuminate\Support\Facades\Schema::getTables();
+});

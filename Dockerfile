@@ -5,21 +5,30 @@ RUN apt-get update && apt-get install -y \
     unzip \
     libsqlite3-dev \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_sqlite
+    libzip-dev \
+    zip \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip gd pcntl
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+RUN docker-php-ext-enable redis
 
-RUN pecl install redis && docker-php-ext-enable redis
+RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
+RUN docker-php-ext-configure pcntl --enable-pcntl
+
 
 COPY ./php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 COPY ./src /var/www/html
 
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 
 EXPOSE 9000
 

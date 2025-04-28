@@ -27,5 +27,5 @@ src/zitazi.sql
 src/zitazi.sql:Zone.Identifier
 src/_ide_helper.php
 src/package.xml
-.redis/
-.mysql/
+redis/
+mysql/
