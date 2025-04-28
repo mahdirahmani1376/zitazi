@@ -21,14 +21,10 @@ RUN docker-php-ext-enable redis
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
 RUN docker-php-ext-configure pcntl --enable-pcntl
 
-
-COPY ./php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
 COPY ./src /var/www/html
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
 
 EXPOSE 9000
 

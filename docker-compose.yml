@@ -9,7 +9,6 @@ services:
         GROUP_ID: ${GID}
     volumes:
       - ./src:/var/www/html
-      - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     networks:
       - app-network
     environment:
