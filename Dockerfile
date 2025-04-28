@@ -1,5 +1,7 @@
 FROM php:8.3-fpm
 
+USER root
+
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
