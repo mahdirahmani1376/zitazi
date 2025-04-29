@@ -17,6 +17,11 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product): void
     {
+        if (Cache::get(Product::TOROB_LOCK_FOR_UPDATE)) {
+            Log::error("skipping-torob-update-{$product->id}");
+            return;
+        };
+
         try {
             $headers = [
                 'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:137.0) Gecko/20100101 Firefox/137.0',
@@ -27,7 +32,8 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
             sleep(rand(5, 8));
 
             if ($responseTorob->status() != 200) {
-                throw UnProcessableResponseException::make('torob-ban');
+                $this->LogResponseAndSetLockCache($responseTorob);
+                return;
             } else {
                 $responseData = $this->parseResponse($responseTorob);
                 $this->processDataForProduct($product, $responseData);
@@ -148,5 +154,13 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
     public function supports(Product $product): bool
     {
         return $product->belongsToTorob();
+    }
+
+    private function LogResponseAndSetLockCache(Response $responseTorob): void
+    {
+        Log::error('torob-api-failed', [
+            'body' => $responseTorob->body(),
+        ]);
+        Cache::set(Product::TOROB_LOCK_FOR_UPDATE, true, now()->addDay());
     }
 }

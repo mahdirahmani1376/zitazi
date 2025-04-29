@@ -70,13 +70,11 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
 
         $this->updateAndLogProduct($product, $data);
 
-        if (!$product->belongsToIran() || Cache::get(Product::TOROB_LOCK_FOR_UPDATE)) {
-            $updateData = ZitaziUpdateDTO::createFromArray([
-                'price' => $rialPrice,
-                'stock_quantity' => $stock,
-            ]);
-            $this->syncProductWithZitazi($product, $updateData);
-        }
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'price' => $rialPrice,
+            'stock_quantity' => $stock,
+        ]);
+        $this->syncProductWithZitazi($product, $updateData);
     }
 
     public function supports(Product $product): bool
