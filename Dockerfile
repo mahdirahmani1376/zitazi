@@ -27,8 +27,8 @@ RUN docker-php-ext-configure pcntl --enable-pcntl
 
 COPY ./src /var/www/html
 
-RUN chown -R www-data:www-data /var/www/zitazi/src/storage /var/www/zitazi/src/bootstrap/cache \
-    && chmod -R 775 /var/www/zitazi/src/storage /var/www/zitazi/src/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 9000
 
