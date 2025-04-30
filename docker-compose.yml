@@ -1,0 +1,73 @@
+services:
+  php:
+    image: php:8.3-fpm
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - app-network
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+    container_name: zitazi-php
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - app-network
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+    container_name: zitazi-nginx
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - app-network
+    container_name: zitazi-mysql
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis:/data
+    networks:
+      - app-network
+    container_name: zitazi-redis
+
+  horizon:
+    image: php:8.3-fpm
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+      - redis
+    command: php artisan horizon
+    container_name: zitazi-horizon
+
+volumes:
+  mysql:
+  redis:
+
+networks:
+  app-network:
+    driver: bridge
