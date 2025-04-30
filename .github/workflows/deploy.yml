@@ -32,6 +32,7 @@ jobs:
 
             echo "🐳 Rebuilding Docker containers..."
             docker compose down
+            docker compose up -d
 
             echo "📦 Running composer install inside container..."
             docker compose exec zitazi-php composer install --no-dev --optimize-autoloader
