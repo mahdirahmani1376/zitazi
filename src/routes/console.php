@@ -317,3 +317,18 @@ Artisan::command('test',function () {
     \Illuminate\Support\Facades\Cache::set('test','test');
    \Illuminate\Support\Facades\Schema::getTables();
 });
+
+Artisan::command('test-matilda', function () {
+    $response = app(\App\Actions\SendHttpRequestAction::class)('get', 'https://matiilda.com/product/figure-joytoy-world-war-ii-65748/');
+
+    $crawler = new Crawler($response);
+
+    $dom = $crawler->filter('script[type="application/ld+json"]')->first();
+
+    if ($dom->count() > 0) {
+        $data = json_decode($dom->text(), true);
+        $price = data_get($data, '@graph.4.offers.price', 0) / 10;
+        $stock = data_get($data, '@graph.4.offers.availability', 'https://schema.org/OutOfStock');
+    }
+
+});
