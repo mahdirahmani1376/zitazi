@@ -22,8 +22,6 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-RUN docker-php-ext-enable redis
-
 RUN docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
 RUN docker-php-ext-configure pcntl --enable-pcntl
 
