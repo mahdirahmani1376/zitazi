@@ -38,7 +38,7 @@ class BaseVariationCrawler
         }
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
-        if ($dto->stock_quantity > 0 || $dto->price > 0) {
+        if ($dto->stock_quantity > 0) {
             $stockStatus = ZitaziUpdateDTO::IN_STOCK;
         }
 
