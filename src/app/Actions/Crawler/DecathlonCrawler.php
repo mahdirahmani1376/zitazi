@@ -54,7 +54,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 
         $price = (int)str_replace(',', '.', trim($variation['price']));
         $rialPrice = $this->rate * $price;
-        $rialPrice = $rialPrice * 1.6;
+        $rialPrice = $rialPrice * $this->getProfitRatioForVariation($variation);
 
         $rialPrice = floor($rialPrice / 10000) * 10000;
 

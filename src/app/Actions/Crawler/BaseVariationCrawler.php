@@ -5,6 +5,7 @@ namespace App\Actions\Crawler;
 use App\Actions\SendHttpRequestAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
+use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
@@ -29,6 +30,15 @@ class BaseVariationCrawler
     public static function crawlVariation(Variation $variation): void
     {
         app(DecathlonCrawler::class)->crawl($variation);
+    }
+
+    protected function getProfitRatioForVariation(Variation $variation): float|int
+    {
+        if (!empty($variation->product->markup)) {
+            return 1 + ($variation->product->markup / 100);
+        }
+
+        return 1.6;
     }
 
     protected function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
