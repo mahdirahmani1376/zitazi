@@ -48,4 +48,38 @@ class SendHttpRequestAction
 
         return $response->body();
     }
+
+    public function sendTorobRequest($url)
+    {
+        $agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15',
+            'Mozilla/5.0 (Linux; Android 11; SM-A505F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36',
+        ];
+
+        $headers = [
+            'User-Agent' => $agents[array_rand($agents)],
+            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Connection' => 'keep-alive',
+            'Referer' => 'https://torob.com/', // if you're scraping internal links,
+            'Accept-Encoding' => 'gzip, deflate, br',
+        ];
+
+        $urlMd5 = md5($url);
+
+        if ($response = Cache::get($urlMd5)) {
+            return $response;
+        }
+
+        /** @var Response $response */
+        $response = Http::withHeaders($headers)->get($url);
+        if ($response->status() === \Symfony\Component\HttpFoundation\Response::HTTP_OK) {
+            Cache::put($urlMd5, $response->body(), now()->addDay());
+        } else {
+            throw UnProcessableResponseException::make("error-in-url-$url");
+        }
+
+        return $response->body();
+    }
 }
