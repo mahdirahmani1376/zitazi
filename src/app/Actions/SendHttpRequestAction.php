@@ -77,7 +77,7 @@ class SendHttpRequestAction
         if ($response->status() === \Symfony\Component\HttpFoundation\Response::HTTP_OK) {
             Cache::put($urlMd5, $response->body(), now()->addDay());
         } else {
-            throw UnProcessableResponseException::make("error-in-url-$url");
+            throw UnProcessableResponseException::make("torob-ban");
         }
 
         return $response->body();

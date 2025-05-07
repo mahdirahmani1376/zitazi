@@ -154,7 +154,7 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 
     private function LogResponseAndSetLockCache(Response $responseTorob): void
     {
-        Log::error('torob-api-failed', [
+        Log::error('torob-api-banned', [
             'body' => $responseTorob->body(),
         ]);
         Cache::set(Product::TOROB_LOCK_FOR_UPDATE, true, now()->addDay());
