@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Bus\Batchable;
@@ -22,7 +23,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     public function __construct(
         private readonly Product $product,
-        private $rate)
+    )
     {
     }
 
@@ -76,7 +77,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             }
 
             $price = (int)str_replace(',', '.', trim($variation['price']));
-            $rialPrice = $this->rate * $price;
+            $rialPrice = Currency::syncTryRate() * $price;
             $rialPrice = $rialPrice * 1.6;
 
             $rialPrice = floor($rialPrice / 10000) * 10000;

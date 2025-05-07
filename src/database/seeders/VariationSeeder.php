@@ -18,12 +18,10 @@ class VariationSeeder extends Seeder
     {
         $startTime = microtime(true);
 
-        $rate = Currency::syncTryRate();
-
         $jobs = Product::query()
             ->whereNot('decathlon_url', '=', '')
             ->get()
-            ->map(fn($product) => new SeedVariationsForProductJob($product, $rate));
+            ->map(fn($product) => new SeedVariationsForProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {
