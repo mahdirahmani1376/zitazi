@@ -39,7 +39,7 @@ class UpdateJob implements ShouldQueue
         Artisan::call('db:seed');
         Artisan::call('app:sync-products');
         Artisan::call('app:sync-variations');
-        Artisan::call('app:sheet-report');
+//        Artisan::call('app:sheet-report');
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;
