@@ -42,11 +42,7 @@ class SendHttpRequestAction
 
         /** @var Response $response */
         $response = Http::withHeaders($headers)->$method($url);
-        if ($response->status() === \Symfony\Component\HttpFoundation\Response::HTTP_OK) {
-            Cache::put($urlMd5, $response->body(), now()->addDay());
-        } else {
-            throw UnProcessableResponseException::make("error-in-url-$url");
-        }
+        Cache::put($urlMd5, $response->body(), now()->addDay());
 
         return $response->body();
     }
