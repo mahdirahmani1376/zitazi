@@ -349,3 +349,15 @@ Artisan::command('test-digikala-cache', function () {
     app(\App\Actions\Crawler\DigikalaCrawler::class)->crawl($product);
     dump($product->getChanges());
 });
+
+Artisan::command('test-product-sync', function () {
+    $product = Product::query()
+        ->whereNot('digikala_source', '=', '')
+        ->whereNot('trendyol_source', '=', '')
+        ->where('decathlon_url', '=', '')
+        ->whereNot('digikala_source', '=', '')
+        ->first();
+
+    app(\App\Actions\Crawler\CrawlerManager::class)->crawl($product);
+    dump($product->getChanges());
+});
