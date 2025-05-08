@@ -358,6 +358,7 @@ Artisan::command('test-product-sync', function () {
         ->whereNot('digikala_source', '=', '')
         ->first();
 
+    dump($product->toArray());
     app(\App\Actions\Crawler\CrawlerManager::class)->crawl($product);
     dump($product->getChanges());
 });
