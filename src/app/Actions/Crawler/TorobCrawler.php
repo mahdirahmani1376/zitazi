@@ -17,46 +17,27 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product): void
     {
-        if (Cache::get(Product::TOROB_LOCK_FOR_UPDATE)) {
-            Log::error("skipping-torob-update-{$product->id}");
-            return;
-        };
-
         try {
-            $responseTorob = $this->sendHttpRequestAction->sendTorobRequest($product->torob_source);
+            $responseTorob = $this->sendHttpRequestAction->sendTorobRequest($product);
 
-            sleep(rand(5, 10));
-
-            if ($responseTorob->status() != 200) {
-                $this->LogResponseAndSetLockCache($responseTorob);
-                return;
-            } else {
-                $responseData = $this->parseResponse($responseTorob);
-                $this->processDataForProduct($product, $responseData);
-            }
+            $this->processDataForProduct($product, $responseTorob);
 
         } catch (\Exception $e) {
+            dump($e->getMessage());
             Log::error('error_torob_fetch' . $product->id, [
                 'error' => $e->getMessage(),
             ]);
         }
 
     }
-    private function parseResponse(Response $responseTorob): Collection
-    {
-        $responseTorob = $responseTorob->body();
-        $crawler = new Crawler($responseTorob);
-        $element = $crawler->filter('script#__NEXT_DATA__')->first();
-        if ($element->count() > 0) {
-            return collect(json_decode($element->text(), true));
-        } else {
-            throw UnProcessableResponseException::make('torob_parse_error');
-        }
-    }
 
     private function processDataForProduct(Product $product, $responseData): void
     {
-        $sellers = data_get($responseData, 'props.pageProps.baseProduct.products_info.result');
+        $sellers = data_get($responseData, 'products_info.result');
+        if (empty($sellers)) {
+            $this->LogResponseAndSetLockCache();
+            throw UnProcessableResponseException::make('torob-ban');
+        }
 
         if (!empty($sellers) && count($sellers) > 1) {
             $this->compareProductWithOtherSellers($sellers, $product);
@@ -152,11 +133,8 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
         return $product->belongsToTorob();
     }
 
-    private function LogResponseAndSetLockCache(Response $responseTorob): void
+    private function LogResponseAndSetLockCache(): void
     {
-        Log::error('torob-api-banned', [
-            'body' => $responseTorob->body(),
-        ]);
-        Cache::set(Product::TOROB_LOCK_FOR_UPDATE, true, now()->addDay());
+        Log::error('torob-api-banned');
     }
 }

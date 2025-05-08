@@ -310,9 +310,9 @@ Artisan::command('sync-torob', function () {
     \Illuminate\Support\Facades\Bus::batch($products)->name('sync-torob')->dispatch();
 });
 
-Artisan::command('test',function () {
-    \Illuminate\Support\Facades\Cache::set('test','test');
-   \Illuminate\Support\Facades\Schema::getTables();
+Artisan::command('test', function () {
+    \Illuminate\Support\Facades\Cache::set('test', 'test');
+    \Illuminate\Support\Facades\Schema::getTables();
 });
 
 Artisan::command('test-matilda', function () {
@@ -328,4 +328,24 @@ Artisan::command('test-matilda', function () {
         $stock = data_get($data, '@graph.4.offers.availability', 'https://schema.org/OutOfStock');
     }
 
+});
+
+Artisan::command('test-torob-cache', function () {
+    Cache::forget(Product::TOROB_LOCK_FOR_UPDATE);
+    $product = Product::query()->whereNot('torob_id', '=', '')->first();
+    Cache::forget($product->torob_id);
+    app(\App\Actions\Crawler\TorobCrawler::class)->crawl($product);
+    dump($product->getChanges());
+});
+
+Artisan::command('test-trendyol-cache', function () {
+    $product = Product::query()->whereNot('trendyol_source', '=', '')->first();
+    app(\App\Actions\Crawler\TrendyolCrawler::class)->crawl($product);
+    dump($product->getChanges());
+});
+
+Artisan::command('test-digikala-cache', function () {
+    $product = Product::query()->whereNot('digikala_source', '=', '')->first();
+    app(\App\Actions\Crawler\DigikalaCrawler::class)->crawl($product);
+    dump($product->getChanges());
 });

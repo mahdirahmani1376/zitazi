@@ -11,7 +11,7 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl(Product $product): void
     {
-        $response = ($this->sendHttpRequestAction)('get', $product->elele_source)->body();
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $product->elele_source);
 
         $price = null;
         $stock = 0;

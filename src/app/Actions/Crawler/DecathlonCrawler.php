@@ -82,7 +82,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 
     public function getVariationData(Variation $variation)
     {
-        $response = ($this->sendHttpRequestAction)('get', $variation->url)->body();
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->url);
 
         $element = 'script[type="application/ld+json"]';
 

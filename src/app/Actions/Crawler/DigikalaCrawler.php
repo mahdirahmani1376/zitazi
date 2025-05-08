@@ -14,7 +14,8 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
         $digikalaUrl = "https://api.digikala.com/v2/product/$product->digikala_source/";
 
         try {
-            $response = ($this->sendHttpRequestAction)('get', $digikalaUrl)->collect();
+            $response = $this->sendHttpRequestAction->sendWithCache('get', $digikalaUrl);
+            $response = collect($response);
 
             $variants = collect(data_get($response, 'data.product.variants'))
                 ->map(function ($item) {
@@ -72,6 +73,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
             );
 
         } catch (\Exception $e) {
+            dump($e->getMessage());
             Log::error('error_digi_fetch' . $product->id, [
                 'error' => $e->getMessage(),
             ]);

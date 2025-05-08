@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Exceptions\UnProcessableResponseException;
+use App\Models\Product;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -35,6 +36,7 @@ class SendHttpRequestAction
         $urlMd5 = md5($url);
 
         if ($response = Cache::get($urlMd5)) {
+            dump('cache-hit' . $urlMd5);
             return $response;
         }
 
@@ -49,7 +51,7 @@ class SendHttpRequestAction
         return $response->body();
     }
 
-    public function sendTorobRequest($url)
+    public function sendTorobRequest(Product $product)
     {
         $agents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -66,20 +68,25 @@ class SendHttpRequestAction
             'Accept-Encoding' => 'gzip, deflate, br',
         ];
 
-        $urlMd5 = md5($url);
+        $cacheKey = $product->torob_id;
 
-        if ($response = Cache::get($urlMd5)) {
+        if ($response = Cache::get($cacheKey)) {
             return $response;
         }
 
         /** @var Response $response */
-        $response = Http::withHeaders($headers)->get($url);
+        $url = env('CRAWLER_BASE_URL');
+        $body = [
+            'url' => $product->torob_id
+        ];
+
+        $response = Http::withHeaders($headers)->post($url, $body);
         if ($response->status() === \Symfony\Component\HttpFoundation\Response::HTTP_OK) {
-            Cache::put($urlMd5, $response->body(), now()->addDay());
+            Cache::put($cacheKey, $response->json(), now()->addDay());
         } else {
             throw UnProcessableResponseException::make("torob-ban");
         }
 
-        return $response->body();
+        return $response->json();
     }
 }

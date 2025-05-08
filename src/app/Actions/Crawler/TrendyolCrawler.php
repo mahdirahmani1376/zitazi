@@ -12,7 +12,8 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product)
     {
-        $response = ($this->sendHttpRequestAction)('get', $product->trendyol_source)->body();
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $product->trendyol_source);
+
         $crawler = new Crawler($response);
 
         $price = null;
