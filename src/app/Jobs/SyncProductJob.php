@@ -19,8 +19,6 @@ class SyncProductJob implements ShouldQueue
         public Product $product,
     ) {}
 
-    public $timeout = 3600;
-
     public function handle(): void
     {
         if ($this->batch()->cancelled()) {
