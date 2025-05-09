@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Jobs\SeedVariationsForProductJob;
-use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Seeder;
@@ -20,6 +19,7 @@ class VariationSeeder extends Seeder
 
         $jobs = Product::query()
             ->whereNot('decathlon_url', '=', '')
+            ->orWhereNot('trendyol_source', '=', '')
             ->get()
             ->map(fn($product) => new SeedVariationsForProductJob($product));
 
