@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\SyncVariationsJob;
+use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,12 @@ class SyncVariationCommand extends Command
         $jobs = Variation::query()
             ->where(function (Builder $query) {
                 $query
-                    ->whereNot('url', '=', '');
+                    ->whereNot('url', '=', '')
+                    ->where(function (Builder $query) {
+                        $query
+                            ->whereNotNull('own_id')
+                            ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
+                    });
             })
             ->get()
             ->map(function (Variation $variation) {
