@@ -36,6 +36,7 @@ class VariationExport implements FromCollection, WithHeadings, WithMapping
             'لینک تنوع',
             'موجودی',
             'سایز',
+            'رنگ',
             'برند',
             'منبع',
             'زمان آپدیت',
@@ -59,6 +60,7 @@ class VariationExport implements FromCollection, WithHeadings, WithMapping
             'stock' => $row->stock,
             'size' => $row->size,
             'brand' => $row->product?->brand,
+            'color' => $row->color,
             'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
         ];
