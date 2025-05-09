@@ -63,14 +63,13 @@ class Currency extends Model
         });
     }
 
-    public static function convertToRial($price, $profitRatio): int
+    public static function convertToRial($price, $profitRatio = 60): int
     {
         if (empty($profitRatio)) {
             $profitRatio = 60;
         }
 
         $profitRatio = 1 + ($profitRatio / 100);
-
 
         $rialPrice = static::syncTryRate() * $profitRatio * $price;
 
