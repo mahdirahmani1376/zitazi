@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\SendHttpRequestAction;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -20,17 +21,29 @@ class SeedVariationsForProductJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 2;
+    private SendHttpRequestAction $sendHttpRequestAction;
 
     public function __construct(
         private readonly Product $product,
     )
     {
+        $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
     }
 
     public function handle(): void
     {
         $product = $this->product;
 
+        if ($product->belongsToDecalthon()) {
+            $this->seedDecathlonVariations($product);
+        }
+        if ($product->belongsToTrendyol()) {
+            $this->seedTrendyolVariations($product);
+        }
+    }
+
+    private function seedDecathlonVariations(Product $product)
+    {
         $response = Http::withHeaders([
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
         ])->get($product->decathlon_url)->body();
@@ -117,6 +130,59 @@ class SeedVariationsForProductJob implements ShouldQueue
                 'rial_price' => $rialPrice,
                 'price' => $price,
                 'stock' => $stock,
+            ]);
+        }
+    }
+
+    private function seedTrendyolVariations(Product $product)
+    {
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $product->trendyol_source);
+
+        $crawler = new Crawler($response);
+
+        $dom = $crawler->filter('script[type="application/ld+json"]')->first();
+
+        $variants = [];
+
+        if ($dom->count() > 0) {
+            $data = json_decode($dom->text(), true);
+            if ($variantsData = data_get($data, 'hasVariant')) {
+                foreach ($variantsData as $variantData) {
+                    $variants[] = [
+                        'sku' => data_get($variantData, 'sku'),
+                        'color' => data_get($variantData, 'color'),
+                        'price' => data_get($variantData, 'offers.price'),
+                        'stock' => data_get($data, 'offers.availability'),
+                    ];
+                }
+            }
+
+
+            $variants[] = [
+                'sku' => data_get($data, 'sku'),
+                'color' => data_get($data, 'color'),
+                'price' => data_get($data, 'offers.price'),
+                'stock' => data_get($data, 'offers.availability'),
+            ];
+
+            // product.allVariants
+
+            foreach ($variants as &$variant) {
+                $variant['price'] = Currency::convertToRial($variant['price']);
+                $variant['stock'] = $variant['stock'] == 'https://schema.org/InStock' ? 88 : 0;
+            }
+
+
+        }
+
+        dd($variants);
+        foreach ($variants as $variant) {
+            Variation::updateOrCreate([
+                'sku' => $variant['sku']
+            ], [
+                'size' => $variant['color'],
+                'price' => $variant['price'],
+                'stock' => $variant['stock'],
             ]);
         }
     }
