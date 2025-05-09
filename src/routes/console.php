@@ -413,5 +413,5 @@ Artisan::command('test-trendyol-seed-variations', function () {
 });
 
 Artisan::command('test-trendyol-sync-variations', function () {
-    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::find(648)));
+    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::find(1650)));
 });
