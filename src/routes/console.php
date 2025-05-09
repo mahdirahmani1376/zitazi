@@ -330,6 +330,47 @@ Artisan::command('test-matilda', function () {
 
 });
 
+Artisan::command('test-trendyol-variation', function () {
+    $response = Http::get('https://www.trendyol.com/lightinghm/65-lt-konfor-serisi-ortopedik-askeri-taktik-dagci-kamp-trekking-seyahat-sirt-cantasi-siyah-p-34926487');
+
+    $crawler = new Crawler($response);
+
+    $dom = $crawler->filter('script[type="application/ld+json"]')->first();
+
+    $variants = [];
+
+    if ($dom->count() > 0) {
+        $data = json_decode($dom->text(), true);
+        if ($variantsData = data_get($data, 'hasVariant')) {
+            foreach ($variantsData as $variantData) {
+
+                $variants[] = [
+                    'sku' => data_get($variantData, 'sku'),
+                    'color' => data_get($variantData, 'color'),
+                    'price' => data_get($variantData, 'offers.price'),
+                    'stock' => data_get($data, 'offers.availability'),
+                ];
+            }
+        }
+
+
+        $variants[] = [
+            'sku' => data_get($data, 'sku'),
+            'color' => data_get($data, 'color'),
+            'price' => data_get($data, 'offers.price'),
+            'stock' => data_get($data, 'offers.availability'),
+        ];
+
+        foreach ($variants as &$variant) {
+            $variant['price'] = Currency::convertToRial($variant['price']);
+            $variant['stock'] = $variant['stock'] == 'https://schema.org/InStock' ? 88 : 0;
+        }
+
+        dd($variants);
+
+    }
+});
+
 Artisan::command('test-torob-cache', function () {
     Cache::forget(Product::TOROB_LOCK_FOR_UPDATE);
     $product = Product::query()->whereNot('torob_id', '=', '')->first();
@@ -361,4 +402,16 @@ Artisan::command('test-product-sync', function () {
     dump($product->toArray());
     app(\App\Actions\Crawler\CrawlerManager::class)->crawl($product);
     dump($product->getChanges());
+});
+
+Artisan::command('test-trendyol-seed-variations', function () {
+    $product = \App\Models\Product::find(32230);
+//    $product = \App\Models\Product::find(32228);
+//    $product = \App\Models\Product::find(28657);
+
+    \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
+});
+
+Artisan::command('test-trendyol-sync-variations', function () {
+    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::find(648)));
 });

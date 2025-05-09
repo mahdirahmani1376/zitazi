@@ -3,25 +3,17 @@
 namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
-use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
 
 class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl($product): void
     {
         try {
-            $responseTorob = $this->sendHttpRequestAction->sendTorobRequest($product);
-
-            $this->processDataForProduct($product, $responseTorob);
-
+            $this->compareProductWithOtherSellers($product);
         } catch (\Exception $e) {
             dump($e->getMessage());
             Log::error('error_torob_fetch' . $product->id, [
@@ -31,27 +23,10 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 
     }
 
-    private function processDataForProduct(Product $product, $responseData): void
+    private function compareProductWithOtherSellers(Product $product): void
     {
-        $sellers = data_get($responseData, 'products_info.result');
-        if (empty($sellers)) {
-            $this->LogResponseAndSetLockCache();
-            throw UnProcessableResponseException::make('torob-ban');
-        }
-
-        if (!empty($sellers) && count($sellers) > 1) {
-            $this->compareProductWithOtherSellers($sellers, $product);
-
-        } elseif ($product->isForeign()) {
-            $this->updateForeignProduct($product);
-        }
-
-    }
-
-    private function compareProductWithOtherSellers(mixed $sellers, Product $product): void
-    {
-        $zitaziTorobPrice = $this->getZitaziTorobPrice($sellers);
-        $torobMinPrice = $this->torobMinPrice($sellers);
+        $zitaziTorobPrice = $product->min_price;
+        $torobMinPrice = $product->rival_min_price;
 
         if ($product->belongsToTrendyol()) {
             $this->setMinPriceOfProductForTrendyol($product);
@@ -75,19 +50,6 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
             'price' => '' . $zitaziTorobPriceRecommend,
         ]));
     }
-
-    private function getZitaziTorobPrice(mixed $sellers): mixed
-    {
-        return collect($sellers)->firstWhere('shop_id', '=', 12259)['price'] ?? null;
-    }
-
-    private function torobMinPrice(mixed $sellers): mixed
-    {
-        return collect($sellers)->filter(function ($i) {
-            return data_get($i, 'shop_id') != 12259;
-        })->pluck('price')->filter(fn($p) => $p > 0)->min();
-    }
-
     private function setMinPriceOfProductForTrendyol(Product $product): void
     {
         $minPrice = $product->price * Currency::syncTryRate() * 1.2;
@@ -105,36 +67,11 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
             }
 
         }
-        $zitazi_torob_price_recommend = floor($zitazi_torob_price_recommend / 10000) * 10000;
-
-
-        return $zitazi_torob_price_recommend;
+        return floor($zitazi_torob_price_recommend / 10000) * 10000;
     }
-
-    private function updateForeignProduct(Product $product): void
-    {
-        $stock = 'outofstock';
-
-        if (!empty($product->stock) && $product->stock > 0) {
-            $stock = 'instock';
-        }
-
-        $updateData = [
-            'price' => '' . $product->rial_price,
-            'stock_quantity' => $product->stock,
-            'stock_status' => $stock,
-        ];
-
-        $this->syncProductWithZitazi($product, ZitaziUpdateDTO::createFromArray($updateData));
-    }
-
     public function supports(Product $product): bool
     {
-        return $product->belongsToTorob();
+        return !empty($product->rival_min_price);
     }
 
-    private function LogResponseAndSetLockCache(): void
-    {
-        Log::error('torob-api-banned');
-    }
 }

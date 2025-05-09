@@ -108,7 +108,8 @@
     <div class="menu sidebar">
         <h4 class="text-center">داشبرد</h4>
         <a href="{{ route('products.download') }}">دانلود تمامی محصولات</a>
-        <a href="{{ route('variations.download') }}">دانلود تنوع دکلتون</a>
+        <a href="{{ route('variations.download') }}">دانلود تمام تنوع ها</a>
+        <a href="{{ route('null-variations.download') }}">دانلود تنوع های لینک نشده</a>
         <a href="{{ route('sync-logs-download') }}">دانلود لاگ های برنامه</a>
         <a href="{{ route('products.update') }}">آپدیت محصولات</a>
         <a href="{{ route('products.compare') }}">صفحه مقایسه محصولات ترب و دیجی کالا</a>

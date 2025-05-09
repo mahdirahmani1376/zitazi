@@ -2,12 +2,13 @@
 
 namespace App\Exports;
 
+use App\Models\Product;
 use App\Models\Variation;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapping
+class VariationExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -16,6 +17,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
     {
         return Variation::with('product')
             ->orderBy('product_id')
+            ->whereNot('item_type', '=', Product::PRODUCT_UPDATE)
             ->get();
     }
 
@@ -35,6 +37,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
             'موجودی',
             'سایز',
             'برند',
+            'منبع',
             'زمان آپدیت',
         ];
     }
@@ -56,6 +59,7 @@ class DecathlonVariationExport implements FromCollection, WithHeadings, WithMapp
             'stock' => $row->stock,
             'size' => $row->size,
             'brand' => $row->product?->brand,
+            'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
         ];
     }

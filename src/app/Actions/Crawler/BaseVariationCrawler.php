@@ -29,7 +29,12 @@ class BaseVariationCrawler
 
     public static function crawlVariation(Variation $variation): void
     {
-        app(DecathlonCrawler::class)->crawl($variation);
+        if ($variation->product->belongsToDecalthon()) {
+            app(DecathlonCrawler::class)->crawl($variation);
+        }
+        if ($variation->product->belongsToTrendyol()) {
+            app(TrendyolVariationCrawler::class)->crawl($variation);
+        };
     }
 
     protected function getProfitRatioForVariation(Variation $variation): float|int
@@ -58,8 +63,16 @@ class BaseVariationCrawler
         $data['sale_price'] = null;
         $data['regular_price'] = '' . $dto->price;
 
+
+        if ($variation->item_type == Product::PRODUCT_UPDATE) {
+            $url = "products/{$variation->product->own_id}";
+        } elseif (!empty($variation->own_id)) {
+            $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
+        } else {
+            return;
+        }
         try {
-            $response = $this->woocommerce->post("products/{$variation->product->own_id}/variations/{$variation->own_id}", $data);
+            $response = $this->woocommerce->post($url, $data);
             Log::info(
                 "variation_update_{$variation->id}",
                 [

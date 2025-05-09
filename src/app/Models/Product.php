@@ -11,6 +11,11 @@ class Product extends Model
     use HasFactory;
 
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
+    public const SOURCE_TRENDYOL = 'trendyol';
+    public const SOURCE_DECATHLON = 'decathlon';
+    public const PRODUCT_UPDATE = 'product';
+    public const VARIATION_UPDATE = 'variation';
+
 
     public function belongsToTrendyol(): bool
     {

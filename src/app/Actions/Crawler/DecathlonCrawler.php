@@ -3,6 +3,7 @@
 namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Models\Currency;
 use App\Models\Variation;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
@@ -53,10 +54,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
 
         $price = (int)str_replace(',', '.', trim($variation['price']));
-        $rialPrice = $this->rate * $price;
-        $rialPrice = $rialPrice * $this->getProfitRatioForVariation($variation);
-
-        $rialPrice = floor($rialPrice / 10000) * 10000;
+        $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForVariation($variation));
 
         if (empty($price) || empty($rialPrice)) {
             $stock = 0;
@@ -124,10 +122,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
 
         $price = (int)str_replace(',', '.', trim($variation['price']));
-        $rialPrice = $this->rate * $price;
-        $rialPrice = $rialPrice * 1.6;
-
-        $rialPrice = floor($rialPrice / 10000) * 10000;
+        $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForVariation($variation));
 
         if (empty($price) || empty($rialPrice)) {
             $stock = 0;

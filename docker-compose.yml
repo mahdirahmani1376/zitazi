@@ -26,6 +26,8 @@ services:
     environment:
       - SERVER_NAME=${SERVER_NAME}
     container_name: zitazi-nginx
+    restart: unless-stopped
+
 
   mysql:
     image: mysql:8.0
@@ -38,6 +40,8 @@ services:
     networks:
       - app-network
     container_name: zitazi-mysql
+    restart: unless-stopped
+
 
   redis:
     image: redis:latest
@@ -48,6 +52,7 @@ services:
     networks:
       - app-network
     container_name: zitazi-redis
+    restart: unless-stopped
 
   horizon:
     image: php:8.3-fpm
@@ -63,6 +68,8 @@ services:
       - redis
     command: php artisan horizon
     container_name: zitazi-horizon
+    restart: unless-stopped
+
 
 volumes:
   mysql:

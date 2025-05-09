@@ -4,8 +4,8 @@ namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
+use App\Models\Currency;
 use App\Models\Product;
-use Illuminate\Support\Facades\Cache;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
@@ -28,9 +28,7 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
                     $json = json_decode('{' . $matches[0] . '}', true);
                     $price = $json['discountedPrice']['value'];
                     $price = (int)str_replace(',', '.', trim($price));
-                    $rialPrice = $this->rate * $price;
-                    $rialPrice = $rialPrice * $this->getProfitRatioForProduct($product);
-                    $rialPrice = floor($rialPrice / 10000) * 10000;
+                    $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForProduct($product));
                     break;
                 }
             }
@@ -68,6 +66,7 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
             'stock' => $stock,
             'rial_price' => $rialPrice,
         ];
+
 
         $this->updateAndLogProduct($product, $data);
 

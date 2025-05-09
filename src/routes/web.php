@@ -2,10 +2,11 @@
 
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
-use App\Exports\DecathlonVariationExport;
+use App\Exports\NullVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
+use App\Exports\VariationExport;
 use App\Imports\ImportDecathlonVariation;
 use App\Jobs\UpdateJob;
 use App\Models\Report;
@@ -84,8 +85,14 @@ Route::get('top-100', Top100Action::class)->name('top-100');
 Route::get('/variation-download', function () {
     $now = now()->toDateTimeString();
 
-    return Excel::download(new DecathlonVariationExport, "variations_{$now}.xlsx");
+    return Excel::download(new VariationExport, "variations_{$now}.xlsx");
 })->name('variations.download');
+
+Route::get('/null-variation-download', function () {
+    $now = now()->toDateTimeString();
+
+    return Excel::download(new NullVariationExport, "null_variations_{$now}.xlsx");
+})->name('null-variations.download');
 
 Route::get('/torob-products', function () {
     return view('torob-products', [

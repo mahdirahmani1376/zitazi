@@ -22,8 +22,7 @@ class SyncVariationCommand extends Command
         $jobs = Variation::query()
             ->where(function (Builder $query) {
                 $query
-                    ->whereNot('url', '=', '')
-                    ->whereNotNull('own_id');
+                    ->whereNot('url', '=', '');
             })
             ->get()
             ->map(function (Variation $variation) {

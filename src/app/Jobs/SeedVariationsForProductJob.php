@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\SendHttpRequestAction;
+use App\Actions\TrendyolParser;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -22,12 +23,14 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     public $tries = 2;
     private SendHttpRequestAction $sendHttpRequestAction;
+    private TrendyolParser $trendyolParser;
 
     public function __construct(
         private readonly Product $product,
     )
     {
         $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
+        $this->trendyolParser = app(TrendyolParser::class);
     }
 
     public function handle(): void
@@ -42,7 +45,7 @@ class SeedVariationsForProductJob implements ShouldQueue
         }
     }
 
-    private function seedDecathlonVariations(Product $product)
+    private function seedDecathlonVariations(Product $product): void
     {
         $response = Http::withHeaders([
             'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
@@ -67,7 +70,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'sku' => $offer['sku'] ?? null,
                     'price' => $offer['price'] ?? null,
                     'url' => $offer['url'] ?? null,
-                    'stock' => $stock ?? 0,
+                    'stock' => $stock,
                 ];
             }
         }
@@ -90,10 +93,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             }
 
             $price = (int)str_replace(',', '.', trim($variation['price']));
-            $rialPrice = Currency::syncTryRate() * $price;
-            $rialPrice = $rialPrice * 1.6;
-
-            $rialPrice = floor($rialPrice / 10000) * 10000;
+            $rialPrice = Currency::convertToRial($price, $product->markup);
 
             if (empty($price) || empty($rialPrice)) {
                 $stock = 0;
@@ -109,6 +109,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                 'stock' => $variation['stock'],
                 'size' => $variation['size'],
                 'rial_price' => $rialPrice,
+                'source' => Product::SOURCE_DECATHLON,
+                'item_type' => Product::VARIATION_UPDATE
             ];
 
             $variation = Variation::updateOrCreate([
@@ -134,56 +136,93 @@ class SeedVariationsForProductJob implements ShouldQueue
         }
     }
 
-    private function seedTrendyolVariations(Product $product)
+    private function seedTrendyolVariations(Product $product): void
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $product->trendyol_source);
 
         $crawler = new Crawler($response);
 
-        $dom = $crawler->filter('script[type="application/ld+json"]')->first();
+        $colors = $crawler->filter('script[type="application/ld+json"]')->first();
+        $json = json_decode($colors->text(), true);
 
-        $variants = [];
+        $colorVariants = data_get($json, 'hasVariant');
+        if (!empty($colorVariants)) {
+            $this->createMultiVariations($colorVariants, $product);
+        } else {
+            $this->createSingleVariation($response, $product);
+        }
+    }
 
-        if ($dom->count() > 0) {
-            $data = json_decode($dom->text(), true);
-            if ($variantsData = data_get($data, 'hasVariant')) {
-                foreach ($variantsData as $variantData) {
-                    $variants[] = [
-                        'sku' => data_get($variantData, 'sku'),
-                        'color' => data_get($variantData, 'color'),
-                        'price' => data_get($variantData, 'offers.price'),
-                        'stock' => data_get($data, 'offers.availability'),
-                    ];
-                }
-            }
+    private function createMultiVariations(mixed $colorVariants, Product $product): void
+    {
+        $variantsArray = [];
+        foreach ($colorVariants as $colorVariant) {
+            $sku = $colorVariant['sku'];
+            $url = $colorVariant['offers']['url'];
+            $color = $colorVariant['color'];
 
-
-            $variants[] = [
-                'sku' => data_get($data, 'sku'),
-                'color' => data_get($data, 'color'),
-                'price' => data_get($data, 'offers.price'),
-                'stock' => data_get($data, 'offers.availability'),
+            $data = $this->processMultiVariant($url);
+            $variantsArray[] = [
+                'url' => $url,
+                'sku' => $sku,
+                'color' => $color,
+                'data' => $data,
             ];
-
-            // product.allVariants
-
-            foreach ($variants as &$variant) {
-                $variant['price'] = Currency::convertToRial($variant['price']);
-                $variant['stock'] = $variant['stock'] == 'https://schema.org/InStock' ? 88 : 0;
-            }
-
-
         }
 
-        dd($variants);
-        foreach ($variants as $variant) {
-            Variation::updateOrCreate([
-                'sku' => $variant['sku']
+        foreach ($variantsArray as $variant) {
+            $variantSku = $variant['sku'];
+            $variantUrl = $variant['url'];
+            $variantColor = $variant['color'];
+
+            foreach ($variant['data'] as $item) {
+                $variation = Variation::updateOrCreate([
+                    'item_number' => $item['item_number']
+                ], [
+                    'size' => $item['size'],
+                    'price' => $item['price'],
+                    'rial_price' => Currency::convertToRial($item['price'], $product->markup),
+                    'stock' => $item['stock'],
+                    'barcode' => $item['barcode'],
+                    'color' => $variantColor,
+                    'url' => $variantUrl,
+                    'sku' => $variantSku,
+                    'product_id' => $product->id,
+                    'source' => Product::SOURCE_TRENDYOL,
+                    'item_type' => Product::VARIATION_UPDATE
+                ]);
+            }
+        }
+    }
+
+    private function createSingleVariation($response, Product $product): void
+    {
+        $variantsArray = $this->trendyolParser->parseSingleProductResponse($response);
+        foreach ($variantsArray['data'] as $item) {
+            $variation = Variation::updateOrCreate([
+                'item_number' => $item['item_number']
             ], [
-                'size' => $variant['color'],
-                'price' => $variant['price'],
-                'stock' => $variant['stock'],
+                'size' => $item['size'],
+                'price' => $item['price'],
+                'rial_price' => Currency::convertToRial($item['price'], $product->markup),
+                'stock' => $item['stock'],
+                'barcode' => $item['barcode'],
+                'color' => $variantsArray['color'],
+                'url' => $variantsArray['url'],
+                'sku' => $variantsArray['sku'],
+                'product_id' => $product->id,
+                'source' => Product::SOURCE_TRENDYOL,
+                'item_type' => $item['item_type']
             ]);
         }
     }
+
+    private function processMultiVariant(mixed $url): array
+    {
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $url);
+
+        return $this->trendyolParser->parseResponse($response);
+    }
+
+
 }

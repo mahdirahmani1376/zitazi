@@ -4,6 +4,7 @@ namespace App\Actions\Crawler;
 
 use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
+use App\Models\Currency;
 use App\Models\Product;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -27,8 +28,7 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
 
                 if (isset($matches[1])) {
                     $price = $matches[1];
-                    $rialPrice = $price * $this->getProfitRatioForProduct($product) * $this->rate;
-                    $rialPrice = floor($rialPrice / 10000) * 10000;
+                    $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForProduct($product));
                     break;
 
                 }
