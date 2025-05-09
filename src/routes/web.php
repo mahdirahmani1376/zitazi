@@ -3,6 +3,7 @@
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
 use App\Exports\NullVariationExport;
+use App\Exports\OutOfStockExport;
 use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
@@ -133,6 +134,10 @@ Route::get('redis-test', function () {
 
 Route::get('/sync-logs-download', function () {
     $now = now()->toDateTimeString();
-
     return Excel::download(new SyncLogExport, "sync_logs_{$now}.xlsx");
-})->name('sync-logs-download');
+})->name('sync-logs.download');
+
+Route::get('/out-of-stock-logs-download', function () {
+    $now = now()->toDateTimeString();
+    return Excel::download(new OutOfStockExport, "sync_logs_{$now}.xlsx");
+})->name('out-of-stock-logs.download');
