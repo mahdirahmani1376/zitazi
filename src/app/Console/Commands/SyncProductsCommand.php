@@ -7,7 +7,6 @@ use App\Jobs\SyncProductJob;
 use App\Models\Product;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
@@ -49,13 +48,8 @@ class SyncProductsCommand extends Command
         }
 
         $jobs = Product::query()
-            ->when(!empty(Cache::get(Product::TOROB_LOCK_FOR_UPDATE)), function (Builder $query) {
-                $query->whereNot(function (Builder $query) {
-                    $query
-                        ->where('torob_source', '!=', '')
-                        ->where('trendyol_source', '=', '');
-                });
-            })
+            ->where('trendyol_source', '=', '')
+            ->orWhere('decathlon_url', '=', '')
             ->get()
             ->map(fn($product) => new SyncProductJob($product));
 
