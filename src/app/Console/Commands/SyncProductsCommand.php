@@ -48,8 +48,6 @@ class SyncProductsCommand extends Command
         }
 
         $jobs = Product::query()
-            ->where('trendyol_source', '=', '')
-            ->orWhere('decathlon_url', '=', '')
             ->get()
             ->map(fn($product) => new SyncProductJob($product));
 
