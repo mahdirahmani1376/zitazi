@@ -28,7 +28,7 @@ class TrendyolCrawler extends BaseCrawler implements ProductAbstractCrawler
                     $json = json_decode('{' . $matches[0] . '}', true);
                     $price = $json['discountedPrice']['value'];
                     $price = (int)str_replace(',', '.', trim($price));
-                    $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForProduct($product));
+                    $rialPrice = Currency::convertToRial($rialPrice) * $product->getRatio();
                     break;
                 }
             }

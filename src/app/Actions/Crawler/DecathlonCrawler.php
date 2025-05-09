@@ -54,7 +54,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
 
         $price = (int)str_replace(',', '.', trim($variation['price']));
-        $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForVariation($variation));
+        $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
 
         if (empty($price) || empty($rialPrice)) {
             $stock = 0;
@@ -122,7 +122,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
 
         $price = (int)str_replace(',', '.', trim($variation['price']));
-        $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForVariation($variation));
+        $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
 
         if (empty($price) || empty($rialPrice)) {
             $stock = 0;

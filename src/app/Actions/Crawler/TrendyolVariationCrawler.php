@@ -23,7 +23,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
         $price = data_get($itemNumberData, $variation->item_number . '.price');
         $stock = data_get($itemNumberData, $variation->item_number . '.stock');
-        $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForVariation($variation));
+        $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
 
         if (empty($price)) {
             $stock = 0;

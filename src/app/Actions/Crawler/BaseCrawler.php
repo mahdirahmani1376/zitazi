@@ -29,15 +29,6 @@ class BaseCrawler
         $this->syncVariationAction = app(SyncVariationsActions::class);
     }
 
-    protected function getProfitRatioForProduct(Product $product): float|int
-    {
-        if (!empty($product->markup)) {
-            return 1 + ($product->markup / 100);
-        }
-
-        return 1.6;
-    }
-
     protected function syncProductWithZitazi(Product $product, ZitaziUpdateDTO $dto): void
     {
         if ($product->onPromotion()) {

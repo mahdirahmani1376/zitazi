@@ -55,4 +55,19 @@ class Variation extends Model
     {
         return $this->belongsTo(Product::class, 'trendyol_product_id');
     }
+
+    public function getRialPrice(): int
+    {
+        $profitRatio = 1.6;
+        if (!empty($this->product->markup)) {
+            $profitRatio = 1 + ($this->product->markup / 100);
+        }
+
+        $rialPrice = Currency::syncTryRate() * $profitRatio * $this->price;
+        $rialPrice = floor($rialPrice / 10000) * 10000;
+
+        return (int)$rialPrice;
+    }
+
+
 }

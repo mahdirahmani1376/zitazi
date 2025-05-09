@@ -90,4 +90,14 @@ class Product extends Model
     {
         return $this->promotion;
     }
+
+    public function getRatio()
+    {
+        $ratio = 1.6;
+        if (!empty($this->markup)) {
+            $ratio = 1 + ($this->markup / 100);
+        }
+
+        return $ratio;
+    }
 }

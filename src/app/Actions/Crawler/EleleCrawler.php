@@ -28,7 +28,7 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
 
                 if (isset($matches[1])) {
                     $price = $matches[1];
-                    $rialPrice = Currency::convertToRial($price, $this->getProfitRatioForProduct($product));
+                    $rialPrice = Currency::convertToRial($price) * $product->getRatio();
                     break;
 
                 }

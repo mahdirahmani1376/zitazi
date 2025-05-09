@@ -93,7 +93,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             }
 
             $price = (int)str_replace(',', '.', trim($variation['price']));
-            $rialPrice = Currency::convertToRial($price, $product->markup);
+            $rialPrice = Currency::convertToRial($price) * $product->getRatio();
 
             if (empty($price) || empty($rialPrice)) {
                 $stock = 0;
@@ -181,7 +181,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                 ], [
                     'size' => $item['size'],
                     'price' => $item['price'],
-                    'rial_price' => Currency::convertToRial($item['price'], $product->markup),
+                    'rial_price' => Currency::convertToRial($item['price']) * $product->getRatio(),
                     'stock' => $item['stock'],
                     'barcode' => $item['barcode'],
                     'color' => $variantColor,
@@ -204,7 +204,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             ], [
                 'size' => $item['size'],
                 'price' => $item['price'],
-                'rial_price' => Currency::convertToRial($item['price'], $product->markup),
+                'rial_price' => Currency::convertToRial($item['price']) * $product->getRatio(),
                 'stock' => $item['stock'],
                 'barcode' => $item['barcode'],
                 'color' => $variantsArray['color'],
