@@ -75,8 +75,13 @@ Route::get('dashboard', function () {
 });
 
 Route::get('/update-products', function () {
-    UpdateJob::dispatch();
+    if (Cache::has('special-link-lock')) {
+        return back()->with('success', 'آپدیت محصولات در حال انجام است');
+    }
 
+    Cache::put('special-link-lock', true, 3600 * 3);
+
+    UpdateJob::dispatch();
     return back()->with('success', 'آپدیت محصولات در حال انجام است');
 
 })->name('products.update');
