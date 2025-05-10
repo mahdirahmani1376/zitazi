@@ -30,6 +30,7 @@ class SyncVariationCommand extends Command
                             ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
                     });
             })
+            ->where('updated_at', '<', '2025-05-09 22:00:00')
             ->get()
             ->map(function (Variation $variation) {
                 return new SyncVariationsJob($variation);
