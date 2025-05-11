@@ -28,13 +28,14 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
 
     public function updateVariationFromRow(array $row)
     {
-        $result = Variation::updateOrCreate(
-            ['sku' => $row['شناسه تنوع دکلتون']],
-            [
-                'own_id' => $row['شناسه تنوع زیتازی'],
-                'trendyol_product_id' => $row['شناسه جایگزین ترندیول'],
-            ]
-        );
+        $result = Variation::where('own_id', $row['شناسه تنوع مرجع'])->first();
+
+        if (!empty($result)) {
+            $result->update([
+                'own_id' => $row['شناسه تنوع زیتازی']
+            ]);
+        }
+
 
         Log::info('product-import-update', [
             'before' => $result->getOriginal(),
@@ -56,13 +57,13 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
         $variationCheck = Variation::where([
             'own_id' => $row['شناسه تنوع زیتازی'],
         ])->whereNot([
-            'sku' => $row['شناسه تنوع دکلتون'],
+            'sku' => $row['شناسه تنوع مرجع'],
         ])->exists();
 
         if ($variationCheck) {
             $result = false;
             Session::push('import_errors', [
-                'message' => 'شناسه تنوع زیتازی تکراری است: ' . $row['شناسه تنوع دکلتون'],
+                'message' => 'شناسه تنوع زیتازی تکراری است: ' . $row['شناسه تنوع مرجع'],
             ]);
         }
 
