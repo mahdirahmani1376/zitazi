@@ -412,6 +412,6 @@ Artisan::command('test-trendyol-seed-variations', function () {
     \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
 });
 
-Artisan::command('test-trendyol-sync-variations', function () {
-    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::find(1650)));
+Artisan::command('test-trendyol-sync-variations {variation}', function (Variation $variation) {
+    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation($variation));
 });
