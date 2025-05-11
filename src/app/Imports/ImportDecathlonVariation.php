@@ -23,7 +23,7 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
 
     public function updateVariationFromRow(array $row)
     {
-        $result = Variation::where('own_id', $row['شناسه تنوع در وب سرویس'])->first();
+        $result = Variation::where('id', $row['شناسه تنوع در وب سرویس'])->first();
 
         if (!empty($result)) {
             $result->update([
