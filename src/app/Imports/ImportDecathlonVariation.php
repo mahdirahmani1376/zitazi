@@ -28,22 +28,22 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
 
     public function updateVariationFromRow(array $row)
     {
-        $result = Variation::where('own_id', $row['شناسه تنوع مرجع'])->first();
+        $result = Variation::where('own_id', $row['شناسه تنوع در وب سرویس'])->first();
 
         if (!empty($result)) {
             $result->update([
                 'own_id' => $row['شناسه تنوع زیتازی']
             ]);
+
+            Log::info('product-import-update', [
+                'before' => $result->getOriginal(),
+                'after' => $result->getChanges(),
+                'data' => $row,
+            ]);
+
+            return $result;
         }
 
-
-        Log::info('product-import-update', [
-            'before' => $result->getOriginal(),
-            'after' => $result->getChanges(),
-            'data' => $row,
-        ]);
-
-        return $result;
     }
 
     private function validate($row): bool
