@@ -83,7 +83,7 @@ class TrendyolParser
 
         return [
             'data' => $variantsArray,
-            'sku' => $schemaJson['sku'],
+            'sku' => $schemaJson['sku'] ?? null,
             'url' => data_get($schemaJson, 'offers.url'),
             'color' => $schemaJson['color'] ?? null,
         ];
