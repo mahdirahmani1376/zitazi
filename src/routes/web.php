@@ -146,3 +146,7 @@ Route::get('/out-of-stock-logs-download', function () {
     $now = now()->toDateTimeString();
     return Excel::download(new OutOfStockExport, "sync_logs_{$now}.xlsx");
 })->name('out-of-stock-logs.download');
+
+Horizon::auth(function () {
+    return true; // disables all auth checks
+});
