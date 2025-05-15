@@ -53,6 +53,12 @@ services:
       - app-network
     container_name: zitazi-redis
     restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   horizon:
     image: php:8.3-fpm
@@ -64,12 +70,13 @@ services:
     networks:
       - app-network
     depends_on:
-      - mysql
-      - redis
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_started
     command: php artisan horizon
     container_name: zitazi-horizon
     restart: unless-stopped
-
 
 volumes:
   mysql:
