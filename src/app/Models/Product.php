@@ -88,7 +88,7 @@ class Product extends Model
 
     public function onPromotion()
     {
-        return $this->promotion;
+        return $this->promotion == 1;
     }
 
     public function getRatio()
