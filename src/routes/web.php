@@ -9,7 +9,10 @@ use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
 use App\Exports\VariationExport;
 use App\Imports\ImportDecathlonVariation;
+use App\Jobs\SyncProductJob;
+use App\Jobs\SyncVariationsJob;
 use App\Jobs\UpdateJob;
+use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
 use Illuminate\Http\Request;
@@ -146,6 +149,23 @@ Route::get('/out-of-stock-logs-download', function () {
     $now = now()->toDateTimeString();
     return Excel::download(new OutOfStockExport, "sync_logs_{$now}.xlsx");
 })->name('out-of-stock-logs.download');
+
+Route::post('update-product', function (Request $request) {
+    $product = Product::with('variations')->where([
+        'own_id' => $request->get('own_id')
+    ])->firstOrFail();
+
+    if (!$product->has('variations')) {
+        SyncProductJob::dispatchSync($product);
+    } else {
+        foreach ($product->variations as $variation) {
+            SyncVariationsJob::dispatchSync($variation);
+        }
+    }
+
+    return back()->with('success', 'آپدیت محصول انجام شد');
+
+})->name('product.update');
 
 Horizon::auth(function () {
     return true; // disables all auth checks

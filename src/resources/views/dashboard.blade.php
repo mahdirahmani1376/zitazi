@@ -121,15 +121,28 @@
 
     <!-- Form (Left Side) -->
     <div class="form-container">
-        <h4 class="text-center mb-3">آپلود فایل اکسل</h4>
-        <form action="{{ route('variations.import') }}" method="post" enctype="multipart/form-data">
-            @csrf
-            <div class="mb-3">
-                <label for="file" class="form-label">انتخاب فایل:</label>
-                <input type="file" name="file" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-success">آپلود</button>
-        </form>
+        <div>
+            <h4 class="text-center mb-3">آپلود فایل اکسل</h4>
+            <form action="{{ route('variations.import') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="file" class="form-label">انتخاب فایل:</label>
+                    <input type="file" name="file" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">آپلود</button>
+            </form>
+        </div>
+        <div>
+            <h4 class="text-center mb-3">بروزرسانی محصول</h4>
+            <form action="{{ route('product.update') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="file" class="form-label">شناسه ووکامرس</label>
+                    <input type="text" name="own_id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">آپدیت</button>
+            </form>
+        </div>
     </div>
 </div>
 

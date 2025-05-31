@@ -71,6 +71,7 @@ class BaseVariationCrawler
         } else {
             return;
         }
+
         try {
             $response = $this->woocommerce->post($url, $data);
             Log::info(
