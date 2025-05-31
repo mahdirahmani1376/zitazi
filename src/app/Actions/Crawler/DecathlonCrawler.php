@@ -26,7 +26,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             $productId = data_get($data, 'productID');
             $offers = collect($data->get('offers'))->collapse();
             foreach ($offers as $offer) {
-                $variationStock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+                $variationStock = data_get($offer, 'availability') == 'https://schema.org/InStock' ? 88 : 0;
                 $variations[] = [
                     'product_id' => $productId,
                     'sku' => $offer['sku'] ?? null,
