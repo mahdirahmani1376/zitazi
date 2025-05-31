@@ -164,8 +164,12 @@ Route::post('update-product', function (Request $request) {
     }
 
     return back()->with('success', 'آپدیت محصول انجام شد');
-
 })->name('product.update');
+
+Route::post('seed-products', function () {
+    \App\Jobs\SeedJob::dispatch();
+    return back()->with('success', 'بازخوانی محصولات در حال انجام است');
+})->name('products.seed');
 
 Horizon::auth(function () {
     return true; // disables all auth checks

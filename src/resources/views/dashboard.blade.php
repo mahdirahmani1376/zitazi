@@ -143,6 +143,13 @@
                 <button type="submit" class="btn btn-success">آپدیت</button>
             </form>
         </div>
+        <div>
+            <h4 class="text-center mb-3">باز خوانی محصولات از شیت</h4>
+            <form action="{{ route('products.seed') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <button type="submit" class="btn btn-success">آپدیت</button>
+            </form>
+        </div>
     </div>
 </div>
 
