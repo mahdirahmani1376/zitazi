@@ -133,7 +133,7 @@
             </form>
         </div>
         <div>
-            <h4 class="text-center mb-3">بروزرسانی محصول</h4>
+            <h4 class="text-center mb-3">بروز رسانی محصول</h4>
             <form action="{{ route('product.update') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
