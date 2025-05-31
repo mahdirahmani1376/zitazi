@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class TrendyolParser
@@ -39,20 +40,27 @@ class TrendyolParser
         return $variantsArray;
     }
 
-    public function parseSingleProductResponse($response): array
+    public function parseVariationTypeVariationResponse($response): array
     {
         $variantsArray = [];
         $crawler = new Crawler($response);
 
         $schema = $crawler->filter('script[type="application/ld+json"]')->first();
-        $schemaJson = json_decode($schema->text(), true);
+        try {
+            $schemaJson = json_decode($schema->text(), true);
+        } catch (\Exception $e) {
+            dump($e);
+            Log::error('json_parse_error', [
+                'e' => $e
+            ]);
+            $schemaJson = null;
+        }
 
         foreach (range(2, 5) as $i) {
             $allVariantsElement = $crawler->filter("body > script:nth-child($i)")->first();
             if ($allVariantsElement->count() > 0) {
                 $pattern = '/"allVariants"\s*:\s*(\[\s*\{.*?\}\s*\])/s';
                 preg_match($pattern, $allVariantsElement->text(), $matches);
-
                 preg_match('/price"\s*:\s*(\{.*?\})/', $allVariantsElement->text(), $priceMatches);
                 $defaultPrice = null;
                 if (!empty($priceMatches[1])) {
@@ -88,4 +96,36 @@ class TrendyolParser
             'color' => $schemaJson['color'] ?? null,
         ];
     }
+
+    public function parseVariationTypeProductResponse($response): array
+    {
+        $price = null;
+
+        $crawler = new Crawler($response);
+
+        foreach (range(2, 5) as $i) {
+            $priceElement = $crawler->filter("body > script:nth-child($i)")->first();
+            if ($priceElement->count() > 0) {
+                $pattern = '/"discountedPrice"\s*:\s*\{.*?\}/';
+                $price = preg_match($pattern, $priceElement->text(), $matches);
+                if ($matches) {
+                    $json = json_decode('{' . $matches[0] . '}', true);
+                    $price = $json['discountedPrice']['value'];
+                    $price = (int)str_replace(',', '.', trim($price));
+                    break;
+                }
+            }
+        }
+
+        $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
+        if ($stock->count() > 0) {
+            $stock = 88;
+        } else {
+            $stock = 0;
+        }
+
+        return [$price, $stock];
+    }
+
+
 }
