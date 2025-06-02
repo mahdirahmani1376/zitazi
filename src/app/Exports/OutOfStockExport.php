@@ -32,6 +32,8 @@ class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
             'new_price',
             'product_own_id',
             'variation_own_id',
+            'نام محصول',
+            'برند',
             'created_at',
             'updated_at',
 
@@ -52,10 +54,10 @@ class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
             'new_price' => $row->new_price,
             'product_own_id' => $row->product_own_id,
             'variation_own_id' => $row->variation_own_id,
-            'created_at' => $row->created_at->toDateTimeString(),
-            'updated_at' => $row->updated_at?->toDateTimestring(),
             'product_name' => $product?->product_name,
             'brand' => $product?->brand,
+            'created_at' => $row->created_at->toDateTimeString(),
+            'updated_at' => $row->updated_at?->toDateTimestring(),
         ];
     }
 }
