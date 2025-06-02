@@ -13,6 +13,7 @@ class Product extends Model
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
     public const SOURCE_TRENDYOL = 'trendyol';
     public const SOURCE_DECATHLON = 'decathlon';
+    public const SOURCE_AMAZON = 'amazon';
     public const PRODUCT_UPDATE = 'product';
     public const VARIATION_UPDATE = 'variation';
 
@@ -74,6 +75,11 @@ class Product extends Model
     public function belongsToDecalthon()
     {
         return !empty($this->decathlon_url);
+    }
+
+    public function belongsToAmazon()
+    {
+        return !empty($this->amazon_source);
     }
 
     public function decathlonVariation(): HasOne

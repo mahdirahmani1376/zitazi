@@ -41,6 +41,8 @@ class SeedVariationsForProductJob implements ShouldQueue
             $this->seedDecathlonVariations($product);
         } else if ($product->belongsToTrendyol()) {
             $this->seedTrendyolVariations($product);
+        } else if ($product->belongsToAmazon()) {
+            $this->seedAmazonVariations($product);
         }
     }
 
@@ -221,6 +223,16 @@ class SeedVariationsForProductJob implements ShouldQueue
         $response = $this->sendHttpRequestAction->sendWithCache('get', $url);
 
         return $this->trendyolParser->parseResponse($response);
+    }
+
+    private function seedAmazonVariations(Product $product): void
+    {
+        Variation::updateOrCreate([
+            'url' => $product->amazon_source,
+            'source' => Product::SOURCE_AMAZON,
+            'product_id' => $product->id,
+            'sku' => $product->amazon_source
+        ]);
     }
 
 

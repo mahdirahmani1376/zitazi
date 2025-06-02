@@ -417,7 +417,10 @@ Artisan::command('test-trendyol-sync-variations {variation}', function ($variati
 });
 
 Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
-    $response = $sendHttpRequestAction->sendAmazonRequest('https://www.amazon.ae/dp/B09NLFPD4Q');
+    $url = 'https://www.amazon.ae/dp/B09NLFPD4Q';
+
+    dd(str_split($url, '/'));
+    $response = $sendHttpRequestAction->sendAmazonRequest($url);
     $c = new Crawler($response);
 
     $priceData = $c->filter('div.twister-plus-buying-options-price-data')->first();

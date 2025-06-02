@@ -60,6 +60,8 @@ class ProductSeeder extends Seeder
                     'decathlon_url' => data_get($value, 'Decathlon_link'),
                     'decathlon_id' => data_get($value, 'decathlon_id'),
                     'elele_source' => data_get($value, 'Elele_link'),
+                    'matilda_source' => data_get($value, 'matilda_source'),
+                    'amazon_source' => !empty($value) ? data_get(explode('/', data_get($value, 'amazon_source')), 4) : null,
                     'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
                     'updated_at' => now()->toDateString(),
                 ];
