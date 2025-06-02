@@ -31,8 +31,7 @@ class BaseVariationCrawler
     {
         if ($variation->product->belongsToDecalthon()) {
             app(DecathlonCrawler::class)->crawl($variation);
-        }
-        if ($variation->product->belongsToTrendyol()) {
+        } else if ($variation->product->belongsToTrendyol()) {
             app(TrendyolVariationCrawler::class)->crawl($variation);
         };
     }

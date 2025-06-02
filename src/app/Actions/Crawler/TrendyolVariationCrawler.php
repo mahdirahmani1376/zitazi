@@ -41,7 +41,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         $this->syncZitazi($variation, $updateData);
     }
 
-    private function getVariationTypeVariationData($variation)
+    private function getVariationTypeVariationData(Variation $variation)
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->url);
 
