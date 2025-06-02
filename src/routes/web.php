@@ -171,14 +171,7 @@ Route::post('seed-products', function () {
     return back()->with('success', 'بازخوانی محصولات در حال انجام است');
 })->name('products.seed');
 
-Route::get('amazon-list', function () {
-    return \Illuminate\Support\Facades\Response::json([
-        'data' => [
-            'https://www.amazon.ae/dp/B09NLFPD4Q',
-            'https://www.amazon.ae/dp/B09HL1JM1N'
-        ]
-    ]);
-});
+
 Horizon::auth(function () {
     return true; // disables all auth checks
 });

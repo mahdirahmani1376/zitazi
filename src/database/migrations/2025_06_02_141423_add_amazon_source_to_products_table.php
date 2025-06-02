@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->string('amazon_source')->nullable();
+            $table->string('amazon_source')->after('matilda_source')->nullable();
         });
     }
 

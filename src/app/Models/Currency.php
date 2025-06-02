@@ -69,4 +69,41 @@ class Currency extends Model
 
         return floor($rialPrice / 10000) * 10000;
     }
+
+    public static function syncDirhamTryRate()
+    {
+        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
+
+        return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
+            try {
+                $response = Http::acceptJson()->withQueryParameters([
+                    'api_key' => env('NAVASAN_KEY'),
+                ])->get('http://api.navasan.tech/latest')->json();
+
+                $rate = data_get($response, 'aed.value');
+
+                if (empty($rate)) {
+                    $rate = static::lastTryRate() ?? 2400;
+                } else {
+                    static::create([
+                        'rate' => $rate,
+                        'name' => 'try',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+                $rate = static::lastTryRate() ?? 2400;
+            }
+
+            return $rate;
+        });
+    }
+
+    public static function convertDirhamToRial($price): int
+    {
+        $rialPrice = static::syncDirhamTryRate() * $price;
+
+        return floor($rialPrice / 10000) * 10000;
+    }
+
 }

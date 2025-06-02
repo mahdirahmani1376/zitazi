@@ -45,7 +45,7 @@ class BaseVariationCrawler
         return 1.6;
     }
 
-    protected function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
+    public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
         if ($variation->product?->onPromotion()) {
             return;
@@ -107,7 +107,7 @@ class BaseVariationCrawler
 
     }
 
-    protected function updateVariationAndLog(Variation $variation, $data): void
+    public function updateVariationAndLog(Variation $variation, $data): void
     {
         $oldStock = $variation->stock;
         $oldPrice = $variation->rial_price;
