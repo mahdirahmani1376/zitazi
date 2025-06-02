@@ -415,3 +415,19 @@ Artisan::command('test-trendyol-seed-variations', function () {
 Artisan::command('test-trendyol-sync-variations {variation}', function ($variation) {
     app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::findOrFail($variation)));
 });
+
+Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
+    $response = $sendHttpRequestAction->sendAmazonRequest('https://www.amazon.ae/dp/B09NLFPD4Q');
+    $c = new Crawler($response);
+
+    $priceData = $c->filter('div.twister-plus-buying-options-price-data')->first();
+    $priceData = json_decode($priceData->text(), true);
+    $price = (int)$priceData['desktop_buybox_group_1'][0]['priceAmount'];
+    $stockElement = $c->filter('div#outOfStock');
+
+    if ($stockElement->count()) {
+        $stock = 0;
+    } else $stock = 88;
+
+    dd($price, $stock);
+});
