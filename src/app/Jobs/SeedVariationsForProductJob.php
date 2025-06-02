@@ -231,7 +231,8 @@ class SeedVariationsForProductJob implements ShouldQueue
             'url' => $product->amazon_source,
             'source' => Product::SOURCE_AMAZON,
             'product_id' => $product->id,
-            'sku' => $product->amazon_source
+            'sku' => $product->amazon_source,
+            'item_type' => Product::PRODUCT_UPDATE
         ]);
     }
 
