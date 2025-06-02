@@ -42,6 +42,8 @@ class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
     public function map($row): array
     {
         /** @var SyncLog $row */
+
+        $product = $row->product();
         return [
             'id' => $row->id,
             'old_stock' => $row->old_stock,
@@ -52,19 +54,8 @@ class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
             'variation_own_id' => $row->variation_own_id,
             'created_at' => $row->created_at->toDateTimeString(),
             'updated_at' => $row->updated_at?->toDateTimestring(),
-
-//            'product_name' => $row->product->product_name,
-//            'zitazi_product_id' => $row->product->own_id,
-//            'zitazi_variation_id' => $row->own_id,
-//            'sku' => $row->sku,
-//            'price' => $row->price,
-//            'rial_price' => $row->rial_price,
-//            'url' => $row->url,
-//            'stock' => $row->stock,
-//            'size' => $row->size,
-//            'color' => $row->color,
-//            'brand' => $row->product?->brand,
-//            'source' => $row->source,
+            'product_name' => $product?->product_name,
+            'brand' => $product?->brand,
         ];
     }
 }
