@@ -14,37 +14,19 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $product->elele_source);
 
-        $price = null;
-        $stock = 0;
-        $rialPrice = null;
+        $element = 'script[type="application/ld+json"]';
 
         $crawler = new Crawler($response);
+        $dom = $crawler->filter($element)->first();
 
-        foreach (range(2, 5) as $i) {
-            $dom = $crawler->filter("#formGlobal > script:nth-child($i)")->first();
-
-            if ($dom->count() > 0) {
-                preg_match('/"productPriceKDVIncluded":([0-9]+\.[0-9]+)/', $dom->text(), $matches);
-
-                if (isset($matches[1])) {
-                    $price = $matches[1];
-                    $rialPrice = Currency::convertToRial($price) * $product->getRatio();
-                    break;
-
-                }
-            }
-
-            $stockElement = 'input.Addtobasket.button.btnAddBasketOnDetail';
-            $stockResult = $crawler->filter($stockElement)->first();
-            $stock = 0;
-            if ($stockResult->count() > 0) {
-                $stock = 88;
-            }
-        }
-
+        $data = json_decode($dom->text(), true);
+        $price = data_get($data, 'offers.price');
         if (empty($price)) {
             throw UnProcessableResponseException::make("elele_parse_error_product:{$product->id}");
         }
+
+        $rialPrice = Currency::convertToRial($price) * $product->getRatio();
+        $stock = data_get($data, 'offers.availability') == 'InStock' ? 88 : 0;
 
         $data = [
             'price' => $price,
