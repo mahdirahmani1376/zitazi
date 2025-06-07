@@ -52,7 +52,7 @@ class SyncChunkProductsWithZitaziJob implements ShouldQueue
                     $price = $response['price'];
                 }
 
-                $stock = $response['stock_status'] == 'instock' ? 5 : 0;
+                $stock = data_get($response, 'stock_status', null) == 'instock' ? 5 : 0;
                 $results[] = [
                     'own_id' => (int)$response['id'],
                     'rial_price' => $price,
