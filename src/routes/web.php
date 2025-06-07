@@ -15,6 +15,7 @@ use App\Jobs\UpdateJob;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
+use Database\Seeders\ProductSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -159,6 +160,18 @@ Route::post('update-product', function (Request $request) {
         SyncProductJob::dispatchSync($product);
     } else {
         foreach ($product->variations as $variation) {
+            if ($variation->type === Product::PRODUCT_UPDATE) {
+                if ($product->belongsToTrendyol()) {
+                    $variation->update([
+                        'url' => $product->trendyol_source
+                    ]);
+                } else if ($product->belongsToDecalthon()) {
+                    $variation->update([
+                        'url' => $product->decathlon_url
+                    ]);
+                }
+
+            }
             SyncVariationsJob::dispatchSync($variation);
         }
     }
@@ -167,7 +180,7 @@ Route::post('update-product', function (Request $request) {
 })->name('product.update');
 
 Route::post('seed-products', function () {
-    \App\Jobs\SeedJob::dispatch();
+    app(ProductSeeder::class)->seedProducts();
     return back()->with('success', 'بازخوانی محصولات در حال انجام است');
 })->name('products.seed');
 
