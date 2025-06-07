@@ -43,7 +43,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
     private function getVariationTypeVariationData(Variation $variation)
     {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->url);
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->product->trendyol_source);
 
         $data = app(TrendyolParser::class)->parseVariationTypeVariationResponse($response);
 
@@ -61,7 +61,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
     private function getVariationTypeProductData(Variation $variation)
     {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->url);
+        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->product->trendyol_source);
 
         return app(TrendyolParser::class)->parseVariationTypeProductResponse($response);
     }
