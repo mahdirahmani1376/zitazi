@@ -434,3 +434,7 @@ Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $se
 
     dd($price, $stock);
 });
+
+Artisan::command('elle-crawl {id}', function ($id) {
+    app(\App\Actions\Crawler\EleleCrawler::class)->crawl(Product::findOrFail($id));
+});
