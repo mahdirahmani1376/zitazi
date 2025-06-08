@@ -73,7 +73,7 @@ class ProductSeeder extends Seeder
 
         $batchSize = 10;
         $chunks = array_chunk($productsToUpdate, $batchSize);
-        $this->command->getOutput()->progressStart(count($chunks));
+//        $this->command->getOutput()->progressStart(count($chunks));
         foreach ($chunks as $chunk) {
             try {
                 DB::table('products')->upsert(
@@ -102,10 +102,10 @@ class ProductSeeder extends Seeder
                 Log::error($e->getMessage());
             }
 
-            $this->command->getOutput()->progressAdvance();
+//            $this->command->getOutput()->progressAdvance();
         }
 
-        $this->command->getOutput()->progressFinish();
+//        $this->command->getOutput()->progressFinish();
     }
 
     private function syncProducts(): void
