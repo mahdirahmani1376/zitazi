@@ -438,3 +438,8 @@ Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $se
 Artisan::command('elle-crawl {id}', function ($id) {
     app(\App\Actions\Crawler\EleleCrawler::class)->crawl(Product::findOrFail($id));
 });
+
+Artisan::command('test-try', function () {
+    \Illuminate\Support\Facades\Cache::delete('try_rate');
+    dump(Currency::syncTryRate());
+});
