@@ -111,4 +111,13 @@ class ProductTest extends TestCase
         dump($product->toArray());
     }
 
+    public function test_navasan(): void
+    {
+        $response = \Illuminate\Support\Facades\Http::acceptJson()->withQueryParameters([
+            'api_key' => env('NAVASAN_KEY'),
+        ])->get('http://api.navasan.tech/latest')->json();
+
+        dd($response);
+    }
+
 }
