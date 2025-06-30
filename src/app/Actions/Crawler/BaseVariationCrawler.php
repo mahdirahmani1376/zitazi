@@ -98,7 +98,8 @@ class BaseVariationCrawler
                 'code' => $json['code'] ?? 'unknown',
                 'message' => $json['message'] ?? 'No message',
                 'variation_id' => $variation->id,
-                'json' => $json
+                'json' => $json,
+                'body' => $body
             ]);
         } catch (\Exception $e) {
             Log::error('error-sync-variation', [
