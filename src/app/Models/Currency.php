@@ -46,8 +46,6 @@ class Currency extends Model
 
                 $rate = data_get($response, 'try.value');
 
-                dump($rate);
-
                 if (empty($rate)) {
                     $rate = static::lastTryRate() ?? 2400;
                 } else {

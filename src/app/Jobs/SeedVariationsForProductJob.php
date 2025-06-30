@@ -7,6 +7,7 @@ use App\Actions\TrendyolParser;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -144,14 +145,22 @@ class SeedVariationsForProductJob implements ShouldQueue
         $crawler = new Crawler($response);
 
         $colors = $crawler->filter('script[type="application/ld+json"]')->first();
-        $json = json_decode($colors->text(), true);
+        try {
+            $json = json_decode($colors->text(), true);
+            $colorVariants = data_get($json, 'hasVariant');
+            if (!empty($colorVariants)) {
+                $this->createMultiVariations($colorVariants, $product);
+            } else {
+                $this->createSingleVariation($response, $product);
+            }
 
-        $colorVariants = data_get($json, 'hasVariant');
-        if (!empty($colorVariants)) {
-            $this->createMultiVariations($colorVariants, $product);
-        } else {
-            $this->createSingleVariation($response, $product);
+        } catch (Exception $e) {
+            Log::error('error-seed-variations', [
+                'product_id' => $product->id,
+                'body' => $colors->text()
+            ]);
         }
+
     }
 
     private function createMultiVariations(mixed $colorVariants, Product $product): void
