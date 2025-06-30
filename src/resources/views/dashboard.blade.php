@@ -112,7 +112,7 @@
         <a href="{{ route('null-variations.download') }}">دانلود تنوع های لینک نشده</a>
         <a href="{{ route('sync-logs.download') }}">دانلود لاگ های برنامه</a>
         <a href="{{ route('out-of-stock-logs.download') }}">گزارش محصولات ناموجود شده</a>
-        <a href="{{ route('products.update') }}">آپدیت محصولات</a>
+        {{--        <a href="{{ route('products.update') }}">آپدیت محصولات</a>--}}
         <a href="{{ route('products.compare') }}">صفحه مقایسه محصولات ترب و دیجی کالا</a>
         <a href="{{ route('products.report') }}">گزارش کلی میانگین محصولات</a>
         <a href="{{ route('top-100') }}">گزارش پرفروش ترین محصولات ترب و دیجی کالا</a>
