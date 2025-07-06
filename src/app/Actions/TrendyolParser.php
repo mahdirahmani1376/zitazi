@@ -118,11 +118,9 @@ class TrendyolParser
         }
 
         if (empty($price)) {
-            dd(1);
             $price = $crawler->filter('.price-view-original')->first();
             if ($price->count() > 0) {
                 $price = explode(',', $price->text())[0] ?? null;
-                dd($price);
                 $price = (int)str_replace('.', '', trim($price));
             } else {
                 $price = null;
@@ -135,8 +133,6 @@ class TrendyolParser
         } else {
             $stock = 0;
         }
-
-        dd($price, $stock);
 
         return [$price, $stock];
     }
