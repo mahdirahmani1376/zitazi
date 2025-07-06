@@ -117,6 +117,8 @@ class TrendyolParser
             }
         }
 
+        dd($price);
+
         if (empty($price)) {
             $price = $crawler->filter('.price-view-original')->first();
             if ($price->count() > 0) {
