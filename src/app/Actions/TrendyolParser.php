@@ -117,7 +117,17 @@ class TrendyolParser
             }
         }
 
-        $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
+        if (empty($price)) {
+            $price = $crawler->filter('.price-view-original')->first();
+            if ($price->count() > 0) {
+                $price = explode(',', $price->text())[0] ?? null;
+                $price = (int)str_replace('.', '', trim($price));
+            } else {
+                $price = null;
+            }
+        }
+
+        $stock = $crawler->filter('.buy-now-button-text')->first();
         if ($stock->count() > 0) {
             $stock = 88;
         } else {

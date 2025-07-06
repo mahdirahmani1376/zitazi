@@ -1,11 +1,15 @@
 <?php
 
+use App\Jobs\SyncVariationsJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 Artisan::command('test', function () {
@@ -442,4 +446,30 @@ Artisan::command('elle-crawl {id}', function ($id) {
 Artisan::command('test-try', function () {
     \Illuminate\Support\Facades\Cache::delete('try_rate');
     dump(Currency::syncTryRate());
+});
+
+Artisan::command('sync-all-trendyol', function () {
+    $jobs = Variation::query()
+        ->where(function (Builder $query) {
+            $query
+                ->where(function (Builder $query) {
+                    $query->whereNot('url', '=', '')
+                        ->where(function (Builder $query) {
+                            $query
+                                ->whereNotNull('own_id')
+                                ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
+                        });
+                })
+                ->whereRelation('product', 'trendyol_source', '!=', '');
+        })
+        ->get()
+        ->map(function (Variation $variation) {
+            return new SyncVariationsJob($variation);
+        });
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations updated successfully.'))
+        ->catch(fn() => Log::error('Some jobs failed.'))
+        ->name('Import Trendyol')
+        ->dispatch();
 });
