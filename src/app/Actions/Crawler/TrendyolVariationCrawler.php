@@ -38,7 +38,6 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
             'stock_quantity' => $stock,
         ]);
 
-        dd($updateData);
         $this->syncZitazi($variation, $updateData);
     }
 

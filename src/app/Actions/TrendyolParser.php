@@ -117,6 +117,8 @@ class TrendyolParser
             }
         }
 
+        dd($price);
+
         $stock = $crawler->filter('div.product-button-container .buy-now-button-text')->first();
         if ($stock->count() > 0) {
             $stock = 88;
