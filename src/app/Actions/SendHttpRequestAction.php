@@ -36,7 +36,7 @@ class SendHttpRequestAction
         $urlMd5 = md5($url);
 
         if ($response = Cache::get($urlMd5)) {
-            return $response;
+//            return $response;
         }
 
         /** @var Response $response */

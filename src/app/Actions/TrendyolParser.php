@@ -103,6 +103,8 @@ class TrendyolParser
 
         $crawler = new Crawler($response);
 
+        dd($response);
+
         foreach (range(2, 5) as $i) {
             $priceElement = $crawler->filter("body > script:nth-child($i)")->first();
             if ($priceElement->count() > 0) {
@@ -133,6 +135,8 @@ class TrendyolParser
         } else {
             $stock = 0;
         }
+
+        dd($price, $stock);
 
         return [$price, $stock];
     }
