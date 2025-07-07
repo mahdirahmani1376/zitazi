@@ -27,6 +27,7 @@ class SendHttpRequestAction
 
     public function sendWithCache($method, $url)
     {
+        $url = 'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yaratici-oyuncak-yapim-seti-119-parca-p-467589114';
         dump($url);
         if (empty($headers)) {
             $headers = [

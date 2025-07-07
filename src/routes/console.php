@@ -484,3 +484,6 @@ Artisan::command('sync-all-trendyol', function () {
         ->name('Import Trendyol')
         ->dispatch();
 });
+
+//'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yaratici-oyuncak-yapim-seti-119-parca-p-467589114';
+//'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yas-ve-uzeri-icin-yapim-seti-119-parca-p-467589114?boutiqueId=677589&merchantId=968';
