@@ -126,7 +126,7 @@ class TrendyolParser
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(), true));
                 dump(json_encode($data));
-                $price = data_get($data, 'offers.price');
+                $price = $data['offers']['price'];
                 dump($price);
                 $price = floor((int)trim($price));
             }
