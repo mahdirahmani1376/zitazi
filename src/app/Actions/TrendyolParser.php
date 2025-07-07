@@ -123,6 +123,7 @@ class TrendyolParser
         if (empty($price)) {
             $element = 'script[type="application/ld+json"]';
             $element = $crawler->filter($element)->eq(1);
+            dump($element->text());
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(), true));
                 dump(json_encode($data));
