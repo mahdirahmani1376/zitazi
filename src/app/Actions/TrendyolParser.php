@@ -103,8 +103,6 @@ class TrendyolParser
 
         $crawler = new Crawler($response);
 
-        dd($response);
-
         foreach (range(2, 5) as $i) {
             $priceElement = $crawler->filter("body > script:nth-child($i)")->first();
             if ($priceElement->count() > 0) {
@@ -119,6 +117,8 @@ class TrendyolParser
             }
         }
 
+        dump($price);
+
         if (empty($price)) {
             $price = $crawler->filter('.price-view-original')->first();
             if ($price->count() > 0) {
@@ -129,6 +129,8 @@ class TrendyolParser
             }
         }
 
+        dump($price);
+
         $stock = $crawler->filter('.buy-now-button-text')->first();
         if ($stock->count() > 0) {
             $stock = 88;
@@ -136,7 +138,7 @@ class TrendyolParser
             $stock = 0;
         }
 
-        dd($price, $stock);
+        dump($price, $stock);
 
         return [$price, $stock];
     }
