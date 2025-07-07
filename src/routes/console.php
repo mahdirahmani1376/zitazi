@@ -420,6 +420,17 @@ Artisan::command('test-trendyol-sync-variations {variation}', function ($variati
     app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation(Variation::findOrFail($variation)));
 });
 
+Artisan::command('ttbw {id}', function ($id) {
+    $product = Product::firstWhere('own_id', $id);
+    $var = $product->variations()->first();
+
+    dump($product->toArray());
+    dump($var->toArray());
+
+    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation($var));
+
+});
+
 Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
     $url = 'https://www.amazon.ae/dp/B09NLFPD4Q';
 
