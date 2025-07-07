@@ -127,6 +127,7 @@ class TrendyolParser
                 $data = collect(json_decode($element->text(), true));
                 dump($data);
                 $price = data_get($data, 'offers.price');
+                dump($price);
                 $price = floor((int)trim($price));
             }
         }
