@@ -424,8 +424,8 @@ Artisan::command('ttbw {id}', function ($id) {
     $product = Product::firstWhere('own_id', $id);
     $var = $product->variations()->first();
 
-    dump($product->toArray());
-    dump($var->toArray());
+    dump($product->trendyol_source);
+    dump($var->url);
 
     app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation($var));
 
