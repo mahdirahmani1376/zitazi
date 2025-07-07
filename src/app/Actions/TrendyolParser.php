@@ -120,12 +120,12 @@ class TrendyolParser
         dump($price);
 
         if (empty($price)) {
-            $price = $crawler->filter('.price-view-original')->first();
-            if ($price->count() > 0) {
-                $price = explode(',', $price->text())[0] ?? null;
-                $price = (int)str_replace('.', '', trim($price));
-            } else {
-                $price = null;
+            $element = 'script[type="application/ld+json"]';
+            $element = $crawler->filter($element)->first();
+            if ($element->count() > 0) {
+                $data = collect(json_decode($element->text(), true));
+                $price = data_get($data, 'offers.price');
+                $price = floor(trim($price));
             }
         }
 
