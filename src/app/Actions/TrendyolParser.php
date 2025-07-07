@@ -101,6 +101,7 @@ class TrendyolParser
     {
         $price = null;
 
+        dump($response);
         $crawler = new Crawler($response);
 
         foreach (range(2, 5) as $i) {
@@ -124,6 +125,7 @@ class TrendyolParser
             $element = $crawler->filter($element)->first();
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(), true));
+                dump($data);
                 $price = data_get($data, 'offers.price');
                 $price = floor(trim($price));
             }
