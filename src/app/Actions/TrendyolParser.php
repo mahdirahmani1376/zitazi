@@ -101,7 +101,7 @@ class TrendyolParser
     {
         $price = null;
 
-        dump($response);
+//        dump($response);
         $crawler = new Crawler($response);
 
         foreach (range(2, 5) as $i) {
