@@ -141,16 +141,13 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function seedTrendyolVariations(Product $product): void
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $product->trendyol_source);
-        dump($response);
 
         $crawler = new Crawler($response);
 
         $colors = $crawler->filter('script[type="application/ld+json"]')->first();
         try {
             $json = json_decode($colors->text(), true);
-            dump($json);
             $colorVariants = data_get($json, 'hasVariant');
-            dump($colorVariants);
             if (!empty($colorVariants)) {
                 $this->createMultiVariations($colorVariants, $product);
             } else {
@@ -211,6 +208,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function createSingleVariation($response, Product $product): void
     {
         $variantsArray = $this->trendyolParser->parseVariationTypeVariationResponse($response);
+        dump($variantsArray);
         foreach ($variantsArray['data'] as $item) {
             $variation = Variation::updateOrCreate([
                 'item_number' => $item['item_number']
