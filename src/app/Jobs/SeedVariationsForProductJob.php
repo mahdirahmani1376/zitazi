@@ -212,7 +212,6 @@ class SeedVariationsForProductJob implements ShouldQueue
         $variation = Variation::updateOrCreate([
             'product_id' => $product->id,
         ], [
-            'size' => $variantData['size'],
             'price' => $variantData['price'],
             'rial_price' => Currency::convertToRial($variantData['price']) * $product->getRatio(),
             'stock' => $variantData['stock'],
