@@ -26,7 +26,8 @@ class VariationSeeder extends Seeder
 //                    ->orWhereNot('amazon_source', '=', '');
 //            })
             ->whereIn('own_id',[
-                805722,805723
+                805722,
+//                805723
             ])
             ->get()
             ->map(fn($product) => new SeedVariationsForProductJob($product));

@@ -101,7 +101,6 @@ class TrendyolParser
     {
         $price = null;
 
-//        dump($response);
         $crawler = new Crawler($response);
 
         foreach (range(2, 5) as $i) {
@@ -118,12 +117,9 @@ class TrendyolParser
             }
         }
 
-        dump($price);
-
         if (empty($price)) {
             $element = 'script[type="application/ld+json"]';
             $element = $crawler->filter($element)->eq(1);
-            dump($element->text());
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(), true));
                 dump(json_encode($data));
@@ -133,16 +129,12 @@ class TrendyolParser
             }
         }
 
-        dump($price);
-
         $stock = $crawler->filter('.buy-now-button-text')->first();
         if ($stock->count() > 0) {
             $stock = 88;
         } else {
             $stock = 0;
         }
-
-        dump($price, $stock);
 
         return [$price, $stock];
     }

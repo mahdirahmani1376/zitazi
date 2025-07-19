@@ -207,25 +207,20 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     private function createSingleVariation($response, Product $product): void
     {
-        $variantsArray = $this->trendyolParser->parseVariationTypeProductResponse($response);
-        dump($variantsArray);
-        foreach ($variantsArray['data'] as $item) {
-            $variation = Variation::updateOrCreate([
-                'item_number' => $item['item_number']
-            ], [
-                'size' => $item['size'],
-                'price' => $item['price'],
-                'rial_price' => Currency::convertToRial($item['price']) * $product->getRatio(),
-                'stock' => $item['stock'],
-                'barcode' => $item['barcode'],
-                'color' => $variantsArray['color'],
-                'url' => $product->trendyol_source,
-                'sku' => $variantsArray['sku'],
-                'product_id' => $product->id,
-                'source' => Product::SOURCE_TRENDYOL,
-                'item_type' => $item['item_type']
-            ]);
-        }
+        $variantData = $this->trendyolParser->parseVariationTypeProductResponse($response);
+        $variation = Variation::updateOrCreate([
+            'product_id' => $product->id,
+        ], [
+            'size' => $variantData['size'],
+            'price' => $variantData['price'],
+            'rial_price' => Currency::convertToRial($variantData['price']) * $product->getRatio(),
+            'stock' => $variantData['stock'],
+            'url' => $product->trendyol_source,
+            'sku' => $variantData['sku'],
+            'source' => Product::SOURCE_TRENDYOL,
+            'item_type' => Product::PRODUCT_UPDATE
+        ]);
+        dump($variation->toArray());
     }
 
     private function processMultiVariant(mixed $url): array
