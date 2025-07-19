@@ -220,7 +220,6 @@ class SeedVariationsForProductJob implements ShouldQueue
             'source' => Product::SOURCE_TRENDYOL,
             'item_type' => Product::PRODUCT_UPDATE
         ]);
-        dump($variation->toArray());
     }
 
     private function processMultiVariant(mixed $url): array
