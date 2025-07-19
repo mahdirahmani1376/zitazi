@@ -208,16 +208,15 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     private function createSingleVariation($response, Product $product): void
     {
-        $variantData = $this->trendyolParser->parseVariationTypeProductResponse($response);
-        dump($variantData);
+        [$price,$stock,$sku] = $this->trendyolParser->parseVariationTypeProductResponse($response);
         $variation = Variation::updateOrCreate([
             'product_id' => $product->id,
         ], [
-            'price' => $variantData['price'],
-            'rial_price' => Currency::convertToRial($variantData['price']) * $product->getRatio(),
-            'stock' => $variantData['stock'],
+            'price' => $price,
+            'rial_price' => Currency::convertToRial($price) * $product->getRatio(),
+            'stock' => $stock,
             'url' => $product->trendyol_source,
-            'sku' => $variantData['sku'],
+            'sku' => $sku,
             'source' => Product::SOURCE_TRENDYOL,
             'item_type' => Product::PRODUCT_UPDATE
         ]);

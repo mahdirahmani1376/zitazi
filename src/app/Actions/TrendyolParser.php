@@ -100,7 +100,7 @@ class TrendyolParser
     public function parseVariationTypeProductResponse($response): array
     {
         $price = null;
-
+        $sku=null;
         $crawler = new Crawler($response);
 
         foreach (range(2, 5) as $i) {
@@ -122,6 +122,7 @@ class TrendyolParser
             $element = $crawler->filter($element)->eq(1);
             if ($element->count() > 0) {
                 $data = collect(json_decode($element->text(), true));
+                $sku = $data['sku'];
                 $price = $data['offers']['price'];
                 $price = floor((int)trim($price));
             }
@@ -134,7 +135,7 @@ class TrendyolParser
             $stock = 0;
         }
 
-        return [$price, $stock];
+        return [$price, $stock,$sku];
     }
 
 
