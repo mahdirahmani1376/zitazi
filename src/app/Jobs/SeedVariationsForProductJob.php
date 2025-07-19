@@ -148,6 +148,7 @@ class SeedVariationsForProductJob implements ShouldQueue
         try {
             $json = json_decode($colors->text(), true);
             $colorVariants = data_get($json, 'hasVariant');
+            dump($colorVariants);
             if (!empty($colorVariants)) {
                 $this->createMultiVariations($colorVariants, $product);
             } else {
