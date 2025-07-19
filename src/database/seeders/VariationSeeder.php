@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Jobs\SeedVariationsForProductJob;
 use App\Models\Product;
 use Illuminate\Bus\Batch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
@@ -18,9 +19,12 @@ class VariationSeeder extends Seeder
         $startTime = microtime(true);
 
         $jobs = Product::query()
-            ->whereNot('decathlon_url', '=', '')
-            ->orWhereNot('trendyol_source', '=', '')
-            ->orWhereNot('amazon_source', '=', '')
+            ->where(function (Builder $query) {
+                $query
+                    ->whereNot('decathlon_url', '=', '')
+                    ->orWhereNot('trendyol_source', '=', '')
+                    ->orWhereNot('amazon_source', '=', '');
+            })
             ->whereIn('own_id',[
                 805722,805723
             ])
@@ -33,8 +37,8 @@ class VariationSeeder extends Seeder
                 $endTime = microtime(true);
 
                 $duration = $endTime - $startTime;
-                $text = 'Finished seed variations at '.Carbon::now()->toDateTimeString().
-                    '. Duration: '.number_format($duration, 2).' seconds.';
+                $text = 'Finished seed variations at ' . Carbon::now()->toDateTimeString() .
+                    '. Duration: ' . number_format($duration, 2) . ' seconds.';
                 Log::info($text);
             })
             ->catch(function (Batch $batch, Throwable $e) {
