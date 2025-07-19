@@ -27,7 +27,7 @@ class VariationSeeder extends Seeder
 //            })
             ->whereIn('own_id',[
                 805722,
-//                805723
+                805723
             ])
             ->get()
             ->map(fn($product) => new SeedVariationsForProductJob($product));
