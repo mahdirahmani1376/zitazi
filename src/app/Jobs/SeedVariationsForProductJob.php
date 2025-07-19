@@ -209,6 +209,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function createSingleVariation($response, Product $product): void
     {
         $variantData = $this->trendyolParser->parseVariationTypeProductResponse($response);
+        dump($variantData);
         $variation = Variation::updateOrCreate([
             'product_id' => $product->id,
         ], [
