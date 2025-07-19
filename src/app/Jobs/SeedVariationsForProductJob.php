@@ -155,6 +155,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             }
 
         } catch (Exception $e) {
+            dump($e->getMessage());
             Log::error('error-seed-variations', [
                 'product_id' => $product->id,
                 'body' => $colors->text()
