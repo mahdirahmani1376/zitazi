@@ -141,12 +141,14 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function seedTrendyolVariations(Product $product): void
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $product->trendyol_source);
+        dump($response);
 
         $crawler = new Crawler($response);
 
         $colors = $crawler->filter('script[type="application/ld+json"]')->first();
         try {
             $json = json_decode($colors->text(), true);
+            dump($json);
             $colorVariants = data_get($json, 'hasVariant');
             dump($colorVariants);
             if (!empty($colorVariants)) {
