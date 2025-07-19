@@ -144,8 +144,8 @@ class SeedVariationsForProductJob implements ShouldQueue
 
         $crawler = new Crawler($response);
 
-        $colors = $crawler->filter('script[type="application/ld+json"]')->first();
         try {
+            $colors = $crawler->filter('script[type="application/ld+json"]')->first();
             $json = json_decode($colors->text(), true);
             $colorVariants = data_get($json, 'hasVariant');
             if (!empty($colorVariants)) {
@@ -155,7 +155,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             }
 
         } catch (Exception $e) {
-            dump($e->getMessage());
+            dump($e->getMessage(),$product->id);
             Log::error('error-seed-variations', [
                 'product_id' => $product->id,
                 'body' => $colors->text()
