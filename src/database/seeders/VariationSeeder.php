@@ -19,12 +19,12 @@ class VariationSeeder extends Seeder
         $startTime = microtime(true);
 
         $jobs = Product::query()
-            ->where(function (Builder $query) {
-                $query
-                    ->whereNot('decathlon_url', '=', '')
-                    ->orWhereNot('trendyol_source', '=', '')
-                    ->orWhereNot('amazon_source', '=', '');
-            })
+//            ->where(function (Builder $query) {
+//                $query
+//                    ->whereNot('decathlon_url', '=', '')
+//                    ->orWhereNot('trendyol_source', '=', '')
+//                    ->orWhereNot('amazon_source', '=', '');
+//            })
             ->whereIn('own_id',[
                 805722,805723
             ])
