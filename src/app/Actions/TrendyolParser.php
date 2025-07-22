@@ -129,6 +129,7 @@ class TrendyolParser
         }
 
         $stock = $crawler->filter('.buy-now-button-text')->first();
+        dump($stock->count());
         if ($stock->count() > 0) {
             $stock = 88;
         } else {
