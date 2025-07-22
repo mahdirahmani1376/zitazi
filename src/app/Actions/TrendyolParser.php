@@ -99,6 +99,7 @@ class TrendyolParser
 
     public function parseVariationTypeProductResponse($response): array
     {
+        dump($response);
         $price = null;
         $sku=null;
         $crawler = new Crawler($response);
