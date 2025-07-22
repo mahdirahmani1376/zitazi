@@ -107,14 +107,15 @@ class TrendyolParser
         foreach (range(2, 5) as $i) {
             $priceElement = $crawler->filter("body > script:nth-child($i)")->first();
             if ($priceElement->count() > 0) {
-                $pattern = '/"discountedPrice"\s*:\s*\{[\s\S]*?\}/';
+                $pattern = '/"discountedPrice"\s*:\s*\{[^}]*"value"\s*:\s*([0-9.]+)/';
                 $price = preg_match($pattern, $priceElement->text(), $matches);
                 if ($matches) {
-                    dump(1);
-                    $json = json_decode('{' . $matches[0] . '}', true);
-                    dump($json);
-                    $price = $json['discountedPrice']['value'];
-                    $price = (int)str_replace(',', '.', trim($price));
+                    dump((float)$matches[1]);
+//                    dump(1);
+//                    $json = json_decode('{' . $matches[0] . '}', true);
+//                    dump($json);
+//                    $price = $json['discountedPrice']['value'];
+//                    $price = (int)str_replace(',', '.', trim($price));
                     break;
                 }
             }
