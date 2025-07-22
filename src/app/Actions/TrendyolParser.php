@@ -110,7 +110,9 @@ class TrendyolParser
                 $pattern = '/"discountedPrice"\s*:\s*\{[\s\S]*?\}/';
                 $price = preg_match($pattern, $priceElement->text(), $matches);
                 if ($matches) {
+                    dump(1);
                     $json = json_decode('{' . $matches[0] . '}', true);
+                    dump($json);
                     $price = $json['discountedPrice']['value'];
                     $price = (int)str_replace(',', '.', trim($price));
                     break;
