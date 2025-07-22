@@ -30,6 +30,7 @@ class SyncVariationCommand extends Command
                             ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
                     });
             })
+            ->ddRawSql()
             ->get()
             ->map(function (Variation $variation) {
                 return new SyncVariationsJob($variation);
