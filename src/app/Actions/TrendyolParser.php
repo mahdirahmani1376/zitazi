@@ -99,7 +99,6 @@ class TrendyolParser
 
     public function parseVariationTypeProductResponse($response): array
     {
-        dump($response);
         $price = null;
         $sku=null;
         $crawler = new Crawler($response);
@@ -110,12 +109,9 @@ class TrendyolParser
                 $pattern = '/"discountedPrice"\s*:\s*\{[^}]*"value"\s*:\s*([0-9.]+)/';
                 $price = preg_match($pattern, $priceElement->text(), $matches);
                 if ($matches) {
-                    dump((float)$matches[1]);
-//                    dump(1);
-//                    $json = json_decode('{' . $matches[0] . '}', true);
-//                    dump($json);
-//                    $price = $json['discountedPrice']['value'];
-//                    $price = (int)str_replace(',', '.', trim($price));
+                    $json = json_decode('{' . $matches[0] . '}', true);
+                    $price = $json['discountedPrice']['value'];
+                    $price = (int)str_replace(',', '.', trim($price));
                     break;
                 }
             }
@@ -133,14 +129,11 @@ class TrendyolParser
         }
 
         $stock = $crawler->filter('.buy-now-button-text')->first();
-        dump($stock->count());
         if ($stock->count() > 0) {
             $stock = 88;
         } else {
             $stock = 0;
         }
-
-        dump([$price, $stock, $sku]);
 
         return [$price, $stock,$sku];
     }
