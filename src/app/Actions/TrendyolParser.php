@@ -135,6 +135,8 @@ class TrendyolParser
             $stock = 0;
         }
 
+        dump([$price, $stock, $sku]);
+
         return [$price, $stock,$sku];
     }
 
