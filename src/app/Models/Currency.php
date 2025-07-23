@@ -38,6 +38,7 @@ class Currency extends Model
     {
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
+        //todo change this
         return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
             try {
                 $response = Http::acceptJson()->withQueryParameters([
