@@ -25,6 +25,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
             $stock = 0;
         }
 
+
         $data = [
             'price' => $price,
             'stock' => $stock,
