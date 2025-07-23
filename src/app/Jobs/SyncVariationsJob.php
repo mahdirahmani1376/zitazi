@@ -23,6 +23,6 @@ class SyncVariationsJob implements ShouldQueue
 
     public function handle(SyncVariationsActions $syncVariationsActions): void
     {
-        $syncVariationsActions($this->variation);
+        $syncVariationsActions->execute($this->variation);
     }
 }

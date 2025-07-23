@@ -13,6 +13,9 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 {
     public function crawl(Variation $variation)
     {
+        \Log::info('test');
+        dump('test');
+        return 'test';
         if ($variation->item_type === Product::VARIATION_UPDATE) {
             [$price, $stock] = $this->getVariationTypeVariationData($variation);
         } else {

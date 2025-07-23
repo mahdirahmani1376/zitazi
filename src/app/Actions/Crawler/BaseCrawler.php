@@ -3,7 +3,6 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\SendHttpRequestAction;
-use App\Actions\SyncVariationsActions;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 class BaseCrawler
 {
     protected mixed $rate;
-    protected SyncVariationsActions $syncVariationAction;
     private Client $woocommerce;
     protected SendHttpRequestAction $sendHttpRequestAction;
 
@@ -26,7 +24,6 @@ class BaseCrawler
         $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
         $this->rate = Currency::syncTryRate();
         $this->woocommerce = WoocommerceService::getClient();
-        $this->syncVariationAction = app(SyncVariationsActions::class);
     }
 
     protected function syncProductWithZitazi(Product $product, ZitaziUpdateDTO $dto): void

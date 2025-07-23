@@ -10,24 +10,7 @@ use Automattic\WooCommerce\Client;
 
 class SyncVariationsActions
 {
-    private Client $woocommerce;
-
-    private mixed $rate;
-
-    public function __construct(
-        public SendHttpRequestAction $sendHttpRequestAction
-    ) {
-        $this->rate = Currency::syncTryRate();
-        $this->woocommerce = WoocommerceService::getClient();
-    }
-
-    public function __invoke(Variation $variation, bool $sync = true): void
-    {
-        $this->updateVariation($variation);
-
-    }
-
-    public function updateVariation(Variation $variation): void
+    public function execute(Variation $variation): void
     {
         BaseVariationCrawler::crawlVariation($variation);
     }
