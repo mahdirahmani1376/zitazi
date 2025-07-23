@@ -31,8 +31,6 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
             'rial_price' => $rialPrice
         ];
 
-        dump($data,$variation->id);
-
         $this->updateVariationAndLog($variation, $data);
 
         $updateData = ZitaziUpdateDTO::createFromArray([
