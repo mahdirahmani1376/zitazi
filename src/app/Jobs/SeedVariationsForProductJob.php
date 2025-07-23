@@ -27,7 +27,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     private TrendyolParser $trendyolParser;
 
     public function __construct(
-        private readonly Product $product,
+        public Product $product,
     )
     {
         $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
