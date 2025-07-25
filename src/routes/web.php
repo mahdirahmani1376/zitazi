@@ -187,3 +187,21 @@ Route::post('seed-products', function () {
 Horizon::auth(function () {
     return true; // disables all auth checks
 });
+
+use Illuminate\Support\Facades\Storage;
+
+Route::get('/movie', function () {
+    $url = Storage::disk('local')->get('video_url.txt');
+    return redirect(trim($url));
+});
+
+Route::match(['get', 'post'], '/submit-video', function (Request $request) {
+    if ($request->isMethod('post')) {
+        $url = $request->input('url');
+        Storage::disk('local')->put('video_url.txt', $url);
+        return "✅ Video link saved.";
+    }
+
+    return view('submit-video');
+});
+
