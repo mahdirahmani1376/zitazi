@@ -3,7 +3,7 @@ services:
     image: php:8.3-fpm
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile-dev
     volumes:
       - ./src:/var/www/html
     networks:
