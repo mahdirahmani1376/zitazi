@@ -487,3 +487,15 @@ Artisan::command('sync-all-trendyol', function () {
 
 //'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yaratici-oyuncak-yapim-seti-119-parca-p-467589114';
 //'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yas-ve-uzeri-icin-yapim-seti-119-parca-p-467589114?boutiqueId=677589&merchantId=968';
+Artisan::command('test-arzdigital', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
+    Currency::syncTryRate();
+    dd(1);
+
+    $url = 'https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat';
+    $response = $sendHttpRequestAction->sendWithCache('get', $url);
+    $response = json_decode($response, true);
+
+    $lyre = collect($response['data'])->keyBy('symbol')->get('TRY')['toman'];
+    $dirham = collect($response['data'])->keyBy('symbol')->get('AED')['toman'];
+    dump($lyre, $dirham);
+});

@@ -34,5 +34,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'currency-rate' => [
+        'driver' => env('RATE_DRIVER', 'arzdigital'),
+        'drivers' => [
+            'arzdigital' => App\Services\CurrencyRate\ArzDigitalService::class,
+            'navasan' => App\Services\CurrencyRate\NavasanService::class,
+        ]
+    ]
 
 ];

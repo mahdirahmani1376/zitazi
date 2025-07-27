@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\CurrencyRate\CurrencyRateDriverInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -13,17 +13,6 @@ use Illuminate\Support\Facades\Log;
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Currency whereUpdatedAt($value)
- *
- * @mixin \Eloquent
  */
 class Currency extends Model
 {
@@ -36,16 +25,14 @@ class Currency extends Model
 
     public static function syncTryRate()
     {
+        $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
+        dd($rate);
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
         //todo change this
         return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
             try {
-                $response = Http::acceptJson()->withQueryParameters([
-                    'api_key' => env('NAVASAN_KEY'),
-                ])->get('http://api.navasan.tech/latest')->json();
-
-                $rate = data_get($response, 'try.value');
+                $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
 
                 if (empty($rate)) {
                     $rate = static::lastTryRate() ?? 2400;
@@ -77,11 +64,7 @@ class Currency extends Model
 
         return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
             try {
-                $response = Http::acceptJson()->withQueryParameters([
-                    'api_key' => env('NAVASAN_KEY'),
-                ])->get('http://api.navasan.tech/latest')->json();
-
-                $rate = data_get($response, 'aed.value');
+                $rate = app()->make(CurrencyRateDriverInterface::class)->getAEDRate();
 
                 if (empty($rate)) {
                     $rate = static::lastTryRate() ?? 2400;

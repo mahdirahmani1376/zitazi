@@ -103,25 +103,25 @@ class TrendyolParser
         $sku=null;
         $crawler = new Crawler($response);
 
-        $priceElements = $crawler->filter("script");
-        foreach ($priceElements as $priceElement) {
-            $pattern = '/"discountedPrice"\s*:\s*\{.*?"value"\s*:\s*([0-9.]+)/s';
-            $price = preg_match($pattern, $priceElement->textContent, $matches);
-            if ($matches) {
-                $price = $matches[1];
-                $price = floor((int)trim($price));
-                break;
-            }
+        $element = 'script[type="application/ld+json"]';
+        $element = $crawler->filter($element)->eq(1);
+        if ($element->count() > 0) {
+            $data = collect(json_decode($element->text(), true));
+            $sku = $data['sku'];
+            $price = $data['offers']['price'];
+            $price = floor((int)trim($price));
         }
 
         if (empty($price)) {
-            $element = 'script[type="application/ld+json"]';
-            $element = $crawler->filter($element)->eq(1);
-            if ($element->count() > 0) {
-                $data = collect(json_decode($element->text(), true));
-                $sku = $data['sku'];
-                $price = $data['offers']['price'];
-                $price = floor((int)trim($price));
+            $priceElements = $crawler->filter("script");
+            foreach ($priceElements as $priceElement) {
+                $pattern = '/"discountedPrice"\s*:\s*\{.*?"value"\s*:\s*([0-9.]+)/s';
+                $price = preg_match($pattern, $priceElement->textContent, $matches);
+                if ($matches) {
+                    $price = $matches[1];
+                    $price = floor((int)trim($price));
+                    break;
+                }
             }
         }
 

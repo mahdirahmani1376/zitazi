@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SendHttpRequestAction
 {
@@ -44,6 +45,10 @@ class SendHttpRequestAction
         $response = Http::withHeaders($headers)->$method($url);
         if ($response->successful()) {
             Cache::put($urlMd5, $response->body(), now()->addDay());
+        } else {
+            Log::info('error-in-url', [
+                'url' => $url,
+            ]);
         }
 
         return $response->body();
