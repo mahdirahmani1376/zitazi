@@ -30,3 +30,5 @@ src/package.xml
 redis/
 mysql/
 .env
+*.sql.gz
+*.sql
