@@ -12,8 +12,4 @@ class CurrencyRateService
     {
     }
 
-    public static function getDriver()
-    {
-        return app()->make(config('currency-rate.driver') . 'Service');
-    }
 }
