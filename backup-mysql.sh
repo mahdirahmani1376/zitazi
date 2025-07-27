@@ -2,12 +2,12 @@
 
 # === Config ===
 DATE=$(date +%F)
-BACKUP_DIR="/root/backup"
-DB_CONTAINER="zitazi-mysql"
-DB_NAME="zitazi"
-DB_USER="root"
-DB_PASSWORD="123"  # <-- Replace this with your actual MySQL root password
-RETENTION_DAYS=7
+
+set -e
+# Load .env file
+set -o allexport
+source ./.env
+set +o allexport
 
 # === Create backup dir if it doesn't exist ===
 mkdir -p "$BACKUP_DIR"
