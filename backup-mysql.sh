@@ -9,6 +9,7 @@ set -o allexport
 source ./.env
 set +o allexport
 
+echo "env loaded"
 # === Create backup dir if it doesn't exist ===
 mkdir -p "$BACKUP_DIR"
 
