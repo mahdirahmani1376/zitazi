@@ -21,8 +21,6 @@ services:
       - php
     networks:
       - app-network
-    environment:
-      - SERVER_NAME=${SERVER_NAME}
     container_name: zitazi-nginx
     restart: unless-stopped
 
