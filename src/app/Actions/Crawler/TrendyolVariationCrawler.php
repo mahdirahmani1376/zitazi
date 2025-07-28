@@ -47,7 +47,6 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
     {
         $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->product->trendyol_source);
 
-        dd(1);
         $data = app(TrendyolParser::class)->parseVariationTypeVariationResponse($response);
 
         $itemNumberData = collect($data['data'])->keyBy('item_number');

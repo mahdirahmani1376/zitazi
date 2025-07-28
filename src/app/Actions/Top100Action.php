@@ -22,7 +22,6 @@ class Top100Action
 
         // $data = $digiData->merge($torobData);
 
-        // dd($data->toArray());
 
         $exports = ExternalProduct::all();
         $digiProducts = Product::query()->whereNotNull('digikala_source')->get()->keyBy('digikala_source');
