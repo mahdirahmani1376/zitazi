@@ -26,7 +26,6 @@ class Currency extends Model
     public static function syncTryRate()
     {
         $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
-        dd($rate);
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
         //todo change this
