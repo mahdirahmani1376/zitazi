@@ -28,25 +28,16 @@ class SendHttpRequestAction
 
     public function sendWithCache($method, $url)
     {
-        dump($url);
         if (empty($headers)) {
             $headers = [
                 'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0',
             ];
         }
 
-        $urlMd5 = md5($url);
-
-        if ($response = Cache::get($urlMd5)) {
-            return $response;
-        }
-
         /** @var Response $response */
         $response = Http::withHeaders($headers)->$method($url);
-        if ($response->successful()) {
-            Cache::put($urlMd5, $response->body(), now()->addDay());
-        } else {
-            Log::info('error-in-url', [
+        if (!$response->successful()) {
+            Log::error('error-in-url', [
                 'url' => $url,
             ]);
         }
