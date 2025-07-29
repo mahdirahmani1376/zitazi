@@ -59,7 +59,6 @@ class BaseCrawler
         }
 
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
-        sleep(3);
 
         Log::info(
             "product_update_{$product->id}",

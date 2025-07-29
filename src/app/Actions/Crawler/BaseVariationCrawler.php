@@ -73,7 +73,6 @@ class BaseVariationCrawler
 
         try {
             $response = $this->woocommerce->post($url, $data);
-            sleep(3);
             Log::info(
                 "variation_update_{$variation->id}",
                 [
