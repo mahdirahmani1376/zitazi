@@ -25,10 +25,8 @@ class Currency extends Model
 
     public static function syncTryRate()
     {
-        $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
-        //todo change this
         return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
