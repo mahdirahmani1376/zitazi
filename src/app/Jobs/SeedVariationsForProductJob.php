@@ -39,7 +39,7 @@ class SeedVariationsForProductJob implements ShouldQueue
         $product = $this->product;
 
         if ($product->belongsToDecalthon()) {
-            $this->seedDecathlonVariations($product);
+//            $this->seedDecathlonVariations($product);
         } else if ($product->belongsToTrendyol()) {
             $this->seedTrendyolVariations($product);
         } else if ($product->belongsToAmazon()) {
