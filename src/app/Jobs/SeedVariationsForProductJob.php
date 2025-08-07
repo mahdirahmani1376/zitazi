@@ -38,13 +38,21 @@ class SeedVariationsForProductJob implements ShouldQueue
     {
         $product = $this->product;
 
-        if ($product->belongsToDecalthon()) {
-            $this->seedDecathlonVariations($product);
-        } else if ($product->belongsToTrendyol()) {
-            $this->seedTrendyolVariations($product);
-        } else if ($product->belongsToAmazon()) {
-            $this->seedAmazonVariations($product);
+        try {
+            if ($product->belongsToDecalthon()) {
+                $this->seedDecathlonVariations($product);
+            } else if ($product->belongsToTrendyol()) {
+                $this->seedTrendyolVariations($product);
+            } else if ($product->belongsToAmazon()) {
+                $this->seedAmazonVariations($product);
+            }
+        } catch (Exception $e) {
+            Log::error('error-in-seed-variations-for-product', [
+                'exception' => $e,
+                'trace' => $e->getTrace(),
+            ]);
         }
+
     }
 
     private function seedDecathlonVariations(Product $product): void

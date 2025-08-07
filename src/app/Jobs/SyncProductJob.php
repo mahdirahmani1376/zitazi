@@ -24,6 +24,13 @@ class SyncProductJob implements ShouldQueue
         if ($this->batch()->cancelled()) {
             return;
         }
-        app(SyncProductsAction::class)->execute($this->product);
+        try {
+            app(SyncProductsAction::class)->execute($this->product);
+        } catch (\Exception $e) {
+            \Log::error('SyncProductJob exception', [
+                'exception' => $e,
+                'trace' => $e->getTrace(),
+            ]);
+        }
     }
 }

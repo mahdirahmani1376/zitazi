@@ -3,10 +3,7 @@
 namespace App\Actions;
 
 use App\Actions\Crawler\BaseVariationCrawler;
-use App\Models\Currency;
 use App\Models\Variation;
-use App\Services\WoocommerceService;
-use Automattic\WooCommerce\Client;
 
 class SyncVariationsActions
 {
@@ -18,6 +15,7 @@ class SyncVariationsActions
             \Log::error('sync-variations-general-error',[
                 'variation_id' => $variation->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTrace(),
             ]);
             dump($e->getMessage(),$variation->id);
         }
