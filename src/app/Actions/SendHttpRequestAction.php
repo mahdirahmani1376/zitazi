@@ -37,8 +37,9 @@ class SendHttpRequestAction
         /** @var Response $response */
         $response = Http::withHeaders($headers)->$method($url);
         if (!$response->successful()) {
-            Log::error('error-in-url', [
+            Log::error('error-in-sendWithCache', [
                 'url' => $url,
+                'error' => $response->json()
             ]);
         }
 
