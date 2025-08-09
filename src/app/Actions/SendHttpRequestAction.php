@@ -132,6 +132,7 @@ class SendHttpRequestAction
         $response = Http::post('zitazi-node:3000/scrape', [
             'url' => $url
         ]);
+        dd($response);
 
         if ($response->successful()) {
             /** @var Response $response */
