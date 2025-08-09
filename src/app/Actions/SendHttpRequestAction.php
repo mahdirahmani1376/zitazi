@@ -119,4 +119,27 @@ class SendHttpRequestAction
 
         return $response->body();
     }
+
+
+    public function getRawDecathlonHtml($url)
+    {
+        $urlMd5 = md5($url);
+
+        if ($response = Cache::get($urlMd5)) {
+            return $response;
+        }
+
+        $response = Http::post('zitazi-node:3000/scrape', [
+            'url' => $url
+        ]);
+
+        if ($response->successful()) {
+            /** @var Response $response */
+            Cache::put($urlMd5, $response->json('html'), now()->addDay());
+            return $response->json('html');
+        } else {
+            throw new UnProcessableResponseException('error-in-decathlon-node:' . $url);
+        }
+    }
+
 }
