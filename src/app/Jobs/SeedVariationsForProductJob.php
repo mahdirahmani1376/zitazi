@@ -14,7 +14,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -40,7 +39,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
         try {
             if ($product->belongsToDecalthon()) {
-    //            $this->seedDecathlonVariations($product);
+                $this->seedDecathlonVariations($product);
             } else if ($product->belongsToTrendyol()) {
                 $this->seedTrendyolVariations($product);
             } else if ($product->belongsToAmazon()) {
@@ -51,15 +50,17 @@ class SeedVariationsForProductJob implements ShouldQueue
                 'exception' => $e,
                 'trace' => $e->getTrace(),
             ]);
+            dump('error-in-seed-variations-for-product', [
+                'exception' => $e,
+                'trace' => $e->getTrace(),
+            ]);
         }
 
     }
 
     private function seedDecathlonVariations(Product $product): void
     {
-        $response = Http::withHeaders([
-            'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
-        ])->get($product->decathlon_url)->body();
+        $response = app(SendHttpRequestAction::class)->getRawDecathlonHtml($product->decathlon_url);
 
         $element = 'script[type="application/ld+json"]';
 

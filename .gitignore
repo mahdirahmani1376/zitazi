@@ -32,3 +32,4 @@ mysql/
 .env
 *.sql.gz
 *.sql
+node/package-lock.json
