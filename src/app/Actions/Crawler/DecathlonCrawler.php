@@ -12,7 +12,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 {
     public function crawl(Variation $variation)
     {
-        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation);
+        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
         $element = 'script[type="application/ld+json"]';
         $crawler = new Crawler($response);
         $element = $crawler->filter($element)->first();
@@ -77,7 +77,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 
     public function getVariationData(Variation $variation)
     {
-        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation);
+        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
 
         $element = 'script[type="application/ld+json"]';
 
