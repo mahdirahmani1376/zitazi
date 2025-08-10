@@ -42,6 +42,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Variation extends Model
 {
+    public const AVAILABLE = 'available';
+    public const UNAVAILABLE = 'unavailable';
     protected $guarded = [
 
     ];
