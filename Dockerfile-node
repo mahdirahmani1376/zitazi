@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY ./node/ /app/
+COPY ./node/package.json /app/package.json
 
 RUN npm install
+
+COPY ./node/src /app/src
 
 EXPOSE 3000
 CMD ["node", "src/server.js"]
