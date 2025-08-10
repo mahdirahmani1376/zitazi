@@ -123,22 +123,15 @@ class SendHttpRequestAction
 
     public function getRawDecathlonHtml($url)
     {
-        $urlMd5 = md5($url);
-
-        if ($response = Cache::get($urlMd5)) {
-            return $response;
-        }
-
         $response = Http::post('zitazi-node:3000/scrape', [
             'url' => $url
         ]);
 
-        if ($response->successful()) {
+        if ($response->successful() && $response->json('success')) {
             /** @var Response $response */
-            Cache::put($urlMd5, $response->json('html'), now()->addDay());
-            return $response->json('html');
+            return $response->json('body');
         } else {
-            throw new UnProcessableResponseException('error-in-decathlon-node:' . $url);
+            throw new UnProcessableResponseException("error-in-decathlon-node:$url error:{$response->body()}");
         }
     }
 

@@ -7,10 +7,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY ./node /app/
+# Copy dependency files first
+COPY ./node/package*.json ./
 
+# Install dependencies
 RUN npm install
 
-EXPOSE 3000
+# Copy the rest of the app
+COPY ./node .
 
+EXPOSE 3000
 CMD ["node", "server.js"]

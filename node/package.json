@@ -1,7 +1,7 @@
 {
   "name": "zitazi-node",
   "version": "1.0.0",
-  "main": "scraper.js",
+  "main": "src/scraper.js",
   "author": "",
   "license": "ISC",
   "description": "",

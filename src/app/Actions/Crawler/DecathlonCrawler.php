@@ -6,32 +6,24 @@ use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Variation;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
 
 class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
 {
     public function crawl(Variation $variation)
     {
         $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
-        $element = 'script[type="application/ld+json"]';
-        $crawler = new Crawler($response);
-        $element = $crawler->filter($element)->first();
-
-        $variations = [];
-        if ($element->count() > 0) {
-            $data = collect(json_decode($element->text(), true));
-            $productId = data_get($data, 'productID');
-            $offers = collect($data->get('offers'))->collapse();
-            foreach ($offers as $offer) {
-                $variationStock = data_get($offer, 'availability') == 'https://schema.org/InStock' ? 88 : 0;
-                $variations[] = [
-                    'product_id' => $productId,
-                    'sku' => $offer['sku'] ?? null,
-                    'price' => $offer['price'] ?? null,
-                    'url' => $offer['url'] ?? null,
-                    'stock' => $variationStock,
-                ];
-            }
+        $data = collect($response);
+        $productId = data_get($data, 'productID');
+        $offers = collect($data->get('offers'))->collapse();
+        foreach ($offers as $offer) {
+            $variationStock = data_get($offer, 'availability') == 'https://schema.org/InStock' ? 88 : 0;
+            $variations[] = [
+                'product_id' => $productId,
+                'sku' => $offer['sku'] ?? null,
+                'price' => $offer['price'] ?? null,
+                'url' => $offer['url'] ?? null,
+                'stock' => $variationStock,
+            ];
         }
 
         $variations = collect($variations)->keyBy('sku');
@@ -78,28 +70,18 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
     public function getVariationData(Variation $variation)
     {
         $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
-
-        $element = 'script[type="application/ld+json"]';
-
-        $crawler = new Crawler($response);
-        $element = $crawler->filter($element)->first();
-
-        $variations = [];
-        if ($element->count() > 0) {
-
-            $data = collect(json_decode($element->text(), true));
-            $productId = data_get($data, 'productID');
-            $offers = collect($data->get('offers'))->collapse();
-            foreach ($offers as $offer) {
-                $variationStock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
-                $variations[] = [
-                    'product_id' => $productId,
-                    'sku' => $offer['sku'] ?? null,
-                    'price' => $offer['price'] ?? null,
-                    'url' => $offer['url'] ?? null,
-                    'stock' => $variationStock,
-                ];
-            }
+        $data = collect($response);
+        $productId = data_get($data, 'productID');
+        $offers = collect($data->get('offers'))->collapse();
+        foreach ($offers as $offer) {
+            $variationStock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
+            $variations[] = [
+                'product_id' => $productId,
+                'sku' => $offer['sku'] ?? null,
+                'price' => $offer['price'] ?? null,
+                'url' => $offer['url'] ?? null,
+                'stock' => $variationStock,
+            ];
         }
 
         $variations = collect($variations)->keyBy('sku');
