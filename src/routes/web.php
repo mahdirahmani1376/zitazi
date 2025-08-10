@@ -18,6 +18,7 @@ use App\Models\TorobProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', function () {
@@ -188,7 +189,9 @@ Horizon::auth(function () {
     return true; // disables all auth checks
 });
 
-use Illuminate\Support\Facades\Storage;
+\Opcodes\LogViewer\Facades\LogViewer::auth(function () {
+    return true;
+});
 
 Route::get('/movie', function () {
     $url = Storage::disk('local')->get('video_url.txt');
