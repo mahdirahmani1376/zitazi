@@ -8,7 +8,7 @@ puppeteer.use(stealthPlugin());
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    await page.goto('https://www.decathlon.com.tr/p/6-kisilik-kamp-tentesi-arpenaz-fresh/_/R-p-334065?mc=8648418&c=BEYAZ', {waitUntil: 'networkidle2'});
+    await page.goto('https://www.decathlon.com.tr/p/siyah-kisa-kollu-futbol-formasi-viralto-pxl/_/R-p-333380?mc=8844122&c=S%25C4%25B0YAH_BEYAZ', {waitUntil: 'networkidle2'});
 
     const data = await page.evaluate(() => {
         return {
