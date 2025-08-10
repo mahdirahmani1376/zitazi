@@ -3,12 +3,16 @@ const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 puppeteer.use(stealthPlugin());
 
-async function scrapeUrl(url) {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+let browser;
 
+async function getBrowser() {
+    if (!browser) {
+        browser = await puppeteer.launch({headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    }
+    return browser;
+}
+async function scrapeUrl(url) {
+    const browser = await getBrowser();
     const page = await browser.newPage();
 
     try {
@@ -23,11 +27,7 @@ async function scrapeUrl(url) {
         const jsonText = await page.evaluate(el => el.textContent, elHandle);
 
         let parsed;
-        try {
-            parsed = JSON.parse(jsonText);
-        } catch (err) {
-            throw new Error('Invalid JSON-LD format');
-        }
+        parsed = JSON.parse(jsonText);
 
         return {success: true, body: parsed};
 
