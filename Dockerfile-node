@@ -12,9 +12,10 @@ COPY ./node/package*.json ./
 
 # Install dependencies
 RUN npm install
+RUN npx puppeteer install
 
 # Copy the rest of the app
-COPY ./node .
+COPY ./node/src ./src
 
 EXPOSE 3000
 CMD ["node", "server.js"]

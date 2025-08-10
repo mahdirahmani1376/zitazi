@@ -82,7 +82,7 @@ services:
       context: .
       dockerfile: ./Dockerfile-node
     volumes:
-      - ./node:/app
+      - ./node/src:/app/src
     networks:
       - app-network
     container_name: zitazi-node
