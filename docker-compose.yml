@@ -83,7 +83,6 @@ services:
       dockerfile: ./Dockerfile-node
     volumes:
       - ./node:/app
-      - /app/node_modules
     networks:
       - app-network
     container_name: zitazi-node
