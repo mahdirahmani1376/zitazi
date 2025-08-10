@@ -16,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed')->dailyAt('01:00');
-        $schedule->command('app:sync-products')->dailyAt('02:00');
-        $schedule->command('app:sync-variations')->dailyAt('04:00');
+        $schedule->command('db:seed')->dailyAt('10:00');
+        $schedule->command('app:sync-products')->dailyAt('12:00');
+        $schedule->command('app:sync-variations')->dailyAt('02:00');
 //        $schedule->command('app:sheet-report')->dailyAt('08:00');
         //        $schedule->command('app:index-zitazi-torob-products')->dailyAt('08:30');
     })
