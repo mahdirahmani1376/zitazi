@@ -14,10 +14,8 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip gd pcntl
 
-# Install redis if not present
-RUN if ! php -m | grep -q redis; then \
-      pecl install redis && docker-php-ext-enable redis; \
-    fi
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Xdebug and enable it
 #RUN pecl install xdebug && docker-php-ext-enable xdebug
