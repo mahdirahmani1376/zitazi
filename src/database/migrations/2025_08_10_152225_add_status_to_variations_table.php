@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('variations', function (Blueprint $table) {
-            $table->boolean('status')->default(\App\Models\Variation::AVAILABLE);
+            $table->string('status')->default(\App\Models\Variation::AVAILABLE);
         });
     }
 
