@@ -44,6 +44,7 @@ class Variation extends Model
 {
     public const AVAILABLE = 'available';
     public const UNAVAILABLE = 'unavailable';
+    public const UNAVAILABLE_ON_ZITAZI = 'unavailable_on_zitazi';
     protected $guarded = [
 
     ];

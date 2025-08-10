@@ -101,6 +101,10 @@ class BaseVariationCrawler
                 'json' => $json,
                 'body' => $body
             ]);
+
+            $variation->update([
+                'status' => Variation::UNAVAILABLE_ON_ZITAZI,
+            ]);
         } catch (\Exception $e) {
             Log::error('error-sync-variation', [
                 'error' => $e->getMessage(),
