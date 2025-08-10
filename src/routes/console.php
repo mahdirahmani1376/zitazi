@@ -502,3 +502,29 @@ Artisan::command('test-decathlon', function () {
     app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(5159));
 //    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(5159));
 });
+
+Artisan::command('test-update-deca', function () {
+    $jobs = Variation::query()
+        ->where(function (Builder $query) {
+            $query
+                ->whereNot('url', '=', '')
+                ->where(function (Builder $query) {
+                    $query
+                        ->whereNotNull('own_id')
+                        ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
+                });
+        })
+        ->where('updated_at', '<', now()->subDay())
+        ->whereRelation('product', 'decathlon_url', '!=', '')
+        ->limit(10)
+        ->get()
+        ->map(function (Variation $variation) {
+            return new SyncVariationsJob($variation);
+        });
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations updated successfully.'))
+        ->catch(fn() => Log::error('Some jobs failed.'))
+        ->name('Import Variations')
+        ->dispatch();
+});
