@@ -516,7 +516,7 @@ Artisan::command('test-update-deca', function () {
         })
         ->where('updated_at', '<', now()->subDay())
         ->whereRelation('product', 'decathlon_url', '!=', '')
-        ->limit(10)
+        ->limit(20)
         ->get()
         ->map(function (Variation $variation) {
             return new SyncVariationsJob($variation);
