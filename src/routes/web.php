@@ -151,7 +151,6 @@ Route::get('/out-of-stock-logs-download', function () {
 })->name('out-of-stock-logs.download');
 
 Route::get('/unavailable-download', function () {
-    dd(3);
     $now = now()->toDateTimeString();
     return Excel::download(new \App\Exports\UnAvailableVariationExport(), "unavailable_variations_{$now}.xlsx");
 })->name('unavailable-variations.download');
