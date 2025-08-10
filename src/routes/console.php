@@ -499,6 +499,6 @@ Artisan::command('test-arzdigital', function (\App\Actions\SendHttpRequestAction
 });
 
 Artisan::command('test-decathlon', function () {
-    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(1));
-    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(6520));
+    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(5159));
+//    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(5159));
 });
