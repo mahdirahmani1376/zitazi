@@ -28,7 +28,6 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'نام محصول',
             'شناسه محصول زیتازی',
             'شناسه تنوع زیتازی',
-            'وضعیت',
             'شناسه تنوع دکتلون',
             'قیمت',
             'قیمت ریالی',
@@ -39,6 +38,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'برند',
             'منبع',
             'زمان آپدیت',
+            'وضعیت',
         ];
     }
 
@@ -51,7 +51,6 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'product_name' => $row->product->product_name,
             'zitazi_product_id' => $row->product->own_id,
             'zitazi_variation_id' => $row->own_id,
-            'status' => $row->status,
             'sku' => $row->sku,
             'price' => $row->price,
             'rial_price' => $row->rial_price,
@@ -62,6 +61,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'color' => $row->color,
             'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
+            'status' => $row->status,
         ];
     }
 }

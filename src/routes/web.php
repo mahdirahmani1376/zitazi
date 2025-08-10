@@ -3,7 +3,6 @@
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
 use App\Exports\NullVariationExport;
-use App\Exports\OutOfStockExport;
 use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
@@ -148,12 +147,13 @@ Route::get('/sync-logs-download', function () {
 
 Route::get('/out-of-stock-logs-download', function () {
     $now = now()->toDateTimeString();
-    return Excel::download(new \App\Exports\UnAvailableVariationExport(), "sync_logs_{$now}.xlsx");
+    return Excel::download(new \App\Exports\OutOfStockExport(), "sync_logs_{$now}.xlsx");
 })->name('out-of-stock-logs.download');
 
 Route::get('/unavailable-download', function () {
+    dd(3);
     $now = now()->toDateTimeString();
-    return Excel::download(new OutOfStockExport, "unavailable_variations_{$now}.xlsx");
+    return Excel::download(new \App\Exports\UnAvailableVariationExport(), "unavailable_variations_{$now}.xlsx");
 })->name('unavailable-variations.download');
 
 Route::post('update-product', function (Request $request) {
