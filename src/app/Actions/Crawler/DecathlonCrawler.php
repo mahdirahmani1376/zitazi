@@ -57,8 +57,6 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'rial_price' => $rialPrice,
         ];
 
-        dd($data);
-
         $this->updateVariationAndLog($variation, $data);
 
         $dto = ZitaziUpdateDTO::createFromArray([
