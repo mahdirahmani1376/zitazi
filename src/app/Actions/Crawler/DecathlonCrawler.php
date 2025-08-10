@@ -134,6 +134,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'price' => null,
             'stock' => 0,
             'rial_price' => null,
+            'status' => Variation::UNAVAILABLE,
         ];
 
         $this->updateVariationAndLog($variation, $data);
