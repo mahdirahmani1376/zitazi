@@ -26,18 +26,17 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             ];
         }
 
+        if (empty($variations)) {
+            return $this->logErrorAndSyncVariation($variation);
+        }
+
         $variations = collect($variations)->keyBy('sku');
         if (!(isset($variations[$variation['sku']]))) {
             Log::error('sync-variations-action-sku-not-found', [
                 'sku' => $variation['sku'],
                 'variation_url' => $variation->url,
             ]);
-
-            return [
-                'price' => null,
-                'stock' => 0,
-                'rial_price' => null,
-            ];
+            return $this->logErrorAndSyncVariation($variation);
         }
 
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
@@ -84,6 +83,14 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             ];
         }
 
+        if (empty($variations)) {
+            return [
+                'price' => null,
+                'stock' => 0,
+                'rial_price' => null,
+            ];
+        }
+
         $variations = collect($variations)->keyBy('sku');
         if (!(isset($variations[$variation['sku']]))) {
             Log::error('sync-variations-action-sku-not-found', [
@@ -109,17 +116,35 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             $rialPrice = null;
         }
 
-        $data = [
+        return [
             'price' => $price,
             'stock' => $stock,
             'rial_price' => $rialPrice,
         ];
-
-        return $data;
     }
 
     public function supports(Variation $variation): bool
     {
         return !empty($variation->url);
+    }
+
+    private function logErrorAndSyncVariation(Variation $variation): bool
+    {
+        $data = [
+            'price' => null,
+            'stock' => 0,
+            'rial_price' => null,
+        ];
+
+        $this->updateVariationAndLog($variation, $data);
+
+        $dto = ZitaziUpdateDTO::createFromArray([
+            'price' => null,
+            'stock_quantity' => 0,
+        ]);
+
+        $this->syncZitazi($variation, $dto);
+
+        return false;
     }
 }
