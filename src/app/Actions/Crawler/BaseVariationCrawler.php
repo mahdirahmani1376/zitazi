@@ -114,6 +114,7 @@ class BaseVariationCrawler
     {
         $oldStock = $variation->stock;
         $oldPrice = $variation->rial_price;
+        $data['updated_at'] = now();
 
         $variation->update($data);
 
