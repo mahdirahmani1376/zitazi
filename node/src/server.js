@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-extra');
 const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 puppeteer.use(stealthPlugin());
-const scrapeUrl = require('./scraper');
+const {scrapeUrl} = require('./scraper');
 
 const app = express();
 app.use(express.json());
