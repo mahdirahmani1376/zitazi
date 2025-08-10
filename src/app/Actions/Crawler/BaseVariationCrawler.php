@@ -47,7 +47,8 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        if ($variation->product?->onPromotion()) {
+        dump($dto->getUpdateBody());
+        if ($variation->product?->onPromotion() or env('APP_ENV') === 'local') {
             return;
         }
 

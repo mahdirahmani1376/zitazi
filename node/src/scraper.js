@@ -16,7 +16,7 @@ async function scrapeUrl(url) {
     const page = await browser.newPage();
 
     try {
-        await page.goto(url, {waitUntil: 'networkidle2', timeout: 30000});
+        await page.goto(url, {waitUntil: 'networkidle2', timeout: 60000});
 
         // Try to find the element, but timeout if not found
         const elHandle = await page.$('script[type="application/ld+json"]');
@@ -35,7 +35,7 @@ async function scrapeUrl(url) {
         return {success: false, error: err.message};
 
     } finally {
-        await browser.close();
+        await page.close();
     }
 }
 
