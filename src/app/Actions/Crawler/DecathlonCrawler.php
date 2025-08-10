@@ -26,7 +26,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             ];
         }
 
-        if (empty($variations)) {
+        if (!isset($variations)) {
             return $this->logErrorAndSyncVariation($variation);
         }
 
