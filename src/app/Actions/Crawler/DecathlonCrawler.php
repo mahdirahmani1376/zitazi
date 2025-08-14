@@ -63,7 +63,6 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'stock_quantity' => $stock,
         ]);
 
-        dump($data);
 
         $this->syncZitazi($variation, $dto);
     }

@@ -115,7 +115,6 @@ class SeedVariationsForProductJob implements ShouldQueue
             ]);
         }
 
-        dump($product->variations->toArray());
     }
 
     private function seedTrendyolVariations(Product $product): void
