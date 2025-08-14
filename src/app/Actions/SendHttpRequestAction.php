@@ -135,4 +135,24 @@ class SendHttpRequestAction
         }
     }
 
+    public function getDecathlonData($url)
+    {
+        $cacheKey = md5($url);
+        if ($response = Cache::get($cacheKey)) {
+            return $response;
+        }
+
+        $response = Http::asJson()->post('zitazi-node:3000/seed', [
+            'url' => $url
+        ]);
+
+        if ($response->successful() && $response->json('success')) {
+            Cache::put($cacheKey, $response->json(), now()->addDay());
+            /** @var Response $response */
+            return $response->json();
+        } else {
+            throw new UnProcessableResponseException("error-in-decathlon-node:$url status:{$response->status()} error:{$response->body()}");
+        }
+    }
+
 }

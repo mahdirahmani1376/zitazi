@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer-extra');
 const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 puppeteer.use(stealthPlugin());
-const {scrapeUrl} = require('./scraper');
+const {scrapeUrl, seedUrl} = require('./scraper');
 
 const app = express();
 app.use(express.json());
@@ -19,6 +19,20 @@ app.post('/scrape', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({error: err.message, success: false});
+    }
+});
+
+app.post('/seed', async (req, res) => {
+    const {url} = req.body;
+    if (!url) {
+        return res.status(400).json({body: 'URL is required'});
+    }
+    try {
+        const data = await seedUrl(url);
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({body: err.message, success: false});
     }
 });
 

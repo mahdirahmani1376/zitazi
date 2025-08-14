@@ -2,35 +2,35 @@
 
 namespace App\Actions\Crawler;
 
+use App\Actions\SendHttpRequestAction;
 use App\DTO\ZitaziUpdateDTO;
+use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Variation;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
 {
     public function crawl(Variation $variation)
     {
-        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
-        $data = collect($response);
-        $productId = data_get($data, 'productID');
-        $offers = collect($data->get('offers'))->collapse();
-        foreach ($offers as $offer) {
-            $variationStock = data_get($offer, 'availability') == 'https://schema.org/InStock' ? 88 : 0;
-            $variations[] = [
-                'product_id' => $productId,
-                'sku' => $offer['sku'] ?? null,
-                'price' => $offer['price'] ?? null,
-                'url' => $offer['url'] ?? null,
-                'stock' => $variationStock,
-            ];
+        try {
+            $response = app(SendHttpRequestAction::class)->getDecathlonData($variation->product->decathlon_url);
+        } catch (Exception $exception) {
+            $this->logErrorAndSyncVariation($variation);
+            Log::error('error-in-sync-variations', [
+                'exception' => $exception->getMessage(),
+                'variation_id' => $variation->id,
+            ]);
+            throw UnProcessableResponseException::make('error-in-sync-variations');
         }
 
-        if (!isset($variations)) {
+        $data = collect($response['body']);
+        if (empty($data)) {
             return $this->logErrorAndSyncVariation($variation);
         }
 
-        $variations = collect($variations)->keyBy('sku');
+        $variations = collect($data)->keyBy('sku');
         if (!(isset($variations[$variation['sku']]))) {
             Log::error('sync-variations-action-sku-not-found', [
                 'sku' => $variation['sku'],
@@ -62,6 +62,8 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'price' => $rialPrice,
             'stock_quantity' => $stock,
         ]);
+
+        dump($data);
 
         $this->syncZitazi($variation, $dto);
     }

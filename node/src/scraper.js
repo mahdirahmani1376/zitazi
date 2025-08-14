@@ -39,4 +39,48 @@ async function scrapeUrl(url) {
     }
 }
 
-module.exports = {scrapeUrl};
+async function seedUrl(url) {
+    const browser = await getBrowser();
+    const page = await browser.newPage();
+
+    try {
+        await page.goto(url, {waitUntil: 'networkidle2', timeout: 60000});
+
+        const jsonData = await page.evaluate(() => {
+            const el = document.querySelector('script[type="application/ld+json"]');
+            const targetData = JSON.parse(el.textContent.trim());
+            const variations = [];
+            const productId = targetData.productID;
+
+            targetData.offers[0].forEach((offer, index) => {
+                const stock = offer.availability === 'https://schema.org/InStock' ? 88 : 0;
+                variations.push({
+                    product_id: productId,
+                    sku: offer.sku ?? null,
+                    price: offer.price ?? null,
+                    url: offer.url ?? null,
+                    stock,
+                    index
+                });
+            });
+
+            variations.forEach(variation => {
+                const elId = `#sku-${variation.index}`;
+                const el = document.querySelector(elId);
+                variation.size = el ? el.getAttribute('aria-label') : null;
+            });
+
+            return variations;
+        });
+
+        return {success: true, body: jsonData};
+
+    } catch (err) {
+        return {success: false, error: err.message};
+
+    } finally {
+        await page.close();
+    }
+}
+
+module.exports = {scrapeUrl, seedUrl};

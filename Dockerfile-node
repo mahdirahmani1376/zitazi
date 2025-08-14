@@ -10,8 +10,8 @@ WORKDIR /app
 COPY ./node/package.json /app/package.json
 
 RUN npm install
+RUN npm install --save-dev nodemon
 
 COPY ./node/src /app/src
 
 EXPOSE 3000
-CMD ["node", "src/server.js"]

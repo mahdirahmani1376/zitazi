@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Actions\SendHttpRequestAction;
 use App\Actions\TrendyolParser;
+use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -60,52 +61,20 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     private function seedDecathlonVariations(Product $product): void
     {
-        $response = app(SendHttpRequestAction::class)->getRawDecathlonHtml($product->decathlon_url);
-
-        $element = 'script[type="application/ld+json"]';
-
-        $crawler = new Crawler($response);
-        $element = $crawler->filter($element)->first();
-        $productId = null;
-
-        $variations = [];
-        if ($element->count() > 0) {
-
-            $data = collect(json_decode($element->text(), true));
-            $productId = data_get($data, 'productID');
-            $offers = collect($data->get('offers'))->collapse();
-            foreach ($offers as $offer) {
-                $stock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
-                $variations[] = [
-                    'product_id' => $productId,
-                    'sku' => $offer['sku'] ?? null,
-                    'price' => $offer['price'] ?? null,
-                    'url' => $offer['url'] ?? null,
-                    'stock' => $stock,
-                ];
-            }
+        try {
+            $response = app(SendHttpRequestAction::class)->getDecathlonData($product->decathlon_url);
+        } catch (Exception $exception) {
+            Log::error('error-in-seed-variations-for-product', [
+                'exception' => $exception,
+                'trace' => $exception->getTrace(),
+                'product_id' => $product->id,
+            ]);
+            throw UnProcessableResponseException::make('error-in-seed-variations-for-product');
         }
 
-        foreach ($variations as $variation) {
-            $skuId = $variation['sku'];
-            $pattern = '/"skuId"\s*:\s*"' . preg_quote($skuId, '/') . '"\s*,\s*"size"\s*:\s*"([^"]+)"/';
-
-            $jsonString = $crawler->filter('#__dkt')->first();
-            if ($jsonString->count() > 0) {
-                if (preg_match($pattern, $jsonString->text(), $matches)) {
-                    $size = $matches[1];
-                    $variation['size'] = $size;
-                }
-            } else {
-                dump("no variation found for {$product->id}");
-                Log::info("no variation found for {$product->id}");
-
-                continue;
-            }
-
+        foreach ($response['body'] as $variation) {
             $price = (int)str_replace(',', '.', trim($variation['price']));
             $rialPrice = Currency::convertToRial($price) * $product->getRatio();
-
             if (empty($price) || empty($rialPrice)) {
                 $stock = 0;
                 $price = null;
@@ -145,6 +114,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                 'stock' => $stock,
             ]);
         }
+
+        dump($product->variations->toArray());
     }
 
     private function seedTrendyolVariations(Product $product): void

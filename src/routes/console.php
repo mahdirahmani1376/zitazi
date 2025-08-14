@@ -503,7 +503,7 @@ Artisan::command('test-decathlon', function () {
 //    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(5159));
 });
 
-Artisan::command('test-update-deca', function () {
+Artisan::command('test-seed-decathlon', function () {
     $jobs = Variation::query()
         ->where(function (Builder $query) {
             $query
@@ -527,4 +527,8 @@ Artisan::command('test-update-deca', function () {
         ->catch(fn() => Log::error('Some jobs failed.'))
         ->name('Import Variations')
         ->dispatch();
+});
+
+Artisan::command('test-seed-decathlon', function () {
+    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(6523));
 });
