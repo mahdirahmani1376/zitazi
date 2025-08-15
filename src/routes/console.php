@@ -382,12 +382,6 @@ Artisan::command('test-torob-cache', function () {
     dump($product->getChanges());
 });
 
-Artisan::command('test-trendyol-cache', function () {
-    $product = Product::query()->whereNot('trendyol_source', '=', '')->first();
-    app(\App\Actions\Crawler\TrendyolCrawler::class)->crawl($product);
-    dump($product->getChanges());
-});
-
 Artisan::command('test-digikala-cache', function () {
     $product = Product::query()->whereNot('digikala_source', '=', '')->first();
     app(\App\Actions\Crawler\DigikalaCrawler::class)->crawl($product);

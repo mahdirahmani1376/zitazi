@@ -11,21 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class SendHttpRequestAction
 {
-    public function __invoke($method, $url, $headers = []): Response
-    {
-        if (empty($headers)) {
-            $headers = [
-                'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3',
-            ];
-        }
-
-        /** @var Response $response */
-        $response = Http::withHeaders($headers)->$method($url);
-
-        return $response;
-
-    }
-
     public function sendWithCache($method, $url)
     {
         if (empty($headers)) {
@@ -118,21 +103,6 @@ class SendHttpRequestAction
         Cache::put($urlMd5, $response->body(), now()->addDay());
 
         return $response->body();
-    }
-
-
-    public function getRawDecathlonHtml($url)
-    {
-        $response = Http::post('zitazi-node:3000/scrape', [
-            'url' => $url
-        ]);
-
-        if ($response->successful() && $response->json('success')) {
-            /** @var Response $response */
-            return $response->json('body');
-        } else {
-            throw new UnProcessableResponseException("error-in-decathlon-node:$url error:{$response->body()}");
-        }
     }
 
     public function getDecathlonData($url)

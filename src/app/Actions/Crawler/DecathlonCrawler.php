@@ -67,63 +67,6 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $this->syncZitazi($variation, $dto);
     }
 
-    public function getVariationData(Variation $variation)
-    {
-        $response = $this->sendHttpRequestAction->getRawDecathlonHtml($variation->url);
-        $data = collect($response);
-        $productId = data_get($data, 'productID');
-        $offers = collect($data->get('offers'))->collapse();
-        foreach ($offers as $offer) {
-            $variationStock = $offer['availability'] == 'https://schema.org/InStock' ? 88 : 0;
-            $variations[] = [
-                'product_id' => $productId,
-                'sku' => $offer['sku'] ?? null,
-                'price' => $offer['price'] ?? null,
-                'url' => $offer['url'] ?? null,
-                'stock' => $variationStock,
-            ];
-        }
-
-        if (empty($variations)) {
-            return [
-                'price' => null,
-                'stock' => 0,
-                'rial_price' => null,
-            ];
-        }
-
-        $variations = collect($variations)->keyBy('sku');
-        if (!(isset($variations[$variation['sku']]))) {
-            Log::error('sync-variations-action-sku-not-found', [
-                'sku' => $variation['sku'],
-                'variation_url' => $variation->url,
-            ]);
-
-            return [
-                'price' => null,
-                'stock' => 0,
-                'rial_price' => null,
-            ];
-        }
-
-        $stock = data_get($variations, "{$variation->sku}.stock", 0);
-
-        $price = (int)str_replace(',', '.', trim($variation['price']));
-        $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
-
-        if (empty($price) || empty($rialPrice)) {
-            $stock = 0;
-            $price = null;
-            $rialPrice = null;
-        }
-
-        return [
-            'price' => $price,
-            'stock' => $stock,
-            'rial_price' => $rialPrice,
-        ];
-    }
-
     public function supports(Variation $variation): bool
     {
         return !empty($variation->url);
