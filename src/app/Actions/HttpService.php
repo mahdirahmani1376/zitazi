@@ -123,7 +123,7 @@ class HttpService
         $response = Http::asJson()->post('zitazi-node:3000/seed', [
             'url' => $url
         ]);
-        sleep(2);
+        sleep(3);
 
         if ($response->successful() && $response->json('success')) {
             Cache::put($cacheKey, $response->json(), now()->addDay());
@@ -162,6 +162,7 @@ class HttpService
             'sec-fetch-site' => 'same-site',
             'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
         ])->get($fullUrl);
+        sleep(3);
 
         if ($response->successful()) {
             Cache::put($cacheKey, $response->json(), now()->addDay());

@@ -10,7 +10,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\RateLimiter;
 
 class SyncVariationsJob implements ShouldQueue
 {
@@ -24,15 +23,6 @@ class SyncVariationsJob implements ShouldQueue
 
     public function handle(SyncVariationsActions $syncVariationsActions): void
     {
-        RateLimiter::attempt(
-            'api', // The name we defined earlier
-            1, // How many tokens we consume per call
-            function () use ($syncVariationsActions) {
-                $syncVariationsActions->execute($this->variation);
-            },
-            $decay = 60 // seconds for the limit window
-        );
-        sleep(3);
-
+        $syncVariationsActions->execute($this->variation);
     }
 }
