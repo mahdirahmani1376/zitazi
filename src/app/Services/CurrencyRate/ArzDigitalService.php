@@ -16,7 +16,6 @@ class ArzDigitalService extends CurrencyRateService implements CurrencyRateDrive
     public function getAEDRate()
     {
         $response = $this->httpService->sendWithCache('get', self::BASE_URL);
-        $response = json_decode($response, true);
 
         return collect($response['data'])->keyBy('symbol')->get('AED')['toman'];
     }
