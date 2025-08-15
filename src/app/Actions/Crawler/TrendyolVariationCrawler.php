@@ -5,6 +5,7 @@ namespace App\Actions\Crawler;
 use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
+use App\Models\Product;
 use App\Models\Variation;
 
 class TrendyolVariationCrawler extends BaseVariationCrawler
@@ -13,11 +14,16 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
     {
         $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
         $data = collect($response['result']['variants'])->keyBy('itemNumber');
-        if (isset($variation->item_number)) {
+
+        $result = null;
+        if (isset($variation->item_number) && $variation->item_type = Product::VARIATION_UPDATE) {
             $result = $data->get($variation->item_number);
-        } else {
+        } elseif ($variation->item_type = Product::PRODUCT_UPDATE) {
             $result = collect($response['result']['variants']);
+        } elseif (empty($result)) {
+            return $this->logErrorAndSyncVariation($variation);
         }
+
 
         $price = $result['price']['value'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
@@ -44,5 +50,27 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
         $this->syncZitazi($variation, $updateData);
     }
+
+    private function logErrorAndSyncVariation(Variation $variation): bool
+    {
+        $data = [
+            'price' => null,
+            'stock' => 0,
+            'rial_price' => null,
+            'status' => Variation::UNAVAILABLE,
+        ];
+
+        $this->updateVariationAndLog($variation, $data);
+
+        $dto = ZitaziUpdateDTO::createFromArray([
+            'price' => null,
+            'stock_quantity' => 0,
+        ]);
+
+        $this->syncZitazi($variation, $dto);
+
+        return false;
+    }
+
 
 }

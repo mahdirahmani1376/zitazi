@@ -24,10 +24,9 @@ class HttpService
             return $response;
         }
 
-
+        $response = Http::withHeaders($headers)->$method($url);
         if ($response->successful()) {
             /** @var Response $response */
-            $response = Http::withHeaders($headers)->$method($url);
             Cache::put($cacheKey, $response->json(), now()->addDay());
         } else {
             Log::error('error-in-sendWithCache', [
