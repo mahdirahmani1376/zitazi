@@ -162,7 +162,6 @@ class HttpService
             'sec-fetch-site' => 'same-site',
             'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
         ])->get($fullUrl);
-        sleep(2);
 
         if ($response->successful()) {
             Cache::put($cacheKey, $response->json(), now()->addDay());

@@ -7,10 +7,12 @@ use App\Actions\Crawler\DigikalaCrawler;
 use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\TorobCrawler;
 use App\Services\CurrencyRate\CurrencyRateDriverInterface;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -54,5 +56,8 @@ class AppServiceProvider extends ServiceProvider
             SkipIfBatchCancelled::class
         ]);
 
+        RateLimiter::for('api', function () {
+            return Limit::perMinute(20)->by('api');
+        });
     }
 }
