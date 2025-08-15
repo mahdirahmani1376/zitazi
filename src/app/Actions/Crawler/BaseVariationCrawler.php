@@ -2,7 +2,7 @@
 
 namespace App\Actions\Crawler;
 
-use App\Actions\SendHttpRequestAction;
+use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -20,7 +20,7 @@ class BaseVariationCrawler
     protected mixed $rate;
 
     public function __construct(
-        public SendHttpRequestAction $sendHttpRequestAction
+        public HttpService $httpService
     )
     {
         $this->rate = Currency::syncTryRate();
@@ -29,10 +29,10 @@ class BaseVariationCrawler
 
     public static function crawlVariation(Variation $variation): void
     {
-        if ($variation->product->belongsToDecalthon()) {
-            app(DecathlonCrawler::class)->crawl($variation);
-        } else if ($variation->product->belongsToTrendyol()) {
+        if ($variation->product->belongsToTrendyol()) {
             app(TrendyolVariationCrawler::class)->crawl($variation);
+        } else if ($variation->product->belongsToDecalthon()) {
+            app(DecathlonCrawler::class)->crawl($variation);
         };
     }
 

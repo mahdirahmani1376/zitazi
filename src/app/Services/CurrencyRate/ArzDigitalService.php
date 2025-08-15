@@ -8,7 +8,7 @@ class ArzDigitalService extends CurrencyRateService implements CurrencyRateDrive
 
     public function getTRYRate()
     {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', self::BASE_URL);
+        $response = $this->httpService->sendWithCache('get', self::BASE_URL);
         $response = json_decode($response, true);
 
         return collect($response['data'])->keyBy('symbol')->get('TRY')['toman'];
@@ -16,7 +16,7 @@ class ArzDigitalService extends CurrencyRateService implements CurrencyRateDrive
 
     public function getAEDRate()
     {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', self::BASE_URL);
+        $response = $this->httpService->sendWithCache('get', self::BASE_URL);
         $response = json_decode($response, true);
 
         return collect($response['data'])->keyBy('symbol')->get('AED')['toman'];

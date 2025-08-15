@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class SendHttpRequestAction
+class HttpService
 {
     public function sendWithCache($method, $url)
     {
@@ -19,13 +19,22 @@ class SendHttpRequestAction
             ];
         }
 
-        /** @var Response $response */
-        $response = Http::withHeaders($headers)->$method($url);
-        if (!$response->successful()) {
+        $cacheKey = md5($url);
+        if ($response = Cache::get($cacheKey)) {
+            return $response;
+        }
+
+
+        if ($response->successful()) {
+            /** @var Response $response */
+            $response = Http::withHeaders($headers)->$method($url);
+            Cache::put($cacheKey, $response->json(), now()->addDay());
+        } else {
             Log::error('error-in-sendWithCache', [
                 'url' => $url,
                 'error' => $response->json()
             ]);
+            throw new UnProcessableResponseException('Unprocessable response sendWithCache');
         }
 
         return $response->body();
@@ -105,7 +114,7 @@ class SendHttpRequestAction
         return $response->body();
     }
 
-    public function getDecathlonData($url)
+    public static function getDecathlonData($url)
     {
         $cacheKey = md5($url);
         if ($response = Cache::get($cacheKey)) {
@@ -122,6 +131,44 @@ class SendHttpRequestAction
             return $response->json();
         } else {
             throw new UnProcessableResponseException("error-in-decathlon-node:$url status:{$response->status()} error:{$response->body()}");
+        }
+    }
+
+    public static function getTrendyolData($contentId, $merchantId = null)
+    {
+        $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
+        $params = http_build_query([
+            'contentId' => $contentId,
+            'merchantId' => $merchantId,
+        ]);
+        $fullUrl = $url . '?' . $params;
+
+        $cacheKey = md5($fullUrl);
+        if ($response = Cache::get($cacheKey)) {
+            return $response;
+        }
+
+        $response = Http::asJson()->withHeaders([
+            'accept-language' => 'en-GB,en;q=0.9,en-US;q=0.8,fa;q=0.7',
+            'cache-control' => 'no-cache',
+            'origin' => 'https://www.trendyol.com',
+            'pragma' => 'no-cache',
+            'priority' => 'u=1, i',
+            'sec-ch-ua' => 'Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138',
+            'sec-ch-ua-mobile' => '?0',
+            'sec-ch-ua-platform' => 'Linux',
+            'sec-fetch-dest' => 'empty',
+            'sec-fetch-mode' => 'cors',
+            'sec-fetch-site' => 'same-site',
+            'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+        ])->get($fullUrl);
+
+        if ($response->successful()) {
+            Cache::put($cacheKey, $response->json(), now()->addDay());
+            /** @var Response $response */
+            return $response->json();
+        } else {
+            throw new UnProcessableResponseException("error-in-trendyol-url:$url status:{$response->status()} error:{$response->body()}");
         }
     }
 

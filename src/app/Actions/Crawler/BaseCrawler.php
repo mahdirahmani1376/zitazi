@@ -2,7 +2,7 @@
 
 namespace App\Actions\Crawler;
 
-use App\Actions\SendHttpRequestAction;
+use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -17,11 +17,11 @@ class BaseCrawler
 {
     protected mixed $rate;
     private Client $woocommerce;
-    protected SendHttpRequestAction $sendHttpRequestAction;
+    protected HttpService $httpService;
 
     public function __construct()
     {
-        $this->sendHttpRequestAction = app(SendHttpRequestAction::class);
+        $this->httpService = app(HttpService::class);
         $this->rate = Currency::syncTryRate();
         $this->woocommerce = WoocommerceService::getClient();
     }

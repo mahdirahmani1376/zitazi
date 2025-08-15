@@ -2,7 +2,7 @@
 
 namespace App\Actions\Crawler;
 
-use App\Actions\SendHttpRequestAction;
+use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
@@ -15,7 +15,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
     public function crawl(Variation $variation)
     {
         try {
-            $response = app(SendHttpRequestAction::class)->getDecathlonData($variation->product->decathlon_url);
+            $response = HttpService::getDecathlonData($variation->product->decathlon_url);
         } catch (Exception $exception) {
             $this->logErrorAndSyncVariation($variation);
             Log::error('error-in-sync-variations', [

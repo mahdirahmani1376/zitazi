@@ -2,24 +2,26 @@
 
 namespace App\Actions\Crawler;
 
-use App\Actions\TrendyolParser;
+use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
-use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
-use App\Models\Product;
 use App\Models\Variation;
 
 class TrendyolVariationCrawler extends BaseVariationCrawler
 {
     public function crawl(Variation $variation)
     {
-        if ($variation->item_type === Product::VARIATION_UPDATE) {
-            [$price, $stock] = $this->getVariationTypeVariationData($variation);
+        $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
+        $data = collect($response['result']['variants'])->keyBy('itemNumber');
+        if (isset($variation->item_number)) {
+            $result = $data->get($variation->item_number);
         } else {
-            [$price, $stock] = $this->getVariationTypeProductData($variation);
+            $result = collect($response['result']['variants']);
         }
 
+        $price = $result['price']['value'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
+        $stock = !empty($result['inStock']) ? 88 : 0;
 
         if (empty($price)) {
             $stock = 0;
@@ -42,31 +44,5 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
         $this->syncZitazi($variation, $updateData);
     }
-
-    private function getVariationTypeVariationData(Variation $variation)
-    {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->product->trendyol_source);
-
-        $data = app(TrendyolParser::class)->parseVariationTypeVariationResponse($response);
-
-        $itemNumberData = collect($data['data'])->keyBy('item_number');
-
-        if (empty($variation->item_number)) {
-            throw UnProcessableResponseException::make("no item number for variation:{$variation->id}");
-        }
-
-        $price = data_get($itemNumberData, $variation->item_number . '.price', $data['data'][0]['price']);
-        $stock = data_get($itemNumberData, $variation->item_number . '.stock', $data['data'][0]['stock']);
-
-        return [$price, $stock];
-    }
-
-    private function getVariationTypeProductData(Variation $variation)
-    {
-        $response = $this->sendHttpRequestAction->sendWithCache('get', $variation->product->trendyol_source);
-
-        return app(TrendyolParser::class)->parseVariationTypeProductResponse($response);
-    }
-
 
 }

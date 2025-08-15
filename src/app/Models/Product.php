@@ -106,4 +106,26 @@ class Product extends Model
 
         return $ratio;
     }
+
+    public function getTrendyolContentId(): ?string
+    {
+        $contentId = null;
+        if (!empty($this->trendyol_source)) {
+            if (preg_match('/p-(\d+)/', $this->trendyol_source, $m)) {
+                $contentId = $m[1];
+            }
+        }
+        return $contentId;
+    }
+
+    public function getTrendyolMerchantId(): ?string
+    {
+        $contentId = null;
+        if (!empty($this->trendyol_source)) {
+            if (preg_match('/merchantId=(\d+)/', $this->trendyol_source, $m)) {
+                $contentId = $m[1];
+            }
+        }
+        return $contentId;
+    }
 }

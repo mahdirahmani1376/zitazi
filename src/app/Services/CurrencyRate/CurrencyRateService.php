@@ -2,12 +2,12 @@
 
 namespace App\Services\CurrencyRate;
 
-use App\Actions\SendHttpRequestAction;
+use App\Actions\HttpService;
 
 class CurrencyRateService
 {
     public function __construct(
-        public SendHttpRequestAction $sendHttpRequestAction
+        public HttpService $httpService
     )
     {
     }

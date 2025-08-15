@@ -319,7 +319,7 @@ Artisan::command('test', function () {
 });
 
 Artisan::command('test-matilda', function () {
-    $response = app(\App\Actions\SendHttpRequestAction::class)('get', 'https://matiilda.com/product/figure-joytoy-world-war-ii-65748/');
+    $response = app(\App\Actions\HttpService::class)('get', 'https://matiilda.com/product/figure-joytoy-world-war-ii-65748/');
 
     $crawler = new Crawler($response);
 
@@ -424,11 +424,11 @@ Artisan::command('ttbw {id}', function ($id) {
 
 });
 
-Artisan::command('test-amazon', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
+Artisan::command('test-amazon', function (\App\Actions\HttpService $httpService) {
     $url = 'https://www.amazon.ae/dp/B09NLFPD4Q';
 
     dd(str_split($url, '/'));
-    $response = $sendHttpRequestAction->sendAmazonRequest($url);
+    $response = $httpService->sendAmazonRequest($url);
     $c = new Crawler($response);
 
     $priceData = $c->filter('div.twister-plus-buying-options-price-data')->first();
@@ -480,11 +480,11 @@ Artisan::command('sync-all-trendyol', function () {
 
 //'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yaratici-oyuncak-yapim-seti-119-parca-p-467589114';
 //'https://www.trendyol.com/lego/star-wars-501-klon-trooperlar-paketi-75345-6-yas-ve-uzeri-icin-yapim-seti-119-parca-p-467589114?boutiqueId=677589&merchantId=968';
-Artisan::command('test-arzdigital', function (\App\Actions\SendHttpRequestAction $sendHttpRequestAction) {
+Artisan::command('test-arzdigital', function (\App\Actions\HttpService $httpService) {
     Currency::syncTryRate();
 
     $url = 'https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat';
-    $response = $sendHttpRequestAction->sendWithCache('get', $url);
+    $response = $httpService->sendWithCache('get', $url);
     $response = json_decode($response, true);
 
     $lyre = collect($response['data'])->keyBy('symbol')->get('TRY')['toman'];
@@ -525,4 +525,12 @@ Artisan::command('test-seed-decathlon', function () {
 
 Artisan::command('test-seed-decathlon', function () {
     \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(6523));
+});
+
+Artisan::command('test-trendyol-seed-api', function () {
+    \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(8304));
+});
+
+Artisan::command('test-trendyol-sync-api', function () {
+    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(2162));
 });
