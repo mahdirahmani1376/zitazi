@@ -36,7 +36,7 @@ class HttpService
             throw new UnProcessableResponseException('Unprocessable response sendWithCache');
         }
 
-        return $response->body();
+        return $response->json();
     }
 
     public function sendTorobRequest(Product $product)

@@ -283,9 +283,9 @@ Artisan::command('toyz_shop', function () {
     dump($price, $stock);
 
 });
-Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions $syncVariationsActions) {
-    $syncVariationsActions->execute();
-});
+//Artisan::command('sync-variations', function (\App\Actions\SyncVariationsActions $syncVariationsActions) {
+//    $syncVariationsActions->execute();
+//});
 
 Artisan::command('test-job', function () {
     \App\Jobs\TestJob::dispatch();
