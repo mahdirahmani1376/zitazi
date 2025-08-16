@@ -47,12 +47,10 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        dump('here');
         if ($variation->product?->onPromotion() or env('APP_ENV') === 'local') {
             dump($dto->getUpdateBody());
             return;
         }
-        dump('here');
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
         if ($dto->stock_quantity > 0) {
@@ -69,7 +67,6 @@ class BaseVariationCrawler
         }
 
 
-        dump($variation->item_type, $variation->own_id);
         if ($variation->item_type == Product::PRODUCT_UPDATE) {
             $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
@@ -78,10 +75,8 @@ class BaseVariationCrawler
             return;
         }
 
-        dump($url, $data);
         try {
             $response = $this->woocommerce->post($url, $data);
-            dump('here');
             Log::info(
                 "variation_update_{$variation->id}",
                 [
