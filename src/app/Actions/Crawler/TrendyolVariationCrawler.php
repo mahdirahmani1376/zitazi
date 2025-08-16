@@ -39,9 +39,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
 
         $data = [
-//            'price' => $price,
             'stock' => $stock,
-//            'rial_price' => $rialPrice,
             'status' => Variation::AVAILABLE,
         ];
 
