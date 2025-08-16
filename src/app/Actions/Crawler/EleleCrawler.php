@@ -12,6 +12,16 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
     public function crawl(Product $product): void
     {
+        try {
+            $this->process($product);
+        } catch (\Exception $exception) {
+            $this->logErrorAndSyncVariation($product);
+            throw UnProcessableResponseException::make('elele sync error');
+        }
+    }
+
+    private function process(Product $product)
+    {
         $response = $this->httpService->sendWithCache('get', $product->elele_source);
 
         $element = 'script[type="application/ld+json"]';
@@ -44,8 +54,25 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
         if (!$product->belongsToIran()) {
             $this->syncProductWithZitazi($product, $updateData);
         }
-
     }
+
+    private function logErrorAndSyncVariation(Product $product): bool
+    {
+        $data = [
+            'stock' => 0,
+        ];
+
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'stock_quantity' => 0,
+        ]);
+
+        $this->updateAndLogProduct($product, $data);
+
+        $this->syncProductWithZitazi($product, $updateData);
+
+        return false;
+    }
+
 
     public function supports(Product $product): bool
     {

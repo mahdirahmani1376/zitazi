@@ -76,9 +76,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
     private function logErrorAndSyncVariation(Variation $variation, $status = Variation::GENERAL_ERROR): bool
     {
         $data = [
-            'price' => null,
             'stock' => 0,
-            'rial_price' => null,
             'status' => $status,
         ];
 

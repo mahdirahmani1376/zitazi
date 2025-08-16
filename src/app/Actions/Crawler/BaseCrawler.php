@@ -28,7 +28,7 @@ class BaseCrawler
 
     protected function syncProductWithZitazi(Product $product, ZitaziUpdateDTO $dto): void
     {
-        if ($product->onPromotion()) {
+        if ($product->onPromotion() or env('APP_ENV') === 'local') {
             return;
         }
 
@@ -40,8 +40,11 @@ class BaseCrawler
         $data = $dto->getUpdateBody();
 
         $data['stock_status'] = $stockStatus;
-        $data['sale_price'] = null;
-        $data['regular_price'] = '' . $dto->price;
+
+        if (!empty($dto->price)) {
+            $data['sale_price'] = null;
+            $data['regular_price'] = '' . $dto->price;
+        }
 
         try {
             $this->sendZitaziUpdateRequest($product, $data);

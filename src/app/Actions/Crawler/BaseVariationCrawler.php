@@ -60,8 +60,11 @@ class BaseVariationCrawler
         $data = $dto->getUpdateBody();
 
         $data['stock_status'] = $stockStatus;
-        $data['sale_price'] = null;
-        $data['regular_price'] = '' . $dto->price;
+
+        if (!empty($dto->price)) {
+            $data['sale_price'] = null;
+            $data['regular_price'] = '' . $dto->price;
+        }
 
 
         if ($variation->item_type == Product::PRODUCT_UPDATE) {

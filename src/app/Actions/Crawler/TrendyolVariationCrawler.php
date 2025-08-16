@@ -39,9 +39,9 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 
 
         $data = [
-            'price' => $price,
+//            'price' => $price,
             'stock' => $stock,
-            'rial_price' => $rialPrice,
+//            'rial_price' => $rialPrice,
             'status' => Variation::AVAILABLE,
         ];
 
@@ -59,9 +59,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
     private function logErrorAndSyncVariation(Variation $variation, $status = Variation::GENERAL_ERROR): bool
     {
         $data = [
-            'price' => null,
             'stock' => 0,
-            'rial_price' => null,
             'status' => $status,
         ];
 
