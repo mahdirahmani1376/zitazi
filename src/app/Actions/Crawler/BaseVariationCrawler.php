@@ -52,6 +52,7 @@ class BaseVariationCrawler
             dump($dto->getUpdateBody());
             return;
         }
+        dump('here');
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
         if ($dto->stock_quantity > 0) {
