@@ -111,7 +111,7 @@ class Product extends Model
     {
         $contentId = null;
         if (!empty($this->trendyol_source)) {
-            if (preg_match('/p-(\d+)/', $this->trendyol_source, $m)) {
+            if (preg_match('/-p-(\d+)/', $this->trendyol_source, $m)) {
                 $contentId = $m[1];
             }
         }
