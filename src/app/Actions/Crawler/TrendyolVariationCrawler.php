@@ -15,6 +15,8 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         try {
             $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
             \Log::info('response variation', [
+                'contentId' => $variation->product->getTrendyolContentId(),
+                'merchantId' => $variation->product->getTrendyolMerchantId(),
                 'response' => $response,
                 'id' => $variation->id,
                 'sku' => $variation->sku,
