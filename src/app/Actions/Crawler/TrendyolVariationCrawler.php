@@ -12,7 +12,11 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
 {
     public function crawl(Variation $variation)
     {
-        $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
+        try {
+            $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
+        } catch (\Exception $e) {
+            return $this->logErrorAndSyncVariation($variation);
+        }
         $data = collect($response['result']['variants'])->keyBy('itemNumber');
 
         $result = null;
