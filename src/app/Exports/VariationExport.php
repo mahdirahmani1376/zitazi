@@ -39,6 +39,7 @@ class VariationExport implements FromCollection, WithHeadings, WithMapping
             'برند',
             'منبع',
             'زمان آپدیت',
+            'وضعیت',
         ];
     }
 
@@ -61,6 +62,7 @@ class VariationExport implements FromCollection, WithHeadings, WithMapping
             'color' => $row->color,
             'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
+            'status' => $row->status,
         ];
     }
 }

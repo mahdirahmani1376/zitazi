@@ -40,6 +40,7 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
             'برند',
             'منبع',
             'زمان آپدیت',
+            'وضعیت',
         ];
     }
 
@@ -62,6 +63,7 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
             'brand' => $row->product?->brand,
             'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
+            'status' => $row->status,
         ];
     }
 }
