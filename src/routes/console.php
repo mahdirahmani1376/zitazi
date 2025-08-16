@@ -527,6 +527,10 @@ Artisan::command('test-seed-decathlon', function () {
     \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(6523));
 });
 
+Artisan::command('test-sync-decathlon', function () {
+    SyncVariationsJob::dispatchSync(Variation::find(5116));
+});
+
 Artisan::command('test-trendyol-seed-api', function () {
     \App\Jobs\SeedVariationsForProductJob::dispatchSync(Product::find(8304));
 });

@@ -15,7 +15,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
     public function crawl(Variation $variation)
     {
         try {
-            $response = HttpService::getDecathlonData($variation->product->decathlon_url);
+            $response = HttpService::getDecathlonData($variation->url);
         } catch (Exception $exception) {
             $this->logErrorAndSyncVariation($variation);
             Log::error('error-in-sync-variations', [
