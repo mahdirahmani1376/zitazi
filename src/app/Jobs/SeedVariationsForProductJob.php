@@ -131,7 +131,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'sku' => $response['result']['id'],
                     'product_id' => $product->id,
                     'source' => Product::SOURCE_TRENDYOL,
-                    'item_type' => $itemType
+                    'item_type' => $itemType,
+                    'status' => Variation::AVAILABLE,
                 ]);
             }
         } catch (Exception $e) {

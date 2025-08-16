@@ -36,7 +36,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
                 'sku' => $variation['sku'],
                 'variation_url' => $variation->url,
             ]);
-            return $this->logErrorAndSyncVariation($variation);
+            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
         }
 
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
@@ -54,6 +54,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'price' => $price,
             'stock' => $stock,
             'rial_price' => $rialPrice,
+            'status' => Variation::AVAILABLE,
         ];
 
         $this->updateVariationAndLog($variation, $data);
@@ -72,13 +73,13 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         return !empty($variation->url);
     }
 
-    private function logErrorAndSyncVariation(Variation $variation): bool
+    private function logErrorAndSyncVariation(Variation $variation, $status = Variation::GENERAL_ERROR): bool
     {
         $data = [
             'price' => null,
             'stock' => 0,
             'rial_price' => null,
-            'status' => Variation::UNAVAILABLE,
+            'status' => $status,
         ];
 
         $this->updateVariationAndLog($variation, $data);

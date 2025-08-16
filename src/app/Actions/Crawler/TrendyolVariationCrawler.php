@@ -21,7 +21,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         } elseif ($variation->item_type = Product::PRODUCT_UPDATE) {
             $result = collect($response['result']['variants']);
         } elseif (empty($result)) {
-            return $this->logErrorAndSyncVariation($variation);
+            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
         }
 
 
@@ -37,7 +37,8 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         $data = [
             'price' => $price,
             'stock' => $stock,
-            'rial_price' => $rialPrice
+            'rial_price' => $rialPrice,
+            'status' => Variation::AVAILABLE,
         ];
 
 
@@ -51,13 +52,13 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         $this->syncZitazi($variation, $updateData);
     }
 
-    private function logErrorAndSyncVariation(Variation $variation): bool
+    private function logErrorAndSyncVariation(Variation $variation, $status = Variation::GENERAL_ERROR): bool
     {
         $data = [
             'price' => null,
             'stock' => 0,
             'rial_price' => null,
-            'status' => Variation::UNAVAILABLE,
+            'status' => $status,
         ];
 
         $this->updateVariationAndLog($variation, $data);

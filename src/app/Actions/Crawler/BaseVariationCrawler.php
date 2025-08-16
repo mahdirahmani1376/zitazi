@@ -47,8 +47,8 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        dump($dto->getUpdateBody());
         if ($variation->product?->onPromotion() or env('APP_ENV') === 'local') {
+            dump($dto->getUpdateBody());
             return;
         }
 
@@ -109,6 +109,9 @@ class BaseVariationCrawler
             Log::error('error-sync-variation', [
                 'error' => $e->getMessage(),
                 'variation_id' => $variation->id,
+            ]);
+            $variation->update([
+                'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
         }
 
