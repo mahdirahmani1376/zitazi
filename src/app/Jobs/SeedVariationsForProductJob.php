@@ -128,7 +128,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'barcode' => $item['barcode'],
                     'color' => $item['value'],
                     'url' => Product::PRODUCT_UPDATE ? $product->trendyol_source : data_get($item, 'merchantListing.otherMerchants.0.url', $product->trendyol_source),
-                    'sku' => $response['result']['id'],
+                    'sku' => $response['result']['id'] ?? null,
                     'product_id' => $product->id,
                     'source' => Product::SOURCE_TRENDYOL,
                     'item_type' => $itemType,
