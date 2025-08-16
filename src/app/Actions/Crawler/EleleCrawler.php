@@ -16,7 +16,7 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
             $this->process($product);
         } catch (\Exception $exception) {
             $this->logErrorAndSyncVariation($product);
-            throw UnProcessableResponseException::make('elele sync error');
+            throw UnProcessableResponseException::make('elele sync error exception: ' . $exception->getMessage());
         }
     }
 
