@@ -17,7 +17,7 @@ class SyncVariationsJob implements ShouldQueue
 
     public $timeout = 3600;
     public $tries = 2;
-    public $backoff = [1 * 60 * 30];
+    public $backoff = [1 * 60 * 60 * 8];
 
     public function __construct(
         public Variation $variation
