@@ -17,6 +17,10 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         } catch (\Exception $e) {
             return $this->logErrorAndSyncVariation($variation);
         }
+
+        if (data_get($response, 'statusCode') === 404) {
+            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE_ON_SOURCE_SITE);
+        }
         $data = collect($response['result']['variants'])->keyBy('itemNumber');
 
         $result = null;
@@ -29,6 +33,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         }
 
 
+        dd($result);
         $price = $result['price']['value'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
         $stock = !empty($result['inStock']) ? 88 : 0;
