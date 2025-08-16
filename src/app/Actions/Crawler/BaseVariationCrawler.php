@@ -69,6 +69,7 @@ class BaseVariationCrawler
         }
 
 
+        dump($variation->item_type, $variation->own_id);
         if ($variation->item_type == Product::PRODUCT_UPDATE) {
             $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
