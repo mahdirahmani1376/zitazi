@@ -4,6 +4,7 @@ namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
+use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -22,7 +23,8 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
                 'sku' => $variation->sku,
             ]);
         } catch (\Exception $e) {
-            return $this->logErrorAndSyncVariation($variation);
+            $this->logErrorAndSyncVariation($variation);
+            throw UnProcessableResponseException::make('unprocessable-response-trendyol');
         }
 
         if (data_get($response, 'statusCode') === 404) {
@@ -36,7 +38,8 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         } elseif ($variation->item_type = Product::PRODUCT_UPDATE) {
             $result = collect($response['result']['variants']);
         } elseif (empty($result)) {
-            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+            $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+            throw UnProcessableResponseException::make('sku-not-found-trendyol');
         }
 
 

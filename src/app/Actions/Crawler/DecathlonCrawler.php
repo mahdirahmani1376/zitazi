@@ -22,7 +22,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
                 'exception' => $exception->getMessage(),
                 'variation_id' => $variation->id,
             ]);
-            throw UnProcessableResponseException::make('error-in-sync-variations');
+            throw UnProcessableResponseException::make('unprocessable-response-decathlon');
         }
 
         $data = collect($response['body']);
@@ -35,8 +35,10 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             Log::error('sync-variations-action-sku-not-found', [
                 'sku' => $variation['sku'],
                 'variation_url' => $variation->url,
+                'response_body' => $response['body'],
             ]);
-            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+            $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+            throw UnProcessableResponseException::make('sku-not-found-decathlon');
         }
 
         $stock = data_get($variations, "{$variation->sku}.stock", 0);
