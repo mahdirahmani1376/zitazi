@@ -553,3 +553,13 @@ Artisan::command('test-seed', function () {
     app(\App\Jobs\SeedVariationsForProductJob::class)->dispatchSync($trP);
     app(\App\Jobs\SeedVariationsForProductJob::class)->dispatchSync($dep);
 });
+
+Artisan::command('test-sync-decathlon-unavailable', function () {
+    Variation::where('decathlon_url', '!=', '')
+        ->where('status', Variation::UNAVAILABLE)
+        ->limit(10)
+        ->get()
+        ->map(function (Variation $variation) {
+            return SyncVariationsJob::dispatchSync($variation);
+        });
+});
