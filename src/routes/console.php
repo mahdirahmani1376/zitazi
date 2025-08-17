@@ -555,8 +555,9 @@ Artisan::command('test-seed', function () {
 });
 
 Artisan::command('test-sync-decathlon-unavailable', function () {
-    Variation::where('decathlon_url', '!=', '')
+    Variation::where('url', '!=', '')
         ->where('status', Variation::UNAVAILABLE)
+        ->whereRelation('product', 'decathlon_url', '!=', '')
         ->limit(10)
         ->get()
         ->map(function (Variation $variation) {
