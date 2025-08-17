@@ -29,6 +29,12 @@ class BaseVariationCrawler
 
     public static function crawlVariation(Variation $variation): void
     {
+        if (empty($variation->source)) {
+            Log::error('no source variation', [
+                'variation_id' => $variation->id,
+            ]);
+            return;
+        };
         if ($variation->source == Product::SOURCE_TRENDYOL) {
             app(TrendyolVariationCrawler::class)->crawl($variation);
         } else if ($variation->source == Product::SOURCE_TRENDYOL) {
