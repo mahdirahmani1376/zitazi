@@ -559,6 +559,7 @@ Artisan::command('test-sync-decathlon-unavailable', function () {
         ->where('status', Variation::UNAVAILABLE)
         ->where('source', Product::SOURCE_DECATHLON)
         ->limit(10)
+        ->dumpRawSql()
         ->get()
         ->map(function (Variation $variation) {
             return SyncVariationsJob::dispatchSync($variation);
