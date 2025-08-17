@@ -37,7 +37,7 @@ class BaseVariationCrawler
         };
         if ($variation->source == Product::SOURCE_TRENDYOL) {
             app(TrendyolVariationCrawler::class)->crawl($variation);
-        } else if ($variation->source == Product::SOURCE_TRENDYOL) {
+        } else if ($variation->source == Product::SOURCE_DECATHLON) {
             app(DecathlonCrawler::class)->crawl($variation);
         };
     }
