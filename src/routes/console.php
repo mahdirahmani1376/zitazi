@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\SyncVariationsActions;
 use App\Jobs\SyncVariationsJob;
 use App\Models\Currency;
 use App\Models\Product;
@@ -555,12 +556,15 @@ Artisan::command('test-seed', function () {
 });
 
 Artisan::command('test-sync-decathlon-unavailable', function () {
-    Variation::where('url', '!=', '')
+    $v = Variation::query()
         ->where('status', Variation::UNAVAILABLE)
         ->where('source', Product::SOURCE_DECATHLON)
         ->limit(10)
-        ->get()
-        ->each(function (Variation $variation) {
-            SyncVariationsJob::dispatchSync($variation);
-        });
+        ->get();
+
+    dump($v->toArray());
+
+    $v->each(function (Variation $variation) {
+        app(SyncVariationsActions::class)->execute($variation);
+    });
 });
