@@ -539,6 +539,10 @@ Artisan::command('test-trendyol-sync-api', function () {
     app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(2767));
 });
 
+Artisan::command('test-general {variation}', function (Variation $variation) {
+    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(2767));
+});
+
 Artisan::command('test-seed', function () {
     $trP = Product::find(8304);
     $dep = Product::find(6520);
