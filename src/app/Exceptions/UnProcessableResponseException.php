@@ -6,7 +6,7 @@ use Exception;
 
 class UnProcessableResponseException extends Exception
 {
-    public static function make($message, $body = null): static
+    public static function make($message): static
     {
         return new static($message);
     }
