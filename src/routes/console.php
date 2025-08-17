@@ -539,8 +539,8 @@ Artisan::command('test-trendyol-sync-api', function () {
     app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(2767));
 });
 
-Artisan::command('test-general {variation}', function (Variation $variation) {
-    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find(2767));
+Artisan::command('test-general {variation}', function ($variation) {
+    app(\App\Actions\SyncVariationsActions::class)->execute(Variation::find($variation));
 });
 
 Artisan::command('test-seed', function () {
