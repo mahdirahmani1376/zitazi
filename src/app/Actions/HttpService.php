@@ -130,10 +130,10 @@ class HttpService
             /** @var Response $response */
             return $response->json();
         } else {
-            Log::error($m = "error-in-decathlon-node:$url status:{$response->status()} error:{$response->body()}", [
+            Log::error("decathlon response error", [
                 'body' => $response->body(),
             ]);
-            throw new UnProcessableResponseException($m);
+            throw new UnProcessableResponseException('decathlon response error');
         }
     }
 

@@ -18,7 +18,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             $response = HttpService::getDecathlonData($variation->url);
         } catch (Exception $exception) {
             $this->logErrorAndSyncVariation($variation);
-            throw UnProcessableResponseException::make($exception->getMessage());
+            throw UnProcessableResponseException::make('decathlon response error');
         }
 
         $data = collect($response['body']);
