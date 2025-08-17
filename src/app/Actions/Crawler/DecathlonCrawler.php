@@ -56,6 +56,10 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'status' => Variation::AVAILABLE,
         ];
 
+        if (app()->environment('local')) {
+            dump($data);
+        }
+
 
         $this->updateVariationAndLog($variation, $data);
 
