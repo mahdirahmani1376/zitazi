@@ -560,7 +560,7 @@ Artisan::command('test-sync-decathlon-unavailable', function () {
         ->where('source', Product::SOURCE_DECATHLON)
         ->limit(10)
         ->get()
-        ->map(function (Variation $variation) {
-            return SyncVariationsJob::dispatchSync($variation);
+        ->each(function (Variation $variation) {
+            SyncVariationsJob::dispatchSync($variation);
         });
 });
