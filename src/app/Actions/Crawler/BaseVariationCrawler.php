@@ -29,9 +29,9 @@ class BaseVariationCrawler
 
     public static function crawlVariation(Variation $variation): void
     {
-        if ($variation->product->belongsToTrendyol()) {
+        if ($variation->source == Product::SOURCE_TRENDYOL) {
             app(TrendyolVariationCrawler::class)->crawl($variation);
-        } else if ($variation->product->belongsToDecalthon()) {
+        } else if ($variation->source == Product::SOURCE_TRENDYOL) {
             app(DecathlonCrawler::class)->crawl($variation);
         };
     }
