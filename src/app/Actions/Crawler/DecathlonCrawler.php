@@ -35,11 +35,12 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             ]);
             $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
             throw UnProcessableResponseException::make('sku-not-found-decathlon');
+        } else {
+            $vData = $variations[$variation['sku']];
         }
 
-        $stock = data_get($variations, "{$variation->sku}.stock", 0);
-
-        $price = (int)str_replace(',', '.', trim($variation['price']));
+        $stock = $vData['stock'];
+        $price = $vData['price'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
 
         if (empty($price) || empty($rialPrice)) {
@@ -54,6 +55,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
             'rial_price' => $rialPrice,
             'status' => Variation::AVAILABLE,
         ];
+
 
         $this->updateVariationAndLog($variation, $data);
 
