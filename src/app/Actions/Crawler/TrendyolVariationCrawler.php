@@ -42,7 +42,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
             throw UnProcessableResponseException::make('sku-not-found-trendyol');
         }
 
-
+        dump($result);
         $price = $result['price']['value'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
         $stock = !empty($result['inStock']) ? 88 : 0;
