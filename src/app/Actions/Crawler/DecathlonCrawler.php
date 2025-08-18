@@ -7,19 +7,18 @@ use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Variation;
-use Exception;
 use Illuminate\Support\Facades\Log;
 
 class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
 {
     public function crawl(Variation $variation)
     {
-        try {
-            $response = HttpService::getDecathlonData($variation->url);
-        } catch (Exception $exception) {
-            $this->logErrorAndSyncVariation($variation);
-            throw UnProcessableResponseException::make('decathlon response error');
-        }
+        $response = HttpService::getDecathlonData($variation->url);
+//        try {
+//        } catch (Exception $exception) {
+//            $this->logErrorAndSyncVariation($variation);
+//            throw UnProcessableResponseException::make('decathlon response error');
+//        }
 
         $data = collect($response['body']);
         if (empty($data)) {
