@@ -53,8 +53,7 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        if ($variation->product?->onPromotion() or env('APP_ENV') === 'local') {
-            dump($dto->getUpdateBody());
+        if ($variation->product?->onPromotion()) {
             return;
         }
 
@@ -67,7 +66,7 @@ class BaseVariationCrawler
 
         $data['stock_status'] = $stockStatus;
 
-        if (!empty($dto->price)) {
+        if (!empty($dto?->price)) {
             $data['sale_price'] = null;
             $data['regular_price'] = '' . $dto->price;
         }

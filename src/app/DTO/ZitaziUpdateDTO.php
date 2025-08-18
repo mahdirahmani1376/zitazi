@@ -16,7 +16,7 @@ class ZitaziUpdateDTO
     public static function createFromArray(array $data): static
     {
         return new static(
-            price: (int)$data['price'] ?? null,
+            price: isset($data['price']) ? (int)$data['price'] : null,
             stock_quantity: $data['stock_quantity'] ?? null,
         );
     }

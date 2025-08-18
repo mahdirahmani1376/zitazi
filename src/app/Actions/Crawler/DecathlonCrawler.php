@@ -44,9 +44,8 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
 
         if (empty($price) || empty($rialPrice)) {
-            $stock = 0;
-            $price = null;
-            $rialPrice = null;
+            $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+            throw UnProcessableResponseException::make('sku-not-found-decathlon');
         }
 
         $data = [
@@ -87,7 +86,6 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         $this->updateVariationAndLog($variation, $data);
 
         $dto = ZitaziUpdateDTO::createFromArray([
-            'price' => null,
             'stock_quantity' => 0,
         ]);
 
