@@ -123,6 +123,10 @@ class HttpService
         $response = Http::asJson()->post('zitazi-node:3000/seed', [
             'url' => $url
         ]);
+        Log::info('decathlon node response', [
+            'response' => $response->body(),
+            'url' => $url
+        ]);
         sleep(3);
 
         if ($response->successful() && $response->json('success')) {
