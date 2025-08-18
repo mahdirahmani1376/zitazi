@@ -162,6 +162,9 @@ Route::post('update-product', function (Request $request) {
 
     if (!$product->has('variations')) {
         SyncProductJob::dispatchSync($product);
+        if ($product->belongsToTrendyol() or $product->belongsToDecalthon()) {
+            \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
+        }
     } else {
         foreach ($product->variations as $variation) {
             if ($variation->type === Product::PRODUCT_UPDATE) {
