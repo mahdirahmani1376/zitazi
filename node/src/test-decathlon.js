@@ -8,7 +8,7 @@ puppeteer.use(stealthPlugin());
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    await page.goto('https://www.decathlon.com.tr/p/yetiskin-futbol-formasi-beyaz-siyah-viralto-damier/_/R-p-333380?mc=8844122&c=SİYAH_BEYAZ', {waitUntil: 'networkidle2'});
+    await page.goto('https://www.decathlon.com.tr/p/mikrofiber-havlu-l-boy-lila-80-130-cm/_/R-p-158325?mc=8732957&c=MAV%C4%B0', {waitUntil: 'networkidle2'});
 
     const jsonData = await page.evaluate(() => {
         const el = document.querySelector('script[type="application/ld+json"]');
