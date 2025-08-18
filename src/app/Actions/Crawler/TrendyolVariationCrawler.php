@@ -36,13 +36,12 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         if (isset($variation->item_number) && $variation->item_type = Product::VARIATION_UPDATE) {
             $result = $data->get($variation->item_number);
         } elseif ($variation->item_type = Product::PRODUCT_UPDATE) {
-            $result = collect($response['result']['variants']);
+            $result = collect($response['result']['variants'])[0];
         } elseif (empty($result)) {
             $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
             throw UnProcessableResponseException::make('sku-not-found-trendyol');
         }
 
-        dump($result);
         $price = $result['price']['value'];
         $rialPrice = Currency::convertToRial($price) * $this->getProfitRatioForVariation($variation);
         $stock = !empty($result['inStock']) ? 88 : 0;
