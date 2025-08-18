@@ -127,7 +127,6 @@ class HttpService
             'response' => $response->body(),
             'url' => $url
         ]);
-        sleep(3);
 
         if ($response->successful() && $response->json('success')) {
             Cache::put($cacheKey, $response->json(), now()->addDay());
