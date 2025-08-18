@@ -575,6 +575,7 @@ Artisan::command('sync-all-decathlon', function () {
             $query
                 ->whereNot('url', '=', '')
                 ->where('source', Product::SOURCE_DECATHLON)
+                ->whereNot('status', Variation::AVAILABLE)
                 ->where(function (Builder $query) {
                     $query
                         ->whereNotNull('own_id')
