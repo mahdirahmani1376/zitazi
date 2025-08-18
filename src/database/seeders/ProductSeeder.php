@@ -64,6 +64,7 @@ class ProductSeeder extends Seeder
                     'amazon_source' => !empty($value) ? data_get(explode('/', data_get($value, 'amazon_source')), 4) : null,
                     'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
                     'updated_at' => now()->toDateString(),
+                    'created_at' => now()->toDateString(),
                 ];
             } catch (Throwable $e) {
                 dump($e->getMessage());
@@ -73,7 +74,6 @@ class ProductSeeder extends Seeder
 
         $batchSize = 10;
         $chunks = array_chunk($productsToUpdate, $batchSize);
-//        $this->command->getOutput()->progressStart(count($chunks));
         foreach ($chunks as $chunk) {
             try {
                 DB::table('products')->upsert(
@@ -102,10 +102,8 @@ class ProductSeeder extends Seeder
                 Log::error($e->getMessage());
             }
 
-//            $this->command->getOutput()->progressAdvance();
         }
 
-//        $this->command->getOutput()->progressFinish();
     }
 
     private function syncProducts(): void
