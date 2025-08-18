@@ -133,7 +133,7 @@ class HttpService
             if (app()->environment('local')) {
                 dump('body', $response->body());
             }
-            Log::error("decathlon response error", [
+            Log::error("decathlon response error log", [
                 'body' => $response->body(),
             ]);
             throw new UnProcessableResponseException('decathlon response error');
