@@ -95,6 +95,7 @@ class ProductSeeder extends Seeder
                         'elele_source',
                         'promotion',
                         'updated_at',
+                        'created_at',
                     ]
                 );
             } catch (Throwable $e) {
