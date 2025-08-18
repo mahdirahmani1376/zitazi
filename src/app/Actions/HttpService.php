@@ -120,7 +120,7 @@ class HttpService
 //            return $response;
         }
 
-        $response = Http::asJson()->timeout(10)->connectTimeout(5)->post('zitazi-node:3000/seed', [
+        $response = Http::asJson()->timeout(30)->connectTimeout(10)->post('zitazi-node:3000/seed', [
             'url' => $url
         ]);
         dd($response->json());
