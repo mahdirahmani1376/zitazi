@@ -117,13 +117,12 @@ class HttpService
     {
         $cacheKey = md5($url);
         if ($response = Cache::get($cacheKey)) {
-//            return $response;
+            return $response;
         }
 
         $response = Http::asJson()->timeout(30)->connectTimeout(10)->post('zitazi-node:3000/seed', [
             'url' => $url
         ]);
-        dd($response->json());
         Log::info('decathlon node response', [
             'response' => $response->body(),
             'url' => $url
