@@ -55,6 +55,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         $data = [
             'stock' => $stock,
             'status' => Variation::AVAILABLE,
+            'item_type' => Product::VARIATION_UPDATE
         ];
 
 
