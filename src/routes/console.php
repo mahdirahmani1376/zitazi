@@ -568,3 +568,27 @@ Artisan::command('test-sync-decathlon-unavailable', function () {
         app(SyncVariationsActions::class)->execute($variation);
     });
 });
+
+Artisan::command('sync-all-decathlon', function () {
+    $jobs = Variation::query()
+        ->where(function (Builder $query) {
+            $query
+                ->whereNot('url', '=', '')
+                ->where('source', Product::SOURCE_DECATHLON)
+                ->where(function (Builder $query) {
+                    $query
+                        ->whereNotNull('own_id')
+                        ->orWhere('item_type', '=', Product::PRODUCT_UPDATE);
+                });
+        })
+        ->get()
+        ->map(function (Variation $variation) {
+            return new SyncVariationsJob($variation);
+        });
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations updated successfully.'))
+        ->catch(fn() => Log::error('Some jobs failed.'))
+        ->name('sync all decathlon variations')
+        ->dispatch();
+});
