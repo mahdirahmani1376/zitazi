@@ -89,8 +89,6 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
-    command: npx nodemon ./src/server.js
-
 
 volumes:
   mysql:
