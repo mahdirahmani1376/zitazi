@@ -5,7 +5,9 @@ namespace App\Actions;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Product;
+use App\Models\SyncLog;
 use App\Models\Variation;
+use Illuminate\Support\Facades\Log;
 use Opcodes\LogViewer\Facades\Cache;
 
 class SeedVariationsForDecathlonAction
@@ -45,6 +47,26 @@ class SeedVariationsForDecathlonAction
             $variation = Variation::updateOrCreate([
                 'sku' => $variationRawData['sku'],
             ], $createData);
+
+            $oldStock = $variation->stock;
+            $oldPrice = $variation->rial_price;
+
+            if ($oldStock != $variation->stock || $oldPrice != $variation->rial_price) {
+                $data = [
+                    'old_stock' => $oldStock,
+                    'new_stock' => $variation->stock,
+                    'old_price' => $oldPrice,
+                    'new_price' => $variation->rial_price,
+                    'variation_own_id' => $variation->own_id,
+                    'product_own_id' => $variation->product->own_id,
+                ];
+
+                Log::info('decathlon-variation-updated', [
+                    'variation_id' => $variation->id,
+                    'data' => $data,
+                ]);
+                SyncLog::create($data);
+            }
 
         }
 
