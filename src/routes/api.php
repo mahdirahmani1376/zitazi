@@ -76,7 +76,7 @@ Route::get('decathlon-list', function () {
 Route::post('store-decathlon', function (Request $request) {
     foreach ($request->data as $result) {
         if (!$result['success']) {
-            $product = Product::find($result['id']);
+            $product = Product::find($result['product_id']);
             foreach ($product->variations as $variation) {
                 $variation->update([
                     'status' => Variation::UNAVAILABLE,
