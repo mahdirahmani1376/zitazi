@@ -593,3 +593,17 @@ Artisan::command('sync-all-decathlon', function () {
         ->name('sync all decathlon variations')
         ->dispatch();
 });
+
+Artisan::command('resync-all-decathlon', function () {
+    $products = Product::query()
+        ->whereNot('decathlon_url', '=', '')
+        ->get()
+        ->pluck('decathlon_url');
+
+    $products->each(function (Product $product) {
+        $cacheKey = md5('response' . $product->id);
+        if (Cache::has($cacheKey)) {
+            app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($product->id);
+        }
+    });
+});
