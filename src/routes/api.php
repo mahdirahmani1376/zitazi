@@ -83,6 +83,10 @@ Route::post('store-decathlon', function (Request $request) {
                     'stock_quantity' => null,
                 ]);
             }
+            \Illuminate\Support\Facades\Log::error('decathlon-sync-error', [
+                'result' => $result,
+                'product_id' => $product->id
+            ]);
             return response()->json(['status' => 'failed']);
         }
         $cacheKey = md5('response' . $result['product_id']);
