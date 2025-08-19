@@ -597,8 +597,7 @@ Artisan::command('sync-all-decathlon', function () {
 Artisan::command('resync-all-decathlon', function () {
     $products = Product::query()
         ->whereNot('decathlon_url', '=', '')
-        ->get()
-        ->pluck('decathlon_url');
+        ->get();
 
     $products->each(function (Product $product) {
         $cacheKey = md5('response' . $product->id);
