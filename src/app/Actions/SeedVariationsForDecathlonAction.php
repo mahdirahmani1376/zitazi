@@ -42,6 +42,7 @@ class SeedVariationsForDecathlonAction
                 'rial_price' => $rialPrice,
                 'source' => Product::SOURCE_DECATHLON,
                 'item_type' => $itemType,
+                'status' => Variation::AVAILABLE,
             ];
 
             $variation = Variation::updateOrCreate([
