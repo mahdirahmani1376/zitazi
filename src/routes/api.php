@@ -80,7 +80,7 @@ Route::post('store-decathlon', function (Request $request) {
             foreach ($product->variations as $variation) {
                 $variation->update([
                     'status' => Variation::UNAVAILABLE,
-                    'stock_quantity' => null,
+                    'stock' => null,
                 ]);
             }
             \Illuminate\Support\Facades\Log::error('decathlon-sync-error', [
