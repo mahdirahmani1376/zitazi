@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Jobs\SeedVariationsForProductJob;
 use App\Models\Product;
 use Illuminate\Bus\Batch;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
@@ -19,7 +18,7 @@ class VariationSeeder extends Seeder
         $startTime = microtime(true);
 
         $jobs = Product::query()
-            ->whereNot('decathlon_url', '=', '')
+            ->where('decathlon_url', '=', '')
             ->orWhereNot('trendyol_source', '=', '')
             ->orWhereNot('amazon_source', '=', '')
             ->get()

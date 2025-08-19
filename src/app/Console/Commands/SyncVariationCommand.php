@@ -24,6 +24,10 @@ class SyncVariationCommand extends Command
             ->where(function (Builder $query) {
                 $query
                     ->whereNot('url', '=', '')
+                    ->whereNotIn('source', [
+                        Product::SOURCE_DECATHLON,
+                        Product::SOURCE_AMAZON
+                    ])
                     ->where(function (Builder $query) {
                         $query
                             ->whereNotNull('own_id')

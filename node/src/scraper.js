@@ -4,94 +4,134 @@ const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(stealthPlugin());
 
 let browser;
+process.on('SIGINT', async () => {
+    console.log('Shutting down gracefully...');
+    if (browser) await browser.close();
+    process.exit(0);
+});
 
+process.on('SIGTERM', async () => {
+    console.log('Terminating...');
+    if (browser) await browser.close();
+    process.exit(0);
+});
 async function getBrowser() {
     if (!browser) {
         browser = await puppeteer.launch({
             headless: true,
-            protocolTimeout: 300000,
+            protocolTimeout: 60000,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
                 '--no-zygote',
-                '--single-process',
             ]
         });
     }
     return browser;
 }
-async function scrapeUrl(url) {
-    const browser = await getBrowser();
-    const page = await browser.newPage();
 
-    try {
-        await page.goto(url, {waitUntil: 'networkidle2', timeout: 60000});
+async function scrapeAll() {
+    let nextUrl = "http://zitazi-nginx/api/decathlon-list?page=1";
 
-        // Try to find the element, but timeout if not found
-        const elHandle = await page.$('script[type="application/ld+json"]');
-        if (!elHandle) {
-            throw new Error('JSON-LD script not found');
+    while (nextUrl) {
+        console.log("Fetching list:", nextUrl);
+
+        // 1. get 1 page of URLs
+        const res = await fetch(nextUrl);
+        const json = await res.json();
+
+
+        const productsData = json.data.data;
+        if (productsData.length === 0) {
+            console.log("No URLs found on this page.");
+            break;
         }
 
-        const jsonText = await page.evaluate(el => el.textContent, elHandle);
+        // 2. scrape those urls
+        const variationData = await scrapePageOfUrls(productsData);
+        console.log(`Scraped ${variationData.length} urls from page ${json.data.current_page}`);
 
-        let parsed;
-        parsed = JSON.parse(jsonText);
+        const postData = {
+            'data': variationData,
+        }
 
-        return {success: true, body: parsed};
+        console.log(JSON.stringify(postData))
+        // 3. send results back to backend
+        const response = await fetch("http://zitazi-nginx/api/store-decathlon", {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "Accept": "application/json"},
+            body: JSON.stringify(postData),
+        });
 
-    } catch (err) {
-        return {success: false, error: err.message};
-
-    } finally {
-        await page.close();
+        // 4. move to next page
+        nextUrl = json.data.next_page_url;
     }
+
+    console.log("✅ Done scraping all pages!");
+    if (browser) await browser.close();
+    process.exit(0);
 }
 
-async function seedUrl(url) {
+async function scrapePageOfUrls(productsData) {
     const browser = await getBrowser();
     const page = await browser.newPage();
+    const results = [];
 
-    try {
-        await page.goto(url, {waitUntil: 'networkidle2', timeout: 60000});
+    for (const productData of productsData) {
+        try {
+            await page.goto(productData.decathlon_url, {waitUntil: 'networkidle2', timeout: 60000});
+            const elHandle = await page.$('script[type="application/ld+json"]');
+            const el = await page.evaluate(el => el.textContent, elHandle)
+            const targetData = JSON.parse(el);
 
-        const jsonData = await page.evaluate(() => {
-            const el = document.querySelector('script[type="application/ld+json"]');
-            const targetData = JSON.parse(el.textContent.trim());
             const variations = [];
             const productId = targetData.productID;
 
-            targetData.offers[0].forEach((offer, index) => {
-                const stock = offer.availability === 'https://schema.org/InStock' ? 88 : 0;
-                variations.push({
-                    product_id: productId,
-                    sku: offer.sku ?? null,
-                    price: offer.price ?? null,
-                    url: offer.url ?? null,
-                    stock,
-                    index
+            targetData.offers.forEach((baseOffer, baseIndex) => {
+                baseOffer.forEach((offer, index) => {
+                    const stock = offer.availability === 'https://schema.org/InStock' ? 88 : 0;
+                    variations.push({
+                        decathlon_product_id: productId,
+                        sku: offer.sku ?? null,
+                        price: offer.price ?? null,
+                        url: offer.url ?? null,
+                        stock,
+                    });
                 });
-            });
+            })
+
+
+            const scriptHandle = await page.$('#__dkt');
+            const scriptHandleData = await page.evaluate(script => script.textContent, scriptHandle)
+
 
             variations.forEach(variation => {
-                const elId = `#sku-${variation.index}`;
-                const el = document.querySelector(elId);
-                variation.size = el ? el.getAttribute('aria-label') : null;
+                let pattern = new RegExp(
+                    `"skuId"\\s*:\\s*"` + variation.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + `"` +
+                    `\\s*,\\s*"size"\\s*:\\s*"([^"]+)"`,
+                    "g"
+                );
+                let match = pattern.exec(scriptHandleData);
+                if (match) {
+                    // console.log("Found size:", match[1]); // "XL"
+                    variation.size = match[1]
+                }
             });
 
-            return variations;
-        });
-
-        return {success: true, body: jsonData};
-
-    } catch (err) {
-        return {success: false, error: err.message};
-
-    } finally {
-        await page.close();
+            results.push({
+                'product_id': productData.id,
+                'variations': variations
+            });
+        } catch (err) {
+            console.log(err);
+        }
     }
+
+    await page.close();
+    return results;
 }
 
-module.exports = {scrapeUrl, seedUrl};
+scrapeAll().catch(err => console.error("Scraping error:", err));
+
