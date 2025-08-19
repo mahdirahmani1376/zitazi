@@ -30,6 +30,9 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         if (data_get($response, 'statusCode') === 404) {
             return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE_ON_SOURCE_SITE);
         }
+
+        $item_type = count($response['result']['variants']) > 1 ? Product::PRODUCT_UPDATE : Product::VARIATION_UPDATE;
+
         $data = collect($response['result']['variants'])->keyBy('itemNumber');
 
         $result = null;
@@ -54,18 +57,11 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
         $data = [
             'stock' => $stock,
             'status' => Variation::AVAILABLE,
-            'item_type' => Product::VARIATION_UPDATE
+            'item_type' => $item_type,
+            'rial_price' => $rialPrice,
         ];
 
-
         $this->updateVariationAndLog($variation, $data);
-
-        $updateData = ZitaziUpdateDTO::createFromArray([
-            'price' => $rialPrice,
-            'stock_quantity' => $stock,
-        ]);
-
-        $this->syncZitazi($variation, $updateData);
     }
 
     private function logErrorAndSyncVariation(Variation $variation, $status = Variation::GENERAL_ERROR): bool

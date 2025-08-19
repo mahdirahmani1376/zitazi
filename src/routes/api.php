@@ -4,7 +4,6 @@ use App\Actions\Crawler\BaseVariationCrawler;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use App\Models\Variation;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
@@ -69,15 +68,23 @@ Route::get('decathlon-list', function () {
     return Response::json([
         'data' => Product::query()
             ->whereNot('decathlon_url', '=', '')
-            ->whereHas('variations', function (Builder $query) {
-                $query->where('status', Variation::UNAVAILABLE);
-            })
+            ->orderBy('updated_at', 'asc')
             ->paginate()
     ]);
 });
 
 Route::post('store-decathlon', function (Request $request) {
     foreach ($request->data as $result) {
+        if (!$result['success']) {
+            $product = Product::find($result['id']);
+            foreach ($product->variations as $variation) {
+                $variation->update([
+                    'status' => Variation::UNAVAILABLE,
+                    'stock_quantity' => null,
+                ]);
+            }
+            return response()->json(['status' => 'failed']);
+        }
         $cacheKey = md5('response' . $result['product_id']);
         Cache::put($cacheKey, $result, now()->addDays(2));
         app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result['product_id']);

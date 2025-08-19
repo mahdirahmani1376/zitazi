@@ -53,10 +53,6 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        if ($variation->product?->onPromotion()) {
-            return;
-        }
-
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
         if ($dto->stock_quantity > 0) {
             $stockStatus = ZitaziUpdateDTO::IN_STOCK;

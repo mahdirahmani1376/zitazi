@@ -27,13 +27,13 @@ class SeedVariationsForDecathlonAction
         }
 
         foreach ($variationsRawData as $variationRawData) {
-            $price = (int)str_replace(',', '.', trim($variationRawData['price']));
+            $price = $variationRawData['price'];
             $rialPrice = Currency::convertToRial($price) * $product->getRatio();
 
             $createData = [
                 'product_id' => $product->id,
                 'sku' => $variationRawData['sku'],
-                'price' => $variationRawData['price'],
+                'price' => $price,
                 'url' => $variationRawData['url'],
                 'stock' => $variationRawData['stock'],
                 'size' => $variationRawData['size'],

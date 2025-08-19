@@ -2,6 +2,7 @@
 
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
+use App\DTO\ZitaziUpdateDTO;
 use App\Exports\NullVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
@@ -10,10 +11,12 @@ use App\Exports\VariationExport;
 use App\Imports\ImportDecathlonVariation;
 use App\Jobs\SyncProductJob;
 use App\Jobs\SyncVariationsJob;
+use App\Jobs\SyncZitaziJob;
 use App\Jobs\UpdateJob;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
+use App\Models\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -180,6 +183,17 @@ Route::post('update-product', function (Request $request) {
 
             }
             SyncVariationsJob::dispatchSync($variation);
+            if ($variation->status == Variation::AVAILABLE) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $variation->rial_price,
+                ]);
+            } else {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                ]);
+            }
+            SyncZitaziJob::dispatchSync($variation, $updateData);
         }
     }
 

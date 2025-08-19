@@ -122,9 +122,14 @@ async function scrapePageOfUrls(productsData) {
 
             results.push({
                 'product_id': productData.id,
-                'variations': variations
+                'variations': variations,
+                'success': true
             });
         } catch (err) {
+            results.push({
+                'product_id': productData.id,
+                'success': false
+            });
             console.log(err);
         }
     }
