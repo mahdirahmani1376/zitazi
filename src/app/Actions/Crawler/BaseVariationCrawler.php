@@ -70,7 +70,7 @@ class BaseVariationCrawler
         }
 
 
-        if ($variation->item_type == Product::PRODUCT_UPDATE) {
+        if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";

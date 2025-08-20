@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -27,7 +28,8 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
 
         if (!empty($result)) {
             $result->update([
-                'own_id' => $row['شناسه تنوع زیتازی']
+                'own_id' => $row['شناسه تنوع زیتازی'],
+                'item_type' => Product::VARIATION_UPDATE
             ]);
 
             Log::info('product-import-update', [
