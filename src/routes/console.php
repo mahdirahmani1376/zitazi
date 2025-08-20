@@ -1,8 +1,10 @@
 <?php
 
 use App\Actions\SyncVariationsActions;
+use App\DTO\ZitaziUpdateDTO;
 use App\Jobs\SeedVariationsForProductJob;
 use App\Jobs\SyncVariationsJob;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -637,4 +639,28 @@ Artisan::command('sync-elele', function () {
         ->where('source', Product::SOURCE_Elele)
         ->get()
         ->each(fn($v) => SyncVariationsJob::dispatchSync($v));
+});
+
+Artisan::command('resync-elele', function () {
+    $jobs = [];
+    foreach (Variation::query()->where('source', Product::SOURCE_Elele) as $variation) {
+        if ($variation->status == Variation::AVAILABLE) {
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => $variation->stock,
+                'price' => $variation->rial_price,
+            ]);
+        } else {
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => 0,
+            ]);
+        }
+
+        $jobs[] = new SyncZitaziJob($variation, $updateData);
+    }
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations synced with zitazi successfully.'))
+        ->catch(fn() => Log::error('Some sync zitazi jobs failed.'))
+        ->name('Sync Zitazi variations')
+        ->dispatch();
 });
