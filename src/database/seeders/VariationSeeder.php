@@ -21,6 +21,7 @@ class VariationSeeder extends Seeder
             ->where('decathlon_url', '=', '')
             ->orWhereNot('trendyol_source', '=', '')
             ->orWhereNot('amazon_source', '=', '')
+            ->orWhereNot('elele_source', '=', '')
             ->get()
             ->map(fn($product) => new SeedVariationsForProductJob($product));
 

@@ -14,6 +14,7 @@ class Product extends Model
     public const SOURCE_TRENDYOL = 'trendyol';
     public const SOURCE_DECATHLON = 'decathlon';
     public const SOURCE_AMAZON = 'amazon';
+    public const SOURCE_Elele = 'elele';
     public const PRODUCT_UPDATE = 'product';
     public const VARIATION_UPDATE = 'variation';
 

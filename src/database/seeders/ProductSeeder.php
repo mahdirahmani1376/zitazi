@@ -2,13 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Jobs\SyncChunkProductsWithZitaziJob;
-use App\Models\Product;
-use Illuminate\Bus\Batch;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -23,7 +17,6 @@ class ProductSeeder extends Seeder
     {
         $this->seedProducts();
 
-        $this->syncProducts();
     }
 
     public function seedProducts(): void
@@ -107,42 +100,4 @@ class ProductSeeder extends Seeder
 
     }
 
-    private function syncProducts(): void
-    {
-        $products = Product::pluck('own_id');
-
-        $startTime = microtime(true);
-
-        $jobs = $products->chunk(16)->map(function (Collection $batch) {
-            try {
-                return new SyncChunkProductsWithZitaziJob($batch);
-            } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
-                $result = [];
-            }
-
-            $this->command->getOutput()->progressAdvance();
-
-            return $result;
-        });
-
-        Bus::batch($jobs)
-            ->then(function () use ($startTime) {
-                $endTime = microtime(true);
-
-                $duration = $endTime - $startTime;
-                $text = 'Finished sync products at ' . Carbon::now()->toDateTimeString() .
-                    '. Duration: ' . number_format($duration, 2) . ' seconds.';
-                Log::info($text);
-            })
-            ->catch(function (Batch $batch, Throwable $e) {
-                Log::error('seed products failed', [
-                    'error' => $e->getMessage(),
-                ]);
-            })
-            ->name('Seed products')
-            ->dispatch();
-
-    }
 }

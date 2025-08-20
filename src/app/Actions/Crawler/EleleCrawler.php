@@ -2,28 +2,28 @@
 
 namespace App\Actions\Crawler;
 
-use App\DTO\ZitaziUpdateDTO;
+use App\Actions\HttpService;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
-use App\Models\Product;
+use App\Models\Variation;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
-class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
+class EleleCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
 {
-    public function crawl(Product $product): void
+    public function crawl(Variation $variation): void
     {
         try {
-            $this->process($product);
+            $this->process($variation);
         } catch (\Exception $exception) {
-            $this->logErrorAndSyncVariation($product);
+            $this->logErrorAndSyncVariation($variation);
             throw UnProcessableResponseException::make('elele sync error exception: ' . $exception->getMessage());
         }
     }
 
-    private function process(Product $product)
+    private function process(Variation $variation)
     {
-        $response = $this->httpService->sendWithCache('get', $product->elele_source);
-
+        $response = HttpService::getEleleData($variation->url);
         $element = 'script[type="application/ld+json"]';
 
         $crawler = new Crawler($response);
@@ -32,50 +32,42 @@ class EleleCrawler extends BaseCrawler implements ProductAbstractCrawler
         $data = json_decode($dom->text(), true);
         $price = data_get($data, 'offers.price');
         if (empty($price)) {
-            throw UnProcessableResponseException::make("elele_parse_error_product:{$product->id}");
+            Log::error("elele_parse_error_product", [
+                'variation_id' => $variation->id,
+                'url' => $variation->url,
+            ]);
+            throw UnProcessableResponseException::make("elele_parse_error_product");
         }
 
-        $rialPrice = Currency::convertToRial($price) * $product->getRatio();
+        $rialPrice = Currency::convertToRial($price) * $variation->product->getRatio();
         $stock = data_get($data, 'offers.availability') == 'InStock' ? 88 : 0;
 
         $data = [
             'price' => $price,
             'stock' => $stock,
             'rial_price' => $rialPrice,
+            'status' => Variation::AVAILABLE
         ];
 
-        $updateData = ZitaziUpdateDTO::createFromArray([
-            'price' => $rialPrice,
-            'stock_quantity' => $stock,
-        ]);
+        $this->updateVariationAndLog($variation, $data);
 
-        $this->updateAndLogProduct($product, $data);
-
-        if (!$product->belongsToIran()) {
-            $this->syncProductWithZitazi($product, $updateData);
-        }
     }
 
-    private function logErrorAndSyncVariation(Product $product): bool
+    private function logErrorAndSyncVariation(Variation $variation): bool
     {
         $data = [
             'stock' => 0,
+            'status' => Variation::UNAVAILABLE,
         ];
 
-        $updateData = ZitaziUpdateDTO::createFromArray([
-            'stock_quantity' => 0,
-        ]);
-
-        $this->updateAndLogProduct($product, $data);
-
-        $this->syncProductWithZitazi($product, $updateData);
+        $this->updateVariationAndLog($variation, $data);
 
         return false;
     }
 
 
-    public function supports(Product $product): bool
+    public function supports(Variation $variation): bool
     {
-        return !empty($product->elele_source);
+        return !empty($variation->url);
     }
 }

@@ -36,6 +36,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                 $this->seedTrendyolVariations($product);
             } else if ($product->belongsToAmazon()) {
                 $this->seedAmazonVariations($product);
+            } else if ($product->belongsToElele()) {
+                $this->seedEleleVariation($product);
             }
         } catch (Exception $e) {
             Log::error('error-in-seed-variations-for-product', [
@@ -72,6 +74,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'source' => Product::SOURCE_TRENDYOL,
                     'item_type' => $itemType,
                     'status' => Variation::AVAILABLE,
+                    'item_number' => $item['itemNumber']
                 ]);
             }
         } catch (Exception $e) {
@@ -86,10 +89,25 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function seedAmazonVariations(Product $product): void
     {
         Variation::updateOrCreate([
+            'product_id' => $product->id,
+        ], [
             'url' => $product->amazon_source,
             'source' => Product::SOURCE_AMAZON,
             'product_id' => $product->id,
             'sku' => $product->amazon_source,
+            'item_type' => Product::PRODUCT_UPDATE
+        ]);
+    }
+
+    private function seedEleleVariation(Product $product)
+    {
+        Variation::updateOrCreate([
+            'product_id' => $product->id,
+        ], [
+            'url' => $product->elele_source,
+            'source' => Product::SOURCE_Elele,
+            'product_id' => $product->id,
+            'sku' => $product->elele_source,
             'item_type' => Product::PRODUCT_UPDATE
         ]);
     }

@@ -182,4 +182,39 @@ class HttpService
         }
     }
 
+    public static function getEleleData($url)
+    {
+        $cacheKey = md5($url);
+        if ($response = Cache::get($cacheKey)) {
+            return $response;
+        }
+
+        $response = Http::asJson()->withHeaders([
+            'accept-language' => 'en-GB,en;q=0.9,en-US;q=0.8,fa;q=0.7',
+            'cache-control' => 'no-cache',
+            'origin' => 'https://www.trendyol.com',
+            'pragma' => 'no-cache',
+            'priority' => 'u=1, i',
+            'sec-ch-ua' => 'Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138',
+            'sec-ch-ua-mobile' => '?0',
+            'sec-ch-ua-platform' => 'Linux',
+            'sec-fetch-dest' => 'empty',
+            'sec-fetch-mode' => 'cors',
+            'sec-fetch-site' => 'same-site',
+            'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+        ])->get($url);
+
+        if ($response->successful()) {
+            Cache::put($cacheKey, $response->body(), now()->addDay());
+            /** @var Response $response */
+            return $response->body();
+        } else {
+            Log::error('error-in-elele-url', [
+                'url' => $url,
+                'response' => $response->body(),
+            ]);
+            throw new UnProcessableResponseException("error-in-elele-url");
+        }
+    }
+
 }

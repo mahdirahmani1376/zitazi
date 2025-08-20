@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\SyncVariationsActions;
+use App\Jobs\SeedVariationsForProductJob;
 use App\Jobs\SyncVariationsJob;
 use App\Models\Currency;
 use App\Models\Product;
@@ -624,3 +625,16 @@ Artisan::command('sync-all-trendyol', function () {
         ->dispatch();
 });
 
+Artisan::command('seed-elele', function () {
+    $jobs = Product::query()
+        ->where('elele_source', '!=', '')
+        ->get()
+        ->each(fn($product) => SeedVariationsForProductJob::dispatchSync($product));
+});
+
+Artisan::command('sync-elele', function () {
+    $jobs = Variation::query()
+        ->where('source', Product::SOURCE_Elele)
+        ->get()
+        ->each(fn($v) => SyncVariationsJob::dispatchSync($v));
+});
