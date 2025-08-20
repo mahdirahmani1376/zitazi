@@ -50,6 +50,7 @@ class SyncProductsCommand extends Command
         $jobs = Product::query()
             ->where('decathlon_url', '=', '')
             ->where('trendyol_source', '=', '')
+            ->where('elele_source', '=', '')
             ->get()
             ->map(fn($product) => new SyncProductJob($product));
 
