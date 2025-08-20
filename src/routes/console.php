@@ -606,3 +606,21 @@ Artisan::command('resync-all-decathlon', function () {
         }
     });
 });
+
+Artisan::command('sync-all-trendyol', function () {
+    $products = Product::query()
+        ->where('trendyol_source', '!=', '')
+        ->where('decathlon_url', '=', '')
+        ->get();
+    $jobs = $products
+        ->map(function (Product $product) {
+            return new \App\Jobs\SeedVariationsForProductJob($product);
+        });
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations updated successfully.'))
+        ->catch(fn() => Log::error('Some jobs failed.'))
+        ->name('sync all decathlon variations')
+        ->dispatch();
+});
+

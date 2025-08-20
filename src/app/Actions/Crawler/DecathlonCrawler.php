@@ -56,7 +56,7 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
         ];
 
         if (app()->environment('local')) {
-            dump($data);
+//            dump($data);
         }
 
 

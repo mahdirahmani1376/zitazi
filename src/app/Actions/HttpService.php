@@ -134,7 +134,7 @@ class HttpService
             return $response->json();
         } else {
             if (app()->environment('local')) {
-                dump('body', $response->body());
+//                dump('body', $response->body());
             }
             Log::error("decathlon response error log", [
                 'body' => $response->body(),
