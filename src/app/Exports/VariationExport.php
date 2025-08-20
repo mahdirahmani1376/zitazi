@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\Product;
 use App\Models\Variation;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -17,7 +16,6 @@ class VariationExport implements FromCollection, WithHeadings, WithMapping
     {
         return Variation::with('product')
             ->orderBy('product_id')
-            ->whereNot('item_type', '=', Product::PRODUCT_UPDATE)
             ->get();
     }
 

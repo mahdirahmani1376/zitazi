@@ -25,11 +25,15 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
     public function updateVariationFromRow(array $row)
     {
         $result = Variation::where('id', $row['شناسه تنوع در وب سرویس'])->first();
+        $itemType = Product::VARIATION_UPDATE;
+        if (empty($row['شناسه تنوع زیتازی']) && empty($result->own_id)) {
+            $itemType = Product::PRODUCT_UPDATE;
+        }
 
         if (!empty($result)) {
             $result->update([
                 'own_id' => $row['شناسه تنوع زیتازی'],
-                'item_type' => Product::VARIATION_UPDATE
+                'item_type' => $itemType
             ]);
 
             Log::info('product-import-update', [
