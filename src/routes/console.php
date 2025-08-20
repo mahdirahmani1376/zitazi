@@ -643,7 +643,7 @@ Artisan::command('sync-elele', function () {
 
 Artisan::command('resync-elele', function () {
     $jobs = [];
-    foreach (Variation::query()->where('source', Product::SOURCE_Elele) as $variation) {
+    foreach (Variation::query()->where('source', Product::SOURCE_Elele)->get() as $variation) {
         if ($variation->status == Variation::AVAILABLE) {
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => $variation->stock,
@@ -654,7 +654,6 @@ Artisan::command('resync-elele', function () {
                 'stock_quantity' => 0,
             ]);
         }
-
         $jobs[] = new SyncZitaziJob($variation, $updateData);
     }
 
