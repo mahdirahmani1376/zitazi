@@ -45,12 +45,24 @@ class SyncZitaziCommand extends Command
                     }
 
                     if (!empty($otherType)) {
-                        $otherSellerVariant =
-                            Variation::query()
-                                ->where('own_id', $variation->own_id)
-                                ->whereNot('id', $variation->id)
-                                ->where('type', $otherType)
-                                ->first();
+                        if ($variation->item_type === Product::VARIATION_UPDATE) {
+                            $otherSellerVariant =
+                                Variation::query()
+                                    ->where('own_id', $variation->own_id)
+                                    ->whereNot('id', $variation->id)
+                                    ->where('type', $otherType)
+                                    ->where('item_type', Product::VARIATION_UPDATE)
+                                    ->first();
+                        } else {
+                            $otherSellerVariant =
+                                Variation::query()
+                                    ->where('product_id', $variation->product_id)
+                                    ->whereNot('id', $variation->id)
+                                    ->where('type', $otherType)
+                                    ->where('item_type', Product::VARIATION_UPDATE)
+                                    ->first();
+                        }
+
 
                         if (!empty($otherSellerVariant)) {
                             $stock = $otherSellerVariant->stock;
