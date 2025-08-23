@@ -151,6 +151,8 @@
             </form>
         </div>
         <div class="text-center mb-3">
+            <h4> آخرین بروزرسانی نرخ ارز</h4>
+            <p>{{  \App\Models\Currency::latest()->first()->updated_at ?? 'نا موجود' }}</p>
             <h4>نرخ لیر</h4>
             <p>{{  \App\Models\Currency::syncTryRate() ?? 'نا موجود' }}</p>
             <h4>نرخ درهم</h4>
