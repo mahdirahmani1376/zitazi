@@ -69,7 +69,6 @@ Route::get('decathlon-list', function () {
     return Response::json([
         'data' => Product::query()
             ->whereNot('decathlon_url', '=', '')
-            ->where('trendyol_source', '=', '')
             ->orderBy('updated_at', 'asc')
             ->paginate()
     ]);
