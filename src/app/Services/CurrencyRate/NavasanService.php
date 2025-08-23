@@ -13,7 +13,7 @@ class NavasanService extends CurrencyRateService implements CurrencyRateDriverIn
             'api_key' => env('NAVASAN_KEY'),
         ])->get('http://api.navasan.tech/latest')->json();
 
-        return data_get($response, 'aed.value');
+        return data_get($response, 'try.value');
     }
 
     public function getAEDRate()
@@ -22,6 +22,6 @@ class NavasanService extends CurrencyRateService implements CurrencyRateDriverIn
             'api_key' => env('NAVASAN_KEY'),
         ])->get('http://api.navasan.tech/latest')->json();
 
-        return data_get($response, 'try.value');
+        return data_get($response, 'aed.value');
     }
 }

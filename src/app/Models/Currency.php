@@ -59,7 +59,7 @@ class Currency extends Model
     {
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
 
-        return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
+        return Cache::remember('aed_rate', $timeUntilEndOfDay, function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getAEDRate();
 
