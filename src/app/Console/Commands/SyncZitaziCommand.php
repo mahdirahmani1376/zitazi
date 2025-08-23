@@ -33,9 +33,36 @@ class SyncZitaziCommand extends Command
         $jobs = [];
         foreach ($variations as $variation) {
             if ($variation->status == Variation::AVAILABLE) {
+                $stock = $variation->stock;
+                $price = $variation->rial_price;
+
+                if ($stock == 0) {
+                    $otherType = null;
+                    if ($variation->source === Product::SOURCE_TRENDYOL) {
+                        $otherType = Product::SOURCE_DECATHLON;
+                    } elseif ($variation->source === Product::SOURCE_DECATHLON) {
+                        $otherType = Product::SOURCE_TRENDYOL;
+                    }
+
+                    if (!empty($otherType)) {
+                        $otherSellerVariant =
+                            Variation::query()
+                                ->where('own_id', $variation->own_id)
+                                ->whereNot('id', $variation->id)
+                                ->where('type', $otherType)
+                                ->first();
+
+                        if (!empty($otherSellerVariant)) {
+                            $stock = $otherSellerVariant->stock;
+                            $price = $otherSellerVariant->rial_price;
+                        }
+                    }
+
+                }
+
                 $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => $variation->stock,
-                    'price' => $variation->rial_price,
+                    'stock_quantity' => $stock,
+                    'price' => $price,
                 ]);
             } else {
                 $updateData = ZitaziUpdateDTO::createFromArray([
