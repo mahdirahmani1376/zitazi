@@ -28,6 +28,7 @@ class SeedVariationsForDecathlonAction
             $itemType = Product::VARIATION_UPDATE;
         }
 
+        $availableVariations = [];
         foreach ($variationsRawData as $variationRawData) {
             $price = $variationRawData['price'];
             $rialPrice = Currency::convertToRial($price) * $product->getRatio();
@@ -44,6 +45,8 @@ class SeedVariationsForDecathlonAction
                 'item_type' => $itemType,
                 'status' => Variation::AVAILABLE,
             ];
+
+            $availableVariations[] = $variationRawData['sku'];
 
             $variation = Variation::updateOrCreate([
                 'sku' => $variationRawData['sku'],
@@ -86,5 +89,15 @@ class SeedVariationsForDecathlonAction
                 'stock' => $stock,
             ]);
         }
+
+        $unavailableOnSourceSiteVariations = Variation::query()
+            ->whereNotIn('sku', $availableVariations)
+            ->where('product_id', $product->id)
+            ->where('source', Product::SOURCE_DECATHLON)
+            ->get();
+
+        $unavailableOnSourceSiteVariations->each(fn(Variation $variation) => $variation->update([
+            'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+        ]));
     }
 }

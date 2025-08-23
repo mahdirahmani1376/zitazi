@@ -65,7 +65,9 @@ class SeedVariationsForProductJob implements ShouldQueue
         $response = HttpService::getTrendyolData($product->getTrendyolContentId(), $product->getTrendyolMerchantId());
         $data = collect($response['result']['variants']);
         $itemType = count($data) > 1 ? Product::VARIATION_UPDATE : Product::PRODUCT_UPDATE;
+
         try {
+            $availableVariations = [];
             foreach ($data as $item) {
                 Variation::updateOrCreate([
                     'item_number' => $item['itemNumber']
@@ -84,7 +86,20 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'status' => Variation::AVAILABLE,
                     'item_number' => $item['itemNumber']
                 ]);
+
+                $availableVariations[] = $item['itemNumber'];
+
             }
+
+            $unavailableOnSourceSiteVariations = Variation::query()
+                ->whereNotIn('item_number', $availableVariations)
+                ->where('product_id', $product->id)
+                ->where('source', Product::SOURCE_TRENDYOL)
+                ->get();
+
+            $unavailableOnSourceSiteVariations->each(fn(Variation $variation) => $variation->update([
+                'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+            ]));
         } catch (Exception $e) {
             dump($e->getMessage(), $product->id);
             Log::error('error-seed-variations', [
