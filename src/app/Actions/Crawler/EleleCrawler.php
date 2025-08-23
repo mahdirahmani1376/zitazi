@@ -21,7 +21,7 @@ class EleleCrawler extends BaseVariationCrawler implements VariationAbstractCraw
         }
     }
 
-    private function process(Variation $variation)
+    public function process(Variation $variation)
     {
         $response = HttpService::getEleleData($variation->url);
         $element = 'script[type="application/ld+json"]';

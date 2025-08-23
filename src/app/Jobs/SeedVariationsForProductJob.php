@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\Crawler\EleleCrawler;
 use App\Actions\HttpService;
 use App\Models\Currency;
 use App\Models\Product;
@@ -19,8 +20,9 @@ class SeedVariationsForProductJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $timeout = 1 * 60 * 10;
     public $tries = 2;
-
+    public $backoff = [1 * 60 * 5];
     public function __construct(
         public Product $product,
     )
@@ -101,7 +103,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     private function seedEleleVariation(Product $product)
     {
-        Variation::updateOrCreate([
+        $variation = Variation::updateOrCreate([
             'product_id' => $product->id,
         ], [
             'url' => $product->elele_source,
@@ -110,6 +112,8 @@ class SeedVariationsForProductJob implements ShouldQueue
             'sku' => $product->elele_source,
             'item_type' => Product::PRODUCT_UPDATE
         ]);
+
+        app(EleleCrawler::class)->crawl($variation);
     }
 
 

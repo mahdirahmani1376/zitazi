@@ -170,6 +170,7 @@ Route::post('update-product', function (Request $request) {
         }
     } else {
         foreach ($product->variations as $variation) {
+            \Illuminate\Support\Facades\Cache::forget($variation->url);
             if ($variation->type === Product::PRODUCT_UPDATE) {
                 if ($product->belongsToTrendyol()) {
                     $variation->update([
