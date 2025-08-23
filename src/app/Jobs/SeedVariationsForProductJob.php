@@ -41,6 +41,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                 $this->seedAmazonVariations($product);
             } else if ($product->belongsToElele()) {
                 $this->seedEleleVariation($product);
+            } else if ($product->belongsToSazKala()) {
+                $this->seedSazkalaVariation($product);
             } else {
                 Log::error('no url is assigend to product', [
                     'product_id' => $product->id,
@@ -131,6 +133,21 @@ class SeedVariationsForProductJob implements ShouldQueue
             'source' => Product::SOURCE_Elele,
             'product_id' => $product->id,
             'sku' => $product->elele_source,
+            'item_type' => Product::PRODUCT_UPDATE
+        ]);
+
+        app(EleleCrawler::class)->crawl($variation);
+    }
+
+    private function seedSazkalaVariation(Product $product)
+    {
+        $variation = Variation::updateOrCreate([
+            'product_id' => $product->id,
+        ], [
+            'url' => $product->sazkala_source,
+            'source' => Product::SOURCE_SAZ_KALA,
+            'product_id' => $product->id,
+            'sku' => null,
             'item_type' => Product::PRODUCT_UPDATE
         ]);
 

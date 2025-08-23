@@ -11,6 +11,32 @@ use Illuminate\Support\Facades\Log;
 
 class HttpService
 {
+    public static function getSazKalaData(?string $url)
+    {
+        $headers = [
+            'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0',
+        ];
+
+        $cacheKey = md5($url);
+        if ($response = Cache::get($cacheKey)) {
+            return $response;
+        }
+
+        $response = Http::withHeaders($headers)->get($url);
+        if ($response->successful()) {
+            /** @var Response $response */
+            Cache::put($cacheKey, $response->json(), now()->addDay());
+        } else {
+            Log::error('error-in-sendWithCache', [
+                'url' => $url,
+                'error' => $response->json()
+            ]);
+            throw new UnProcessableResponseException('Unprocessable response sendWithCache');
+        }
+
+        return $response->body();
+    }
+
     public function sendWithCache($method, $url)
     {
         if (empty($headers)) {

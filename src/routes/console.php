@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\HttpService;
 use App\Actions\SyncVariationsActions;
 use App\DTO\ZitaziUpdateDTO;
 use App\Jobs\SeedVariationsForProductJob;
@@ -782,4 +783,21 @@ Artisan::command('batch-update-test', function () {
 //        'status' => Variation::UNAVAILABLE_ON_ZITAZI,
 //    ]);
 
+});
+
+Artisan::command('sazkala-test', function () {
+    $response = HttpService::getSazKalaData('https://sazkala.com/product/gl-tribute-asat-classic-bluesboy-semi-hollow-rw-red-burst/');
+    $crawler = new Crawler($response);
+    $price = $crawler->filter('meta[property="product:price:amount"]')->first()->attr('content');
+    $stock = $crawler->filter('meta[property="product:availability"]')->first()->attr('content');
+    $stock = $stock === 'instock' ? 88 : 0;
+
+    $data = [
+        'price' => $price,
+        'stock' => $stock,
+        'rial_price' => $price,
+        'status' => Variation::AVAILABLE
+    ];
+
+    dd($data);
 });

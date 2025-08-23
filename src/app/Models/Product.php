@@ -14,6 +14,7 @@ class Product extends Model
     public const SOURCE_TRENDYOL = 'trendyol';
     public const SOURCE_DECATHLON = 'decathlon';
     public const SOURCE_AMAZON = 'amazon';
+    public const SOURCE_SAZ_KALA = 'saz_kala';
     public const SOURCE_Elele = 'elele';
     public const PRODUCT_UPDATE = 'product';
     public const VARIATION_UPDATE = 'variation';
@@ -27,6 +28,11 @@ class Product extends Model
     public function belongsToElele(): bool
     {
         return !empty($this->elele_source);
+    }
+
+    public function belongsToSazKala(): bool
+    {
+        return !empty($this->sazkala_source);
     }
 
     public function belongsToIran(): bool
