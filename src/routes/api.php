@@ -68,7 +68,6 @@ Route::put('/variations/{variation}/update', function (
 Route::get('decathlon-list', function () {
     return Response::json([
         'data' => Product::query()
-            ->where('id', 206067)
             ->whereNot('decathlon_url', '=', '')
             ->orderBy('updated_at', 'asc')
             ->paginate()
