@@ -3,6 +3,7 @@
 use App\Actions\Crawler\BaseVariationCrawler;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
+use App\Models\SyncLog;
 use App\Models\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -78,10 +79,26 @@ Route::post('store-decathlon', function (Request $request) {
         if (!$result['success']) {
             $product = Product::find($result['product_id']);
             foreach ($product->variations as $variation) {
+                $oldStock = $variation->stock;
+                $oldPrice = $variation->price;
+
                 $variation->update([
                     'status' => Variation::UNAVAILABLE,
-                    'stock' => null,
+                    'stock' => 0,
                 ]);
+
+                if ($oldStock != $variation->stock) {
+                    $data = [
+                        'old_stock' => $oldStock,
+                        'new_stock' => $variation->stock,
+                        'old_price' => $oldPrice,
+                        'new_price' => $variation->rial_price,
+                        'variation_own_id' => $variation->own_id,
+                        'product_own_id' => $variation->product->own_id,
+                    ];
+
+                    SyncLog::create($data);
+                }
             }
             \Illuminate\Support\Facades\Log::error('decathlon-sync-error', [
                 'result' => $result,

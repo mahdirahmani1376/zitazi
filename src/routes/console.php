@@ -549,14 +549,14 @@ Artisan::command('test-general {variation}', function ($variation) {
 });
 
 Artisan::command('test-seed', function () {
-    $trP = Product::find(8304);
-    $dep = Product::find(6520);
+    $trP = Product::find(3);
+//    $dep = Product::find(6520);
 
     \App\Jobs\SeedVariationsForProductJob::dispatchSync($trP);
-    \App\Jobs\SeedVariationsForProductJob::dispatchSync($dep);
+//    \App\Jobs\SeedVariationsForProductJob::dispatchSync($dep);
 
     app(\App\Jobs\SeedVariationsForProductJob::class)->dispatchSync($trP);
-    app(\App\Jobs\SeedVariationsForProductJob::class)->dispatchSync($dep);
+//    app(\App\Jobs\SeedVariationsForProductJob::class)->dispatchSync($dep);
 });
 
 Artisan::command('test-sync-decathlon-unavailable', function () {
