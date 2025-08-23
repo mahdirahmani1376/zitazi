@@ -18,7 +18,9 @@ class VariationSeeder extends Seeder
         $startTime = microtime(true);
 
         $jobs = Product::query()
-            ->where('decathlon_url', '=', '')
+            ->WhereNot('trendyol_source', '=', '')
+            ->orWhereNot('amazon_source', '=', '')
+            ->orWhereNot('elele_source', '=', '')
             ->get()
             ->map(fn($product) => new SeedVariationsForProductJob($product));
 
