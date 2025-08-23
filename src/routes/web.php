@@ -2,21 +2,17 @@
 
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
-use App\DTO\ZitaziUpdateDTO;
 use App\Exports\NullVariationExport;
 use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
 use App\Exports\VariationExport;
 use App\Imports\ImportDecathlonVariation;
-use App\Jobs\SyncProductJob;
-use App\Jobs\SyncVariationsJob;
 use App\Jobs\SyncZitaziJob;
 use App\Jobs\UpdateJob;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
-use App\Models\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -163,40 +159,15 @@ Route::post('update-product', function (Request $request) {
         'own_id' => $request->get('own_id')
     ])->firstOrFail();
 
-    if (!$product->has('variations')) {
-        SyncProductJob::dispatchSync($product);
-        if ($product->belongsToTrendyol() or $product->belongsToDecalthon()) {
-            \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
-        }
-    } else {
-        foreach ($product->variations as $variation) {
-            \Illuminate\Support\Facades\Cache::forget($variation->url);
-            if ($variation->type === Product::PRODUCT_UPDATE) {
-                if ($product->belongsToTrendyol()) {
-                    $variation->update([
-                        'url' => $product->trendyol_source
-                    ]);
-                } else if ($product->belongsToDecalthon()) {
-                    $variation->update([
-                        'url' => $product->decathlon_url
-                    ]);
-                }
-
-            }
-            SyncVariationsJob::dispatchSync($variation);
-            if ($variation->status == Variation::AVAILABLE) {
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => $variation->stock,
-                    'price' => $variation->rial_price,
-                ]);
-            } else {
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => 0,
-                ]);
-            }
-            SyncZitaziJob::dispatchSync($variation, $updateData);
-        }
+    if (!$product->belongsToTrendyol()) {
+        return back()->with('error', 'فقط محصولات ترندیول قابلیت سینک لحظه ای دارند');
     }
+
+    \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
+    foreach ($product->variations as $variation) {
+        SyncZitaziJob::dispatchSync($variation);
+    }
+
 
     return back()->with('success', 'آپدیت محصول انجام شد');
 })->name('product.update');
