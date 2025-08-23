@@ -23,6 +23,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     public $timeout = 1 * 60 * 10;
     public $tries = 2;
     public $backoff = [1 * 60 * 5];
+
     public function __construct(
         public Product $product,
     )
@@ -40,6 +41,11 @@ class SeedVariationsForProductJob implements ShouldQueue
                 $this->seedAmazonVariations($product);
             } else if ($product->belongsToElele()) {
                 $this->seedEleleVariation($product);
+            } else {
+                Log::error('no url is assigend to product', [
+                    'product_id' => $product->id,
+                    'product_own_id' => $product->own_id
+                ]);
             }
         } catch (Exception $e) {
             Log::error('error-in-seed-variations-for-product', [
