@@ -37,20 +37,20 @@ class SyncZitaziCommand extends Command
                 $price = $variation->rial_price;
 
                 if ($stock == 0) {
-                    $otherType = null;
+                    $otherSource = null;
                     if ($variation->source === Product::SOURCE_TRENDYOL) {
-                        $otherType = Product::SOURCE_DECATHLON;
+                        $otherSource = Product::SOURCE_DECATHLON;
                     } elseif ($variation->source === Product::SOURCE_DECATHLON) {
-                        $otherType = Product::SOURCE_TRENDYOL;
+                        $otherSource = Product::SOURCE_TRENDYOL;
                     }
 
-                    if (!empty($otherType)) {
+                    if (!empty($otherSource)) {
                         if ($variation->item_type === Product::VARIATION_UPDATE) {
                             $otherSellerVariant =
                                 Variation::query()
                                     ->where('own_id', $variation->own_id)
                                     ->whereNot('id', $variation->id)
-                                    ->where('type', $otherType)
+                                    ->where('source', $otherSource)
                                     ->where('item_type', Product::VARIATION_UPDATE)
                                     ->first();
                         } else {
@@ -58,7 +58,7 @@ class SyncZitaziCommand extends Command
                                 Variation::query()
                                     ->where('product_id', $variation->product_id)
                                     ->whereNot('id', $variation->id)
-                                    ->where('type', $otherType)
+                                    ->where('source', $otherSource)
                                     ->where('item_type', Product::VARIATION_UPDATE)
                                     ->first();
                         }

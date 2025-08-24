@@ -18,7 +18,7 @@ class VariationSeeder extends Seeder
         $startTime = microtime(true);
 
         $jobs = Product::query()
-            ->WhereNot('trendyol_source', '=', '')
+            ->whereNot('trendyol_source', '=', '')
             ->orWhereNot('amazon_source', '=', '')
             ->orWhereNot('elele_source', '=', '')
             ->orWhereNot('sazkala_source', '=', '')
