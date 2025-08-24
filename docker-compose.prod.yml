@@ -91,7 +91,6 @@ services:
     container_name: zitazi-node
     ports:
       - "3000:3000"
-    restart: unless-stopped
     shm_size: '1gb'
     mem_limit: '1500mb'
 
