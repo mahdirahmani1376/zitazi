@@ -33,7 +33,7 @@ async function getBrowser() {
 }
 
 async function scrapeAll() {
-    let nextUrl = "http://zitazi-nginx/api/decathlon-list?page=1";
+    let nextUrl = "http://localhost/api/decathlon-list?page=1";
 
     while (nextUrl) {
         console.log("Fetching list:", nextUrl);
@@ -59,7 +59,7 @@ async function scrapeAll() {
 
         console.log(JSON.stringify(postData))
         // 3. send results back to backend
-        const response = await fetch("http://zitazi-nginx/api/store-decathlon", {
+        const response = await fetch("http://localhost/api/store-decathlon", {
             method: "POST",
             headers: {"Content-Type": "application/json", "Accept": "application/json"},
             body: JSON.stringify(postData),
