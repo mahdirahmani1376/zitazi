@@ -80,20 +80,6 @@ services:
     mem_limit: 400m
     restart: unless-stopped
 
-  node:
-    build:
-      context: .
-      dockerfile: ./Dockerfile-node
-    volumes:
-      - ./node/:/app/
-    networks:
-      - app-network
-    container_name: zitazi-node
-    ports:
-      - "3000:3000"
-    shm_size: '1gb'
-    mem_limit: '1500mb'
-
 volumes:
   mysql:
   redis:
