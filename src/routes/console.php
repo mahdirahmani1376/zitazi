@@ -550,7 +550,7 @@ Artisan::command('test-general {variation}', function ($variation) {
 });
 
 Artisan::command('test-seed', function () {
-    $trP = Product::find(3);
+    $trP = Product::find(1253246);
 //    $dep = Product::find(6520);
 
     \App\Jobs\SeedVariationsForProductJob::dispatchSync($trP);
