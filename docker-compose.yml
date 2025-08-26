@@ -10,8 +10,6 @@ services:
     networks:
       - app-network
     container_name: zitazi-php
-    depends_on:
-      - node
 
   nginx:
     image: nginx:latest
