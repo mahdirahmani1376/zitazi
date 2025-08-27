@@ -80,6 +80,8 @@ async function scrapePageOfUrls(productsData) {
     const results = [];
 
     for (const productData of productsData) {
+        console.log('product_id', productData.id)
+        console.log('url', productData.decathlon_url)
         try {
             new URL(productData.decathlon_url);
             await page.goto(productData.decathlon_url, {waitUntil: 'networkidle2', timeout: 60000});
@@ -132,7 +134,6 @@ async function scrapePageOfUrls(productsData) {
                 'success': false
             });
             console.log('error in fetching results', err, 'product_id', productData.id);
-            return false;
         }
     }
 
