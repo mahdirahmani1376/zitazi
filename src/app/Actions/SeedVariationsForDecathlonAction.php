@@ -2,26 +2,19 @@
 
 namespace App\Actions;
 
-use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use Illuminate\Support\Facades\Log;
-use Opcodes\LogViewer\Facades\Cache;
 
 class SeedVariationsForDecathlonAction
 {
-    public function execute($productId)
+    public function execute($result)
     {
-        $product = Product::find($productId);
-        $cacheKey = md5('response' . $product->id);
-        $response = Cache::get($cacheKey);
-        if (!$response) {
-            throw UnProcessableResponseException::make('no cache key found for product:' . $product->id);
-        }
+        $product = Product::find($result['product_id']);
 
-        $variationsRawData = $response['variations'];
+        $variationsRawData = $result['variations'];
         $itemType = Product::PRODUCT_UPDATE;
 
         if (count($variationsRawData) > 1) {

@@ -6,7 +6,6 @@ use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 Route::get('amazon-list', function () {
@@ -103,11 +102,9 @@ Route::post('store-decathlon', function (Request $request) {
                 'result' => $result,
                 'product_id' => $product->id
             ]);
-            return response()->json(['status' => 'failed']);
+        } else {
+            app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result);
         }
-        $cacheKey = md5('response' . $result['product_id']);
-        Cache::put($cacheKey, $result, now()->addDays(1));
-        app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result['product_id']);
     }
     return response()->json(['status' => 'ok']);
 });
