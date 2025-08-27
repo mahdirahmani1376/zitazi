@@ -81,6 +81,7 @@ async function scrapePageOfUrls(productsData) {
 
     for (const productData of productsData) {
         try {
+            new URL(productData.decathlon_url);
             await page.goto(productData.decathlon_url, {waitUntil: 'networkidle2', timeout: 60000});
             const elHandle = await page.$('script[type="application/ld+json"]');
             const el = await page.evaluate(el => el.textContent, elHandle)
@@ -130,7 +131,8 @@ async function scrapePageOfUrls(productsData) {
                 'product_id': productData.id,
                 'success': false
             });
-            console.log(err);
+            console.log('error in fetching results', err, 'product_id', productData.id);
+            return false;
         }
     }
 

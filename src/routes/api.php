@@ -67,9 +67,8 @@ Route::put('/variations/{variation}/update', function (
 
 Route::get('decathlon-list', function () {
     return Response::json([
-        'data' => Product::query()
-            ->whereNot('decathlon_url', '=', '')
-            ->orderBy('updated_at', 'asc')
+        'data' => \App\Models\Product::where('decathlon_url', '!=', '')
+            ->whereDoesntHave('variations')
             ->paginate()
     ]);
 });
@@ -107,7 +106,7 @@ Route::post('store-decathlon', function (Request $request) {
             return response()->json(['status' => 'failed']);
         }
         $cacheKey = md5('response' . $result['product_id']);
-        Cache::put($cacheKey, $result, now()->addDays(2));
+        Cache::put($cacheKey, $result, now()->addDays(1));
         app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result['product_id']);
     }
     return response()->json(['status' => 'ok']);
