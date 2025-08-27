@@ -51,7 +51,7 @@ async function scrapeAll() {
 
         // 2. scrape those urls
         const variationData = await scrapePageOfUrls(productsData);
-        console.log(`Scraped ${variationData.length} urls from page ${json.data.current_page}`);
+        console.log(`Scraped ${variationData.length ?? 0} urls from page ${json.data.current_page}`);
 
         const postData = {
             'data': variationData,
