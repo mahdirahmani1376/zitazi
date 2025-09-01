@@ -27,8 +27,7 @@ class SyncZitaziCommand extends Command
             })
             ->whereHas('product', function (Builder $query) {
                 $query
-                    ->whereNot('sazkala_source', '=', '');
-//                    ->whereNot('promotion', 1);
+                    ->whereNot('promotion', 1);
             })
             ->get();
 
