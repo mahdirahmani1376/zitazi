@@ -10,6 +10,7 @@ use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
+use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Artisan;
@@ -810,5 +811,15 @@ Artisan::command('sazkala-seed', function () {
             return new SeedVariationsForProductJob($product);
         });
 
-    Bus::batch($products);
+    Bus::batch($products)
+        ->then(function () {
+            Log::info('finished seeding');
+        })
+        ->catch(function (Batch $batch, Throwable $e) {
+            Log::error('seed variations failed', [
+                'error' => $e->getMessage(),
+            ]);
+        })
+        ->name('Seed sazkala variations')
+        ->dispatch();
 });
