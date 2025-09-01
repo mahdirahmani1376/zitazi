@@ -34,6 +34,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     {
         $product = $this->product;
 
+        dd($product->toArray());
         try {
             if ($product->belongsToTrendyol()) {
                 $this->seedTrendyolVariations($product);
