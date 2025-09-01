@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -26,8 +26,6 @@ class ProductSeeder extends Seeder
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
 
-        $productsToUpdate = [];
-
         foreach ($data as $key => $value) {
             try {
                 $minPrice = null;
@@ -38,8 +36,9 @@ class ProductSeeder extends Seeder
                     $minPrice = (int)$value['min_price'];
                 }
 
-                $productsToUpdate[] = [
-                    'own_id' => data_get($value, 'Woocomerce-ID'),
+                $ownId = data_get($value, 'Woocomerce-ID');
+
+                $data = [
                     'trendyol_source' => data_get($value, 'Trendyol-link'),
                     'digikala_source' => data_get($value, 'digikala_dkp'),
                     'torob_source' => urldecode(data_get($value, 'torob_link')),
@@ -60,44 +59,15 @@ class ProductSeeder extends Seeder
                     'updated_at' => now()->toDateString(),
                     'created_at' => now()->toDateString(),
                 ];
+
+                Product::updateOrCreate(['own_id' => $ownId], $data);
+
             } catch (Throwable $e) {
                 dump($e->getMessage());
                 Log::error($e->getMessage());
             }
         }
 
-        $batchSize = 10;
-        $chunks = array_chunk($productsToUpdate, $batchSize);
-        foreach ($chunks as $chunk) {
-            try {
-                DB::table('products')->upsert(
-                    $chunk,
-                    ['own_id'],
-                    [
-                        'trendyol_source',
-                        'digikala_source',
-                        'torob_source',
-                        'torob_id',
-                        'min_price',
-                        'markup',
-                        'category',
-                        'brand',
-                        'owner',
-                        'product_name',
-                        'decathlon_url',
-                        'decathlon_id',
-                        'elele_source',
-                        'promotion',
-                        'updated_at',
-                        'created_at',
-                    ]
-                );
-            } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
-            }
-
-        }
 
     }
 
