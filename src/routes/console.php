@@ -801,3 +801,14 @@ Artisan::command('sazkala-test', function () {
 
     dd($data);
 });
+
+Artisan::command('sazkala-seed', function () {
+    $products = Product::query()
+        ->where('sazkala_source', '!=', '')
+        ->get()
+        ->map(function (Product $product) {
+            return new SeedVariationsForProductJob($product);
+        });
+
+    Bus::batch($products);
+});
