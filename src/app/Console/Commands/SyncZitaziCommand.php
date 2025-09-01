@@ -26,7 +26,9 @@ class SyncZitaziCommand extends Command
                     ->orWhere('item_type', Product::PRODUCT_UPDATE);
             })
             ->whereHas('product', function (Builder $query) {
-                $query->whereNot('promotion', 1);
+                $query
+                    ->whereNot('sazkala_source', '=', '');
+//                    ->whereNot('promotion', 1);
             })
             ->get();
 

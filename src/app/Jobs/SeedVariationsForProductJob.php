@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Actions\Crawler\EleleCrawler;
+use App\Actions\Crawler\SazKalaCrawler;
 use App\Actions\HttpService;
 use App\Models\Currency;
 use App\Models\Product;
@@ -34,7 +35,6 @@ class SeedVariationsForProductJob implements ShouldQueue
     {
         $product = $this->product;
 
-        dd($product->toArray());
         try {
             if ($product->belongsToTrendyol()) {
                 $this->seedTrendyolVariations($product);
@@ -152,7 +152,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             'item_type' => Product::PRODUCT_UPDATE
         ]);
 
-        app(EleleCrawler::class)->crawl($variation);
+        app(SazKalaCrawler::class)->crawl($variation);
     }
 
 
