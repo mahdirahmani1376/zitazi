@@ -17,6 +17,7 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow
         } catch (\Exception $e) {
             Log::error('error-import', [
                 'error' => $e->getMessage(),
+                'row' => $row,
             ]);
         }
 
