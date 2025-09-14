@@ -407,12 +407,10 @@ Artisan::command('test-product-sync', function () {
     dump($product->getChanges());
 });
 
-Artisan::command('test-trendyol-seed-variations', function () {
-    $product = \App\Models\Product::find(32230);
-//    $product = \App\Models\Product::find(32228);
-//    $product = \App\Models\Product::find(28657);
-
-    \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
+Artisan::command('test-trendyol-sync', function () {
+//    $variation = \App\Models\Product::firstWhere('own_id',3658);
+    app(\App\Actions\Crawler\TrendyolVariationCrawler::crawlVariation($variation = Variation::find(3658)));
+    dump($variation->toArray());
 });
 
 Artisan::command('test-trendyol-sync-variations {variation}', function ($variation) {
