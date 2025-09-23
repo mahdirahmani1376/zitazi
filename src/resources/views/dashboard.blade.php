@@ -77,13 +77,13 @@
             @endif
 
             {{-- Error Toasts --}}
-            @if(session('error'))
-                @foreach(session('error') as $e)
+            @if($errors->any())
+                @foreach($errors->all() as $e)
                     <div class="toast align-items-center text-white bg-danger border-0 mb-2" role="alert"
                          aria-live="assertive" aria-atomic="true">
                         <div class="d-flex">
                             <div class="toast-body">
-                                {{ $e['message'] }}
+                                {{ $error }}
                             </div>
                             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
                                     aria-label="Close"></button>
@@ -133,7 +133,7 @@
             </form>
         </div>
         <div>
-            <h4 class="text-center mb-3">بروز رسانی محصول</h4>
+            <h4 class="text-center mb-3">بروز رسانی محصولات ترندیول</h4>
             <form action="{{ route('product.update') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">

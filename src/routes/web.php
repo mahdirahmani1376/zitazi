@@ -162,7 +162,9 @@ Route::post('update-product', function (Request $request) {
     ])->firstOrFail();
 
     if (!$product->belongsToTrendyol()) {
-        return back()->with('error', 'فقط محصولات ترندیول قابلیت سینک لحظه ای دارند');
+        return back()->withErrors([
+            'message' => 'فقط محصولات ترندیول قابلیت سینک لحظه ای دارند'
+        ]);
     }
 
     \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
