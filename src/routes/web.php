@@ -124,7 +124,7 @@ Route::post('import', function (Request $request) {
     $errors = session('import_errors') ?? [];
     Session::forget('import_errors'); // clear it after reading
 
-    Excel::import(new ImportDecathlonVariation, $request->file('file'));
+    Excel::queueImport(new ImportDecathlonVariation, $request->file('file'));
 
     return back()
         ->with('success', 'با موفقیت انجام شد')
