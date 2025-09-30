@@ -4,11 +4,12 @@ namespace App\Imports;
 
 use App\Models\Product;
 use App\Models\Variation;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ImportDecathlonVariation implements ToModel, WithHeadingRow
+class ImportDecathlonVariation implements ToModel, WithHeadingRow, ShouldQueue
 {
     public function model(array $row)
     {
