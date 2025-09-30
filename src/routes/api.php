@@ -69,6 +69,7 @@ Route::get('decathlon-list', function () {
         'data' => Product::query()
             ->whereNot('decathlon_url', '=', '')
             ->orderBy('updated_at', 'asc')
+            ->whereIn('own_id', [698242, 787938])
             ->paginate()
     ]);
 });
