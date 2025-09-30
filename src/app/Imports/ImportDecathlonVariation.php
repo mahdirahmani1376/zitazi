@@ -7,10 +7,15 @@ use App\Models\Variation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ImportDecathlonVariation implements ToModel, WithHeadingRow, ShouldQueue
+class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
 {
+    public function chunkSize(): int
+    {
+        return 100;
+    }
     public function model(array $row)
     {
         try {
