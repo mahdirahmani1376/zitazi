@@ -810,3 +810,7 @@ Artisan::command('sazkala-seed', function () {
     }
 
 });
+
+Artisan::command('seed tr {id}', function ($id) {
+    SeedVariationsForProductJob::dispatchSync(Product::firstWhere('owner_id', $id));
+});
