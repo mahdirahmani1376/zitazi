@@ -814,3 +814,16 @@ Artisan::command('sazkala-seed', function () {
 Artisan::command('seed-tr {id}', function ($id) {
     SeedVariationsForProductJob::dispatchSync(Product::firstWhere('own_id', $id));
 });
+
+Artisan::command('sync-zitazi {id}', function ($id) {
+    $variations = Variation::find($id);
+
+
+    $updateData = ZitaziUpdateDTO::createFromArray([
+        'stock_quantity' => $variations->stock,
+        'price' => $variations->rial_price
+    ]);
+
+    SyncZitaziJob::dispatchSync($variations, $updateData);
+
+});
