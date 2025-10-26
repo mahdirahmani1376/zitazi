@@ -816,14 +816,21 @@ Artisan::command('seed-tr {id}', function ($id) {
 });
 
 Artisan::command('sync-zitazi {id}', function ($id) {
-    $variations = Variation::find($id);
 
 
-    $updateData = ZitaziUpdateDTO::createFromArray([
-        'stock_quantity' => $variations->stock,
-        'price' => $variations->rial_price
-    ]);
+});
 
-    SyncZitaziJob::dispatchSync($variations, $updateData);
+Artisan::command('sync-zitazi-all {id}', function ($id) {
+    $product = Product::firstWhere('own_id', $id);
+
+    foreach ($product->variations as $variation) {
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'stock_quantity' => $variation->stock,
+            'price' => $variation->rial_price
+        ]);
+
+        SyncZitaziJob::dispatchSync($variation, $updateData);
+    }
+
 
 });
