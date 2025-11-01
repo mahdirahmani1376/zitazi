@@ -15,7 +15,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
     public function query()
     {
         return Variation::with('product')
-            ->orderBy('product_id');
+            ->orderBy('product_id')->get();
     }
 
     public function headings(): array
