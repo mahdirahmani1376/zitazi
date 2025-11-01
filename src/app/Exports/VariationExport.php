@@ -9,13 +9,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class VariationExport implements FromQuery, WithHeadings, WithMapping
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public function query()
     {
         return Variation::with('product')
-            ->orderBy('product_id')->get();
+            ->orderBy('product_id');
     }
 
     public function headings(): array
