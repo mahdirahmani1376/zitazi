@@ -2,6 +2,7 @@
 
 use App\Actions\Crawler\BaseVariationCrawler;
 use App\DTO\ZitaziUpdateDTO;
+use App\Models\NodeLog;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
@@ -106,9 +107,15 @@ Route::post('store-decathlon', function (Request $request) {
                 'result' => $result,
                 'product_id' => $product->id
             ]);
+
         } else {
             app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result);
         }
+
+        NodeLog::create([
+            'product_id' => $result['product_id'],
+            'data' => $result,
+        ]);
     }
     return response()->json(['status' => 'ok']);
 });
