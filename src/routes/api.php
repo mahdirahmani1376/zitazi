@@ -114,3 +114,11 @@ Route::post('store-decathlon', function (Request $request) {
 });
 
 
+Route::get('decathlon-list-test', function () {
+    return Response::json([
+        'data' => Product::query()
+            ->whereNot('decathlon_url', '=', '')
+            ->orderBy('updated_at', 'asc')
+            ->pluck('id')
+    ]);
+});
