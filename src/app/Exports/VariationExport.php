@@ -44,8 +44,8 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
             return [
                 'id' => $row->id,
                 'product_id' => $row->product_id,
-                'product_name' => $row->product->product_name,
-                'zitazi_product_id' => $row->product->own_id,
+                'product_name' => $row->product?->product_name,
+                'zitazi_product_id' => $row->product?->own_id,
                 'zitazi_variation_id' => $row->own_id,
                 'sku' => $row->sku,
                 'price' => $row->price,
