@@ -7,6 +7,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
+      - /var/log/scraper.log:/var/www/html/storage/logs:ro
     networks:
       - app-network
     container_name: zitazi-php

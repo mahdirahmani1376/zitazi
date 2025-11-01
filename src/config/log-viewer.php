@@ -145,7 +145,7 @@ return [
         // This key => value pair can be used to rename and group multiple paths into one folder in the UI.
         '/var/log/httpd/*' => 'Apache',
         '/var/log/nginx/*' => 'Nginx',
-        '/var/log/scraper.log' => 'node',
+        storage_path('logs/node.log'),
 
         // MacOS Apple Silicon logs
         '/opt/homebrew/var/log/nginx/*',
