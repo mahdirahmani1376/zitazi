@@ -131,7 +131,8 @@ async function scrapePageOfUrls(productsData) {
         } catch (err) {
             results.push({
                 'product_id': productData.id,
-                'success': false
+                'success': false,
+                'error': err
             });
             console.log('error in fetching results', err, 'product_id', productData.id);
         }
