@@ -71,7 +71,7 @@ Route::get('decathlon-list', function () {
             ->whereNot('decathlon_url', '=', '')
             ->orderBy('updated_at', 'asc')
             ->whereIn('own_id', [
-                844645
+                844747
             ])
             ->paginate()
     ]);
