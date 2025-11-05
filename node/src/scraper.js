@@ -129,10 +129,17 @@ async function scrapePageOfUrls(productsData) {
                 'success': true
             });
         } catch (err) {
+            const safeError = {
+                name: err.name,
+                message: err.message,
+                code: err.code ?? null,
+                stack: err.stack?.split('\n').slice(0, 3).join(' ') ?? null, // shorten
+            };
+
             results.push({
                 'product_id': productData.id,
                 'success': false,
-                'error': err
+                'error': safeError
             });
             console.log('error in fetching results', err, 'product_id', productData.id);
         }
