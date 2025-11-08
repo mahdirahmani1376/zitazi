@@ -1,45 +1,38 @@
 const express = require('express');
-const puppeteer = require('puppeteer-extra');
-const stealthPlugin = require('puppeteer-extra-plugin-stealth');
-
-puppeteer.use(stealthPlugin());
-const {scrapeUrl, seedUrl} = require('./scraper');
+const {spawn} = require('child_process');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 
-app.post('/scrape', async (req, res) => {
-    const {url} = req.body;
-    if (!url) {
-        return res.status(400).json({error: 'URL is required'});
-    }
-    try {
-        const data = await scrapeUrl(url);
-        res.json(data);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({error: err.message, success: false});
-    }
-});
-
-app.post('/seed', async (req, res) => {
-    const {url} = req.body;
-    if (!url) {
-        return res.status(400).json({body: 'URL is required'});
-    }
-    try {
-        const data = await seedUrl(url);
-        res.json(data);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({body: err.message, success: false});
-    }
-});
-
 app.get('/', (req, res) => {
-    return res.json('success')
+    res.send('✅ Server is running. Use POST /scrape to start scraping.');
 });
 
-app.listen(3000, '0.0.0.0', () => {
-    console.log('Scraper API listening on port 3000');
+app.post('/scrape', async (req, res) => {
+    const data = req.body;
+    if (!data) return res.status(400).json({error: 'Missing "data" payload'});
+
+    console.log('📩 Received scrape request:', data.decathlon_url);
+
+    const scraperPath = path.resolve('./scraper-url.js');
+    const child = spawn('node', [scraperPath, JSON.stringify(data)], {
+        stdio: 'inherit', // inherit output for logs
+    });
+
+    child.on('error', (err) => {
+        console.error('❌ Failed to start scraper process:', err);
+    });
+
+    // Kill the process if it exceeds 5 minutes
+    setTimeout(() => {
+        if (!child.killed) {
+            console.warn('⚠️ Killing slow scrape process...');
+            child.kill('SIGTERM');
+        }
+    }, 5 * 60 * 1000);
+
+    res.json({success: true, message: 'Scraping started in background.'});
 });
+
+app.listen(3000, () => console.log('🚀 Server running on port 3000'));

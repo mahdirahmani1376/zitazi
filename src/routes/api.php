@@ -1,10 +1,9 @@
 <?php
 
 use App\Actions\Crawler\BaseVariationCrawler;
+use App\Actions\UpdateDecathlonVariationAction;
 use App\DTO\ZitaziUpdateDTO;
-use App\Models\NodeLog;
 use App\Models\Product;
-use App\Models\SyncLog;
 use App\Models\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,49 +76,36 @@ Route::get('decathlon-list', function () {
     ]);
 });
 
-Route::post('store-decathlon', function (Request $request) {
-    foreach ($request->data as $result) {
-        if (!$result['success']) {
-            $product = Product::find($result['product_id']);
-            foreach ($product->variations as $variation) {
-                $oldStock = $variation->stock;
-                $oldPrice = $variation->price;
-
-                $variation->update([
-                    'status' => Variation::UNAVAILABLE,
-                    'stock' => 0,
-                ]);
-
-                if ($oldStock != $variation->stock) {
-                    $data = [
-                        'old_stock' => $oldStock,
-                        'new_stock' => $variation->stock,
-                        'old_price' => $oldPrice,
-                        'new_price' => $variation->rial_price,
-                        'variation_own_id' => $variation->own_id,
-                        'product_own_id' => $variation->product->own_id,
-                    ];
-
-                    SyncLog::create($data);
-                }
-            }
-            \Illuminate\Support\Facades\Log::error('decathlon-sync-error', [
-                'result' => $result,
-                'product_id' => $product->id
-            ]);
-
-        } else {
-            app(\App\Actions\SeedVariationsForDecathlonAction::class)->execute($result);
-        }
-
-        NodeLog::create([
-            'product_id' => $result['product_id'],
-            'data' => $result,
-        ]);
-    }
+Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariationAction $action) {
+    $action->execute($request->all());
     return response()->json(['status' => 'ok']);
 });
 
+Route::post('update-decathlon-product', function (Request $request, UpdateDecathlonVariationAction $action) {
+
+    $product = Product::firstWhere('own_id', $request->get('decathlon_own_id'))?->toArray();
+    if (empty($product)) {
+        return back()->withErrors([
+            'message' => 'محصولی با شناسه تنوع مورد نظر یافت نشد'
+        ]);
+    }
+
+    if (!empty($product->decathlon_url)) {
+        return back()->withErrors([
+            'message' => 'لینک دکتلون خالی است'
+        ]);
+    }
+
+    $response = \Illuminate\Support\Facades\Http::post('172.17.0.1:3000/scrape', $product);
+    if (!$response->successful()) {
+        $action->execute($response->json());
+        return back()->withErrors([
+            'message' => 'خطایی رخ داد'
+        ]);
+    }
+    return back()->with('success', 'آپدیت محصول انجام شد');
+
+})->name('product.update.decathlon');
 
 Route::get('decathlon-list-test', function () {
     return Response::json([

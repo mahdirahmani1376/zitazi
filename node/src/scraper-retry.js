@@ -15,6 +15,7 @@ process.on('SIGTERM', async () => {
     if (browser) await browser.close();
     process.exit(0);
 });
+
 async function getBrowser() {
     if (!browser) {
         browser = await puppeteer.launch({
@@ -33,7 +34,7 @@ async function getBrowser() {
 }
 
 async function scrapeAll() {
-    let nextUrl = "http://localhost/api/decathlon-list?page=1";
+    let nextUrl = "http://localhost/api/decathlon-list-retry?page=1";
 
     while (nextUrl) {
         console.log("Fetching list:", nextUrl);

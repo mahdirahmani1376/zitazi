@@ -142,6 +142,15 @@
                 </div>
                 <button type="submit" class="btn btn-success">آپدیت</button>
             </form>
+            <h4 class="text-center mb-3">بروز رسانی محصولات دکتلون</h4>
+            <form action="{{ route('product.update.decathlon') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="decathlon_own_id" class="form-label">شناسه ووکامرس</label>
+                    <input type="text" name="decathlon_own_id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-success">آپدیت</button>
+            </form>
         </div>
         <div>
             <h4 class="text-center mb-3">باز خوانی محصولات از شیت</h4>
