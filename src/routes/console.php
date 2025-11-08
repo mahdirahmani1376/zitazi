@@ -856,5 +856,7 @@ Artisan::command('temp del', function () {
         ]);
 
         SyncZitaziJob::dispatch($variation, $updateData);
+
+        $variation->update(['own_id' => 0]);
     }
 });
