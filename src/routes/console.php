@@ -835,7 +835,7 @@ Artisan::command('sync-zitazi-all {id}', function ($id) {
 
 });
 
-Artisan::command('temp del', function () {
+Artisan::command('temp-del', function () {
     $data = [
         883057,
         771203,
