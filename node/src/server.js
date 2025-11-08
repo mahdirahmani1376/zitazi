@@ -15,10 +15,9 @@ app.post('/scrape', async (req, res) => {
 
     console.log('📩 Received scrape request:', data.decathlon_url);
 
-    const scraperPath = path.resolve('./scraper-url.js');
-    const child = spawn('node', [scraperPath, JSON.stringify(data)], {
-        stdio: 'inherit', // inherit output for logs
-    });
+    const scraperPath = path.join(__dirname, 'scraper-url.js');
+
+    const child = spawn('node', [scraperPath, JSON.stringify(data)], {stdio: 'inherit',});
 
     child.on('error', (err) => {
         console.error('❌ Failed to start scraper process:', err);
