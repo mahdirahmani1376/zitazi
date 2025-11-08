@@ -34,6 +34,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
             'منبع',
             'زمان آپدیت',
             'وضعیت',
+            'غیرفعال',
         ];
     }
 
