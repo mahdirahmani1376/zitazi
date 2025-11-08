@@ -69,6 +69,7 @@ puppeteer.use(stealthPlugin());
 
         const postData = {
             'data': updateData,
+            'sync': true
         }
 
         console.log(JSON.stringify(postData))

@@ -2,6 +2,8 @@
 
 namespace App\Actions;
 
+use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\SyncLog;
@@ -44,6 +46,12 @@ class SeedVariationsForDecathlonAction
             $variation = Variation::updateOrCreate([
                 'sku' => $variationRawData['sku'],
             ], $createData);
+
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => $variation->stock,
+                'price' => $variation->rial_price
+            ]);
+            SyncZitaziJob::dispatch($variation, $updateData);
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
@@ -89,8 +97,21 @@ class SeedVariationsForDecathlonAction
             ->where('source', Product::SOURCE_DECATHLON)
             ->get();
 
-        $unavailableOnSourceSiteVariations->each(fn(Variation $variation) => $variation->update([
-            'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
-        ]));
+        $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($result) {
+            if ($result['sync']) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                    'price' => $variation->rial_price
+                ]);
+                SyncZitaziJob::dispatch($variation, $updateData);
+            }
+
+            $variation->update([
+                'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+            ]);
+        }
+        );
+
+
     }
 }

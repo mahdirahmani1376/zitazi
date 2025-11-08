@@ -81,7 +81,7 @@ Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariat
     return response()->json(['status' => 'ok']);
 });
 
-Route::post('update-decathlon-product', function (Request $request, UpdateDecathlonVariationAction $action) {
+Route::post('update-decathlon-product', function (Request $request) {
 
     $product = Product::firstWhere('own_id', $request->get('decathlon_own_id'))?->toArray();
     if (empty($product)) {
@@ -98,7 +98,6 @@ Route::post('update-decathlon-product', function (Request $request, UpdateDecath
 
     $response = \Illuminate\Support\Facades\Http::post('172.17.0.1:3000/scrape', $product);
     if (!$response->successful()) {
-        $action->execute($response->json());
         return back()->withErrors([
             'message' => 'خطایی رخ داد'
         ]);
