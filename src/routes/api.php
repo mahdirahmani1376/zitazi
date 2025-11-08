@@ -76,6 +76,16 @@ Route::get('decathlon-list', function () {
     ]);
 });
 
+Route::get('decathlon-list-retry', function () {
+    return Response::json([
+        'data' => Product::query()
+            ->whereNot('decathlon_url', '=', '')
+            ->orderBy('updated_at', 'asc')
+            ->whereDoesntHave('variations')
+            ->paginate()
+    ]);
+});
+
 Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariationAction $action) {
     $action->execute($request->all());
     return response()->json(['status' => 'ok']);
