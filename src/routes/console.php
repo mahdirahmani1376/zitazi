@@ -851,12 +851,15 @@ Artisan::command('temp-del', function () {
     foreach ($data as $item) {
         $variation = Variation::find($item);
 
-        $updateData = ZitaziUpdateDTO::createFromArray([
-            'stock_quantity' => 0,
-        ]);
+        if ($variation) {
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => 0,
+            ]);
 
-        SyncZitaziJob::dispatch($variation, $updateData);
+            SyncZitaziJob::dispatch($variation, $updateData);
 
-        $variation->update(['own_id' => 0]);
+            $variation->update(['own_id' => 0]);
+        }
+
     }
 });
