@@ -25,6 +25,21 @@ class ProductSeeder extends Seeder
         $response = Http::acceptJson()->get($sheetUrl);
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
+        $allOwnIds = collect($data)->pluck('Woocomerce-ID');
+
+        Product::whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+            foreach ($product->variations as $variation) {
+                $variation->delete();
+                Log::info('variation deleted', [
+                    'variation_id' => $product->id,
+                ]);
+            }
+            $product->delete();
+            Log::info('product deleted', [
+                'product_id' => $product->id,
+                'product_own_id' => $product->own_id,
+            ]);
+        });
 
         foreach ($data as $key => $value) {
             try {
