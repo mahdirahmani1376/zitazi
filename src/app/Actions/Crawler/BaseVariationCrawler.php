@@ -55,7 +55,7 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        if ($variation->product->onPromotion() or empty($variation->own_id)) {
+        if ($variation->product->onPromotion() or empty($variation->is_deleted)) {
             return;
         }
 

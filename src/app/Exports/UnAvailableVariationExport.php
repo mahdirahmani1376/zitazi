@@ -40,6 +40,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'زمان آپدیت',
             'وضعیت',
             'لینک اصلی محصول',
+            'غیرفعال',
         ];
     }
 
@@ -64,6 +65,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
             'updated_at' => $row->updated_at->toDateTimestring(),
             'status' => $row->status,
             'product_url' => $row->product->decathlon_url,
+            'is_deleted' => $row->is_deleted,
         ];
     }
 }

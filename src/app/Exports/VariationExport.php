@@ -58,6 +58,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
                 'source' => $row->source,
                 'updated_at' => $row->updated_at->toDateTimestring(),
                 'status' => $row->status,
+                'is_deleted' => $row->is_deleted,
             ];
         }
 
