@@ -834,3 +834,27 @@ Artisan::command('sync-zitazi-all {id}', function ($id) {
 
 
 });
+
+Artisan::command('temp del', function () {
+    $data = [
+        883057,
+        771203,
+        771204,
+        771206,
+        771207,
+        771208,
+        771209,
+        771210,
+        771205,
+    ];
+
+    foreach ($data as $item) {
+        $variation = Variation::find($item);
+
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'stock_quantity' => 0,
+        ]);
+
+        SyncZitaziJob::dispatch($variation, $updateData);
+    }
+});
