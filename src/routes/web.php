@@ -215,3 +215,24 @@ Route::match(['get', 'post'], '/submit-video', function (Request $request) {
     return view('submit-video');
 });
 
+Route::post('variation-delete', function (Request $request) {
+    $variation = Variation::firstWhere([
+        'own_id' => $request->get('variation_own_id')
+    ]);
+    if (!$variation) {
+        return back()->with('success', 'تنوعی یافت نشد');
+    }
+
+    $updateData = ZitaziUpdateDTO::createFromArray([
+        'stock_quantity' => 0,
+    ]);
+
+    SyncZitaziJob::dispatchSync($variation, $updateData);
+
+    $variation->update([
+        'is_deleted' => true
+    ]);
+
+    return back()->with('success', 'تنوع غیر فعال شد');
+})->name('variation.delete');
+

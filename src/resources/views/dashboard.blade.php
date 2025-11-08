@@ -151,6 +151,15 @@
                 </div>
                 <button type="submit" class="btn btn-success">آپدیت</button>
             </form>
+            <h4 class="text-center mb-3">غیرفعال سازی تنوع</h4>
+            <form action="{{ route('variation.delete') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="variation_own_id" class="form-label">شناسه تنوع</label>
+                    <input type="text" name="variation_own_id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-danger">غیر فعال سازی</button>
+            </form>
         </div>
         <div>
             <h4 class="text-center mb-3">باز خوانی محصولات از شیت</h4>

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
@@ -30,6 +32,13 @@ class ProductSeeder extends Seeder
         Product::whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             foreach ($product->variations as $variation) {
                 $variation->delete();
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                ]);
+
+                SyncZitaziJob::dispatch($variation, $updateData);
+
+                $variation->update(['own_id' => 0]);
                 Log::info('variation deleted', [
                     'variation_id' => $product->id,
                 ]);
