@@ -22,7 +22,7 @@ class UpdateDecathlonVariationAction
             if (!$result['success']) {
                 $this->logError($result);
             } else {
-                $this->seedVariationsForDecathlonAction->execute($result, $result['sync']);
+                $this->seedVariationsForDecathlonAction->execute($result, $result['sync'] ?? false);
             }
 
             NodeLog::create([

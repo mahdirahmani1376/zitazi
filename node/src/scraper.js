@@ -51,19 +51,15 @@ async function scrapeAll() {
 
         // 2. scrape those urls
         const variationData = await scrapePageOfUrls(productsData);
-        console.log(`Scraped ${variationData.length ?? 0} urls from page ${json.data.current_page}`);
 
-        const postData = {
-            'data': variationData,
-        }
-
-        console.log(JSON.stringify(postData))
+        console.log('variation data', JSON.stringify(variationData))
         // 3. send results back to backend
         const response = await fetch("http://localhost/api/store-decathlon", {
             method: "POST",
             headers: {"Content-Type": "application/json", "Accept": "application/json"},
-            body: JSON.stringify(postData),
+            body: JSON.stringify(variationData),
         });
+        console.log('response', await response.json())
 
         // 4. move to next page
         nextUrl = json.data.next_page_url;

@@ -61,23 +61,20 @@ puppeteer.use(stealthPlugin());
             }
         });
 
-        const updateData = {
+        const updateData = [];
+        updateData.push({
             'product_id': data.id,
             'variations': variations,
             'success': true,
             'sync': true
-        }
+        })
 
-        const postData = {
-            'data': updateData,
-        }
-
-        console.log(JSON.stringify(postData))
+        console.log(JSON.stringify(updateData))
         // 3. send results back to backend
         const res = await fetch("http://localhost/api/store-decathlon", {
             method: "POST",
             headers: {"Content-Type": "application/json", "Accept": "application/json"},
-            body: JSON.stringify(postData),
+            body: JSON.stringify(updateData),
         })
 
         if (!res.ok) {
