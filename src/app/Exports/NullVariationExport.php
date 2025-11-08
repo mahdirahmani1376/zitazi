@@ -49,8 +49,8 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,
-            'product_name' => $row->product->product_name,
-            'zitazi_product_id' => $row->product->own_id,
+            'product_name' => $row->product?->product_name,
+            'zitazi_product_id' => $row->product?->own_id,
             'zitazi_variation_id' => $row->own_id,
             'sku' => $row->sku,
             'price' => $row->price,
@@ -61,7 +61,7 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
             'color' => $row->color,
             'brand' => $row->product?->brand,
             'source' => $row->source,
-            'updated_at' => $row->updated_at->toDateTimestring(),
+            'updated_at' => $row->updated_at?->toDateTimestring(),
             'status' => $row->status,
             'is_deleted' => $row->is_deleted,
         ];
