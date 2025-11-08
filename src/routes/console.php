@@ -849,7 +849,9 @@ Artisan::command('temp-del', function () {
     ];
 
     foreach ($data as $item) {
-        $variation = Variation::find($item);
+        $variation = Variation::firstWhere([
+            'own_id' => $item,
+        ]);
 
         if ($variation) {
             $updateData = ZitaziUpdateDTO::createFromArray([
