@@ -64,12 +64,12 @@ puppeteer.use(stealthPlugin());
         const updateData = {
             'product_id': data.id,
             'variations': variations,
-            'success': true
+            'success': true,
+            'sync': true
         }
 
         const postData = {
             'data': updateData,
-            'sync': true
         }
 
         console.log(JSON.stringify(postData))

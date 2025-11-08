@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class SeedVariationsForDecathlonAction
 {
-    public function execute($result)
+    public function execute($result, $sync = false)
     {
         $product = Product::find($result['product_id']);
 
@@ -47,11 +47,13 @@ class SeedVariationsForDecathlonAction
                 'sku' => $variationRawData['sku'],
             ], $createData);
 
-            $updateData = ZitaziUpdateDTO::createFromArray([
-                'stock_quantity' => $variation->stock,
-                'price' => $variation->rial_price
-            ]);
-            SyncZitaziJob::dispatch($variation, $updateData);
+            if ($sync) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $variation->rial_price
+                ]);
+                SyncZitaziJob::dispatch($variation, $updateData);
+            }
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
@@ -97,8 +99,8 @@ class SeedVariationsForDecathlonAction
             ->where('source', Product::SOURCE_DECATHLON)
             ->get();
 
-        $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($result) {
-            if ($result['sync']) {
+        $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($sync) {
+            if ($sync) {
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => 0,
                     'price' => $variation->rial_price
