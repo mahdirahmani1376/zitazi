@@ -59,7 +59,7 @@ class SeedVariationsForDecathlonAction
                     'stock_quantity' => $variation->stock,
                     'price' => $variation->rial_price
                 ]);
-                SyncZitaziJob::dispatch($variation, $updateData);
+                SyncZitaziJob::dispatchSync($variation, $updateData);
             }
 
             $oldStock = $variation->stock;
