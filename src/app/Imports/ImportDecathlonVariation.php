@@ -44,11 +44,13 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
                 'is_deleted' => $row['غیرفعال'] ?? false
             ]);
 
-            Log::info('product-import-update', [
-                'before' => $result->getOriginal(),
-                'after' => $result->getChanges(),
-                'data' => $row,
-            ]);
+            Log::info('product-import-update',
+                [
+                    'own_id' => $row['شناسه تنوع زیتازی'],
+                    'item_type' => $itemType,
+                    'is_deleted' => $row['غیرفعال'] ?? false
+                ]
+            );
 
             return $result;
         }
