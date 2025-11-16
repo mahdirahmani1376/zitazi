@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Exports;
-ini_set('memory_limit', '512M');
 
 use App\Models\Variation;
 use Maatwebsite\Excel\Concerns\FromQuery;
