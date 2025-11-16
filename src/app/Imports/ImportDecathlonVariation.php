@@ -7,11 +7,12 @@ use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue
+class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsEmptyRows
 {
     public function chunkSize(): int
     {
