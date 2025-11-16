@@ -62,6 +62,12 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
             );
 
             return $result;
+        } else {
+            Log::error('product-import-update-not-found',
+                [
+                    'id' => $row['شناسه تنوع در وب سرویس']
+                ]
+            );
         }
 
     }
