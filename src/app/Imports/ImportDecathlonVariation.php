@@ -38,6 +38,11 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
         }
 
         if (!empty($result)) {
+
+            $oldOwnId = $result->own_id;
+            $oldIsDeleted = $result->is_deleted;
+            $oldItemType = $result->item_type;
+
             $result->update([
                 'own_id' => $row['شناسه تنوع زیتازی'],
                 'item_type' => $itemType,
@@ -47,8 +52,11 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
             Log::info('product-import-update',
                 [
                     'own_id' => $row['شناسه تنوع زیتازی'],
+                    'old_own_id' => $oldOwnId,
                     'item_type' => $itemType,
-                    'is_deleted' => $row['غیرفعال'] ?? false
+                    'old_item_type' => $oldItemType,
+                    'is_deleted' => $row['غیرفعال'] ?? false,
+                    'old_is_deleted' => $oldIsDeleted,
                 ]
             );
 
