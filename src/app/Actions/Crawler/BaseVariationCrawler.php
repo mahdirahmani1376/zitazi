@@ -71,7 +71,6 @@ class BaseVariationCrawler
         $data = $dto->getUpdateBody();
 
         $data['stock_status'] = $stockStatus;
-        $data['manage_stock'] = true;
 
         if (!empty($dto?->price)) {
             $data['sale_price'] = null;
@@ -82,6 +81,7 @@ class BaseVariationCrawler
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
+            $data['manage_stock'] = false;
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             return;
