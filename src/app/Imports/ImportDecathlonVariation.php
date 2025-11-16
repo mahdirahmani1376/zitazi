@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Imports;
+//ini_set('memory_limit', '512M');
 
 use App\Models\Product;
 use App\Models\Variation;
