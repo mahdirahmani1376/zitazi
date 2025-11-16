@@ -15,7 +15,7 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
 {
     public function chunkSize(): int
     {
-        return 100;
+        return 50;
     }
     public function model(array $row)
     {
