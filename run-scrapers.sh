@@ -1,5 +1,9 @@
 #!/bin/bash
 LOGFILE=/var/log/scraper.log
+
+truncate -s 0 /var/log/*.log
+truncate -s 0 /var/log/*/*.log
+
 echo "=== Scrape started at $(date) ===" >> $LOGFILE
 
 node ~/projects/zitazi/node/src/scraper.js >> $LOGFILE 2>&1
