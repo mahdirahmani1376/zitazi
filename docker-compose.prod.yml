@@ -10,7 +10,6 @@ services:
     networks:
       - app-network
     container_name: zitazi-php
-    mem_limit: 800m
     restart: unless-stopped
 
   nginx:
@@ -27,7 +26,6 @@ services:
     environment:
       - SERVER_NAME=${SERVER_NAME}
     container_name: zitazi-nginx
-    mem_limit: 200m
     restart: unless-stopped
 
   mysql:
@@ -41,7 +39,6 @@ services:
     networks:
       - app-network
     container_name: zitazi-mysql
-    mem_limit: 1g
     restart: unless-stopped
 
   redis:
@@ -55,7 +52,6 @@ services:
     container_name: zitazi-redis
     restart: unless-stopped
     command: redis-server --save "" --appendonly no --maxmemory 200mb --maxmemory-policy allkeys-lru
-    mem_limit: 256m
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
@@ -78,7 +74,6 @@ services:
         condition: service_started
     command: php artisan horizon
     container_name: zitazi-horizon
-    mem_limit: 400m
     restart: unless-stopped
 
 volumes:
