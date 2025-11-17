@@ -77,10 +77,10 @@ class BaseVariationCrawler
             $data['regular_price'] = '' . $dto->price;
         }
 
-        $data['manage_stock'] = false;
-        if ($variation->product?->brand === 'lego') {
-            $data['manage_stock'] = true;
-        }
+//        $data['manage_stock'] = false;
+//        if ($variation->product?->brand === 'lego') {
+//            $data['manage_stock'] = true;
+//        }
 
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
