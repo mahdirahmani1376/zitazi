@@ -42,8 +42,6 @@ class SeedVariationsForProductJob implements ShouldQueue
                 $this->seedAmazonVariations($product);
             } else if ($product->belongsToElele()) {
                 $this->seedEleleVariation($product);
-            } else if ($product->belongsToSazKala()) {
-                $this->seedSazkalaVariation($product);
             } else {
                 Log::error('no url is assigend to product', [
                     'product_id' => $product->id,
