@@ -9,14 +9,11 @@ use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
-use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
 use Illuminate\Support\Facades\Log;
 
 class BaseVariationCrawler
 {
-    protected Client $woocommerce;
-
     protected mixed $rate;
 
     public function __construct(
@@ -24,7 +21,6 @@ class BaseVariationCrawler
     )
     {
         $this->rate = Currency::syncTryRate();
-        $this->woocommerce = WoocommerceService::getClient();
     }
 
     public static function crawlVariation(Variation $variation): void
@@ -91,7 +87,8 @@ class BaseVariationCrawler
         }
 
         try {
-            $response = $this->woocommerce->post($url, $data);
+            $woocommerce = WoocommerceService::getClient($variation->base_source);
+            $response = $woocommerce->post($url, $data);
             Log::info(
                 "variation_update_{$variation->id}",
                 [
@@ -134,7 +131,6 @@ class BaseVariationCrawler
         }
 
     }
-
     public function updateVariationAndLog(Variation $variation, $data): void
     {
         $oldStock = $variation->stock;

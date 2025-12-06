@@ -85,7 +85,8 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'source' => Product::SOURCE_TRENDYOL,
                     'item_type' => $itemType,
                     'status' => Variation::AVAILABLE,
-                    'item_number' => $item['itemNumber']
+                    'item_number' => $item['itemNumber'],
+                    'base_source' => $product->base_source,
                 ]);
 
                 $availableVariations[] = $item['itemNumber'];

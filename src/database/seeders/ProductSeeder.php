@@ -17,11 +17,12 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->seedProducts();
+        $this->seedZitaziProducts();
+        $this->seedSatreProducts();
 
     }
 
-    public function seedProducts(): void
+    public function seedZitaziProducts(): void
     {
         $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
         $response = Http::acceptJson()->get($sheetUrl);
@@ -82,6 +83,47 @@ class ProductSeeder extends Seeder
                     'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
                     'updated_at' => now()->toDateString(),
                     'created_at' => now()->toDateString(),
+                    'base_source' => Product::ZITAZI,
+                ];
+
+                Product::updateOrCreate(['own_id' => $ownId], $data);
+
+            } catch (Throwable $e) {
+                dump($e->getMessage());
+                Log::error($e->getMessage());
+            }
+        }
+
+
+    }
+
+    public function seedSatreProducts(): void
+    {
+        $client = new \Google\Client();
+        $client->setAuthConfig(storage_path('app/private/google_key.json'));
+        $client->addScope(\Google\Service\Sheets::SPREADSHEETS_READONLY);
+
+        $service = new \Google\Service\Sheets($client);
+
+        $spreadsheetId = '1BdY8s2jQ_VcNYlHSIZCSVo1_IfewB7xGNJYNiyF4SpA';
+        $range = 'Sheet1';
+
+        $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+        $rows = $response->getValues();
+        $data = parse_sheet_response($rows);
+
+        foreach ($data as $key => $value) {
+            try {
+                $ownId = data_get($value, 'Woocomerce-ID');
+
+                $data = [
+                    'trendyol_source' => data_get($value, 'Trendyol-link'),
+                    'markup' => is_numeric($value['Mark-up']) ? $value['Mark-up'] : null,
+                    'category' => data_get($value, 'Category'),
+                    'brand' => data_get($value, 'Brand'),
+                    'owner' => data_get($value, 'Owner'),
+                    'product_name' => data_get($value, 'Name'),
+                    'base_source' => Product::SATRE,
                 ];
 
                 Product::updateOrCreate(['own_id' => $ownId], $data);

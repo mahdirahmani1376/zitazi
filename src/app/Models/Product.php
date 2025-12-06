@@ -20,6 +20,9 @@ class Product extends Model
     public const PRODUCT_UPDATE = 'product';
     public const VARIATION_UPDATE = 'variation';
 
+    public const SATRE = 'satre';
+    public const ZITAZI = 'zitazi';
+
 
     public function belongsToTrendyol(): bool
     {

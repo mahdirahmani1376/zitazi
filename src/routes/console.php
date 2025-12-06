@@ -865,3 +865,8 @@ Artisan::command('temp-del', function () {
 
     }
 });
+
+Artisan::command('satre-test', function () {
+    app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
+//   app(\Database\Seeders\ProductSeeder::class)->seedZitaziProducts();
+});

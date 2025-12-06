@@ -158,7 +158,8 @@ Route::get('/unavailable-download', function () {
 
 Route::post('update-product', function (Request $request) {
     $product = Product::with('variations')->where([
-        'own_id' => $request->get('own_id')
+        'own_id' => $request->get('own_id'),
+        'base_source' => Product::ZITAZI
     ])->firstOrFail();
 
     if (!$product->belongsToTrendyol()) {
