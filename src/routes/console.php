@@ -870,5 +870,12 @@ Artisan::command('satre-test', function () {
     app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
     foreach (Product::where('base_source', Product::SATRE) as $product) {
         SeedVariationsForProductJob::dispatchSync($product);
+        foreach ($product->variations as $variation) {
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => $variation->stock,
+                'price' => $variation->rial_price
+            ]);
+            SyncZitaziJob::dispatchSync($variation, $updateData);
+        }
     }
 });
