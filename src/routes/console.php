@@ -868,5 +868,7 @@ Artisan::command('temp-del', function () {
 
 Artisan::command('satre-test', function () {
     app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
-//   app(\Database\Seeders\ProductSeeder::class)->seedZitaziProducts();
+    foreach (Product::where('base_source', Product::SATRE) as $product) {
+        SeedVariationsForProductJob::dispatchSync($product);
+    }
 });
