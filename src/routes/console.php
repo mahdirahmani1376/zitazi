@@ -869,13 +869,22 @@ Artisan::command('temp-del', function () {
 Artisan::command('satre-test', function () {
     app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
     foreach (Product::where('base_source', Product::SATRE)->get() as $product) {
-        SeedVariationsForProductJob::dispatchSync($product);
-        foreach ($product->variations as $variation) {
-            $updateData = ZitaziUpdateDTO::createFromArray([
-                'stock_quantity' => $variation->stock,
-                'price' => $variation->rial_price
-            ]);
-            SyncZitaziJob::dispatchSync($variation, $updateData);
+        try {
+            SeedVariationsForProductJob::dispatchSync($product);
+            foreach ($product->variations as $variation) {
+                try {
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => $variation->stock,
+                        'price' => $variation->rial_price
+                    ]);
+                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                } catch (\Throwable $th) {
+                    dump($th->getMessage());
+                }
+            }
+        } catch (\Throwable $th) {
+            dump($th->getMessage());
         }
+
     }
 });
