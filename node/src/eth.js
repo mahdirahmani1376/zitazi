@@ -11,9 +11,6 @@ puppeteer.use(stealthPlugin());
     const page = await browser.newPage();
     await page.goto('https://www.englishhome.com/magnet-pamuklu-cift-kisilik-battaniye-200x220-cm-krem-gri-23902', {waitUntil: 'networkidle2'});
 
-    let all = await page.content();
-    console.log('all', all);
-
     const jsonData = await page.evaluate(() => {
         const el = document.querySelector('script[type="application/ld+json"]');
         if (!el) return null;
