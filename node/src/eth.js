@@ -27,6 +27,7 @@ async function getVariations() {
 
     await page.close();
 
+    console.log('VIEWERS', variationsList);
     for (const variation of variationsList) {
         await crawl(variation);
     }
