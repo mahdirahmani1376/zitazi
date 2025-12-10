@@ -47,7 +47,7 @@ async function crawl(variation) {
                 ...variation.id
             ]
         };
-    });
+    }, variation);
 
     console.log(JSON.stringify(jsonData));
 }
