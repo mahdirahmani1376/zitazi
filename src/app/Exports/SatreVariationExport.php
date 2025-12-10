@@ -1,31 +1,29 @@
 <?php
 
 namespace App\Exports;
+ini_set('memory_limit', '800M');
 
+use App\Models\Product;
 use App\Models\Variation;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class NullVariationExport implements FromCollection, WithHeadings, WithMapping
+class SatreVariationExport implements FromQuery, WithHeadings, WithMapping
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function query()
     {
         return Variation::with('product')
-            ->orderBy('product_id')
-            ->whereNull('own_id')
-            ->get();
+            ->where('base_source', Product::SATRE)
+            ->orderBy('product_id');
     }
 
     public function headings(): array
     {
         return [
             'شناسه تنوع در وب سرویس',
-            'مرجع',
             'شناسه محصول در وب سرویس',
+            'مرجع',
             'نام محصول',
             'شناسه محصول زیتازی',
             'شناسه تنوع زیتازی',
@@ -49,8 +47,8 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
         /** @var variation $row */
         return [
             'id' => $row->id,
-            'base_source' => $row->base_source,
             'product_id' => $row->product_id,
+            'base_source' => $row->base_source,
             'product_name' => $row->product?->product_name,
             'zitazi_product_id' => $row->product?->own_id,
             'zitazi_variation_id' => $row->own_id,
@@ -63,9 +61,10 @@ class NullVariationExport implements FromCollection, WithHeadings, WithMapping
             'color' => $row->color,
             'brand' => $row->product?->brand,
             'source' => $row->source,
-            'updated_at' => $row->updated_at?->toDateTimestring(),
+            'updated_at' => $row->updated_at->toDateTimestring(),
             'status' => $row->status,
             'is_deleted' => $row->is_deleted,
         ];
+
     }
 }

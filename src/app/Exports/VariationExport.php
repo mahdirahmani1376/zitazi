@@ -3,6 +3,7 @@
 namespace App\Exports;
 ini_set('memory_limit', '800M');
 
+use App\Models\Product;
 use App\Models\Variation;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -13,6 +14,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
     public function query()
     {
         return Variation::with('product')
+            ->where('base_source', Product::ZITAZI)
             ->orderBy('product_id');
     }
 
@@ -21,6 +23,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
         return [
             'شناسه تنوع در وب سرویس',
             'شناسه محصول در وب سرویس',
+            'مرجع',
             'نام محصول',
             'شناسه محصول زیتازی',
             'شناسه تنوع زیتازی',
@@ -45,6 +48,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,
+            'base_source' => $row->base_source,
             'product_name' => $row->product?->product_name,
             'zitazi_product_id' => $row->product?->own_id,
             'zitazi_variation_id' => $row->own_id,

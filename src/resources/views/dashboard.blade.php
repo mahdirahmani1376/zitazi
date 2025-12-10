@@ -108,7 +108,8 @@
     <div class="menu sidebar">
         <h4 class="text-center">داشبرد</h4>
         <a href="{{ route('products.download') }}">دانلود تمامی محصولات</a>
-        <a href="{{ route('variations.download') }}">دانلود تمام تنوع ها</a>
+        <a href="{{ route('variations.download') }}">دانلود تمام تنوع های زیتازی</a>
+        <a href="{{ route('satre-variations.download') }}">دانلود تمام تنوع های ساتره</a>
         <a href="{{ route('null-variations.download') }}">دانلود تنوع های لینک نشده</a>
         <a href="{{ route('sync-logs.download') }}">دانلود لاگ های برنامه</a>
         <a href="{{ route('out-of-stock-logs.download') }}">گزارش محصولات ناموجود شده</a>

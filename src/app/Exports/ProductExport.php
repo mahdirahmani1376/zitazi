@@ -30,6 +30,7 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'شناسه',
+            'مرجع',
             'شناسه زیتازی',
             'دسته بندی',
             'برند',
@@ -61,6 +62,7 @@ class ProductExport implements FromCollection, WithHeadings, WithMapping
         /** @var Product $row */
         return [
             'id' => $row->id,
+            'base_source' => $row->base_source,
             'zitazi_id' => $row->own_id,
             'category' => $row->category,
             'brand' => $row->brand,

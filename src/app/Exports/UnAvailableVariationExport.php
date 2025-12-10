@@ -25,6 +25,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
         return [
             'شناسه تنوع در وب سرویس',
             'شناسه محصول در وب سرویس',
+            'مرجع',
             'نام محصول',
             'شناسه محصول زیتازی',
             'شناسه تنوع زیتازی',
@@ -50,6 +51,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,
+            'base_source' => $row->base_source,
             'product_name' => $row->product?->product_name,
             'zitazi_product_id' => $row->product?->own_id,
             'zitazi_variation_id' => $row->own_id,

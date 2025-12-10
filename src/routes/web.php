@@ -92,11 +92,17 @@ Route::get('/update-products', function () {
 
 Route::get('top-100', Top100Action::class)->name('top-100');
 
-Route::get('/variation-download', function () {
+Route::get('/zitazi-variation-download', function () {
     $now = now()->toDateTimeString();
 
-    return Excel::download(new VariationExport, "variations_{$now}.xlsx");
+    return Excel::download(new VariationExport, "zitazi-variations_{$now}.xlsx");
 })->name('variations.download');
+
+Route::get('/satre-variation-download', function () {
+    $now = now()->toDateTimeString();
+
+    return Excel::download(new \App\Exports\SatreVariationExport, "satre-variations_{$now}.xlsx");
+})->name('satre-variations.download');
 
 Route::get('/null-variation-download', function () {
     $now = now()->toDateTimeString();
