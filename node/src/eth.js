@@ -3,29 +3,52 @@ const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 puppeteer.use(stealthPlugin());
 
-(async () => {
-    const browser = await puppeteer.launch({
+let browser
+
+async function getVariations() {
+    browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless: "new",
     });
+
     const page = await browser.newPage();
-    await page.goto('https://www.englishhome.com/magnet-pamuklu-cift-kisilik-battaniye-200x220-cm-krem-gri-23902', {waitUntil: 'networkidle2'});
+    await page.goto('https://www.englishhome.com/cozy-oasis-supersoft-tv-battaniye-120x160-cm-sari-24385', {waitUntil: 'networkidle2'});
 
-    const jsonData = await page.evaluate(() => {
-        const el = document.querySelector('script[type="application/ld+json"]');
-        if (!el) return null;
-        try {
-            return {
-                body: JSON.parse(el.textContent)
-            };
-        } catch {
-            return null;
-        }
-    });
+    const variationsList = await page.evaluate(() => {
+        const el = document.querySelector('div.owl-stage-outer a.detailLink.detailUrl')
+        if (!el) return [];
+        return Array.from(
+            document.querySelectorAll('div.owl-stage-outer a.detailLink.detailUrl')
+        ).map(a => ({
+            id: a.getAttribute('data-id'),
+            href: a.href
+        }));
+    })
 
-    let test = JSON.stringify(jsonData);
+    await page.close();
 
-    console.log(JSON.stringify(jsonData));
+    for (const variation of variationsList) {
+        await crawl(variation);
+    }
 
     await browser.close();
-})();
+}
+
+async function crawl(variation) {
+    const page = await browser.newPage();
+    await page.goto(variation.href, {waitUntil: 'networkidle2'});
+
+    const jsonData = await page.evaluate((variation) => {
+        const el = document.querySelector('script[type="application/ld+json"]');
+        return {
+            body: [
+                JSON.parse(el.textContent),
+                ...variation.id
+            ]
+        };
+    });
+
+    console.log(JSON.stringify(jsonData));
+}
+
+getVariations().then(r => console.log(r));
