@@ -888,3 +888,16 @@ Artisan::command('satre-test', function () {
 
     }
 });
+
+Artisan::command('teh', function () {
+    $url = 'https://www.englishhome.com/florine-kolay-utulenir-tek-kisilik-nevresim-takimi-160x220-cm-acik-yesil-27898';
+
+    $headers = [
+        'User-Agent' => 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0',
+    ];
+
+    $response = Http::acceptJson()->withHeaders($headers)->get($url)->body();
+    dd($response);
+    $dom = (new Crawler($response))->filter('script[type="application/ld+json"]')->text();
+    dd($dom);
+});
