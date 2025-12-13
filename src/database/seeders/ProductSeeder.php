@@ -17,7 +17,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->seedZitaziProducts();
+//        $this->seedZitaziProducts();
         $this->seedSatreProducts();
 
     }
@@ -106,7 +106,7 @@ class ProductSeeder extends Seeder
         $service = new \Google\Service\Sheets($client);
 
         $spreadsheetId = '1BdY8s2jQ_VcNYlHSIZCSVo1_IfewB7xGNJYNiyF4SpA';
-        $range = 'Sheet1';
+        $range = 'ساتره';
 
         $response = $service->spreadsheets_values->get($spreadsheetId, $range);
         $rows = $response->getValues();
