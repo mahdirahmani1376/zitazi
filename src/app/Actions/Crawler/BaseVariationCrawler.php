@@ -51,13 +51,11 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        dump('here1');
         if ($variation->product->onPromotion() or $variation->is_deleted) {
             Log::info('skipping sync for variation', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            dump('return');
             return;
         }
 
@@ -67,7 +65,6 @@ class BaseVariationCrawler
         }
 
         $data = $dto->getUpdateBody();
-        dump('here2');
 
         $data['stock_status'] = $stockStatus;
 
@@ -75,13 +72,11 @@ class BaseVariationCrawler
             $data['sale_price'] = null;
             $data['regular_price'] = '' . $dto->price;
         }
-        dump('here3');
 
 //        $data['manage_stock'] = false;
 //        if ($variation->product?->brand === 'lego') {
 //            $data['manage_stock'] = true;
 //        }
-        dump('here4');
 
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
@@ -90,10 +85,8 @@ class BaseVariationCrawler
         } else {
             return;
         }
-        dump('here5');
 
         try {
-            dump(1);
             $woocommerce = WoocommerceService::getClient($variation->base_source);
             $response = $woocommerce->post($url, $data);
             Log::info(
@@ -128,7 +121,6 @@ class BaseVariationCrawler
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
         } catch (\Exception $e) {
-            dump($e->getMessage());
             Log::error('error-sync-variation', [
                 'error' => $e->getMessage(),
                 'variation_id' => $variation->id,

@@ -866,27 +866,8 @@ Artisan::command('temp-del', function () {
     }
 });
 
-Artisan::command('satre-test', function () {
-    app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
-    foreach (Product::where('base_source', Product::SATRE)->get() as $product) {
-        try {
-            SeedVariationsForProductJob::dispatchSync($product);
-            foreach ($product->variations as $variation) {
-                try {
-                    $updateData = ZitaziUpdateDTO::createFromArray([
-                        'stock_quantity' => $variation->stock,
-                        'price' => $variation->rial_price
-                    ]);
-                    SyncZitaziJob::dispatchSync($variation, $updateData);
-                } catch (\Throwable $th) {
-                    dump($th->getMessage());
-                }
-            }
-        } catch (\Throwable $th) {
-            dump($th->getMessage());
-        }
-
-    }
+Artisan::command('satre-sr', function () {
+    \App\Jobs\ResyncSatreJob::dispatch();
 });
 
 Artisan::command('teh', function () {
@@ -904,16 +885,13 @@ Artisan::command('teh', function () {
 
 Artisan::command('satreh-sync', function () {
     foreach (Variation::where('base_source', 'satre')->where('id', 14591)->get() as $variation) {
-        dump($variation->toArray());
         info('begin sync with satre for variation:' . $variation->id, [
             'variation' => $variation->toArray()
         ]);
         $updateData = ZitaziUpdateDTO::createFromArray([
             'stock_quantity' => $variation->stock,
-            'price' => 3408000
+            'price' => $variation->rial_price
         ]);
-        dump('frist');
         SyncZitaziJob::dispatchSync($variation, $updateData);
-        dump('second');
     };
 });
