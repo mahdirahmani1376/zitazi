@@ -23,6 +23,7 @@ class SyncZitaziCommand extends Command
             ->where(function (Builder $query) {
                 $query
                     ->whereNot('own_id', '')
+                    ->where('base_source', Product::ZITAZI)
                     ->orWhere('item_type', Product::PRODUCT_UPDATE);
             })
             ->whereHas('product', function (Builder $query) {
