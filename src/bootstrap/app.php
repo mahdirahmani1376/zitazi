@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('db:seed')->dailyAt('00:00');
         $schedule->command('app:sync-zitazi')->dailyAt('06:00');
+        $schedule->command('satreh-sync')->dailyAt('08:00');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
