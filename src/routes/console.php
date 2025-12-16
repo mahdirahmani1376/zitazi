@@ -901,3 +901,9 @@ Artisan::command('teh', function () {
     $dom = (new Crawler($response))->filter('script[type="application/ld+json"]')->text();
     dd($dom);
 });
+
+Artisan::command('satreh-sync', function () {
+    foreach (Variation::where('base_source', 'satre')->get() as $variation) {
+        SyncVariationsJob::dispatchSync($variation);
+    };
+});
