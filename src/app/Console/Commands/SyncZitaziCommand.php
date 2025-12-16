@@ -8,8 +8,6 @@ use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
 
 class SyncZitaziCommand extends Command
 {
@@ -23,9 +21,9 @@ class SyncZitaziCommand extends Command
             ->where(function (Builder $query) {
                 $query
                     ->whereNot('own_id', '')
-                    ->where('base_source', Product::ZITAZI)
                     ->orWhere('item_type', Product::PRODUCT_UPDATE);
             })
+            ->where('base_source', Product::ZITAZI)
             ->whereHas('product', function (Builder $query) {
                 $query
                     ->whereNot('promotion', 1);
@@ -84,13 +82,14 @@ class SyncZitaziCommand extends Command
                 ]);
             }
 
-            $jobs[] = new SyncZitaziJob($variation, $updateData);
+//            $jobs[] = new SyncZitaziJob($variation, $updateData);
+            SyncZitaziJob::dispatch($variation, $updateData);
         }
 
-        Bus::batch($jobs)
-            ->then(fn() => Log::info('All variations synced with zitazi successfully.'))
-            ->catch(fn() => Log::error('Some sync zitazi jobs failed.'))
-            ->name('Sync Zitazi variations')
-            ->dispatch();
+//        Bus::batch($jobs)
+//            ->then(fn() => Log::info('All variations synced with zitazi successfully.'))
+//            ->catch(fn() => Log::error('Some sync zitazi jobs failed.'))
+//            ->name('Sync Zitazi variations')
+//            ->dispatch();
     }
 }
