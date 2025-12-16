@@ -51,7 +51,7 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
-        dump('here');
+        dump('here1');
         if ($variation->product->onPromotion() or $variation->is_deleted) {
             Log::info('skipping sync for variation', [
                 'variation_id' => $variation->id,
@@ -67,7 +67,7 @@ class BaseVariationCrawler
         }
 
         $data = $dto->getUpdateBody();
-        dump('here');
+        dump('here2');
 
         $data['stock_status'] = $stockStatus;
 
@@ -75,13 +75,13 @@ class BaseVariationCrawler
             $data['sale_price'] = null;
             $data['regular_price'] = '' . $dto->price;
         }
-        dump('here');
+        dump('here3');
 
 //        $data['manage_stock'] = false;
 //        if ($variation->product?->brand === 'lego') {
 //            $data['manage_stock'] = true;
 //        }
-        dump('here');
+        dump('here4');
 
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
@@ -90,7 +90,7 @@ class BaseVariationCrawler
         } else {
             return;
         }
-        dump('here');
+        dump('here5');
 
         try {
             dump(1);
