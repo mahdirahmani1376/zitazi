@@ -903,7 +903,20 @@ Artisan::command('teh', function () {
 });
 
 Artisan::command('satreh-sync', function () {
+    $jobs = [];
     foreach (Variation::where('base_source', 'satre')->get() as $variation) {
-        SyncVariationsJob::dispatchSync($variation);
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'stock_quantity' => $variation->stock,
+            'price' => $variation->rial_price
+        ]);
+
+        $jobs[] = new SyncZitaziJob($variation, $updateData);
+
     };
+
+    Bus::batch($jobs)
+        ->then(fn() => Log::info('All variations synced with satre successfully.'))
+        ->catch(fn() => Log::error('Some sync satre jobs failed.'))
+        ->name('Sync Satre variations')
+        ->dispatch();
 });
