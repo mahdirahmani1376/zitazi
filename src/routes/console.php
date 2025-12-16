@@ -905,6 +905,9 @@ Artisan::command('teh', function () {
 Artisan::command('satreh-sync', function () {
     $jobs = [];
     foreach (Variation::where('base_source', 'satre')->get() as $variation) {
+        info('begin sync with satre for variation:' . $variation->id, [
+            'variation' => $variation->toArray()
+        ]);
         $updateData = ZitaziUpdateDTO::createFromArray([
             'stock_quantity' => $variation->stock,
             'price' => $variation->rial_price
