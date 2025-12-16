@@ -884,14 +884,11 @@ Artisan::command('teh', function () {
 });
 
 Artisan::command('satreh-sync', function () {
-    foreach (Variation::where('base_source', 'satre')->where('id', 14591)->get() as $variation) {
-        info('begin sync with satre for variation:' . $variation->id, [
-            'variation' => $variation->toArray()
-        ]);
+    foreach (Variation::where('base_source', Product::SATRE)->get() as $variation) {
         $updateData = ZitaziUpdateDTO::createFromArray([
             'stock_quantity' => $variation->stock,
             'price' => $variation->rial_price
         ]);
-        SyncZitaziJob::dispatchSync($variation, $updateData);
+        SyncZitaziJob::dispatch($variation, $updateData);
     };
 });
