@@ -904,6 +904,7 @@ Artisan::command('teh', function () {
 
 Artisan::command('satreh-sync', function () {
     foreach (Variation::where('base_source', 'satre')->where('id', 14591)->get() as $variation) {
+        dump($variation->toArray());
         info('begin sync with satre for variation:' . $variation->id, [
             'variation' => $variation->toArray()
         ]);
@@ -911,6 +912,8 @@ Artisan::command('satreh-sync', function () {
             'stock_quantity' => $variation->stock,
             'price' => 3408000
         ]);
+        dump('frist');
         SyncZitaziJob::dispatchSync($variation, $updateData);
+        dump('second');
     };
 });
