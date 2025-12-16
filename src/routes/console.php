@@ -911,6 +911,6 @@ Artisan::command('satreh-sync', function () {
             'stock_quantity' => $variation->stock,
             'price' => 3408000
         ]);
-        SyncZitaziJob::dispatch($variation, $updateData);
+        SyncZitaziJob::dispatchSync($variation, $updateData);
     };
 });

@@ -56,6 +56,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
+            dump('return');
             return;
         }
 
@@ -87,6 +88,7 @@ class BaseVariationCrawler
         }
 
         try {
+            dump(1);
             $woocommerce = WoocommerceService::getClient($variation->base_source);
             $response = $woocommerce->post($url, $data);
             Log::info(
@@ -121,6 +123,7 @@ class BaseVariationCrawler
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
         } catch (\Exception $e) {
+            dump($e->getMessage());
             Log::error('error-sync-variation', [
                 'error' => $e->getMessage(),
                 'variation_id' => $variation->id,
