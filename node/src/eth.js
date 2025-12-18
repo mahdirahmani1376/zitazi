@@ -130,12 +130,14 @@ async function crawl(variation) {
 
     const jsonData = await page.evaluate((variation) => {
         const el = document.querySelector('script[type="application/ld+json"]');
+
+        const body = JSON.parse(el.textContent)
+        body['variation_id'] = variation.id;
+
         return {
-            body: [
-                JSON.parse(el.textContent),
-                ...variation.id
-            ]
+            body: body
         };
+
     }, variation);
 
     // console.log(JSON.stringify(jsonData));
