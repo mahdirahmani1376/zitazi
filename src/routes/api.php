@@ -121,3 +121,12 @@ Route::get('decathlon-list-test', function () {
             ->pluck('id')
     ]);
 });
+
+Route::get('eth-list', function () {
+    return Response::json([
+        'data' => Product::query()
+            ->whereNot('eth_source', '=', '')
+            ->orderBy('updated_at', 'asc')
+            ->paginate()
+    ]);
+});

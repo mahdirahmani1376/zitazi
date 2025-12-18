@@ -9,7 +9,6 @@ process.on('SIGINT', async () => {
     if (browser) await browser.close();
     process.exit(0);
 });
-
 process.on('SIGTERM', async () => {
     console.log('Terminating...');
     if (browser) await browser.close();
