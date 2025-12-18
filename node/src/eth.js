@@ -56,12 +56,12 @@ async function scrapeAll() {
 
         console.log('variation data', JSON.stringify(variationData))
         // 3. send results back to backend
-        // const response = await fetch("http://localhost/api/store-decathlon", {
-        //     method: "POST",
-        //     headers: {"Content-Type": "application/json", "Accept": "application/json"},
-        //     body: JSON.stringify(variationData),
-        // });
-        // console.log('response', await response.json())
+        const response = await fetch("http://localhost/api/store-eth", {
+            method: "POST",
+            headers: {"Content-Type": "application/json", "Accept": "application/json"},
+            body: JSON.stringify(variationData),
+        });
+        console.log('response', await response.json())
 
         // 4. move to next page
         nextUrl = json.data.next_page_url;
@@ -137,6 +137,20 @@ async function crawl(variation) {
         return body
 
     }, variation);
+
+    // price element variation = span.spanFiyat > font > font
+    // price element variation = span.spanFiyat > font > font
+    // size box element span.size_box
+
+    // todo add sizes if needed
+    // const sizeBoxes = await page.evaluate((variation,jsonData) => {
+    //     const el = document.querySelector('span.size_box')
+    //     if (!el) return [];
+    //
+    //
+    // },variation,jsonData)
+
+
 
     // console.log(JSON.stringify(jsonData));
     await page.close();

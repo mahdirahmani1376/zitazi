@@ -88,6 +88,11 @@ Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariat
     return response()->json(['status' => 'ok']);
 });
 
+Route::post('store-eth', function (Request $request, UpdateDecathlonVariationAction $action) {
+    $action->execute($request->all());
+    return response()->json(['status' => 'ok']);
+});
+
 Route::post('update-decathlon-product', function (Request $request) {
 
     $product = Product::firstWhere('own_id', $request->get('decathlon_own_id'))?->toArray();
