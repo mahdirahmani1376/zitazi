@@ -30,7 +30,7 @@ class ProductSeeder extends Seeder
         $data = parse_sheet_response($csvData);
         $allOwnIds = collect($data)->pluck('Woocomerce-ID');
 
-        Product::whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             foreach ($product->variations as $variation) {
                 $variation->delete();
                 $updateData = ZitaziUpdateDTO::createFromArray([

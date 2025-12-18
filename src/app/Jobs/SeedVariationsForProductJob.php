@@ -64,7 +64,7 @@ class SeedVariationsForProductJob implements ShouldQueue
     private function seedTrendyolVariations(Product $product): void
     {
         $response = HttpService::getTrendyolData($product->getTrendyolContentId(), $product->getTrendyolMerchantId());
-        $data = collect($response['result']['variants']) ?? [];
+        $data = collect(data_get($response, 'result.variants', []));
         if (empty($data)) {
             Log::error('no variants found for product', [
                 'product_id' => $product->id,
@@ -114,6 +114,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             dump($e->getMessage(), $product->id);
             Log::error('error-seed-variations', [
                 'product_id' => $product->id,
+                'error' => $e->getMessage(),
             ]);
         }
 
