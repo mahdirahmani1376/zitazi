@@ -134,9 +134,7 @@ async function crawl(variation) {
         const body = JSON.parse(el.textContent)
         body['variation_id'] = variation.id;
 
-        return {
-            body: body
-        };
+        return body
 
     }, variation);
 
