@@ -67,7 +67,7 @@ async function scrapeAll() {
         nextUrl = json.data.next_page_url;
     }
 
-    console.log("✅ Done scraping all pages!");
+    console.log("✅ Done scraping all pages!",);
     if (browser) await browser.close();
     process.exit(0);
 }
@@ -78,8 +78,8 @@ async function scrapePageOfUrls(productsData) {
     const results = [];
 
     for (const productData of productsData) {
-        console.log('product_id', productData.id)
-        console.log('url', productData.eth_source)
+        // console.log('product_id', productData.id)
+        // console.log('url', productData.eth_source)
         try {
             new URL(productData.eth_source);
             await page.goto(productData.eth_source, {waitUntil: 'networkidle2', timeout: 60000});
@@ -138,8 +138,9 @@ async function crawl(variation) {
         };
     }, variation);
 
-    console.log(JSON.stringify(jsonData));
+    // console.log(JSON.stringify(jsonData));
     await page.close();
+    return jsonData;
 }
 
 scrapeAll().catch(err => console.error("Scraping error:", err));
