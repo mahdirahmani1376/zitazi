@@ -31,6 +31,10 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
             return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE_ON_SOURCE_SITE);
         }
 
+        if (empty($response['result']['variants'])) {
+            return $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
+        }
+
         $item_type = count($response['result']['variants']) > 1 ? Product::PRODUCT_UPDATE : Product::VARIATION_UPDATE;
 
         $data = collect($response['result']['variants'])->keyBy('itemNumber');
