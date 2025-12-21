@@ -13,7 +13,7 @@ class VariationInfolist
             ->components([
                 TextEntry::make('own_id'),
                 TextEntry::make('product_id'),
-                TextEntry::make('own_id'),
+                TextEntry::make('url'),
                 TextEntry::make('status'),
                 TextEntry::make('is_deleted'),
                 TextEntry::make('price')

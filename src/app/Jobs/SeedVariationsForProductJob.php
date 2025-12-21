@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\SazKalaCrawler;
 use App\Actions\HttpService;
+use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -27,6 +28,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
     public function __construct(
         public Product $product,
+        public bool $sync = false,
     )
     {
     }
@@ -47,6 +49,16 @@ class SeedVariationsForProductJob implements ShouldQueue
                     'product_id' => $product->id,
                     'product_own_id' => $product->own_id
                 ]);
+            }
+
+            if ($this->sync) {
+                foreach ($product->variations as $variation) {
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => $variation->stock,
+                        'price' => $variation->rial_price
+                    ]);
+                    SyncZitaziJob::dispatch($variation, $updateData);
+                }
             }
         } catch (Exception $e) {
             Log::error('error-in-seed-variations-for-product', [
@@ -99,6 +111,7 @@ class SeedVariationsForProductJob implements ShouldQueue
 
                 $availableVariations[] = $item['itemNumber'];
 
+                info('variation udpated');
             }
 
             $unavailableOnSourceSiteVariations = Variation::query()

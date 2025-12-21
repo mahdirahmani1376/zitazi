@@ -2,13 +2,24 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Actions\SyncProductButtonAction;
+use App\Exports\FillamentProductExport;
+use App\Models\Product;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsTable
 {
@@ -87,16 +98,82 @@ class ProductsTable
                     ->searchable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('category')
+                    ->multiple()
+                    ->options(
+                        array_combine(
+                            Product::query()->whereNotNull('category')->distinct('category')->pluck('category')->all(),
+                            Product::query()->whereNotNull('category')->distinct('category')->pluck('category')->all()
+                        ),
+                    ),
+                SelectFilter::make('brand')
+                    ->multiple()
+                    ->options(
+                        array_combine(
+                            Product::whereNotNull('brand')->distinct('brand')->pluck('brand')->all(),
+                            Product::whereNotNull('brand')->distinct('brand')->pluck('brand')->all()
+                        ),
+                    ),
+                SelectFilter::make('owner')
+                    ->multiple()
+                    ->options(
+                        array_combine(
+                            Product::whereNotNull('owner')->distinct('owner')->pluck('owner')->all(),
+                            Product::whereNotNull('owner')->distinct('owner')->pluck('owner')->all(),
+                        )
+                    ),
+                TernaryFilter::make('promotion'),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-            ])
+                Action::make('sync')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('success')
+                    ->action(function (Product $product) {
+                        SyncProductButtonAction::execute($product);
+                    })
+                    ->successNotificationTitle('Record Updated')
+                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                        return 'Failed to update any record';
+                    }),
+            ], position: RecordActionsPosition::BeforeColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
+                BulkAction::make('bulk sync')
+                    ->action(function (Collection $records) {
+                        $records->each(function (Product $record) {
+                            SyncProductButtonAction::execute($record);
+                        });
+                    })
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('success')
+                    ->successNotificationTitle('Records Updated')
+                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                        if ($successCount) {
+                            return "{$successCount} of {$totalCount} Records updated";
+                        }
+
+                        return 'Failed to update any records';
+                    }),
+                BulkAction::make('excel export')
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->color('info')
+                    ->action(function (Collection $records) {
+                        $now = now()->toDateTimeString();
+                        Notification::make()
+                            ->success()
+                            ->title('Export started')
+                            ->body('The export job has been queued.')
+                            ->send();
+                        return Excel::download(new FillamentProductExport($records), "products_{$now}.xlsx");
+                    })
+                    ->successNotificationTitle('export completed')
+                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                        return 'Failed to export';
+                    }),
             ]);
     }
 }

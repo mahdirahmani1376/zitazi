@@ -51,6 +51,25 @@ class Variation extends Model
 
     ];
 
+    public const STATUSES = [
+        self::AVAILABLE,
+        self::UNAVAILABLE,
+        self::UNAVAILABLE_ON_ZITAZI,
+        self::UNAVAILABLE_ON_SOURCE_SITE,
+        self::GENERAL_ERROR,
+    ];
+
+    public static function TableFilters(): array
+    {
+        return [
+            self::AVAILABLE => self::AVAILABLE,
+            self::UNAVAILABLE => self::UNAVAILABLE,
+            self::UNAVAILABLE_ON_ZITAZI => self::UNAVAILABLE_ON_ZITAZI,
+            self::UNAVAILABLE_ON_SOURCE_SITE => self::UNAVAILABLE_ON_SOURCE_SITE,
+            self::GENERAL_ERROR => self::GENERAL_ERROR,
+        ];
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');

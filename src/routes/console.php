@@ -895,5 +895,11 @@ Artisan::command('satreh-sync', function () {
 
 //todo
 // add sticky to the left if can
-//
+// add resync button with status
+// add get zitazi info with status
+// add mongo central log manager which will show logs maybe source , etc ...
+// add mogayerat job
+// add currently availale routes to new system
+// add bulk resync
+// add current export to excel if can
 //
