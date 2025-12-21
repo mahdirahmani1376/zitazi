@@ -1,0 +1,497 @@
+{
+  "_ctx": {
+    "page": {
+      "id": "product"
+    },
+    "structure": {
+      "template": "product",
+      "source": "xm-pagebuilder",
+      "isEmbeddedRenderEnabled": false
+    },
+    "data": [
+      {
+        "id": "MetaSeoTags-40405c847990e0a82fb66ae0ab093ff614d62efc",
+        "type": "MetaSeoTags",
+        "input": {
+          "source": "entity"
+        },
+        "data": {}
+      },
+      {
+        "id": "ProductBreadcrumb-02217215f98405ec16767f99b7d1992e0cf73ee4",
+        "type": "ProductBreadcrumb",
+        "input": {
+          "includesProductPageUrl": false
+        },
+        "data": [
+          {
+            "id": "3ff3c64a-b62d-4d35-b891-9baf487c0023",
+            "name": "Tüm Sporlar",
+            "url": "tum-sporlar"
+          },
+          {
+            "id": "a719bc01-cc4a-458b-b676-0aeb21888d7f",
+            "name": "Hiking, Trekking, Outdoor",
+            "url": "tum-sporlar/hiking-trekking-outdoor"
+          },
+          {
+            "id": "e2d67354-202c-4fd7-849e-a907eaaa4a0c",
+            "name": "Ayakkabı ve Kar Botları",
+            "url": "tum-sporlar/hiking-trekking-outdoor/ayakkabi-ve-sandaletler"
+          },
+          {
+            "id": "e407b399-82c2-48fa-9c01-570d23ab5f27",
+            "name": "Ayakkabılar",
+            "url": "tum-sporlar/hiking-trekking-outdoor/ayakkabilar"
+          },
+          {
+            "id": "c79f0a27-1c9f-4d79-bbf8-60996f0a7de6",
+            "name": "Kadın Ayakkabıları",
+            "url": "tum-sporlar/hiking-trekking-outdoor/kadin-ayakkabilari"
+          }
+        ]
+      },
+      {
+        "id": "Supermodel-6f548a1e6d0e9aeb5b6147b12a99378b9abf8d5c",
+        "type": "Supermodel",
+        "input": {
+          "supermodelId": "156124",
+          "modelId": "8397090"
+        },
+        "data": {
+          "entity": "supermodel",
+          "supermodelId": "156124",
+          "brand": {
+            "label": "QUECHUA",
+            "isPassion": true,
+            "id": "1592",
+            "image": {
+              "resource": "https://contents.mediadecathlon.com/b75105/k$3a3ac235952b0d70a474918a26cd745d",
+              "name": "1592",
+              "extension": "jpg"
+            },
+            "url": "brands/quechua"
+          },
+          "webLabel": "Kadın Su Geçirmez Outdoor Ayakkabı - Gri/Mavi - MH100",
+          "types": [
+            "generic"
+          ],
+          "natureLabel": "Ayakkabılar",
+          "variantType": "color",
+          "commercialProductNature": {
+            "id": "4",
+            "label": "Ayakkabılar"
+          },
+          "reviews": {
+            "notation": 4.63,
+            "count": 3584
+          },
+          "origin": [],
+          "mainParentCategory": "c79f0a27-1c9f-4d79-bbf8-60996f0a7de6",
+          "categories": [
+            "0c33deae-48ed-4a81-82fb-1d9f83156c5b",
+            "e27a4585-973e-4501-9b23-8b37e75790ea",
+            "f7ef366a-3656-4f45-933e-50b6995c187e",
+            "9fc3f070-7848-40a2-8f8b-19ec12c94167",
+            "3ff3c64a-b62d-4d35-b891-9baf487c0023",
+            "a719bc01-cc4a-458b-b676-0aeb21888d7f",
+            "d51bf829-0b3b-4d0c-9667-9482241c60a3",
+            "b081f41d-a82d-4fba-b398-56d6de9a8eff",
+            "55ef29c8-105e-4c06-b28b-0035dc29cd0c",
+            "0ea3df7e-332f-4c59-8a45-e40e1c5df1a1",
+            "6ad80a9e-1363-44f1-b6be-f602bc8abe83",
+            "073ad01a-2e4f-4634-90ef-492f0d08ef6c",
+            "c79f0a27-1c9f-4d79-bbf8-60996f0a7de6",
+            "e2d67354-202c-4fd7-849e-a907eaaa4a0c",
+            "e407b399-82c2-48fa-9c01-570d23ab5f27",
+            "639814c2-5d11-477f-9698-c7e04c32a59e",
+            "931b98e3-7bcf-456d-a53c-e845eb8bd4be",
+            "c6abec7d-698c-4ff6-8ac6-abbdb3b8021b",
+            "42aed9e5-2fc6-4791-8942-e93a6158b5c2",
+            "6e089393-7f12-4722-a8fd-7ce888de91b9",
+            "faf1bf82-5edb-4851-a302-cd5993d0d4b3",
+            "bb6456d2-01ea-4ef3-9274-6b250a641886",
+            "689c6e3f-661a-4e1c-921b-e6cf694e7a5d",
+            "166005fa-3929-4fc6-80ee-a40540a0561b",
+            "88b4960b-a947-4e4b-a0bf-3a788be313f9",
+            "31b76676-a455-418b-aae8-5646dc26c944",
+            "8501da34-5e81-427d-9dd8-6cbfef6be1dd",
+            "29b47585-63c1-49eb-9e20-a096f61fd02d",
+            "9dafe5d0-0f9c-4611-b6ec-03c08f8c547c",
+            "70427408-b45c-48b8-888f-201f0657446b"
+          ],
+          "designedFor": "Bu su geçirmez ayakkabı, dağda yaptığınız hobi amaçlı yürüyüşleriniz için tasarlandı! ",
+          "description": "\u003Cp>Bu su geçirmez ayakkabı, dağda yaptığınız hobi amaçlı yürüyüşleriniz için tasarlandı!\u003C/p>",
+          "catchline": "Taban boyunca uzanan darbe emicilik sistemi sayesinde ayaklarınıza ideal rahatlık ile destek sunar, çarşak bandı ile parmaklarınızı korur ve su geçirmez membran ile ayaklarınızın kuru kalır. ",
+          "guarantee": "2",
+          "communicationWeight": "0.28 kg",
+          "natureId": "25126",
+          "isOnlyInStores": false,
+          "conception": {
+            "storageInformation": "Işık ve nemden uzak, hava alan bir yerde saklayın. ",
+            "usageRestriction": "Kişisel Korunma Ekipmanı olarak kullanmayın. ",
+            "laboratoryTests": "Tüm ayakkabılarımız, Decathlon ile ilgisi bulunmayan kullanıcılar tarafından, kullanım sırasında karşılaşabileceğiniz durumlara benzer koşullarda test edilir. Yürüyüş antrenmanı sırasında maksimum keyif alabilmeniz için buradaki amaç, ürünü mümkün olan en objektif şekilde test etmek, değerlendirmek ve onaylamaktır! "
+          },
+          "structurationValues": [
+            {
+              "id": "1",
+              "label": "Başlangıç seviyesi",
+              "typeId": "6",
+              "typeLabel": "Spor seviyesi"
+            },
+            {
+              "id": "6",
+              "label": "hobi amaçlı kullanım",
+              "typeId": "5",
+              "typeLabel": "kullanım sıklığı"
+            },
+            {
+              "id": "39",
+              "label": "dış mekan",
+              "typeId": "15",
+              "typeLabel": "egzersiz alanı"
+            },
+            {
+              "id": "56",
+              "label": "Kuru hava",
+              "typeId": "11",
+              "typeLabel": "Hava koşulları"
+            },
+            {
+              "id": "58",
+              "label": "Yağmurlu hava",
+              "typeId": "11",
+              "typeLabel": "Hava koşulları"
+            },
+            {
+              "id": "61",
+              "label": "Tüm hava koşulları",
+              "typeId": "11",
+              "typeLabel": "Hava koşulları"
+            },
+            {
+              "id": "583",
+              "label": "bağcıklar",
+              "typeId": "152",
+              "typeLabel": "sıkma türü"
+            },
+            {
+              "id": "989",
+              "label": "kısa konçlu ayakkabı",
+              "typeId": "220",
+              "typeLabel": "ayakkabı yüksekliği"
+            },
+            {
+              "id": "2791",
+              "label": "deri",
+              "typeId": "395",
+              "typeLabel": "ana bileşen"
+            },
+            {
+              "id": "3590",
+              "label": "süet",
+              "typeId": "395",
+              "typeLabel": "ana bileşen"
+            },
+            {
+              "id": "3159",
+              "label": "Su geçirmez",
+              "typeId": "415",
+              "typeLabel": "Su geçirmez"
+            },
+            {
+              "id": "3857",
+              "label": "standart",
+              "typeId": "453",
+              "typeLabel": "ayak genişliği"
+            },
+            {
+              "id": "6011",
+              "label": "tabanı çıkarılabilir",
+              "typeId": "689",
+              "typeLabel": "tabanı çıkarılabilir"
+            },
+            {
+              "id": "9478",
+              "label": "Outdoor contact",
+              "typeId": "878",
+              "typeLabel": "dış taban teknolojisi"
+            },
+            {
+              "id": "13514",
+              "label": "ara kurutmalı deri",
+              "typeId": "1120",
+              "typeLabel": "deri çeşitleri"
+            }
+          ],
+          "models": [
+            {
+              "modelId": "8397090",
+              "webLabel": "Kadın Su Geçirmez Outdoor Ayakkabı - Gri/Mavi - MH100",
+              "leadTime": "Mağazadan Ücretsiz Teslimat",
+              "ambientImage": {
+                "media": {
+                  "extension": "jpg",
+                  "resource": "https://contents.mediadecathlon.com/p1828606/k$bca8f51f832a8c68ec2afca3673eb572",
+                  "name": "Kadın Su Geçirmez Outdoor Ayakkabı - Gri/Mavi - MH100"
+                },
+                "url": "https://contents.mediadecathlon.com/p1828606/k$bca8f51f832a8c68ec2afca3673eb572/picture.jpg"
+              },
+              "varianceCode": "c151c237m8397090",
+              "colors": [
+                {
+                  "id": "151",
+                  "label": "Yeşil gri",
+                  "hexa": "#434241"
+                },
+                {
+                  "id": "237",
+                  "label": "Koyu gök mavisi",
+                  "hexa": "#007D91"
+                }
+              ],
+              "genericColors": [
+                {
+                  "id": "2",
+                  "label": "GRİ",
+                  "hexa": "#9F9FA0"
+                },
+                {
+                  "id": "4",
+                  "label": "MAVİ",
+                  "hexa": "#0070B1"
+                }
+              ],
+              "image": {
+                "media": {
+                  "extension": "jpg",
+                  "resource": "https://contents.mediadecathlon.com/p2579665/k$c5b2a9bc5cc5f1464ea61bfde9e535e6",
+                  "name": "Kadın Su Geçirmez Outdoor Ayakkabı - Gri/Mavi - MH100"
+                },
+                "url": "https://contents.mediadecathlon.com/p2579665/k$c5b2a9bc5cc5f1464ea61bfde9e535e6/picture.jpg"
+              },
+              "skus": [
+                {
+                  "skuId": "2353570",
+                  "size": "36",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535701018",
+                    "2123535702015",
+                    "2123535702022",
+                    "2123535702039",
+                    "2123535702046",
+                    "2123535702053",
+                    "2123535704019",
+                    "2123535704026",
+                    "2123535704033",
+                    "2123535704040",
+                    "2123535704057",
+                    "3608439486418"
+                  ],
+                  "grossWeight": 0.275,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353570",
+                  "availableInStores": [],
+                  "oneCatalogId": "24657d8f-09b3-4abf-94d0-a152cd4b29fa"
+                },
+                {
+                  "skuId": "2353571",
+                  "size": "37",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535711017",
+                    "2123535712014",
+                    "2123535712021",
+                    "2123535712038",
+                    "2123535712045",
+                    "2123535712052",
+                    "2123535714018",
+                    "2123535714025",
+                    "2123535714032",
+                    "2123535714049",
+                    "2123535714056",
+                    "3608439486401"
+                  ],
+                  "grossWeight": 0.28,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353571",
+                  "availableInStores": [],
+                  "oneCatalogId": "0dfc450a-01e3-49ed-98c8-2089d6efc231"
+                },
+                {
+                  "skuId": "2353572",
+                  "size": "38",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535721016",
+                    "2123535722013",
+                    "2123535722020",
+                    "2123535722037",
+                    "2123535722044",
+                    "2123535722051",
+                    "2123535724017",
+                    "2123535724024",
+                    "2123535724031",
+                    "2123535724048",
+                    "2123535724055",
+                    "3608439486432"
+                  ],
+                  "grossWeight": 0.3,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353572",
+                  "availableInStores": [],
+                  "oneCatalogId": "8976137e-9587-42b9-81d5-52af73795e53"
+                },
+                {
+                  "skuId": "2353573",
+                  "size": "39",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535731015",
+                    "2123535732012",
+                    "2123535732029",
+                    "2123535732036",
+                    "2123535732043",
+                    "2123535732050",
+                    "2123535734016",
+                    "2123535734023",
+                    "2123535734030",
+                    "2123535734047",
+                    "2123535734054",
+                    "3608439486425"
+                  ],
+                  "grossWeight": 0.337,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353573",
+                  "availableInStores": [],
+                  "oneCatalogId": "0cfc8da3-f788-4fe1-8d14-2c35190070ae"
+                },
+                {
+                  "skuId": "2353574",
+                  "size": "40",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535741014",
+                    "2123535742011",
+                    "2123535742028",
+                    "2123535742035",
+                    "2123535742042",
+                    "2123535742059",
+                    "2123535744015",
+                    "2123535744022",
+                    "2123535744039",
+                    "2123535744046",
+                    "2123535744053",
+                    "3608439486456"
+                  ],
+                  "grossWeight": 0.345,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353574",
+                  "availableInStores": [],
+                  "oneCatalogId": "ed4128ce-1392-405c-9819-c9260d346d30"
+                },
+                {
+                  "skuId": "2353575",
+                  "size": "41",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535751013",
+                    "2123535752010",
+                    "2123535752027",
+                    "2123535752034",
+                    "2123535752041",
+                    "2123535752058",
+                    "2123535754014",
+                    "2123535754021",
+                    "2123535754038",
+                    "2123535754045",
+                    "2123535754052",
+                    "3608439486449"
+                  ],
+                  "grossWeight": 0.35,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353575",
+                  "availableInStores": [],
+                  "oneCatalogId": "2d6e7aa4-5d62-45c0-ad18-dc2a02636c1e"
+                },
+                {
+                  "skuId": "2353576",
+                  "size": "42",
+                  "partner": {
+                    "id": "DecathlonPartner"
+                  },
+                  "gtins": [
+                    "2123535761012",
+                    "2123535762019",
+                    "2123535762026",
+                    "2123535762033",
+                    "2123535762040",
+                    "2123535762057",
+                    "2123535764013",
+                    "2123535764020",
+                    "2123535764037",
+                    "2123535764044",
+                    "2123535764051",
+                    "3608439486326"
+                  ],
+                  "grossWeight": 0.36,
+                  "price": 2390,
+                  "discountType": "STANDARD",
+                  "currency": "TRY",
+                  "leadTime": "Mağazadan Ücretsiz Teslimat",
+                  "skuCode": "2353576",
+                  "availableInStores": [],
+                  "oneCatalogId": "c8e1e27d-5885-483a-a539-b347f203085c"
+                }
+              ],
+              "gtins": [
+                "2123535701018",
+                "2123535702015",
+                "2123535702022",
+                "2123535702039",
+                "2123535702046",
+                "2123535702053",
+                "2123535704019",
+                "2123535704026",
+                "2123535704033",
+                "2123535704040",
+                "2123535704057",
+                "3608439486418"
+              ],
+              "grossWeight": 0.275,
+              "price": 2390,
+              "discountType": "STANDARD",
+              "currency": "TRY",
+              "availableInStores": [],
+              "composition": "Dış taban malzemesi: 70.0% Sentetik kauçuk, 30.0% Etilen Vinil Asetat\nÜst taraf: 20.0% Poliüretan, 60.0% Polyester, 20.0% …,

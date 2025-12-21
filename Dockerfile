@@ -11,11 +11,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
+    libicu-dev \
     libpng-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip gd pcntl
-
-RUN pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-install pdo pdo_mysql pdo_sqlite zip gd pcntl intl
 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 

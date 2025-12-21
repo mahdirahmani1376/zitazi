@@ -892,3 +892,8 @@ Artisan::command('satreh-sync', function () {
         SyncZitaziJob::dispatch($variation, $updateData);
     };
 });
+
+//todo
+// add sticky to the left if can
+//
+//
