@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use App\Actions\SyncProductButtonAction;
+use App\Actions\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentProductExport;
 use App\Models\Product;
 use Filament\Actions\Action;
@@ -131,7 +131,7 @@ class ProductsTable
                     ->icon('heroicon-m-arrow-path')
                     ->color('success')
                     ->action(function (Product $product) {
-                        SyncProductButtonAction::execute($product);
+                        SyncAndUpdateProductButtonAction::execute($product);
                     })
                     ->successNotificationTitle('Record Updated')
                     ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
@@ -145,7 +145,7 @@ class ProductsTable
                 BulkAction::make('bulk sync')
                     ->action(function (Collection $records) {
                         $records->each(function (Product $record) {
-                            SyncProductButtonAction::execute($record);
+                            SyncAndUpdateProductButtonAction::execute($record);
                         });
                     })
                     ->icon('heroicon-m-arrow-path')

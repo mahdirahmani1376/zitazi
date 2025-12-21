@@ -902,4 +902,6 @@ Artisan::command('satreh-sync', function () {
 // add currently availale routes to new system
 // add bulk resync
 // add current export to excel if can
+// action sync, get data,update,sync update
+//
 //

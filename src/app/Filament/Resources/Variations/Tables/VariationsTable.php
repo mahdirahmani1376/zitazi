@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Variations\Tables;
 
-use App\Actions\SyncProductButtonAction;
+use App\Actions\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentVariationExport;
 use App\Models\Product;
 use App\Models\Variation;
@@ -81,7 +81,7 @@ class VariationsTable
                     ->icon('heroicon-m-arrow-path')
                     ->color('success')
                     ->action(function (Variation $variation) {
-                        SyncProductButtonAction::execute($variation->product);
+                        SyncAndUpdateProductButtonAction::execute($variation->product);
                     })
                     ->successNotificationTitle('Record Updated')
                     ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
@@ -97,7 +97,7 @@ class VariationsTable
                         $records
                             ->unique('product_id')
                             ->each(function (Variation $record) {
-                                SyncProductButtonAction::execute($record->product);
+                                SyncAndUpdateProductButtonAction::execute($record->product);
                             });
                     })
                     ->icon('heroicon-m-arrow-path')
