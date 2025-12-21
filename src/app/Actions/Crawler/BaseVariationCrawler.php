@@ -83,7 +83,9 @@ class BaseVariationCrawler
         } elseif (!empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
-            return;
+            Log::error('skipping sync for variation', [
+                'variation_id' => $variation->id,
+            ]);
         }
 
         try {
