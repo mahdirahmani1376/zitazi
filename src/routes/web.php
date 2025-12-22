@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', function () {
-    return view('dashboard');
+    return redirect('/admin');
 });
 
 Route::get('/report', function () {
