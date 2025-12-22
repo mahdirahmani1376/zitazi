@@ -2,11 +2,11 @@
 
 namespace App\Actions\Crawler;
 
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
-use Illuminate\Support\Facades\Log;
 
 class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
@@ -15,8 +15,7 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
         try {
             $this->compareProductWithOtherSellers($product);
         } catch (\Exception $e) {
-            dump($e->getMessage());
-            Log::error('error_torob_fetch' . $product->id, [
+            LogManager::logProduct($product, 'error_torob_fetch', [
                 'error' => $e->getMessage(),
             ]);
         }

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\Crawler\EleleCrawler;
 use App\Actions\Crawler\SazKalaCrawler;
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -16,7 +17,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class SeedVariationsForProductJob implements ShouldQueue
 {
@@ -45,9 +45,9 @@ class SeedVariationsForProductJob implements ShouldQueue
             } else if ($product->belongsToElele()) {
                 $this->seedEleleVariation($product);
             } else {
-                Log::error('no url is assigend to product', [
+                LogManager::logProduct($product, 'no url is assigned to product', [
                     'product_id' => $product->id,
-                    'product_own_id' => $product->own_id
+                    'product_own_id' => $product->own_id,
                 ]);
             }
 
@@ -61,11 +61,9 @@ class SeedVariationsForProductJob implements ShouldQueue
                 }
             }
         } catch (Exception $e) {
-            Log::error('error-in-seed-variations-for-product', [
-                'exception' => $e,
-                'trace' => $e->getTrace(),
-            ]);
-            dump('error-in-seed-variations-for-product', [
+            LogManager::logProduct($product, 'error-in-seed-variations-for-product', [
+                'product_id' => $product->id,
+                'product_own_id' => $product->own_id,
                 'exception' => $e,
                 'trace' => $e->getTrace(),
             ]);
@@ -78,9 +76,9 @@ class SeedVariationsForProductJob implements ShouldQueue
         $response = HttpService::getTrendyolData($product->getTrendyolContentId(), $product->getTrendyolMerchantId());
         $data = collect(data_get($response, 'result.variants', []));
         if (empty($data)) {
-            Log::error('no variants found for product', [
+            LogManager::LogProduct($product, 'no variants found for product', [
                 'product_id' => $product->id,
-                'url' => $product->trendyol_source
+                'product_own_id' => $product->own_id,
             ]);
             return;
         }
@@ -110,8 +108,6 @@ class SeedVariationsForProductJob implements ShouldQueue
                 ]);
 
                 $availableVariations[] = $item['itemNumber'];
-
-                info('variation udpated');
             }
 
             $unavailableOnSourceSiteVariations = Variation::query()
@@ -125,8 +121,9 @@ class SeedVariationsForProductJob implements ShouldQueue
             ]));
         } catch (Exception $e) {
             dump($e->getMessage(), $product->id);
-            Log::error('error-seed-variations', [
+            LogManager::LogProduct($product, 'error-seed-variations', [
                 'product_id' => $product->id,
+                'product_own_id' => $product->own_id,
                 'error' => $e->getMessage(),
             ]);
         }

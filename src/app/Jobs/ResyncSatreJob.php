@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use Illuminate\Bus\Queueable;
@@ -9,7 +10,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ResyncSatreJob implements ShouldQueue
 {
@@ -33,8 +33,7 @@ class ResyncSatreJob implements ShouldQueue
                         ]);
                         SyncZitaziJob::dispatch($variation, $updateData);
                     } catch (\Throwable $th) {
-                        dump($th->getMessage());
-                        Log::error('error in satreh', [
+                        LogManager::LogVariation($variation, 'error in satreh', [
                             'product' => $product->id,
                             'variation' => $variation->id,
                             'error' => $th->getMessage()
@@ -42,10 +41,9 @@ class ResyncSatreJob implements ShouldQueue
                     }
                 }
             } catch (\Throwable $th) {
-                dump($th->getMessage());
-                Log::error('error in satreh', [
+                LogManager::LogProduct($product, 'error in satreh', [
                     'product' => $product->id,
-                    'variation' => $variation->id,
+                    'own_id' => $product->own_id,
                     'error' => $th->getMessage()
                 ]);
             }

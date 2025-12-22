@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Variations\Pages;
 
-use App\Actions\SyncAndUpdateProductButtonAction;
+use App\Actions\Filament\GetSourceDataAction;
+use App\Actions\Filament\SendUpdateRequestAction;
+use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Filament\Resources\Variations\VariationResource;
 use App\Models\Variation;
 use Filament\Actions\Action;
@@ -33,7 +35,7 @@ class EditVariation extends EditRecord
                 ->icon('heroicon-m-arrow-path')
                 ->color('info')
                 ->action(function (Variation $variation) {
-                    SyncAndUpdateProductButtonAction::execute($variation->product);
+                    GetSourceDataAction::executeVariation($variation);
                 })
                 ->successNotificationTitle('Record Updated')
                 ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
@@ -43,7 +45,7 @@ class EditVariation extends EditRecord
                 ->icon('heroicon-m-arrow-path')
                 ->color('primary')
                 ->action(function (Variation $variation) {
-                    SyncAndUpdateProductButtonAction::execute($variation->product);
+                    SendUpdateRequestAction::execute($variation);
                 })
                 ->successNotificationTitle('Record Updated')
                 ->failureNotificationTitle(function (int $successCount, int $totalCount): string {

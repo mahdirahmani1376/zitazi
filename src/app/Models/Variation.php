@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -78,6 +79,11 @@ class Variation extends Model
     public function trendyolProduct(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'trendyol_product_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(LogModel::class, 'variation_id');
     }
 
 }

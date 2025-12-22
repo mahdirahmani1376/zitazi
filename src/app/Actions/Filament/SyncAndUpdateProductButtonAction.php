@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Actions;
+namespace App\Actions\Filament;
 
 use App\Jobs\SeedVariationsForProductJob;
 use App\Models\Product;
 use Illuminate\Support\Facades\Http;
 
-class SyncBulkProductButtonAction
+class SyncAndUpdateProductButtonAction
 {
     public static function execute(Product $product)
     {

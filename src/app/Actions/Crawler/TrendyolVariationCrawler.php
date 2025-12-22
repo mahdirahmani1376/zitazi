@@ -3,6 +3,7 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
@@ -15,7 +16,7 @@ class TrendyolVariationCrawler extends BaseVariationCrawler
     {
         try {
             $response = HttpService::getTrendyolData($variation->product->getTrendyolContentId(), $variation->product->getTrendyolMerchantId());
-            \Log::info('response variation', [
+            LogManager::logVariation($variation, 'response variation', [
                 'contentId' => $variation->product->getTrendyolContentId(),
                 'merchantId' => $variation->product->getTrendyolMerchantId(),
                 'response' => $response,

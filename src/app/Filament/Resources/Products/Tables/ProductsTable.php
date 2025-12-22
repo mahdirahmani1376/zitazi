@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
-use App\Actions\SyncAndUpdateProductButtonAction;
+use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentProductExport;
 use App\Models\Product;
 use Filament\Actions\Action;
@@ -32,21 +32,21 @@ class ProductsTable
                 TextColumn::make('trendyol_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->trendyol_source)
-                    ->searchable(),
+                ,
                 TextColumn::make('base_source')
-                    ->searchable(),
+                ,
                 TextColumn::make('digikala_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->digikala_source)
-                    ->searchable(),
+                ,
                 TextColumn::make('sazkala_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->sazkala_source)
-                    ->searchable(),
+                ,
                 TextColumn::make('torob_id')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->torob_id)
-                    ->searchable(),
+                ,
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -65,37 +65,37 @@ class ProductsTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('category')
-                    ->searchable(),
+                ,
                 TextColumn::make('brand')
-                    ->searchable(),
+                ,
                 TextColumn::make('owner')
-                    ->searchable(),
+                ,
                 TextColumn::make('product_name')
-                    ->searchable(),
+                ,
                 TextColumn::make('decathlon_url')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->decathlon_url)
-                    ->searchable(),
+                ,
                 TextColumn::make('eth_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->eth_source)
-                    ->searchable(),
+                ,
                 TextColumn::make('decathlon_id')
-                    ->searchable(),
+                ,
                 TextColumn::make('elele_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->elele_source)
-                    ->searchable(),
+                ,
                 TextColumn::make('matilda_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->matilda_source)
-                    ->searchable(),
+                ,
                 IconColumn::make('promotion')
                     ->boolean(),
                 TextColumn::make('amazon_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->amazon_source)
-                    ->searchable(),
+                ,
             ])
             ->filters([
                 SelectFilter::make('category')

@@ -154,4 +154,9 @@ class Product extends Model
     {
         return $this->hasMany(NodeLog::class, 'product_id');
     }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(LogModel::class, 'product_id');
+    }
 }

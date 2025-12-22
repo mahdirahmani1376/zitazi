@@ -3,12 +3,12 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Variation;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
 {
@@ -28,11 +28,12 @@ class DecathlonCrawler extends BaseVariationCrawler implements VariationAbstract
 
         $variations = collect($data)->keyBy('sku');
         if (!(isset($variations[$variation['sku']]))) {
-            Log::error('sync-variations-action-sku-not-found', [
+            LogManager::logVariation($variation, 'sync-variations-action-sku-not-found', [
                 'sku' => $variation['sku'],
                 'variation_url' => $variation->url,
                 'response_body' => $response['body'],
             ]);
+
             $this->logErrorAndSyncVariation($variation, Variation::UNAVAILABLE);
             throw UnProcessableResponseException::make('sku-not-found-decathlon');
         } else {

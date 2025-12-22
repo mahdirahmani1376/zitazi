@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Variations\Tables;
 
-use App\Actions\SyncAndUpdateProductButtonAction;
+use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentVariationExport;
 use App\Models\Product;
 use App\Models\Variation;
@@ -34,13 +34,11 @@ class VariationsTable
                     ->sortable(),
                 TextColumn::make('url')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->url)
-                    ->searchable(),
+                    ->tooltip(fn($record) => $record->url),
                 TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('size')
-                    ->searchable(),
+                TextColumn::make('size'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -58,10 +56,8 @@ class VariationsTable
                 TextColumn::make('product.own_id')
                     ->label('Woocommerce id')
                     ->sortable(),
-                TextColumn::make('color')
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->searchable(),
+                TextColumn::make('color'),
+                TextColumn::make('status'),
                 IconColumn::make('is_deleted')
                     ->boolean(),
             ])

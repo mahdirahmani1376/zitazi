@@ -2,10 +2,10 @@
 
 namespace App\Actions\Crawler;
 
+use App\Actions\LogManager;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\ProductCompare;
-use Illuminate\Support\Facades\Log;
 
 class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 {
@@ -33,7 +33,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 
             if (!$digiPrice) {
                 $digiPrice = data_get($response, 'data.product.default_variant.price.selling_price');
-                Log::info('zitazi_not_available', [
+                LogManager::LogProduct($product, 'digikala zitazi not available', [
                     'url' => $digikalaUrl,
                 ]);
             }
@@ -73,8 +73,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
             );
 
         } catch (\Exception $e) {
-            dump($e->getMessage());
-            Log::error('error_digi_fetch' . $product->id, [
+            LogManager::logProduct($product, 'error_digi_fetch', [
                 'error' => $e->getMessage(),
             ]);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Variations;
 
+use App\Filament\Resources\Products\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\Variations\Pages\CreateVariation;
 use App\Filament\Resources\Variations\Pages\EditVariation;
 use App\Filament\Resources\Variations\Pages\ListVariations;
@@ -41,7 +42,8 @@ class VariationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ProductRelationManager::class
+            ProductRelationManager::class,
+            LogsRelationManager::class
         ];
     }
 
