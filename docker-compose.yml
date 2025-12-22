@@ -11,6 +11,8 @@ services:
     networks:
       - app-network
     container_name: zitazi-php
+    ports:
+      - "5173:5173"
 
   nginx:
     image: nginx:latest

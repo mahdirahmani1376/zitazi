@@ -3,6 +3,7 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -10,7 +11,6 @@ use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
-use Illuminate\Support\Facades\Log;
 
 class BaseVariationCrawler
 {
@@ -26,8 +26,9 @@ class BaseVariationCrawler
     public static function crawlVariation(Variation $variation): void
     {
         if (empty($variation->source)) {
-            Log::error('no source variation', [
+            LogManager::logVariation($variation, 'no source variation', [
                 'variation_id' => $variation->id,
+                'own_id' => $variation->own_id,
             ]);
             return;
         };
@@ -51,8 +52,16 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
+        if (!env('ZITAZ_SYNC_ENABLED', true)) {
+            LogManager::logVariation($variation, 'skipping sync for variation', [
+                'variation_id' => $variation->id,
+                'data' => $dto->getUpdateBody(),
+            ]);
+            return;
+        }
+
         if ($variation->product->onPromotion() or $variation->is_deleted) {
-            Log::info('skipping sync for variation', [
+            LogManager::logVariation($variation, 'skipping sync for variation', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
@@ -91,27 +100,22 @@ class BaseVariationCrawler
         try {
             $woocommerce = WoocommerceService::getClient($variation->base_source);
             $response = $woocommerce->post($url, $data);
-            Log::info(
-                "variation_update_{$variation->id}",
-                [
-                    'body' => $data,
-                    'variation' => $variation->toArray(),
-                    'response' => [
-                        'price' => data_get($response, 'price'),
-                        'sale_price' => data_get($response, 'sale_price'),
-                        'regular_price' => data_get($response, 'regular_price'),
-                        'stock_quantity' => data_get($response, 'stock_quantity'),
-                        'stock_status' => data_get($response, 'stock_status'),
-                        'zitazi_id' => data_get($response, 'id'),
-                        'variation' => $variation->toArray(),
-                    ],
-                ]
-            );
+            LogManager::logVariation($variation, 'variation_update', [
+                'body' => $data,
+                'response' => [
+                    'price' => data_get($response, 'price'),
+                    'sale_price' => data_get($response, 'sale_price'),
+                    'regular_price' => data_get($response, 'regular_price'),
+                    'stock_quantity' => data_get($response, 'stock_quantity'),
+                    'stock_status' => data_get($response, 'stock_status'),
+                    'zitazi_id' => data_get($response, 'id'),
+                ],
+            ]);
         } catch (HttpClientException $e) {
             $body = $e->getResponse()->getBody();
             $json = json_decode($body, true);
 
-            Log::error('WooCommerce error variation', [
+            LogManager::logVariation($variation, 'WooCommerce error variation', [
                 'code' => $json['code'] ?? 'unknown',
                 'message' => $json['message'] ?? 'No message',
                 'variation_id' => $variation->id,
@@ -123,7 +127,7 @@ class BaseVariationCrawler
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
         } catch (\Exception $e) {
-            Log::error('error-sync-variation', [
+            LogManager::logVariation($variation, 'error-sync-variation', [
                 'error' => $e->getMessage(),
                 'variation_id' => $variation->id,
             ]);

@@ -3,10 +3,10 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\Exceptions\UnProcessableResponseException;
 use App\Models\Currency;
 use App\Models\Variation;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class EleleCrawler extends BaseVariationCrawler implements VariationAbstractCrawler
@@ -32,8 +32,7 @@ class EleleCrawler extends BaseVariationCrawler implements VariationAbstractCraw
         $data = json_decode($dom->text(), true);
         $price = data_get($data, 'offers.price');
         if (empty($price)) {
-            Log::error("elele_parse_error_product", [
-                'variation_id' => $variation->id,
+            LogManager::logVariation($variation, 'elele_parse_error_product', [
                 'url' => $variation->url,
             ]);
             throw UnProcessableResponseException::make("elele_parse_error_product");

@@ -3,6 +3,7 @@
 namespace App\Imports;
 ini_set('memory_limit', '2G');
 
+use App\Actions\LogManager;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -51,16 +52,14 @@ class ImportDecathlonVariation implements ToModel, WithHeadingRow, WithChunkRead
                 'is_deleted' => $row['غیرفعال'] ?? false
             ]);
 
-            Log::info('product-import-update',
-                [
-                    'own_id' => $row['شناسه تنوع زیتازی'],
-                    'old_own_id' => $oldOwnId,
-                    'item_type' => $itemType,
-                    'old_item_type' => $oldItemType,
-                    'is_deleted' => $row['غیرفعال'] ?? false,
-                    'old_is_deleted' => $oldIsDeleted,
-                ]
-            );
+            LogManager::logVariation($result, 'product-import-update', [
+                'own_id' => $row['شناسه تنوع زیتازی'],
+                'old_own_id' => $oldOwnId,
+                'item_type' => $itemType,
+                'old_item_type' => $oldItemType,
+                'is_deleted' => $row['غیرفعال'] ?? false,
+                'old_is_deleted' => $oldIsDeleted,
+            ]);
 
             return $result;
         } else {

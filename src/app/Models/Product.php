@@ -23,6 +23,16 @@ class Product extends Model
     public const SATRE = 'satre';
     public const ZITAZI = 'zitazi';
 
+    public static function getAllSourceLabels()
+    {
+        return [
+            self::SOURCE_TRENDYOL => self::SOURCE_TRENDYOL,
+            self::SOURCE_AMAZON => self::SOURCE_AMAZON,
+            self::SOURCE_DECATHLON => self::SOURCE_DECATHLON,
+            self::SOURCE_SAZ_KALA => self::SOURCE_SAZ_KALA,
+            self::SOURCE_Elele => self::SOURCE_Elele,
+        ];
+    }
 
     public function belongsToTrendyol(): bool
     {
@@ -143,5 +153,10 @@ class Product extends Model
     public function nodeLogs(): HasMany
     {
         return $this->hasMany(NodeLog::class, 'product_id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(LogModel::class, 'product_id');
     }
 }

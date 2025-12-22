@@ -892,3 +892,12 @@ Artisan::command('satreh-sync', function () {
         SyncZitaziJob::dispatch($variation, $updateData);
     };
 });
+
+//todo
+// add sticky to the left if can
+// add resync button with status
+// add get zitazi info with status
+// add mogayerat job
+// add currently availale routes to new system
+//
+//

@@ -8,7 +8,6 @@ use App\Models\Currency;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
-use Illuminate\Support\Facades\Log;
 
 class SeedVariationsForDecathlonAction
 {
@@ -48,7 +47,7 @@ class SeedVariationsForDecathlonAction
             ], $createData);
 
             if ($sync) {
-                Log::info('sending-decathlon-variation-update', [
+                LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
                     'variation_id' => $variation->id,
                     'data' => [
                         'stock_quantity' => $variation->stock,
@@ -65,8 +64,7 @@ class SeedVariationsForDecathlonAction
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
 
-            Log::info('decathlon-variation-updated', [
-                'variation_id' => $variation->id,
+            LogManager::logVariation($variation, 'decathlon-variation-updated', [
                 'data' => $createData,
             ]);
             if ($oldStock != $variation->stock || $oldPrice != $variation->rial_price) {

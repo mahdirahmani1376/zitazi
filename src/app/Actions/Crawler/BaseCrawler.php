@@ -3,6 +3,7 @@
 namespace App\Actions\Crawler;
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Currency;
 use App\Models\Product;
@@ -63,22 +64,19 @@ class BaseCrawler
 
         $response = $this->woocommerce->post("products/{$product->own_id}", $data);
 
-        Log::info(
-            "product_update_{$product->id}",
-            [
-                'body' => $data,
+        LogManager::LogProduct($product, 'product_update', [
+            'body' => $data,
+            'product' => $product->toArray(),
+            'response' => [
+                'price' => data_get($response, 'price'),
+                'sale_price' => data_get($response, 'sale_price'),
+                'regular_price' => data_get($response, 'regular_price'),
+                'stock_quantity' => data_get($response, 'stock_quantity'),
+                'stock_status' => data_get($response, 'stock_status'),
+                'zitazi_id' => data_get($response, 'id'),
                 'product' => $product->toArray(),
-                'response' => [
-                    'price' => data_get($response, 'price'),
-                    'sale_price' => data_get($response, 'sale_price'),
-                    'regular_price' => data_get($response, 'regular_price'),
-                    'stock_quantity' => data_get($response, 'stock_quantity'),
-                    'stock_status' => data_get($response, 'stock_status'),
-                    'zitazi_id' => data_get($response, 'id'),
-                    'product' => $product->toArray(),
-                ],
-            ]
-        );
+            ],
+        ]);
     }
 
     protected function updateAndLogProduct(Product $product, array $data): void
@@ -106,16 +104,17 @@ class BaseCrawler
         $body = $e->getResponse()->getBody();
         $json = json_decode($body, true);
 
-        Log::error('WooCommerce error product', [
+        LogManager::LogProduct($product, 'WooCommerce error product', [
             'code' => $json['code'] ?? 'unknown',
             'message' => $json['message'] ?? 'No message',
             'product_id' => $product->id,
+            'own_id' => $product->own_id
         ]);
     }
 
     private function handleGeneralException(Exception $e): void
     {
-        Log::error('General update erro', [
+        Log::error('General update error', [
             'error' => $e->getMessage(),
         ]);
     }

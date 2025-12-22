@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
@@ -40,12 +41,14 @@ class ProductSeeder extends Seeder
                 SyncZitaziJob::dispatch($variation, $updateData);
 
                 $variation->update(['own_id' => 0]);
-                Log::info('variation deleted', [
-                    'variation_id' => $product->id,
+                LogManager::logVariation($variation, 'variation deleted', [
+                    'variation_id' => $variation->id,
+                    'variation_own_id' => $variation->own_id,
                 ]);
             }
+
             $product->delete();
-            Log::info('product deleted', [
+            LogManager::logProduct($product, 'product deleted', [
                 'product_id' => $product->id,
                 'product_own_id' => $product->own_id,
             ]);

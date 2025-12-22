@@ -6,7 +6,6 @@ use App\Models\NodeLog;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
-use Illuminate\Support\Facades\Log;
 
 class UpdateEthVariationAction
 {
@@ -57,9 +56,8 @@ class UpdateEthVariationAction
                 SyncLog::create($data);
             }
         }
-        Log::error('decathlon-sync-error', [
+        LogManager::logProduct($product, 'decathlon-sync-error', [
             'result' => $result,
-            'product_id' => $product->id
         ]);
     }
 }
