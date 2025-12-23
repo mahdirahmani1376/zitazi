@@ -98,10 +98,17 @@ async function scrapePageOfUrls(productsData) {
 
             await page.close();
 
+            const localResults = []
             for (const variation of variationsList) {
                 const result = await crawl(variation);
-                results.push(result);
+                localResults.push(result);
             }
+
+            results.push({
+                'product_id': productData.id,
+                'success': true,
+                'data': localResults
+            });
 
         } catch (err) {
             const safeError = {

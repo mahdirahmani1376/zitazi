@@ -10,7 +10,7 @@ use App\Models\Variation;
 class UpdateEthVariationAction
 {
     public function __construct(
-        public SeedVariationsForDecathlonAction $seedVariationsForDecathlonAction,
+        public SeedVariationsForEthAction $seedVariationsForEthAction,
     )
     {
     }
@@ -21,7 +21,7 @@ class UpdateEthVariationAction
             if (!$result['success']) {
                 $this->logError($result);
             } else {
-                $this->seedVariationsForDecathlonAction->execute($result, $result['sync'] ?? false);
+                $this->seedVariationsForEthAction->execute($result, $result['sync'] ?? false);
             }
 
             NodeLog::create([
@@ -56,7 +56,7 @@ class UpdateEthVariationAction
                 SyncLog::create($data);
             }
         }
-        LogManager::logProduct($product, 'decathlon-sync-error', [
+        LogManager::logProduct($product, 'eth-sync-error', [
             'result' => $result,
         ]);
     }

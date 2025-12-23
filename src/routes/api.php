@@ -2,6 +2,7 @@
 
 use App\Actions\Crawler\BaseVariationCrawler;
 use App\Actions\UpdateDecathlonVariationAction;
+use App\Actions\UpdateEthVariationAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use App\Models\Variation;
@@ -88,7 +89,7 @@ Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariat
     return response()->json(['status' => 'ok']);
 });
 
-Route::post('store-eth', function (Request $request, UpdateDecathlonVariationAction $action) {
+Route::post('store-eth', function (Request $request, UpdateEthVariationAction $action) {
     $action->execute($request->all());
     return response()->json(['status' => 'ok']);
 });

@@ -243,3 +243,7 @@ Route::post('variation-delete', function (Request $request) {
     return back()->with('success', 'تنوع غیر فعال شد');
 })->name('variation.delete');
 
+// http://zitazi-crawler.ir
+// 123@Qwer
+// admin@local.com
+//

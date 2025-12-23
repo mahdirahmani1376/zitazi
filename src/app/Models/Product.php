@@ -14,6 +14,7 @@ class Product extends Model
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
     public const SOURCE_TRENDYOL = 'trendyol';
     public const SOURCE_DECATHLON = 'decathlon';
+    public const SOURCE_ETH = 'eth';
     public const SOURCE_AMAZON = 'amazon';
     public const SOURCE_SAZ_KALA = 'saz_kala';
     public const SOURCE_Elele = 'elele';
@@ -31,6 +32,7 @@ class Product extends Model
             self::SOURCE_DECATHLON => self::SOURCE_DECATHLON,
             self::SOURCE_SAZ_KALA => self::SOURCE_SAZ_KALA,
             self::SOURCE_Elele => self::SOURCE_Elele,
+            self::SOURCE_ETH => self::SOURCE_ETH,
         ];
     }
 

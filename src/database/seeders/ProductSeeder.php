@@ -33,14 +33,13 @@ class ProductSeeder extends Seeder
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             foreach ($product->variations as $variation) {
-                $variation->delete();
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => 0,
                 ]);
 
                 SyncZitaziJob::dispatch($variation, $updateData);
 
-                $variation->update(['own_id' => 0]);
+                $variation->delete();
                 LogManager::logVariation($variation, 'variation deleted', [
                     'variation_id' => $variation->id,
                     'variation_own_id' => $variation->own_id,
