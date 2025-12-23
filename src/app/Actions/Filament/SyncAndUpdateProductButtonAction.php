@@ -10,7 +10,7 @@ class SyncAndUpdateProductButtonAction
 {
     public static function execute(Product $product)
     {
-        info('stated bulk for' . $product->id);
+        info('sync button clicked for product: ' . $product->id);
         if ($product->belongsToDecalthon()) {
             $response = Http::post('172.17.0.1:3000/scrape', $product);
             if (!$response->successful()) {
