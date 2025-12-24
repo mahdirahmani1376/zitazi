@@ -89,12 +89,12 @@ class BaseVariationCrawler
 
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
+        } else if ($variation->product->variations()->count() === 1) {
+            $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
-            Log::error('skipping sync for variation', [
-                'variation_id' => $variation->id,
-            ]);
+            LogManager::logVariation($variation, 'skipping sync for variation', []);
         }
 
         try {
@@ -137,6 +137,7 @@ class BaseVariationCrawler
         }
 
     }
+
     public function updateVariationAndLog(Variation $variation, $data): void
     {
         $oldStock = $variation->stock;
