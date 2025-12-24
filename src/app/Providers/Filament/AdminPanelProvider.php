@@ -23,6 +23,8 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->brandName('Price Monitoring Admin Panel')
+            ->favicon(asset('favicon.ico'))
             ->default()
             ->id('admin')
             ->path('admin')
