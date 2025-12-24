@@ -10,7 +10,7 @@ class SendUpdateRequestAction
 {
     public static function execute(Variation $variation): void
     {
-        SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
+        SyncZitaziJob::dispatchSync($variation, ZitaziUpdateDTO::createFromArray([
             'price' => $variation->rial_price,
             'stock' => $variation->stock,
         ]));

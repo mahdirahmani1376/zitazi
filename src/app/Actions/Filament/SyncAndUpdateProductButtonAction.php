@@ -23,7 +23,7 @@ class SyncAndUpdateProductButtonAction
             ];
         }
 
-        SeedVariationsForProductJob::dispatch($product, true);
+        SeedVariationsForProductJob::dispatchSync($product, true);
 
         return [
             'success' => true,
