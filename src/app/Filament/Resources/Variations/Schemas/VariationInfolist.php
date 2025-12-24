@@ -16,6 +16,7 @@ class VariationInfolist
                 TextEntry::make('url'),
                 TextEntry::make('status'),
                 TextEntry::make('is_deleted'),
+                TextEntry::make('item_type'),
                 TextEntry::make('price')
                     ->money()
                     ->placeholder('-'),

@@ -57,6 +57,7 @@ class VariationsTable
                     ->label('Woocommerce id')
                     ->sortable(),
                 TextColumn::make('color'),
+                TextColumn::make('item_type'),
                 TextColumn::make('status'),
                 IconColumn::make('is_deleted')
                     ->boolean(),
