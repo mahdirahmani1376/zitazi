@@ -57,7 +57,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                         'stock_quantity' => $variation->stock,
                         'price' => $variation->rial_price
                     ]);
-                    SyncZitaziJob::dispatch($variation, $updateData);
+                    SyncZitaziJob::dispatchSync($variation, $updateData);
                 }
             }
         } catch (Exception $e) {
