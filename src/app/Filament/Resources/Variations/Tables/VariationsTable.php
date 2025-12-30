@@ -52,9 +52,11 @@ class VariationsTable
                     ->sortable(),
                 TextColumn::make('own_id')
                     ->label('Zitazi variation id')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('product.own_id')
                     ->label('Woocommerce id')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('color'),
                 TextColumn::make('item_type'),
