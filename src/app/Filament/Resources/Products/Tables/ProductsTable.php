@@ -141,67 +141,68 @@ class ProductsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
-                BulkAction::make('bulk sync')
-                    ->action(function (Collection $records) {
-                        $records->each(function (Product $record) {
-                            SyncAndUpdateProductButtonAction::execute($record);
-                        });
-                    })
-                    ->icon('heroicon-m-arrow-path')
-                    ->color('success')
-                    ->successNotificationTitle('Records Updated')
-                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
-                        if ($successCount) {
-                            return "{$successCount} of {$totalCount} Records updated";
-                        }
+                    BulkAction::make('bulk sync')
+                        ->action(function (Collection $records) {
+                            $records->each(function (Product $record) {
+                                SyncAndUpdateProductButtonAction::execute($record);
+                            });
+                        })
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('success')
+                        ->successNotificationTitle('Records Updated')
+                        ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                            if ($successCount) {
+                                return "{$successCount} of {$totalCount} Records updated";
+                            }
 
-                        return 'Failed to update any records';
-                    }),
-                BulkAction::make('excel export')
-                    ->icon('heroicon-m-arrow-down-tray')
-                    ->color('info')
-                    ->action(function (Collection $records) {
-                        $now = now()->toDateTimeString();
-                        Notification::make()
-                            ->success()
-                            ->title('Export started')
-                            ->body('The export job has been queued.')
-                            ->send();
-                        return Excel::download(new FillamentProductExport($records), "products_{$now}.xlsx");
-                    })
-                    ->successNotificationTitle('export completed')
-                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
-                        return 'Failed to export';
-                    }),
-                BulkAction::make('activate promotion')
-                    ->icon('heroicon-m-arrow-path')
-                    ->color('info')
-                    ->action(function (Collection $records) {
-                        $records->each(function (Product $record) {
-                            $record->update([
-                                'promotion' => true
-                            ]);
-                        });
-                    })
-                    ->successNotificationTitle('toggle completed')
-                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
-                        return 'Failed to toggle';
-                    }),
-                BulkAction::make('deactivate promotion')
-                    ->icon('heroicon-m-arrow-path')
-                    ->color('info')
-                    ->action(function (Collection $records) {
-                        $records->each(function (Product $record) {
-                            $record->update([
-                                'promotion' => false
-                            ]);
-                        });
-                    })
-                    ->successNotificationTitle('toggle completed')
-                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
-                        return 'Failed to toggle';
-                    }),
+                            return 'Failed to update any records';
+                        }),
+                    BulkAction::make('excel export')
+                        ->icon('heroicon-m-arrow-down-tray')
+                        ->color('info')
+                        ->action(function (Collection $records) {
+                            $now = now()->toDateTimeString();
+                            Notification::make()
+                                ->success()
+                                ->title('Export started')
+                                ->body('The export job has been queued.')
+                                ->send();
+                            return Excel::download(new FillamentProductExport($records), "products_{$now}.xlsx");
+                        })
+                        ->successNotificationTitle('export completed')
+                        ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                            return 'Failed to export';
+                        }),
+                    BulkAction::make('activate promotion')
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('info')
+                        ->action(function (Collection $records) {
+                            $records->each(function (Product $record) {
+                                $record->update([
+                                    'promotion' => true
+                                ]);
+                            });
+                        })
+                        ->successNotificationTitle('toggle completed')
+                        ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                            return 'Failed to toggle';
+                        }),
+                    BulkAction::make('deactivate promotion')
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('info')
+                        ->action(function (Collection $records) {
+                            $records->each(function (Product $record) {
+                                $record->update([
+                                    'promotion' => false
+                                ]);
+                            });
+                        })
+                        ->successNotificationTitle('toggle completed')
+                        ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                            return 'Failed to toggle';
+                        }),
+                ]),
+
             ]);
     }
 }
