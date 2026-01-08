@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class SyncAndUpdateProductButtonAction
 {
-    public static function execute(Product $product)
+    public static function execute(Product $product, $bulk = false)
     {
         info('sync button clicked for product: ' . $product->id);
         if ($product->belongsToDecalthon()) {
@@ -22,7 +22,11 @@ class SyncAndUpdateProductButtonAction
                 'success' => true,
             ];
         } else {
-            SeedVariationsForProductJob::dispatchSync($product, true);
+            if ($bulk) {
+                SeedVariationsForProductJob::dispatch($product, true);
+            } else {
+                SeedVariationsForProductJob::dispatchSync($product, true);
+            }
         }
 
         return [

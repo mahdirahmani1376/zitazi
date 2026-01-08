@@ -144,7 +144,7 @@ class ProductsTable
                     BulkAction::make('bulk sync')
                         ->action(function (Collection $records) {
                             $records->each(function (Product $record) {
-                                SyncAndUpdateProductButtonAction::execute($record);
+                                SyncAndUpdateProductButtonAction::execute($record, true);
                             });
                         })
                         ->icon('heroicon-m-arrow-path')
