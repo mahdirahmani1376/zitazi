@@ -174,13 +174,27 @@ class ProductsTable
                     ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                         return 'Failed to export';
                     }),
-                BulkAction::make('toggle promotion')
-                    ->icon('heroicon-m-arrow-down-tray')
+                BulkAction::make('activate promotion')
+                    ->icon('heroicon-m-arrow-path')
                     ->color('info')
                     ->action(function (Collection $records) {
                         $records->each(function (Product $record) {
                             $record->update([
-                                'promotion' => !$record->promotion
+                                'promotion' => true
+                            ]);
+                        });
+                    })
+                    ->successNotificationTitle('toggle completed')
+                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                        return 'Failed to toggle';
+                    }),
+                BulkAction::make('deactivate promotion')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('info')
+                    ->action(function (Collection $records) {
+                        $records->each(function (Product $record) {
+                            $record->update([
+                                'promotion' => false
                             ]);
                         });
                     })
