@@ -20,7 +20,6 @@ class SyncZitaziCommand extends Command
     {
         $variations = Variation::query()
             ->where('base_source', Product::ZITAZI)
-            ->limit(50)
             ->get();
 
         $jobs = [];
