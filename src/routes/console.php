@@ -901,3 +901,14 @@ Artisan::command('satreh-sync', function () {
 // add currently availale routes to new system
 //
 //
+
+Artisan::command('sync-price', function () {
+    Variation::limit(10)->get()->each(function (Variation $variation) {
+        $updateData = ZitaziUpdateDTO::createFromArray([
+            'stock_quantity' => $variation->stock,
+            'price' => $variation->rial_price * Currency::syncTryRate()
+        ]);
+
+        SyncZitaziJob::dispatchSync($variation, $updateData);
+    });
+});
