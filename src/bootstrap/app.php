@@ -16,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed')->dailyAt('00:00')->withoutOverlapping();
-        $schedule->command('app:sync-zitazi')->dailyAt('06:00')->withoutOverlapping();
-        $schedule->command('app:sync-satreh')->dailyAt('07:00')->withoutOverlapping();
+        $schedule->command('db:seed')->dailyAt('10:00')->withoutOverlapping();
+        $schedule->command('app:sync-zitazi')->dailyAt('11:00')->withoutOverlapping();
+        $schedule->command('app:sync-satreh')->dailyAt('11:00')->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
