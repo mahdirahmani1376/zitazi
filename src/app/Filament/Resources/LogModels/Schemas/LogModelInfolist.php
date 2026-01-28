@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\LogModels\Schemas;
 
-use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -18,8 +17,8 @@ class LogModelInfolist
                 TextEntry::make('data')
                     ->label('Raw Data')
                     ->formatStateUsing(fn($state) => json_encode($state, JSON_PRETTY_PRINT)),
-                KeyValueEntry::make('data.body')->label('Update Body'),
-                KeyValueEntry::make('data.response')->label('Response Body'),
+//                KeyValueEntry::make('data.body')->label('Update Body'),
+//                KeyValueEntry::make('data.response')->label('Response Body'),
                 TextEntry::make('created_at')
                     ->dateTime(),
                 TextEntry::make('updated_at')
