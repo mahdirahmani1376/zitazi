@@ -903,7 +903,7 @@ Artisan::command('satreh-sync', function () {
 //
 
 Artisan::command('sync-price', function () {
-    Variation::limit(10)->get()->each(function (Variation $variation) {
+    Variation::all()->each(function (Variation $variation) {
         $updateData = ZitaziUpdateDTO::createFromArray([
             'stock_quantity' => $variation->stock,
             'price' => $variation->rial_price * Currency::syncTryRate()
