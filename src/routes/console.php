@@ -929,5 +929,5 @@ Artisan::command('ttt', function () {
         'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
     ])->get('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=872167503&merchantId=692043');
 
-    dd($response);
+    dd($response->body());
 });
