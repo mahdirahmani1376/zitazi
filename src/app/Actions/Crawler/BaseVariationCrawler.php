@@ -75,7 +75,7 @@ class BaseVariationCrawler
 
         $data = $dto->getUpdateBody();
 
-//        $data['stock_status'] = $stockStatus;
+        $data['stock_status'] = $stockStatus;
 
         if (!empty($dto?->price)) {
             $data['sale_price'] = null;
