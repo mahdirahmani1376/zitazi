@@ -21,6 +21,26 @@ class SyncAndUpdateProductButtonAction
             return [
                 'success' => true,
             ];
+        }
+        if ($product->belongsToTrendyol()) {
+            $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
+
+            $params = http_build_query([
+                'contentId' => $product->getTrendyolContentId(),
+                'merchantId' => $product->getTrendyolMerchantId(),
+            ]);
+
+            $product->full_url = $url . '?' . $params;
+
+            $response = Http::post('172.17.0.1:3000/scrape-tr', $product);
+            if (!$response->successful()) {
+                return [
+                    'success' => false,
+                ];
+            }
+            return [
+                'success' => true,
+            ];
         } else {
             if ($bulk) {
                 SeedVariationsForProductJob::dispatch($product, true);

@@ -3,6 +3,7 @@
 use App\Actions\Crawler\BaseVariationCrawler;
 use App\Actions\UpdateDecathlonVariationAction;
 use App\Actions\UpdateEthVariationAction;
+use App\Actions\UpdateTrendyolVariationAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use App\Models\Variation;
@@ -74,6 +75,30 @@ Route::get('decathlon-list', function () {
     ]);
 });
 
+Route::get('trendyol-list', function () {
+
+    $data = Product::query()
+        ->whereNot('trendyol_source', '=', '')
+        ->orderBy('updated_at', 'asc')
+        ->paginate()
+        ->through(function ($product) {
+            $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
+
+            $params = http_build_query([
+                'contentId' => $product->getTrendyolContentId(),
+                'merchantId' => $product->getTrendyolMerchantId(),
+            ]);
+
+            $product->full_url = $url . '?' . $params;
+
+            return $product;
+        });
+
+    return Response::json([
+        'data' => $data
+    ]);
+});
+
 Route::get('decathlon-list-retry', function () {
     return Response::json([
         'data' => Product::query()
@@ -85,6 +110,11 @@ Route::get('decathlon-list-retry', function () {
 });
 
 Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariationAction $action) {
+    $action->execute($request->all());
+    return response()->json(['status' => 'ok']);
+});
+
+Route::post('store-trendyol', function (Request $request, UpdateTrendyolVariationAction $action) {
     $action->execute($request->all());
     return response()->json(['status' => 'ok']);
 });
