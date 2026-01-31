@@ -53,13 +53,19 @@ async function scrapeAll() {
         const variationData = await scrapePageOfUrls(productsData);
 
         console.log('variation data', JSON.stringify(variationData))
-        // 3. send results back to backend
-        const response = await fetch("http://localhost/api/store-trendyol", {
-            method: "POST",
-            headers: {"Content-Type": "application/json", "Accept": "application/json"},
-            body: JSON.stringify(variationData),
-        });
-        console.log('response', await response.json())
+
+        try {
+            // 3. send results back to backend
+            const response = await fetch("http://localhost/api/store-trendyol", {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "Accept": "application/json"},
+                body: JSON.stringify(variationData),
+            });
+            console.log('response', await response.json())
+        } catch (e) {
+            console.log(e.message)
+        }
+
 
         // 4. move to next page
         nextUrl = json.data.next_page_url;
