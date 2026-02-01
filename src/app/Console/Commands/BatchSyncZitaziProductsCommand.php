@@ -7,6 +7,8 @@ use App\Jobs\BatchSyncZitaziJob;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class BatchSyncZitaziProductsCommand extends Command
 {
@@ -23,6 +25,7 @@ class BatchSyncZitaziProductsCommand extends Command
             ->pluck('product_id')
             ->unique();
 
+        $jobs = [];
         Product::query()
             ->whereNot('promotion', 1)
             ->whereIn('id', $variationIds->toArray())
@@ -101,7 +104,14 @@ class BatchSyncZitaziProductsCommand extends Command
                     'update' => $body
                 ];
 
-                BatchSyncZitaziJob::dispatchSync($product, $body);
+                $jobs[] = new BatchSyncZitaziJob($product, $body);
+
             });
+
+        Bus::batch($jobs)
+            ->then(fn() => Log::info('All batch varations synced with zitazi successfully.'))
+            ->catch(fn() => Log::error('Some sync varations jobs failed.'))
+            ->name('Sync varations variations')
+            ->dispatch();
     }
 }
