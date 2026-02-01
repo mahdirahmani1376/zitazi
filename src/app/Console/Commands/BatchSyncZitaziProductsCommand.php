@@ -108,7 +108,6 @@ class BatchSyncZitaziProductsCommand extends Command
 
             });
 
-        dd($jobs);
         Bus::batch($jobs)
             ->then(fn() => Log::info('All batch varations synced with zitazi successfully.'))
             ->catch(fn() => Log::error('Some sync varations jobs failed.'))
