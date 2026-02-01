@@ -29,7 +29,7 @@ class BatchSyncZitaziProductsCommand extends Command
         Product::query()
             ->whereNot('promotion', 1)
             ->whereIn('id', $variationIds->toArray())
-            ->each(function (Product $product) {
+            ->each(function (Product $product) use (&$jobs) {
                 $body = [];
                 foreach ($product->variations as $variation) {
                     if ($variation->status == Variation::AVAILABLE) {
@@ -108,6 +108,7 @@ class BatchSyncZitaziProductsCommand extends Command
 
             });
 
+        dd($jobs);
         Bus::batch($jobs)
             ->then(fn() => Log::info('All batch varations synced with zitazi successfully.'))
             ->catch(fn() => Log::error('Some sync varations jobs failed.'))
