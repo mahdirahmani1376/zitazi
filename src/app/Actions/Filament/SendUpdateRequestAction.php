@@ -12,7 +12,7 @@ class SendUpdateRequestAction
     {
         SyncZitaziJob::dispatchSync($variation, ZitaziUpdateDTO::createFromArray([
             'price' => $variation->rial_price,
-            'stock' => $variation->stock,
+            'stock_quantity' => $variation->stock,
         ]));
     }
 }
