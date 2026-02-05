@@ -14,12 +14,10 @@ class SyncAndUpdateProductButtonAction
         if ($product->belongsToDecalthon()) {
             $response = Http::post('172.17.0.1:3000/scrape', $product);
             if (!$response->successful()) {
-                SendUpdateRequestForProductAction::execute($product);
                 return [
                     'success' => false,
                 ];
             }
-            SendUpdateRequestForProductAction::execute($product);
             return [
                 'success' => true,
             ];
@@ -36,12 +34,10 @@ class SyncAndUpdateProductButtonAction
 
             $response = Http::post('172.17.0.1:3000/scrape-tr', $product);
             if (!$response->successful()) {
-                SendUpdateRequestForProductAction::execute($product);
                 return [
                     'success' => false,
                 ];
             }
-            SendUpdateRequestForProductAction::execute($product);
             return [
                 'success' => true,
             ];
