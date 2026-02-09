@@ -2,6 +2,8 @@
 
 namespace App\Actions;
 
+use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
@@ -9,7 +11,7 @@ use Exception;
 
 class SeedVariationsForTrendyolAction
 {
-    public function execute($response)
+    public function execute($response, $sync = false)
     {
         $data = data_get($response, 'response.result.variants', []);
         $product = Product::find($response['product_id']);
@@ -26,7 +28,7 @@ class SeedVariationsForTrendyolAction
         try {
             $availableVariations = [];
             foreach ($data as $item) {
-                Variation::updateOrCreate([
+                $variation = Variation::updateOrCreate([
                     'item_number' => $item['itemNumber']
                 ], [
                     'size' => $item['value'] ?? null,
@@ -46,7 +48,24 @@ class SeedVariationsForTrendyolAction
                 ]);
 
                 $availableVariations[] = $item['itemNumber'];
+
+                if ($sync) {
+                    LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
+                        'variation_id' => $variation->id,
+                        'data' => [
+                            'stock_quantity' => $variation->stock,
+                            'price' => $variation->rial_price
+                        ]
+                    ]);
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => $variation->stock,
+                        'price' => $variation->rial_price
+                    ]);
+                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                }
+
             }
+
 
             $unavailableOnSourceSiteVariations = Variation::query()
                 ->whereNotIn('item_number', $availableVariations)
@@ -54,9 +73,19 @@ class SeedVariationsForTrendyolAction
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
 
-            $unavailableOnSourceSiteVariations->each(fn(Variation $variation) => $variation->update([
-                'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
-            ]));
+            $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($sync) {
+                if ($sync) {
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => 0,
+                        'price' => $variation->rial_price
+                    ]);
+                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                }
+
+                return $variation->update([
+                    'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+                ]);
+            });
         } catch (Exception $e) {
             dump($e->getMessage(), $product->id);
             LogManager::LogProduct($product, 'error-seed-variations', [
