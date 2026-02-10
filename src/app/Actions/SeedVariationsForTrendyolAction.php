@@ -50,7 +50,7 @@ class SeedVariationsForTrendyolAction
                 $availableVariations[] = $item['itemNumber'];
 
                 if ($sync) {
-                    LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
+                    LogManager::logVariation($variation, 'sending-trendyol-variation-update', [
                         'variation_id' => $variation->id,
                         'data' => [
                             'stock_quantity' => $variation->stock,
