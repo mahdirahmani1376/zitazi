@@ -100,7 +100,7 @@ class BaseVariationCrawler
         try {
             $woocommerce = WoocommerceService::getClient($variation->base_source);
             $response = $woocommerce->post($url, $data);
-            LogManager::logVariation($variation, 'variation_update', [
+            LogManager::logVariation($variation, 'variation_zitazi-update-log', [
                 'body' => $data,
                 'response' => [
                     'price' => data_get($response, 'price'),
