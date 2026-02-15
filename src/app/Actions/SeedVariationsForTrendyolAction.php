@@ -13,7 +13,6 @@ class SeedVariationsForTrendyolAction
 {
     public function execute($response, $sync = false)
     {
-        info('tren', [compact('response', 'sync')]);
         $data = data_get($response, 'response.result.variants', []);
         $product = Product::find($response['product_id']);
         if (empty($data)) {
