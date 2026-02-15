@@ -85,18 +85,14 @@ class BaseVariationCrawler
             $data['regular_price'] = '' . $dto->price;
         }
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
-            info(1);
             $url = "products/{$variation->product->own_id}";
         } else if ($variation->product->variations()->count() === 1 && empty($variation->own_id)) {
-            info(2);
 
             $url = "products/{$variation->product->own_id}";
         } elseif (!empty($variation->own_id)) {
-            info(3);
 
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
-            info(4);
             LogManager::logVariation($variation, 'skipping sync for variation', []);
             return;
         }
