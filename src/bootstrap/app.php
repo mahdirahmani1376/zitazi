@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('batch:sync-zitazi-products')->dailyAt('21:00')->withoutOverlapping();
         $schedule->command('app:sync-zitazi')->dailyAt('21:00')->withoutOverlapping();
         $schedule->command('app:sync-satreh')->dailyAt('21:00')->withoutOverlapping();
+        Schedule::command('model:prune')
+            ->daily()
+            ->at('00:00');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

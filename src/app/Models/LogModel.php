@@ -11,6 +11,11 @@ class LogModel extends Model
         'data' => 'json'
     ];
 
+    public function prunable()
+    {
+        return static::where('created_at', '<=', now()->subDays(2));
+    }
+
     public function variation(): BelongsTo
     {
         return $this->belongsTo(Variation::class);
