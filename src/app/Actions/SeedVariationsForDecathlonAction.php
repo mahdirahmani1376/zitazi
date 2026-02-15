@@ -13,6 +13,7 @@ class SeedVariationsForDecathlonAction
 {
     public function execute($result, $sync = false)
     {
+        info('test', [compact('result', 'sync')]);
         $product = Product::find($result['product_id']);
 
         $variationsRawData = $result['variations'];
