@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Variations\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentVariationExport;
+use App\Jobs\BulkSyncProductsJob;
 use App\Models\Product;
 use App\Models\Variation;
 use Filament\Actions\Action;
@@ -19,6 +20,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class VariationsTable
@@ -93,11 +96,19 @@ class VariationsTable
                 ]),
                 BulkAction::make('bulk sync')
                     ->action(function (Collection $records) {
+                        $jobs = [];
+
                         $records
                             ->unique('product_id')
-                            ->each(function (Variation $record) {
-                                SyncAndUpdateProductButtonAction::execute($record->product);
+                            ->each(function (Variation $record) use (&$jobs) {
+                                $jobs[] = new BulkSyncProductsJob($record->product);
                             });
+
+                        Bus::batch($jobs)
+                            ->then(fn() => Log::info('All Bulk Sync Products finished successfully.'))
+                            ->catch(fn() => Log::error('Some Bulk Sync Products failed.'))
+                            ->name('Bulk Sync Products')
+                            ->dispatch();
                     })
                     ->icon('heroicon-m-arrow-path')
                     ->color('success')

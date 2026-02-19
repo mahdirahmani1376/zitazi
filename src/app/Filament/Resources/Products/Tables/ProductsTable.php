@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentProductExport;
+use App\Jobs\BulkSyncProductsJob;
 use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -19,6 +20,8 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsTable
@@ -143,9 +146,15 @@ class ProductsTable
                     DeleteBulkAction::make(),
                     BulkAction::make('bulk sync')
                         ->action(function (Collection $records) {
-                            $records->each(function (Product $record) {
-                                SyncAndUpdateProductButtonAction::execute($record, true);
+                            $jobs = [];
+                            $records->each(function (Product $record) use (&$jobs) {
+                                $jobs[] = new BulkSyncProductsJob($record);
                             });
+                            Bus::batch($jobs)
+                                ->then(fn() => Log::info('All Bulk Sync Products finished successfully.'))
+                                ->catch(fn() => Log::error('Some Bulk Sync Products failed.'))
+                                ->name('Bulk Sync Products')
+                                ->dispatch();
                         })
                         ->icon('heroicon-m-arrow-path')
                         ->color('success')
