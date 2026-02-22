@@ -15,4 +15,9 @@ class SyncLog extends Model
     {
         return Variation::firstWhere('own_id', $this->variation_own_id);
     }
+
+    public function prunable()
+    {
+        return static::where('created_at', '<=', now()->subDays(2));
+    }
 }
