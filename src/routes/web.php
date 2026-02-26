@@ -243,6 +243,14 @@ Route::post('variation-delete', function (Request $request) {
     return back()->with('success', 'تنوع غیر فعال شد');
 })->name('variation.delete');
 
+Route::get('/health-check', function () {
+    \Illuminate\Support\Facades\Schema::getTables();
+
+    \Illuminate\Support\Facades\Cache::set('test', 'test');
+    Redis::get('test');
+
+    \Illuminate\Support\Facades\Cache::delete('test');
+});
 // http://zitazi-crawler.ir
 // 123@Qwer
 // admin@local.com
