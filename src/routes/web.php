@@ -250,6 +250,10 @@ Route::get('/health-check', function () {
     Redis::get('test');
 
     \Illuminate\Support\Facades\Cache::delete('test');
+
+    return response()->json([
+        'health' => 'ok'
+    ]);
 });
 // http://zitazi-crawler.ir
 // 123@Qwer
