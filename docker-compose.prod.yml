@@ -41,11 +41,6 @@ services:
       - app-network
     container_name: zitazi-mysql
     restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   redis:
     image: redis:latest
