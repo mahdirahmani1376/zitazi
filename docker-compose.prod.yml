@@ -6,7 +6,6 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./src:/var/www/html
-      - /var/log/scraper.log:/var/www/html/storage/logs/scraper.log:ro
     networks:
       - app-network
     container_name: zitazi-php
