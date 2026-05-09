@@ -139,7 +139,7 @@ Route::post('update-decathlon-product', function (Request $request) {
         ]);
     }
 
-    $response = \Illuminate\Support\Facades\Http::post('172.17.0.1:3000/scrape', $product);
+    $response = \Illuminate\Support\Facades\Http::post('host.docker.internal:3000/scrape', $product);
     if (!$response->successful()) {
         return back()->withErrors([
             'message' => 'خطایی رخ داد'
@@ -168,7 +168,7 @@ Route::get('eth-list', function () {
 });
 
 /**
- * 172.17.0.1:80/get-schema-test
+ * host.docker.internal:80/get-schema-test
  */
 Route::match(['post', 'get'], 'get-schema-test', function () {
     $data = json_decode('{
@@ -291,7 +291,7 @@ Route::match(['post', 'get'], 'get-1249', function () {
 });
 
 /**
- * 172.17.0.1:80/api/itest
+ * host.docker.internal:80/api/itest
  */
 Route::match(['post', 'get'], 'itest', function (Request $request) {
     info('recieved-request', ['request', $request->all()]);
