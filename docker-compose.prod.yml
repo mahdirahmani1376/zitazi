@@ -10,6 +10,8 @@ services:
       - app-network
     container_name: zitazi-php
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   nginx:
     image: nginx:latest
