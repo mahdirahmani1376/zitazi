@@ -10,20 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-
       - name: SSH to VPS and deploy
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
-          key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
             set -e
-            cd /var/www/zitazi
+            cd ~/zitazi
 
             echo "🔄 Pulling latest code..."
             git pull origin master
