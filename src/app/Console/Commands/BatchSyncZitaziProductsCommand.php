@@ -36,7 +36,6 @@ class BatchSyncZitaziProductsCommand extends Command
                     $this->getUpdateBody($variation, $body);
                 }
 
-                dump($product, $body);
                 $jobs[] = new BatchSyncZitaziJob($product, $body);
 
             });
@@ -50,11 +49,6 @@ class BatchSyncZitaziProductsCommand extends Command
 
     function getUpdateBody(Variation $variation, &$body): void
     {
-        if (empty($variation->own_id)) {
-            return;
-        }
-
-
         $stock = $variation->stock;
         $price = $variation->rial_price;
 

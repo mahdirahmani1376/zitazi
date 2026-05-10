@@ -27,17 +27,21 @@ class BatchSyncZitaziJob implements ShouldQueue
 
     public function handle(): void
     {
+
         $product = $this->product;
         try {
             $url = "/products/{$product->own_id}/variations/batch";
             $woocommerce = WoocommerceService::getClient($product->base_source);
+            dump(json_encode($url));
+            dump(json_encode($this->variationData));
+
             $response = $woocommerce->post($url, $this->variationData);
-            LogManager::logProduct($product, 'update success product', [
+            LogManager::logProduct($product, 'batch update success', [
                 'product_id' => $product->id,
                 'response' => json_encode($response)
             ]);
         } catch (\Exception $e) {
-            LogManager::logProduct($product, 'batch sync error product', [
+            LogManager::logProduct($product, 'batch update error', [
                 'error' => $e->getMessage(),
                 'product_id' => $product->id,
             ]);
