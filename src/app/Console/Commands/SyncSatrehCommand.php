@@ -20,6 +20,7 @@ class SyncSatrehCommand extends Command
     {
         $variations = Variation::query()
             ->where('base_source', Product::SATRE)
+            ->whereRelation('product', 'promotion', '!=', 1)
             ->get();
 
         $jobs = [];

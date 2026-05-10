@@ -53,15 +53,23 @@ class BaseVariationCrawler
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
     {
         if (!env('ZITAZ_SYNC_ENABLED', true)) {
-            LogManager::logVariation($variation, 'skipping sync for variation', [
+            LogManager::logVariation($variation, 'sync is disabled in .env', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
             return;
         }
 
-        if ($variation->product->onPromotion() or $variation->is_deleted) {
-            LogManager::logVariation($variation, 'skipping sync for variation', [
+        if ($variation->product->onPromotion()) {
+            LogManager::logVariation($variation, 'variation on promotion', [
+                'variation_id' => $variation->id,
+                'data' => $dto->getUpdateBody(),
+            ]);
+            return;
+        }
+
+        if ($variation->is_deleted) {
+            LogManager::logVariation($variation, 'variation is deleted', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
