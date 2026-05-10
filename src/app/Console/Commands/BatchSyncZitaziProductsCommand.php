@@ -49,6 +49,10 @@ class BatchSyncZitaziProductsCommand extends Command
 
     function getUpdateBody(Variation $variation, &$body): void
     {
+        if (empty($variation->own_id)) {
+            return;
+        }
+
         $stock = $variation->stock;
         $price = $variation->rial_price;
 
@@ -110,10 +114,6 @@ class BatchSyncZitaziProductsCommand extends Command
 
         $data['id'] = $variation->own_id;
 
-        $updateBody = [
-            'update' => $data
-        ];
-
-        $body[] = $updateBody;
+        $body[] = $data;
     }
 }

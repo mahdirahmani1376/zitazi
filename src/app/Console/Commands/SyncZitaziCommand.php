@@ -20,7 +20,7 @@ class SyncZitaziCommand extends Command
     {
         $variations = Variation::query()
             ->where('base_source', Product::ZITAZI)
-            ->where('item_type', Product::PRODUCT_UPDATE)
+//            ->where('item_type', Product::PRODUCT_UPDATE)
             ->whereRelation('product', 'promotion', '!=', 1)
             ->get();
 
@@ -77,7 +77,6 @@ class SyncZitaziCommand extends Command
             }
 
             $jobs[] = new SyncZitaziJob($variation, $updateData);
-//            SyncZitaziJob::dispatch($variation, $updateData);
         }
 
         Bus::batch($jobs)
