@@ -16,6 +16,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
             set -e
             cd ~/zitazi
