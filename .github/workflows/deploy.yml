@@ -13,6 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@v1
         with:
