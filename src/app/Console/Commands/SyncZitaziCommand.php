@@ -26,6 +26,7 @@ class SyncZitaziCommand extends Command
 
         $jobs = [];
         foreach ($variations as $variation) {
+            $updateData = [];
             if ($variation->status == Variation::AVAILABLE) {
                 $stock = $variation->stock;
                 $price = $variation->rial_price;
