@@ -27,6 +27,7 @@ class ProductSeeder extends Seeder
     {
         $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
         $response = Http::acceptJson()->get($sheetUrl);
+        dd($response->json());
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
         $allOwnIds = collect($data)->pluck('Woocomerce-ID');
