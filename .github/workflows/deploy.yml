@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Add VPS to known hosts
-        run: ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
       - name: Debug connection
         run: |
           nc -vz ${{ secrets.VPS_HOST }} 22
+
       - name: Test SSH connection
         run: |
           mkdir -p ~/.ssh
@@ -22,6 +21,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo ✅ SSH works"
+
+      - name: Add VPS to known hosts
+        run: ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Checkout code
         uses: actions/checkout@v2
