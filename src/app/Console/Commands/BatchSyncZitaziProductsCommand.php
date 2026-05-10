@@ -21,9 +21,9 @@ class BatchSyncZitaziProductsCommand extends Command
         $variationIds = Variation::query()
             ->where('base_source', Product::ZITAZI)
             ->where('item_type', Product::VARIATION_UPDATE)
+            ->where('product_id', 631)
             ->get()
             ->pluck('product_id')
-            ->where('product_id', 631)
             ->unique();
 
         $jobs = [];
