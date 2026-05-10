@@ -10,18 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test SSH connection manually
+      - name: Add VPS to known hosts
+        run: ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+      - name: Debug connection
+        run: |
+          nc -vz ${{ secrets.VPS_HOST }} 22
+      - name: Test SSH connection
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.VPS_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo ✅ SSH from GitHub successful"
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo ✅ SSH works"
 
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Print VPS_PORT for debugging
-        run: echo "VPS_PORT is ${{ secrets.VPS_PORT }}"
 
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@v0.1.6
@@ -29,7 +32,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_PRIVATE_KEY }}
-          port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
             cd /var/www/zitazi
