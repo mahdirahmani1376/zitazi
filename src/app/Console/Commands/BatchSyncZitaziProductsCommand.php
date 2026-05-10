@@ -36,6 +36,7 @@ class BatchSyncZitaziProductsCommand extends Command
                     $this->getUpdateBody($variation, $body);
                 }
 
+                dump($product, $body);
                 $jobs[] = new BatchSyncZitaziJob($product, $body);
 
             });
