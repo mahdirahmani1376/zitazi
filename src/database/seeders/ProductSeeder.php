@@ -22,10 +22,32 @@ class ProductSeeder extends Seeder
 
     public function seedZitaziProducts(): void
     {
-        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
+        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1!A:Z?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
         $response = Http::acceptJson()->get($sheetUrl);
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
+//        $allOwnIds = collect($data)->pluck('Woocomerce-ID');
+//        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+//            foreach ($product->variations as $variation) {
+//                $updateData = ZitaziUpdateDTO::createFromArray([
+//                    'stock_quantity' => 0,
+//                ]);
+//
+//                SyncZitaziJob::dispatch($variation, $updateData);
+//
+//                $variation->delete();
+//                LogManager::logVariation($variation, 'variation deleted', [
+//                    'variation_id' => $variation->id,
+//                    'variation_own_id' => $variation->own_id,
+//                ]);
+//            }
+//
+//            $product->delete();
+//            LogManager::logProduct($product, 'product deleted', [
+//                'product_id' => $product->id,
+//                'product_own_id' => $product->own_id,
+//            ]);
+//        });
 
         foreach ($data as $key => $value) {
             try {
