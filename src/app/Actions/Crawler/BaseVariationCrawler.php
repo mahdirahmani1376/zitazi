@@ -116,6 +116,11 @@ class BaseVariationCrawler
                     'zitazi_id' => data_get($response, 'id'),
                 ],
             ]);
+
+            $variation->update([
+                'status' => Variation::AVAILABLE,
+            ]);
+
         } catch (HttpClientException $e) {
             $body = $e->getResponse()->getBody();
             $json = json_decode($body, true);
