@@ -38,6 +38,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
             'منبع',
             'زمان آپدیت',
             'وضعیت',
+            'promotion',
             'غیرفعال',
         ];
     }
@@ -63,6 +64,7 @@ class VariationExport implements FromQuery, WithHeadings, WithMapping
             'source' => $row->source,
             'updated_at' => $row->updated_at->toDateTimestring(),
             'status' => $row->status,
+            'promotion' => $row->product?->promotion,
             'is_deleted' => $row->is_deleted,
         ];
 
