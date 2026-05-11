@@ -13,7 +13,7 @@ class LogModel extends Model
 
     public function prunable()
     {
-        return static::where('created_at', '<=', now()->subDays(2));
+        return static::where('created_at', '<=', now()->subDay());
     }
 
     public function variation(): BelongsTo
