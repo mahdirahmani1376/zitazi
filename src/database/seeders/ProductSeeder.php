@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Actions\LogManager;
-use App\DTO\ZitaziUpdateDTO;
-use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
@@ -30,29 +27,30 @@ class ProductSeeder extends Seeder
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
         $allOwnIds = collect($data)->pluck('Woocomerce-ID');
+        dd($allOwnIds);
 
 
-        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
-            foreach ($product->variations as $variation) {
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => 0,
-                ]);
-
-                SyncZitaziJob::dispatch($variation, $updateData);
-
-                $variation->delete();
-                LogManager::logVariation($variation, 'variation deleted', [
-                    'variation_id' => $variation->id,
-                    'variation_own_id' => $variation->own_id,
-                ]);
-            }
-
-            $product->delete();
-            LogManager::logProduct($product, 'product deleted', [
-                'product_id' => $product->id,
-                'product_own_id' => $product->own_id,
-            ]);
-        });
+//        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+//            foreach ($product->variations as $variation) {
+//                $updateData = ZitaziUpdateDTO::createFromArray([
+//                    'stock_quantity' => 0,
+//                ]);
+//
+//                SyncZitaziJob::dispatch($variation, $updateData);
+//
+//                $variation->delete();
+//                LogManager::logVariation($variation, 'variation deleted', [
+//                    'variation_id' => $variation->id,
+//                    'variation_own_id' => $variation->own_id,
+//                ]);
+//            }
+//
+//            $product->delete();
+//            LogManager::logProduct($product, 'product deleted', [
+//                'product_id' => $product->id,
+//                'product_own_id' => $product->own_id,
+//            ]);
+//        });
 
         foreach ($data as $key => $value) {
             try {
