@@ -30,6 +30,8 @@ services:
       - SERVER_NAME=${SERVER_NAME}
     container_name: zitazi-nginx
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   mysql:
     image: mysql:8.0
