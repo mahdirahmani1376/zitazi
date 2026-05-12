@@ -25,7 +25,6 @@ jobs:
 
 #            echo "📦 Running composer install inside container..."
 #            docker exec zitazi-php composer install --no-dev --optimize-autoloader
-                    docker restart zitazi-nginx
 
 #            echo "🧹 Running artisan migrate inside container..."
 #            docker exec zitazi-php php artisan migrate --force
