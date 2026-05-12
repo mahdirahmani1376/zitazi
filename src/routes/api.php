@@ -139,7 +139,7 @@ Route::post('update-decathlon-product', function (Request $request) {
         ]);
     }
 
-    $response = \Illuminate\Support\Facades\Http::post('host.docker.internal:3000/scrape', $product);
+    $response = \Illuminate\Support\Facades\Http::post('172.18.0.1:3000/scrape', $product);
     if (!$response->successful()) {
         return back()->withErrors([
             'message' => 'خطایی رخ داد'

@@ -30,9 +30,7 @@ jobs:
 #            docker exec zitazi-php php artisan migrate --force
 
 #            echo "🚀 Restarting Horizon inside container..."
-                    docker exec zitazi-horizon php artisan horizon:terminate
-                    
-                    docker compose -f docker-compose.prod.yml restart
+#            docker exec zitazi-horizon php artisan horizon:terminate
 
 #            echo "🧹 Cleaning unused Docker images and containers..."
 #            docker image prune -af
