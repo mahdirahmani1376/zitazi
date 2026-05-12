@@ -23,14 +23,14 @@ jobs:
             echo "🔄 Pulling latest code..."
             git pull origin master
 
-            echo "📦 Running composer install inside container..."
-            docker exec zitazi-php composer install --no-dev --optimize-autoloader
+#            echo "📦 Running composer install inside container..."
+#            docker exec zitazi-php composer install --no-dev --optimize-autoloader
 
-            echo "🧹 Running artisan migrate inside container..."
-            docker exec zitazi-php php artisan migrate --force
+#            echo "🧹 Running artisan migrate inside container..."
+#            docker exec zitazi-php php artisan migrate --force
 
-            echo "🚀 Restarting Horizon inside container..."
-            docker exec zitazi-horizon php artisan horizon:terminate
+#            echo "🚀 Restarting Horizon inside container..."
+#            docker exec zitazi-horizon php artisan horizon:terminate
 
 #            echo "🧹 Cleaning unused Docker images and containers..."
 #            docker image prune -af
