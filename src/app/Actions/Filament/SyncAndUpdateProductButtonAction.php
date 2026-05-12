@@ -21,8 +21,7 @@ class SyncAndUpdateProductButtonAction
             return [
                 'success' => true,
             ];
-        }
-        if ($product->belongsToTrendyol()) {
+        } else if ($product->belongsToTrendyol()) {
             $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
 
             $params = http_build_query([
