@@ -151,7 +151,7 @@ class BaseVariationCrawler
                 return 3;
             }
 
-            return 0;
+            return 1;
         } catch (\Exception $e) {
             LogManager::logVariation($variation, 'error-sync-variation', [
                 'error' => $e->getMessage(),
@@ -161,7 +161,7 @@ class BaseVariationCrawler
                 'status' => Variation::GENERAL_ERROR,
             ]);
 
-            return 0;
+            return 1;
         }
 
     }
