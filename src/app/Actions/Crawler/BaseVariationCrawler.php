@@ -50,14 +50,14 @@ class BaseVariationCrawler
         return 1.6;
     }
 
-    public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): bool
+    public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): int
     {
         if (!env('ZITAZ_SYNC_ENABLED', true)) {
             LogManager::logVariation($variation, 'sync is disabled in .env', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return false;
+            return 1;
         }
 
         if ($variation->product->onPromotion()) {
@@ -65,7 +65,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return false;
+            return 1;
         }
 
         if ($variation->is_deleted) {
@@ -73,7 +73,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return false;
+            return 1;
         }
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
@@ -99,7 +99,7 @@ class BaseVariationCrawler
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
-            return false;
+            return 1;
         }
 
         try {
@@ -121,14 +121,17 @@ class BaseVariationCrawler
                 'status' => Variation::AVAILABLE,
             ]);
 
-            return true;
+            return 0;
         } catch (HttpClientException $e) {
             $body = $e->getResponse()->getBody();
             $json = json_decode($body, true);
 
+            $code = $json['code'] ?? 'unknown';
+            $message = $json['message'] ?? 'No message';
+
             LogManager::logVariation($variation, 'WooCommerce error variation', [
-                'code' => $json['code'] ?? 'unknown',
-                'message' => $json['message'] ?? 'No message',
+                'code' => $code,
+                'message' => $message,
                 'variation_id' => $variation->id,
                 'json' => $json,
                 'body' => $body
@@ -138,7 +141,11 @@ class BaseVariationCrawler
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
 
-            return true;
+            if ($code === 'unknown' && $message === 'No message') {
+                return 3;
+            }
+
+            return 0;
         } catch (\Exception $e) {
             LogManager::logVariation($variation, 'error-sync-variation', [
                 'error' => $e->getMessage(),
@@ -148,7 +155,7 @@ class BaseVariationCrawler
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
 
-            return true;
+            return 0;
         }
 
     }
