@@ -137,9 +137,15 @@ class BaseVariationCrawler
                 'body' => $body
             ]);
 
-            $variation->update([
-                'status' => Variation::UNAVAILABLE_ON_ZITAZI,
-            ]);
+            if ($code == 'woocommerce_rest_product_variation_invalid_id') {
+                $variation->update([
+                    'status' => Variation::UNAVAILABLE_ON_ZITAZI,
+                ]);
+            } else {
+                $variation->update([
+                    'status' => Variation::GENERAL_ERROR,
+                ]);
+            }
 
             if ($code === 'unknown' && $message === 'No message') {
                 return 3;
@@ -152,7 +158,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
             ]);
             $variation->update([
-                'status' => Variation::UNAVAILABLE_ON_ZITAZI,
+                'status' => Variation::GENERAL_ERROR,
             ]);
 
             return 0;
