@@ -50,14 +50,14 @@ class BaseVariationCrawler
         return 1.6;
     }
 
-    public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto)
+    public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): bool
     {
         if (!env('ZITAZ_SYNC_ENABLED', true)) {
             LogManager::logVariation($variation, 'sync is disabled in .env', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return;
+            return false;
         }
 
         if ($variation->product->onPromotion()) {
@@ -65,7 +65,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return;
+            return false;
         }
 
         if ($variation->is_deleted) {
@@ -73,7 +73,7 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
-            return;
+            return false;
         }
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
@@ -99,7 +99,7 @@ class BaseVariationCrawler
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
-            return;
+            return false;
         }
 
         try {
@@ -121,6 +121,7 @@ class BaseVariationCrawler
                 'status' => Variation::AVAILABLE,
             ]);
 
+            return true;
         } catch (HttpClientException $e) {
             $body = $e->getResponse()->getBody();
             $json = json_decode($body, true);
@@ -136,6 +137,8 @@ class BaseVariationCrawler
             $variation->update([
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
+
+            return true;
         } catch (\Exception $e) {
             LogManager::logVariation($variation, 'error-sync-variation', [
                 'error' => $e->getMessage(),
@@ -144,6 +147,8 @@ class BaseVariationCrawler
             $variation->update([
                 'status' => Variation::UNAVAILABLE_ON_ZITAZI,
             ]);
+
+            return true;
         }
 
     }

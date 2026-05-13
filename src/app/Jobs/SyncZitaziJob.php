@@ -15,7 +15,6 @@ use Illuminate\Queue\SerializesModels;
 class SyncZitaziJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
     public function __construct(
         public Variation       $variation,
         public ZitaziUpdateDTO $zitaziUpdateDTO
@@ -25,6 +24,15 @@ class SyncZitaziJob implements ShouldQueue
 
     public function handle(BaseVariationCrawler $baseVariationCrawler): void
     {
-        $baseVariationCrawler->syncZitazi($this->variation, $this->zitaziUpdateDTO);
+        $result = $baseVariationCrawler->syncZitazi($this->variation, $this->zitaziUpdateDTO);
+
+        if (!$result) {
+            $this->release(300);
+        }
+    }
+
+    public function tries(): int
+    {
+        return 5;
     }
 }
