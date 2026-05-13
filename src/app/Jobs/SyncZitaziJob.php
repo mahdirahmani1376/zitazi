@@ -27,7 +27,7 @@ class SyncZitaziJob implements ShouldQueue
         $result = $baseVariationCrawler->syncZitazi($this->variation, $this->zitaziUpdateDTO);
 
         if ($result === 3) {
-            $this->release(300);
+            $this->release();
         }
     }
 
