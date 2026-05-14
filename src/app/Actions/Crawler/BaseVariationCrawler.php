@@ -143,7 +143,7 @@ class BaseVariationCrawler
                 ]);
             } else {
                 $variation->update([
-                    'status' => Variation::GENERAL_ERROR,
+                    'status' => Variation::EMPTY_BODY,
                 ]);
             }
 

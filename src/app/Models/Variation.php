@@ -48,6 +48,7 @@ class Variation extends Model
     public const UNAVAILABLE_ON_ZITAZI = 'unavailable_on_zitazi';
     public const UNAVAILABLE_ON_SOURCE_SITE = 'unavailable_on_source_site';
     public const GENERAL_ERROR = 'general error';
+    public const EMPTY_BODY = 'empty body';
     protected $guarded = [
 
     ];
