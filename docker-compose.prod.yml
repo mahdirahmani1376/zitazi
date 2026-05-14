@@ -12,6 +12,8 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      TZ: Asia/Tehran
 
   nginx:
     image: nginx:latest
@@ -25,14 +27,18 @@ services:
     networks:
       - app-network
     environment:
-      - SERVER_NAME=${SERVER_NAME}
+      TZ: Asia/Tehran
+
     container_name: zitazi-nginx
     restart: unless-stopped
+
 
   mysql:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: 123
+      TZ: Asia/Tehran
+
     ports:
       - "3308:3306"
     volumes:
@@ -45,6 +51,8 @@ services:
 
   redis:
     image: redis:latest
+    environment:
+      TZ: Asia/Tehran
     ports:
       - "6380:6379"
     volumes:
@@ -80,6 +88,10 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      TZ: Asia/Tehran
+
+
 volumes:
   mysql:
   redis:
