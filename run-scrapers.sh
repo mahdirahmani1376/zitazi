@@ -1,8 +1,7 @@
 #!/bin/bash
 LOGFILE=/var/log/scraper.log
 
-truncate -s 0 /var/log/*.log
-truncate -s 0 /var/log/*/*.log
+truncate -s 0 $LOGFILE
 
 echo "=== Scrape started at $(date) ===" >> $LOGFILE
 
