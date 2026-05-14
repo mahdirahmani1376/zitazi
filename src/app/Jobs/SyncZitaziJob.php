@@ -26,6 +26,8 @@ class SyncZitaziJob implements ShouldQueue
     {
         $result = $baseVariationCrawler->syncZitazi($this->variation, $this->zitaziUpdateDTO);
 
+        throw new \Exception("empty body for variation: {$this->variation->id}");
+
         if ($result === 3) {
             throw new \Exception("empty body for variation: {$this->variation->id}");
         }
