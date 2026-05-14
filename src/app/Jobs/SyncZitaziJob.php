@@ -31,8 +31,4 @@ class SyncZitaziJob implements ShouldQueue
         }
     }
 
-//    public function tries(): int
-//    {
-//        return 2;
-//    }
 }
