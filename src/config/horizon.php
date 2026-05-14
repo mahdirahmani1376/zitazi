@@ -206,6 +206,7 @@ return [
                 'balanceCooldown' => 3,
             ],
         ],
+        
 
         'local' => [
             'supervisor-1' => [
