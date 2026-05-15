@@ -19,9 +19,11 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./src:/var/www/html
       - ./nginx/production/default.conf:/etc/nginx/conf.d/default.conf
+      - /root/cert/zitazi-crawler.ir:/etc/nginx/certs
     depends_on:
       - php
     networks:
