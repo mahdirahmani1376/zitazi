@@ -32,13 +32,15 @@ class BaseVariationCrawler
             ]);
             return;
         };
-        if ($variation->source == Product::SOURCE_TRENDYOL) {
-            app(TrendyolVariationCrawler::class)->crawl($variation);
-        } else if ($variation->source == Product::SOURCE_DECATHLON) {
-            app(DecathlonCrawler::class)->crawl($variation);
-        } else if ($variation->source == Product::SOURCE_Elele) {
-            app(EleleCrawler::class)->crawl($variation);
-        };
+
+        return;
+//        if ($variation->source == Product::SOURCE_TRENDYOL) {
+//            app(TrendyolVariationCrawler::class)->crawl($variation);
+//        } else if ($variation->source == Product::SOURCE_DECATHLON) {
+//            app(DecathlonCrawler::class)->crawl($variation);
+//        } else if ($variation->source == Product::SOURCE_Elele) {
+//            app(EleleCrawler::class)->crawl($variation);
+//        };
     }
 
     protected function getProfitRatioForVariation(Variation $variation): float|int
@@ -105,6 +107,7 @@ class BaseVariationCrawler
         try {
             $woocommerce = WoocommerceService::getClient($variation->base_source);
             $response = $woocommerce->post($url, $data);
+
             LogManager::logVariation($variation, 'successful_update_response', [
                 'body' => $data,
                 'response' => [
@@ -130,24 +133,25 @@ class BaseVariationCrawler
             $message = $json['message'] ?? 'No message';
 
             LogManager::logVariation($variation, 'WooCommerce error variation', [
-                'code' => $code,
-                'message' => $message,
+                'response_code' => $code,
+                'response_message' => $message,
+                'response_json' => $json,
+                'response_body' => $body,
                 'variation_id' => $variation->id,
-                'json' => $json,
-                'body' => $body
+                'request_body' => $data,
+                'request_url' => $url
             ]);
 
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
                 $variation->update([
                     'status' => Variation::UNAVAILABLE_ON_ZITAZI,
                 ]);
-            } else {
-                $variation->update([
-                    'status' => Variation::EMPTY_BODY,
-                ]);
             }
 
             if ($code === 'unknown' && $message === 'No message') {
+                $variation->update([
+                    'status' => Variation::EMPTY_BODY,
+                ]);
                 return 3;
             }
 

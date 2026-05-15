@@ -59,6 +59,7 @@ class Variation extends Model
         self::UNAVAILABLE_ON_ZITAZI,
         self::UNAVAILABLE_ON_SOURCE_SITE,
         self::GENERAL_ERROR,
+        self::EMPTY_BODY
     ];
 
     public static function TableFilters(): array
@@ -69,6 +70,7 @@ class Variation extends Model
             self::UNAVAILABLE_ON_ZITAZI => self::UNAVAILABLE_ON_ZITAZI,
             self::UNAVAILABLE_ON_SOURCE_SITE => self::UNAVAILABLE_ON_SOURCE_SITE,
             self::GENERAL_ERROR => self::GENERAL_ERROR,
+            self::EMPTY_BODY => self::EMPTY_BODY
         ];
     }
 

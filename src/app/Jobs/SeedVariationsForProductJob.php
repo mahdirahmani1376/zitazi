@@ -43,7 +43,11 @@ class SeedVariationsForProductJob implements ShouldQueue
             } else if ($product->belongsToAmazon()) {
                 $this->seedAmazonVariations($product);
             } else if ($product->belongsToElele()) {
-                $this->seedEleleVariation($product);
+                LogManager::logProduct($product, 'elele is temporary down', [
+                    'product_id' => $product->id,
+                    'product_own_id' => $product->own_id,
+                ]);
+//                $this->seedEleleVariation($product);
             } else {
                 LogManager::logProduct($product, 'no url is assigned to product', [
                     'product_id' => $product->id,
