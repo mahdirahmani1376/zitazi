@@ -144,7 +144,13 @@ class BaseVariationCrawler
 
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
                 $variation->update([
-                    'status' => Variation::UNAVAILABLE_ON_ZITAZI,
+                    'status' => Variation::INVALID_VARIATION_ID,
+                ]);
+            }
+
+            if ($code == 'woocommerce_rest_product_invalid_id') {
+                $variation->update([
+                    'status' => Variation::INVALID_PRODUCT_ID,
                 ]);
             }
 

@@ -46,6 +46,8 @@ class Variation extends Model
     public const AVAILABLE = 'available';
     public const UNAVAILABLE = 'unavailable';
     public const UNAVAILABLE_ON_ZITAZI = 'unavailable_on_zitazi';
+    public const INVALID_PRODUCT_ID = 'invalid_product_id';
+    public const INVALID_VARIATION_ID = 'invalid_variation_id';
     public const UNAVAILABLE_ON_SOURCE_SITE = 'unavailable_on_source_site';
     public const GENERAL_ERROR = 'general error';
     public const EMPTY_BODY = 'empty body';
@@ -59,7 +61,9 @@ class Variation extends Model
         self::UNAVAILABLE_ON_ZITAZI,
         self::UNAVAILABLE_ON_SOURCE_SITE,
         self::GENERAL_ERROR,
-        self::EMPTY_BODY
+        self::EMPTY_BODY,
+        self::INVALID_VARIATION_ID,
+        self::INVALID_PRODUCT_ID,
     ];
 
     public static function TableFilters(): array
@@ -70,7 +74,9 @@ class Variation extends Model
             self::UNAVAILABLE_ON_ZITAZI => self::UNAVAILABLE_ON_ZITAZI,
             self::UNAVAILABLE_ON_SOURCE_SITE => self::UNAVAILABLE_ON_SOURCE_SITE,
             self::GENERAL_ERROR => self::GENERAL_ERROR,
-            self::EMPTY_BODY => self::EMPTY_BODY
+            self::EMPTY_BODY => self::EMPTY_BODY,
+            self::INVALID_PRODUCT_ID => self::INVALID_PRODUCT_ID,
+            self::INVALID_VARIATION_ID => self::INVALID_VARIATION_ID,
         ];
     }
 
