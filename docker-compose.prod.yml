@@ -23,7 +23,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./nginx/production/default.conf:/etc/nginx/conf.d/default.conf
-      - /root/cert/zitazi-crawler.ir:/etc/nginx/certs
+      - /root/.acme.sh/zitazi-crawler.ir_ecc:/etc/nginx/certs
     depends_on:
       - php
     networks:
