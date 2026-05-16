@@ -12,7 +12,7 @@ class WoocommerceService
 
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
-        $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir/wp-json/wc/v3";
+        $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir";
         $securityPass = null;
         $securityKey = null;
         $appendUrl = null;
@@ -27,7 +27,7 @@ class WoocommerceService
             $appendUrl = 'satreh';
         }
 
-        $fullUrl = "{$baseURl}/$appendUrl/{$url}";
+        $fullUrl = "{$baseURl}/$appendUrl/wp-json/wc/v3/{$url}";
 
 
         /** @var Response $response */
