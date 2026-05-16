@@ -112,9 +112,16 @@ class BaseVariationCrawler
                 'code' => $response->getStatusCode()
             ]);
 
-            $variation->update([
-                'status' => Variation::AVAILABLE,
-            ]);
+            if ($response->getStatusCode() === 504) {
+                $variation->update([
+                    'status' => Variation::STATUS_504,
+                ]);
+            } else {
+                $variation->update([
+                    'status' => Variation::AVAILABLE,
+                ]);
+            }
+
 
             return 0;
         } catch (\Exception $e) {
