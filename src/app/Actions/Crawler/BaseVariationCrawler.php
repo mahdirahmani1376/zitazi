@@ -107,9 +107,8 @@ class BaseVariationCrawler
             $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source);
             $code = $response->json('code');
             $message = $response->json('message');
-
             if ($response->ok()) {
-                LogManager::logVariation($variation, 'successful_update_response', [
+                LogManager::logVariation($variation, 'update successful', [
                     'body' => $data,
                     'response' => $response->body(),
                     'code' => $response->getStatusCode()
@@ -117,8 +116,16 @@ class BaseVariationCrawler
                 $variation->update([
                     'status' => Variation::AVAILABLE,
                 ]);
+
                 return 0;
+            } else {
+                LogManager::logVariation($variation, 'update failed', [
+                    'body' => $data,
+                    'response' => $response->body(),
+                    'code' => $response->getStatusCode()
+                ]);
             }
+
 
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
                 $variation->update([
