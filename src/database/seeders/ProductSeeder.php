@@ -16,7 +16,7 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $this->seedZitaziProducts();
-//        $this->seedSatreProducts();
+        $this->seedSatreProducts();
 
     }
 
