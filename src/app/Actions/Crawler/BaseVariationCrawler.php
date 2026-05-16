@@ -104,7 +104,7 @@ class BaseVariationCrawler
         }
 
         try {
-            $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source);
+            $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source)->json();
 
             LogManager::logVariation($variation, 'successful_update_response', [
                 'body' => $data,
