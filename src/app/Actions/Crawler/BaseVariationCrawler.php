@@ -109,6 +109,7 @@ class BaseVariationCrawler
             LogManager::logVariation($variation, 'successful_update_response', [
                 'body' => $data,
                 'response' => $response->body(),
+                'code' => $response->getStatusCode()
             ]);
 
             $variation->update([

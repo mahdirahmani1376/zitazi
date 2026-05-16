@@ -22,7 +22,8 @@ class GetSourceDataAction
         $response = WoocommerceService::sendRequest($url, [], 'get', $variation->base_source);
 
         LogManager::logVariation($variation, 'data fetch from source', [
-            'response' => $response->body()
+            'response' => $response->body(),
+            'code' => $response->getStatusCode()
         ]);
     }
 }
