@@ -12,15 +12,22 @@ class WoocommerceService
 
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
+        $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir";
+        $securityPass = null;
+        $securityKey = null;
+        $appendUrl = null;
+
         if ($source === Product::ZITAZI) {
-            $baseURl = env('BASE_URL');
             $securityKey = env('SECURITY_KEY');
             $securityPass = env('SECURITY_PASS');
+            $appendUrl = 'zitazi.com/wp-json/wc/v3';
         } else if ($source === Product::SATRE) {
-            $baseURl = env('SATRE_BASE_URL');
             $securityKey = env('SATRE_SECURITY_KEY');
             $securityPass = env('SATRE_SECURITY_PASS');
+            $appendUrl = 'satreh.com/wp-json/wc/v3';
         }
+
+        $fullUrl = "{$baseURl}/{$appendUrl}/{$url}";
 
 
         /** @var Response $response */
@@ -29,7 +36,7 @@ class WoocommerceService
             ->withHeaders([
                 'x-shop' => $source
             ])
-            ->$method("{$baseURl}/{$url}", $body);
+            ->$method($fullUrl, $body);
 
         return $response;
 
