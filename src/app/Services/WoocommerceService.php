@@ -27,7 +27,7 @@ class WoocommerceService
         $response = Http::withBasicAuth($securityKey, $securityPass)
             ->acceptJson()
             ->withHeaders([
-                'X-shop' => $source
+                'x-shop' => $source
             ])
             ->$method("{$baseURl}/{$url}", $body);
 
