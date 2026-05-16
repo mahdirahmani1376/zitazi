@@ -19,9 +19,11 @@ class WoocommerceService
         if ($source === Product::ZITAZI) {
             $securityKey = env('SECURITY_KEY');
             $securityPass = env('SECURITY_PASS');
+            $X_shop = 'https://zitazi.com/';
         } else if ($source === Product::SATRE) {
             $securityKey = env('SATRE_SECURITY_KEY');
             $securityPass = env('SATRE_SECURITY_PASS');
+            $X_shop = 'https://satreh.com/';
         }
 
         $fullUrl = "{$baseURl}/{$url}";
@@ -31,7 +33,7 @@ class WoocommerceService
         $response = Http::withBasicAuth($securityKey, $securityPass)
             ->acceptJson()
             ->withHeaders([
-                'x_shop' => $source
+                'X_shop' => $X_shop
             ])
             ->$method($fullUrl, $body);
 

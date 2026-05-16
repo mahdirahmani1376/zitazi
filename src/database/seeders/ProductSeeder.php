@@ -82,7 +82,7 @@ class ProductSeeder extends Seeder
         $service = new \Google\Service\Sheets($client);
 
         $spreadsheetId = '1BdY8s2jQ_VcNYlHSIZCSVo1_IfewB7xGNJYNiyF4SpA';
-        $range = 'ساتره!A:Z';
+        $range = 'Sheet1!A:Z';
 
         $response = $service->spreadsheets_values->get($spreadsheetId, $range);
         $rows = $response->getValues();
