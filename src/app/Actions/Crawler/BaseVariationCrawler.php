@@ -104,18 +104,11 @@ class BaseVariationCrawler
         }
 
         try {
-            $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source)->json();
+            $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source);
 
             LogManager::logVariation($variation, 'successful_update_response', [
                 'body' => $data,
-                'response' => [
-                    'price' => data_get($response, 'price'),
-                    'sale_price' => data_get($response, 'sale_price'),
-                    'regular_price' => data_get($response, 'regular_price'),
-                    'stock_quantity' => data_get($response, 'stock_quantity'),
-                    'stock_status' => data_get($response, 'stock_status'),
-                    'zitazi_id' => data_get($response, 'id'),
-                ],
+                'response' => $response->body(),
             ]);
 
             $variation->update([
@@ -124,16 +117,14 @@ class BaseVariationCrawler
 
             return 0;
         } catch (\Exception $e) {
-            $body = $response->json();
 
+            $json = $response->json();
             $code = $json['code'] ?? 'unknown';
             $message = $json['message'] ?? 'No message';
 
             LogManager::logVariation($variation, 'WooCommerce error variation', [
                 'response_code' => $response->status(),
-                'response_message' => $message,
-                'response_json' => $json,
-                'response_body' => $body,
+                'response_message' => $response->body(),
                 'variation_id' => $variation->id,
                 'request_body' => $data,
                 'request_url' => $url,

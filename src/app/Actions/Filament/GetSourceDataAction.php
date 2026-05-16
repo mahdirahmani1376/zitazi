@@ -19,18 +19,10 @@ class GetSourceDataAction
             return;
         }
 
-        $response = WoocommerceService::sendRequest($url, [], 'get', $variation->base_source)->body();
+        $response = WoocommerceService::sendRequest($url, [], 'get', $variation->base_source);
 
         LogManager::logVariation($variation, 'data fetch from source', [
-            'response' => [
-                'full_response' => $response,
-                'price' => data_get($response, 'price'),
-                'sale_price' => data_get($response, 'sale_price'),
-                'regular_price' => data_get($response, 'regular_price'),
-                'stock_quantity' => data_get($response, 'stock_quantity'),
-                'stock_status' => data_get($response, 'stock_status'),
-                'zitazi_id' => data_get($response, 'id'),
-            ]
+            'response' => $response->body()
         ]);
     }
 }
