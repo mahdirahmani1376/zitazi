@@ -15,26 +15,24 @@ class WoocommerceService
         $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir/wp-json/wc/v3";
         $securityPass = null;
         $securityKey = null;
+        $appendUrl = null;
 
         if ($source === Product::ZITAZI) {
             $securityKey = env('SECURITY_KEY');
             $securityPass = env('SECURITY_PASS');
-            $X_shop = 'https://zitazi.com/';
+            $appendUrl = 'zitazi';
         } else if ($source === Product::SATRE) {
             $securityKey = env('SATRE_SECURITY_KEY');
             $securityPass = env('SATRE_SECURITY_PASS');
-            $X_shop = 'https://satreh.com/';
+            $appendUrl = 'satreh';
         }
 
-        $fullUrl = "{$baseURl}/{$url}";
+        $fullUrl = "{$baseURl}/$appendUrl/{$url}";
 
 
         /** @var Response $response */
         $response = Http::withBasicAuth($securityKey, $securityPass)
             ->acceptJson()
-            ->withHeaders([
-                'X_shop' => $X_shop
-            ])
             ->$method($fullUrl, $body);
 
         return $response;
