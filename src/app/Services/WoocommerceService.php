@@ -12,7 +12,7 @@ class WoocommerceService
 
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
-        $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir";
+        $baseURl = "https://zitazi-4fcf91dea6-iran.apps.ir-central1.arvancaas.ir/wp-json/wc/v3";
         $securityPass = null;
         $securityKey = null;
 
