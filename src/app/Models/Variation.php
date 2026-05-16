@@ -80,6 +80,14 @@ class Variation extends Model
         ];
     }
 
+    public static function baseSources(): array
+    {
+        return [
+            Product::SATRE => Product::SATRE,
+            Product::ZITAZI => Product::ZITAZI,
+        ];
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
