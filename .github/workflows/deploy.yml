@@ -23,5 +23,5 @@ jobs:
             echo "🔄 Pulling latest code..."
             git pull origin master
             
-#            echo "🧹 Running artisan migrate inside container..."
-#            docker exec zitazi-php php artisan migrate --force
+            echo "🧹 Running artisan migrate inside container..."
+            docker exec zitazi-php php artisan migrate --force
