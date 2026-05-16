@@ -105,39 +105,20 @@ class BaseVariationCrawler
 
         try {
             $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source);
+            $code = $response->json('code');
+            $message = $response->json('message');
 
-            LogManager::logVariation($variation, 'successful_update_response', [
-                'body' => $data,
-                'response' => $response->body(),
-                'code' => $response->getStatusCode()
-            ]);
-
-            if ($response->getStatusCode() === 504) {
-                $variation->update([
-                    'status' => Variation::STATUS_504,
+            if ($response->ok()) {
+                LogManager::logVariation($variation, 'successful_update_response', [
+                    'body' => $data,
+                    'response' => $response->body(),
+                    'code' => $response->getStatusCode()
                 ]);
-            } else {
                 $variation->update([
                     'status' => Variation::AVAILABLE,
                 ]);
+                return 0;
             }
-
-
-            return 0;
-        } catch (\Exception $e) {
-
-            $json = $response->json();
-            $code = $json['code'] ?? 'unknown';
-            $message = $json['message'] ?? 'No message';
-
-            LogManager::logVariation($variation, 'WooCommerce error variation', [
-                'response_code' => $response->status(),
-                'response_message' => $response->body(),
-                'variation_id' => $variation->id,
-                'request_body' => $data,
-                'request_url' => $url,
-                'error' => $e->getMessage()
-            ]);
 
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
                 $variation->update([
@@ -151,6 +132,12 @@ class BaseVariationCrawler
                 ]);
             }
 
+            if ($response->getStatusCode() === 504) {
+                $variation->update([
+                    'status' => Variation::STATUS_504,
+                ]);
+            }
+
             if ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
                 $variation->update([
                     'status' => Variation::EMPTY_BODY,
@@ -158,11 +145,17 @@ class BaseVariationCrawler
                 return 3;
             }
 
-            if ($response->getStatusCode() === 504) {
-                $variation->update([
-                    'status' => Variation::STATUS_504,
-                ]);
-            }
+            return 1;
+
+        } catch (\Exception $e) {
+
+            LogManager::logVariation($variation, 'General Exception Occurred', [
+                'exception_message' => $e->getMessage(),
+                'exception_trace' => $e->getTrace(),
+                'variation_id' => $variation->id,
+                'request_body' => $data,
+                'request_url' => $url,
+            ]);
 
             return 1;
         }
