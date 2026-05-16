@@ -19,8 +19,7 @@ class GetSourceDataAction
             return;
         }
 
-        $woocommerce = WoocommerceService::getClient($variation->base_source);
-        $response = $woocommerce->get($url);
+        $response = WoocommerceService::sendRequest($url, [], 'get', $variation->base_source)->json();
 
         LogManager::logVariation($variation, 'data fetch from source', [
             'response' => [

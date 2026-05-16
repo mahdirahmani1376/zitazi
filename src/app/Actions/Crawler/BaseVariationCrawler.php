@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
-use Automattic\WooCommerce\HttpClient\HttpClientException;
 
 class BaseVariationCrawler
 {
@@ -105,8 +104,7 @@ class BaseVariationCrawler
         }
 
         try {
-            $woocommerce = WoocommerceService::getClient($variation->base_source);
-            $response = $woocommerce->post($url, $data);
+            $response = WoocommerceService::sendRequest($url, $data, 'post', $variation->base_source);
 
             LogManager::logVariation($variation, 'successful_update_response', [
                 'body' => $data,
@@ -125,21 +123,21 @@ class BaseVariationCrawler
             ]);
 
             return 0;
-        } catch (HttpClientException $e) {
-            $body = $e->getResponse()->getBody();
-            $json = json_decode($body, true);
+        } catch (\Exception $e) {
+            $body = $response->json();
 
             $code = $json['code'] ?? 'unknown';
             $message = $json['message'] ?? 'No message';
 
             LogManager::logVariation($variation, 'WooCommerce error variation', [
-                'response_code' => $code,
+                'response_code' => $response->status(),
                 'response_message' => $message,
                 'response_json' => $json,
                 'response_body' => $body,
                 'variation_id' => $variation->id,
                 'request_body' => $data,
-                'request_url' => $url
+                'request_url' => $url,
+                'error' => $e->getMessage()
             ]);
 
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
@@ -160,16 +158,6 @@ class BaseVariationCrawler
                 ]);
                 return 3;
             }
-
-            return 1;
-        } catch (\Exception $e) {
-            LogManager::logVariation($variation, 'error-sync-variation', [
-                'error' => $e->getMessage(),
-                'variation_id' => $variation->id,
-            ]);
-            $variation->update([
-                'status' => Variation::GENERAL_ERROR,
-            ]);
 
             return 1;
         }
