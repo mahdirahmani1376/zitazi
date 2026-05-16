@@ -144,11 +144,17 @@ class BaseVariationCrawler
                 ]);
             }
 
-            if ($code === 'unknown' && $message === 'No message') {
+            if ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
                 $variation->update([
                     'status' => Variation::EMPTY_BODY,
                 ]);
                 return 3;
+            }
+
+            if ($response->getStatusCode() === 504) {
+                $variation->update([
+                    'status' => Variation::STATUS_504,
+                ]);
             }
 
             return 1;

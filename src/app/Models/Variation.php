@@ -51,6 +51,7 @@ class Variation extends Model
     public const UNAVAILABLE_ON_SOURCE_SITE = 'unavailable_on_source_site';
     public const GENERAL_ERROR = 'general error';
     public const EMPTY_BODY = 'empty body';
+    public const STATUS_504 = 'status 504';
     protected $guarded = [
 
     ];
@@ -64,6 +65,7 @@ class Variation extends Model
         self::EMPTY_BODY,
         self::INVALID_VARIATION_ID,
         self::INVALID_PRODUCT_ID,
+        self::STATUS_504,
     ];
 
     public static function TableFilters(): array
@@ -77,6 +79,7 @@ class Variation extends Model
             self::EMPTY_BODY => self::EMPTY_BODY,
             self::INVALID_PRODUCT_ID => self::INVALID_PRODUCT_ID,
             self::INVALID_VARIATION_ID => self::INVALID_VARIATION_ID,
+            self::STATUS_504 => self::STATUS_504,
         ];
     }
 
