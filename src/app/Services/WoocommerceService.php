@@ -31,7 +31,7 @@ class WoocommerceService
         $response = Http::withBasicAuth($securityKey, $securityPass)
             ->acceptJson()
             ->withHeaders([
-                'x-shop' => $source
+                'x_shop' => $source
             ])
             ->$method($fullUrl, $body);
 
