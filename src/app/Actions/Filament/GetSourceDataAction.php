@@ -23,6 +23,7 @@ class GetSourceDataAction
 
         LogManager::logVariation($variation, 'data fetch from source', [
             'response' => [
+                'full_response' => $response,
                 'price' => data_get($response, 'price'),
                 'sale_price' => data_get($response, 'sale_price'),
                 'regular_price' => data_get($response, 'regular_price'),
