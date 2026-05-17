@@ -74,7 +74,7 @@ class SeedVariationsForTrendyolAction
                 ->get();
 
             info('available_variations', $availableVariations);
-            info('$unavailableOnSourceSiteVariations', [$unavailableOnSourceSiteVariations]);
+            info('$unavailableOnSourceSiteVariations', $unavailableOnSourceSiteVariations->toArray());
             info('response', [$response]);
 
             $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
