@@ -73,6 +73,10 @@ class SeedVariationsForTrendyolAction
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
 
+            info('available_variations', $availableVariations);
+            info('$unavailableOnSourceSiteVariations', $unavailableOnSourceSiteVariations);
+            info('response', $response);
+
             $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
 
                 LogManager::logProduct($variation->product, 'variation not found on source site', [
