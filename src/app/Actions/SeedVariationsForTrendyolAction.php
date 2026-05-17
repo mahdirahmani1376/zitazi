@@ -73,18 +73,30 @@ class SeedVariationsForTrendyolAction
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
 
-            $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($sync) {
-                if ($sync) {
+            $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
+
+                LogManager::logProduct($variation->product, 'variation not found on source site', [
+                    'available_variations' => $availableVariations,
+                    'variation' => $variation,
+                ]);
+
+                if ($itemType === Product::VARIATION_UPDATE) {
                     $updateData = ZitaziUpdateDTO::createFromArray([
                         'stock_quantity' => 0,
                         'price' => $variation->rial_price
                     ]);
+
+                    $variation->update([
+                        'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+                        'stock' => 0,
+                    ]);
+
                     SyncZitaziJob::dispatchSync($variation, $updateData);
                 }
 
-                return $variation->update([
-                    'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
-                ]);
+                $variation->delete();
+
+                return 1;
             });
         } catch (Exception $e) {
             dump($e->getMessage(), $product->id);

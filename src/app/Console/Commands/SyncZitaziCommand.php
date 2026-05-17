@@ -20,7 +20,6 @@ class SyncZitaziCommand extends Command
     {
         $variations = Variation::query()
             ->where('base_source', Product::ZITAZI)
-//            ->where('item_type', Product::PRODUCT_UPDATE)
             ->whereRelation('product', 'promotion', '!=', 1)
             ->get();
 
