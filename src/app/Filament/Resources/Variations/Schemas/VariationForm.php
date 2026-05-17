@@ -25,6 +25,7 @@ class VariationForm
                     ->prefix('$'),
                 TextInput::make('own_id')
                     ->numeric(),
+                TextInput::make('item_number'),
                 Toggle::make('is_deleted'),
             ]);
     }
