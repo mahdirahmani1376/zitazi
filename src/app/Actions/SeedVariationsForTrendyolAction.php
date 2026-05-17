@@ -8,6 +8,7 @@ use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 
 class SeedVariationsForTrendyolAction
 {
@@ -65,16 +66,15 @@ class SeedVariationsForTrendyolAction
 
             }
 
-
             $unavailableOnSourceSiteVariations = Variation::query()
-                ->whereNotIn('item_number', $availableVariations)
+                ->where(function (Builder $q) use ($availableVariations) {
+                    $q
+                        ->whereNotIn('item_number', $availableVariations)
+                        ->orWhereNull('item_number');
+                })
                 ->where('product_id', $product->id)
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
-
-            info('available_variations', $availableVariations);
-            info('$unavailableOnSourceSiteVariations', $unavailableOnSourceSiteVariations->toArray());
-            info('response', [$response]);
 
             $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
 
