@@ -125,6 +125,12 @@ class ProductsTable
                             Product::whereNotNull('owner')->distinct('owner')->pluck('owner')->all(),
                         )
                     ),
+                SelectFilter::make('base_source')
+                    ->multiple()
+                    ->options([
+                        Product::SATRE => Product::SATRE,
+                        Product::ZITAZI => Product::ZITAZI,
+                    ]),
                 TernaryFilter::make('promotion'),
             ])
             ->recordActions([
