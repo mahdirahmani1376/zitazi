@@ -27,6 +27,7 @@ class ProductSeeder extends Seeder
         $response = Http::acceptJson()->get($sheetUrl);
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
+        $allOwnIds = [];
 
         foreach ($data as $key => $value) {
             try {
@@ -39,6 +40,7 @@ class ProductSeeder extends Seeder
                 }
 
                 $ownId = data_get($value, 'Woocomerce-ID');
+                $allOwnIds[] = $ownId;
 
                 $data = [
                     'trendyol_source' => data_get($value, 'Trendyol-link'),
@@ -71,7 +73,6 @@ class ProductSeeder extends Seeder
             }
         }
 
-        $allOwnIds = collect($data)->pluck('Woocomerce-ID');
         dump($allOwnIds);
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
