@@ -102,7 +102,8 @@ Route::get('trendyol-list', function () {
 Route::get('decathlon-list-retry', function () {
     return Response::json([
         'data' => Product::query()
-            ->whereColumn('updated_at', '<', 'created_at')
+            ->whereNot('decathlon_url', '=', '')
+            ->whereDoesntHave('variations')
             ->paginate()
     ]);
 });
