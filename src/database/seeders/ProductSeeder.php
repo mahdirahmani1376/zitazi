@@ -72,6 +72,8 @@ class ProductSeeder extends Seeder
         }
 
         $allOwnIds = collect($data)->pluck('Woocomerce-ID');
+        dump($allOwnIds);
+
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             foreach ($product->variations as $variation) {
                 $variation->delete();
@@ -82,6 +84,8 @@ class ProductSeeder extends Seeder
             }
 
             $product->delete();
+            dump('deleted_product_id', $product->id);
+
             LogManager::logProduct($product, 'product deleted', [
                 'product_id' => $product->id,
                 'product_own_id' => $product->own_id,
