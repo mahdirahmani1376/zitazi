@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\LogManager;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
@@ -70,6 +71,22 @@ class ProductSeeder extends Seeder
             }
         }
 
+        $allOwnIds = collect($data)->pluck('Woocomerce-ID');
+        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+            foreach ($product->variations as $variation) {
+                $variation->delete();
+                LogManager::logVariation($variation, 'variation deleted', [
+                    'variation_id' => $variation->id,
+                    'variation_own_id' => $variation->own_id,
+                ]);
+            }
+
+            $product->delete();
+            LogManager::logProduct($product, 'product deleted', [
+                'product_id' => $product->id,
+                'product_own_id' => $product->own_id,
+            ]);
+        });
 
     }
 
