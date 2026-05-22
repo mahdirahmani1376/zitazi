@@ -73,8 +73,6 @@ class ProductSeeder extends Seeder
             }
         }
 
-        dump($allOwnIds);
-
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             foreach ($product->variations as $variation) {
                 $variation->delete();
@@ -85,7 +83,7 @@ class ProductSeeder extends Seeder
             }
 
             $product->delete();
-            dump('deleted_product_id', $product->id);
+            info('deleted_zitazi_product_id', $product->id);
 
             LogManager::logProduct($product, 'product deleted', [
                 'product_id' => $product->id,
@@ -109,10 +107,12 @@ class ProductSeeder extends Seeder
         $response = $service->spreadsheets_values->get($spreadsheetId, $range);
         $rows = $response->getValues();
         $data = parse_sheet_response($rows);
+        $allOwnIds = [];
 
         foreach ($data as $key => $value) {
             try {
                 $ownId = data_get($value, 'Woocomerce-ID');
+                $allOwnIds[] = $ownId;
 
                 $data = [
                     'trendyol_source' => data_get($value, 'Trendyol-link'),
@@ -131,6 +131,24 @@ class ProductSeeder extends Seeder
                 Log::error($e->getMessage());
             }
         }
+
+        Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+            foreach ($product->variations as $variation) {
+                $variation->delete();
+                LogManager::logVariation($variation, 'variation deleted', [
+                    'variation_id' => $variation->id,
+                    'variation_own_id' => $variation->own_id,
+                ]);
+            }
+
+            $product->delete();
+            info('deleted_satreh_product_id', $product->id);
+
+            LogManager::logProduct($product, 'product deleted', [
+                'product_id' => $product->id,
+                'product_own_id' => $product->own_id,
+            ]);
+        });
 
 
     }
