@@ -77,6 +77,9 @@ class VariationsTable
                 SelectFilter::make('base_source')
                     ->multiple()
                     ->options(Variation::baseSources()),
+                SelectFilter::make('product_id')
+                    ->multiple()
+                    ->options(Variation::getAllProductIds()),
                 TernaryFilter::make('is_deleted'),
             ])
             ->recordActions([

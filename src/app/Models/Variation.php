@@ -83,6 +83,12 @@ class Variation extends Model
         ];
     }
 
+    public static function getAllProductIds(): array
+    {
+        return static::query()->distinct('product_id')->pluck('product_id')->toArray();
+    }
+
+
     public static function baseSources(): array
     {
         return [
