@@ -16,7 +16,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
-use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -78,7 +77,9 @@ class VariationsTable
                 SelectFilter::make('base_source')
                     ->multiple()
                     ->options(Variation::baseSources()),
-                RelationshipConstraint::make('product'),
+                SelectFilter::make('product_id')
+                    ->multiple()
+                    ->options(Variation::getAllProductIds()),
                 TernaryFilter::make('is_deleted'),
             ])
             ->recordActions([
