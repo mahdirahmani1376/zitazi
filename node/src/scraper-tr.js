@@ -68,7 +68,8 @@ async function scrapeAll() {
 
 
         // 4. move to next page
-        nextUrl = json.data.next_page_url;
+        // nextUrl = json.data.next_page_url;
+        nextUrl = null;
     }
 
     console.log("✅ Done scraping all pages!");
