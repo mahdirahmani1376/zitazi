@@ -33,6 +33,9 @@ async function getBrowser() {
 }
 
 async function scrapeAll() {
+    console.log('hi')
+    process.exit(0);
+
     let nextUrl = "http://localhost/api/trendyol-list?page=1";
 
     while (nextUrl) {
@@ -68,8 +71,7 @@ async function scrapeAll() {
 
 
         // 4. move to next page
-        // nextUrl = json.data.next_page_url;
-        nextUrl = null;
+        nextUrl = json.data.next_page_url;
     }
 
     console.log("✅ Done scraping all pages!");
