@@ -13,6 +13,9 @@ module.exports = {
             interpreter: "node",
             cron_restart: "* * * * *",
             autorestart: false,
+            env: {
+                TZ: "Asia/Tehran"
+            }
         }
     ]
 }
