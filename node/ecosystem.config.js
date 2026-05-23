@@ -8,7 +8,7 @@ module.exports = {
         },
         {
             name: "scraper-orchestrator",
-            script: "src/scraper-orchestrator.js",
+            script: "scraper-orchestrator.js",
             cwd: "/root/zitazi/node",
             interpreter: "node",
             cron_restart: "* * * * *",
