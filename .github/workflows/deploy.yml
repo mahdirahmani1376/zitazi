@@ -25,3 +25,6 @@ jobs:
             
             echo "🧹 Running artisan migrate inside container..."
             docker exec zitazi-php php artisan migrate --force
+            
+            pm2 delete all
+            pm2 start node/ecosystem.config.js
