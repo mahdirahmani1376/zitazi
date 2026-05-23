@@ -11,7 +11,7 @@ module.exports = {
             script: "scraper-orchestrator.js",
             cwd: "/root/zitazi/node",
             interpreter: "node",
-            cron_restart: "* * * * *",
+            cron_restart: "* 15 * * *",
             autorestart: false,
             env: {
                 TZ: "Asia/Tehran"
