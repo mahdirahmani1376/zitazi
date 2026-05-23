@@ -14,14 +14,14 @@ set +o allexport
 
 echo "env loaded" >> $LOGFILE
 # === Create backup dir if it doesn't exist ===
-mkdir -p "$BACKUP_DIR"
+mkdir -p /root/backup
 
 # === Cleanup old backups ===
-find "$BACKUP_DIR" -type f -name "*.sql.gz" -mtime +"$RETENTION_DAYS" -delete
+find /root/backup -type f -name "*.sql.gz" -mtime +7 -delete
 
 echo "=== backup started at $(date) ===" >> $LOGFILE
 
 # === Run backup ===
-/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" | gzip > "$BACKUP_DIR/db-backup-$DATE.sql.gz"
+/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" zitazi | gzip > "/root/backup/db-backup-$DATE.sql.gz"
 
 echo "=== backup finished at $(date) ===" >> $LOGFILE
