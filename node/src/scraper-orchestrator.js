@@ -14,9 +14,9 @@ function run(cmd) {
 async function main() {
     console.log("Scraper job started");
 
-    await run("node src/scraper-tr.js");
-    await run("node src/scraper.js");
-    await run("node src/scraper-retry.js");
+    await run("node scraper-tr.js");
+    await run("node scraper.js");
+    await run("node scraper-retry.js");
 
     console.log("Scraper job finished");
 }
