@@ -6,6 +6,13 @@ module.exports = {
             cwd: "/root/zitazi/node",
             autorestart: true,
         },
-
+        {
+            name: "scraper-orchestrator",
+            script: "src/scraper-orchestrator.js",
+            cwd: "/root/zitazi/node",
+            interpreter: "node",
+            cron_restart: "15 55 * * *",
+            autorestart: false,
+        }
     ]
 }
