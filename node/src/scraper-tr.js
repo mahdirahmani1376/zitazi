@@ -33,6 +33,9 @@ async function getBrowser() {
 }
 
 async function scrapeAll() {
+    console.log('finished')
+    process.exit(0);
+
     let nextUrl = "http://localhost/api/trendyol-list?page=1";
 
     while (nextUrl) {

@@ -33,6 +33,8 @@ async function getBrowser() {
 }
 
 async function scrapeAll() {
+    console.log('finished')
+    process.exit(0);
     let nextUrl = "http://localhost/api/decathlon-list-retry?page=1";
 
     while (nextUrl) {
