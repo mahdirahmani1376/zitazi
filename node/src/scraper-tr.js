@@ -48,6 +48,7 @@ async function scrapeAll() {
             'type': "general",
         }));
 
+
         // 1. get 1 page of URLs
         const res = await fetch(nextUrl);
         const json = await res.json();
