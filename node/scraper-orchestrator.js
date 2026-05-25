@@ -21,12 +21,14 @@ function run(cmd, args = []) {
 
 async function main() {
     console.log("Scraper job started");
+    console.log(Date.now());
 
     await run("node", ["src/scraper-tr.js"]);
     await run("node", ["src/scraper.js"]);
     await run("node", ["src/scraper-retry.js"]);
 
     console.log("Scraper job finished");
+    console.log(Date.now());
 }
 
 main().catch(err => {
