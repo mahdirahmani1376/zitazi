@@ -83,7 +83,9 @@ class ProductSeeder extends Seeder
             }
 
             $product->delete();
-            info('deleted_zitazi_product_id', $product->id);
+            info('deleted_zitazi_product_id', [
+                'product_id ' => $product->id
+            ]);
 
             LogManager::logProduct($product, 'product deleted', [
                 'product_id' => $product->id,
@@ -142,7 +144,9 @@ class ProductSeeder extends Seeder
             }
 
             $product->delete();
-            info('deleted_satreh_product_id', $product->id);
+            info('deleted_satreh_product_id', [
+                'product_id' => $product->id
+            ]);
 
             LogManager::logProduct($product, 'product deleted', [
                 'product_id' => $product->id,
