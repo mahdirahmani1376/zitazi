@@ -5,12 +5,18 @@ puppeteer.use(stealthPlugin());
 
 let browser;
 process.on('SIGINT', async () => {
-    console.log('Shutting down gracefully...');
+    console.log(JSON.stringify({
+        'message': 'Shutting down gracefully...',
+        type: "general",
+    }));
     if (browser) await browser.close();
     process.exit(0);
 });
 process.on('SIGTERM', async () => {
-    console.log('Terminating...');
+    console.log(JSON.stringify({
+        'message': 'Terminating',
+        'type': "general",
+    }));
     if (browser) await browser.close();
     process.exit(0);
 });
@@ -36,7 +42,11 @@ async function scrapeAll() {
     let nextUrl = "http://localhost/api/trendyol-list?page=1";
 
     while (nextUrl) {
-        console.log("Fetching list:", nextUrl);
+        console.log(JSON.stringify({
+            'message': 'Fetching list',
+            'url': nextUrl,
+            'type': "general",
+        }));
 
         // 1. get 1 page of URLs
         const res = await fetch(nextUrl);
@@ -45,14 +55,16 @@ async function scrapeAll() {
 
         const productsData = json.data.data;
         if (productsData.length === 0) {
-            console.log("No URLs found on this page.");
+            console.log(JSON.stringify({
+                'message': 'No URLs found on this page.',
+                'url': nextUrl,
+                'type': "general",
+            }));
             break;
         }
 
         // 2. scrape those urls
         const variationData = await scrapePageOfUrls(productsData);
-
-        console.log('variation data', JSON.stringify(variationData))
 
         try {
             // 3. send results back to backend
@@ -61,9 +73,18 @@ async function scrapeAll() {
                 headers: {"Content-Type": "application/json", "Accept": "application/json"},
                 body: JSON.stringify(variationData),
             });
-            console.log('response', await response.json())
-        } catch (e) {
-            console.log(e.message)
+        } catch (err) {
+            const safeError = {
+                name: err.name,
+                message: err.message,
+                code: err.code ?? null,
+                stack: err.stack?.split('\n').slice(0, 3).join(' ') ?? null, // shorten
+            };
+            console.log(JSON.stringify({
+                type: "scrape_error",
+                message: "error in fetching results",
+                error: safeError
+            }));
         }
 
 
@@ -82,8 +103,6 @@ async function scrapePageOfUrls(productsData) {
     const results = [];
 
     for (const productData of productsData) {
-        console.log('product_id', productData.id)
-        console.log('url', productData.full_url)
         try {
             new URL(productData.full_url);
             await page.goto(productData.full_url, {waitUntil: 'networkidle2', timeout: 60000});
@@ -100,6 +119,14 @@ async function scrapePageOfUrls(productsData) {
                 'response': responseData,
                 'success': true
             });
+
+            console.log(JSON.stringify({
+                type: "scrape_success",
+                product_id: productData.id,
+                message: "success in fetching results",
+                response: responseData,
+            }));
+
         } catch (err) {
             const safeError = {
                 name: err.name,
@@ -113,7 +140,13 @@ async function scrapePageOfUrls(productsData) {
                 'success': false,
                 'error': safeError
             });
-            console.log('error in fetching results', err, 'product_id', productData.id);
+
+            console.log(JSON.stringify({
+                type: "scrape_error",
+                product_id: productData.id,
+                message: "error in fetching results",
+                error: safeError
+            }));
         }
     }
 

@@ -5,7 +5,12 @@ puppeteer.use(stealthPlugin());
 
 (async () => {
     const data = JSON.parse(process.argv[2]); // read from CLI args
-    console.log('🔍 Scraping:', data.full_url);
+    console.log(JSON.stringify({
+        'message': '🔍 Scraping:',
+        type: "general",
+        url: data.full_url
+    }));
+
 
     const browser = await puppeteer.launch({
         headless: true,
@@ -36,7 +41,12 @@ puppeteer.use(stealthPlugin());
             'sync': true
         })
 
-        console.log(JSON.stringify(updateData))
+        console.log(JSON.stringify({
+            type: "scrape_success",
+            data: updateData,
+            message: "success in fetching results",
+        }));
+
         // 3. send results back to backend
         const res = await fetch("http://localhost/api/store-trendyol", {
             method: "POST",
@@ -51,7 +61,18 @@ puppeteer.use(stealthPlugin());
             console.log('✅ Success:', response);
         }
     } catch (err) {
-        console.error('❌ Error scraping:', err.message);
+        const safeError = {
+            name: err.name,
+            message: err.message,
+            code: err.code ?? null,
+            stack: err.stack?.split('\n').slice(0, 3).join(' ') ?? null, // shorten
+        };
+
+        console.log(JSON.stringify({
+            type: "scrape_error",
+            message: "error in fetching results",
+            error: safeError
+        }));
     }
 
     await browser.close();

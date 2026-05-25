@@ -1,0 +1,2 @@
+limits_config:
+  retention_period: 120h   # 5 days

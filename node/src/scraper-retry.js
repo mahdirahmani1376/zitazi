@@ -5,13 +5,19 @@ puppeteer.use(stealthPlugin());
 
 let browser;
 process.on('SIGINT', async () => {
-    console.log('Shutting down gracefully...');
+    console.log(JSON.stringify({
+        'message': 'Shutting down gracefully...',
+        type: "general",
+    }));
     if (browser) await browser.close();
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-    console.log('Terminating...');
+    console.log(JSON.stringify({
+        'message': 'Terminating',
+        'type': "general",
+    }));
     if (browser) await browser.close();
     process.exit(0);
 });
@@ -36,7 +42,11 @@ async function scrapeAll() {
     let nextUrl = "http://localhost/api/decathlon-list-retry?page=1";
 
     while (nextUrl) {
-        console.log("Fetching list:", nextUrl);
+        console.log(JSON.stringify({
+            'message': 'Fetching list',
+            'url': nextUrl,
+            'type': "general",
+        }));
 
         // 1. get 1 page of URLs
         const res = await fetch(nextUrl);
@@ -45,27 +55,32 @@ async function scrapeAll() {
 
         const productsData = json.data.data;
         if (productsData.length === 0) {
-            console.log("No URLs found on this page.");
+            console.log(JSON.stringify({
+                'message': 'No URLs found on this page.',
+                'url': nextUrl,
+                'type': "general",
+            }));
             break;
         }
 
         // 2. scrape those urls
         const variationData = await scrapePageOfUrls(productsData);
 
-        console.log('variation data', JSON.stringify(variationData))
         // 3. send results back to backend
         const response = await fetch("http://localhost/api/store-decathlon", {
             method: "POST",
             headers: {"Content-Type": "application/json", "Accept": "application/json"},
             body: JSON.stringify(variationData),
         });
-        console.log('response', await response.json())
 
         // 4. move to next page
         nextUrl = json.data.next_page_url;
     }
 
-    console.log("✅ Done scraping all pages!");
+    console.log(JSON.stringify({
+        'message': '✅ Done scraping all pages!',
+        'type': "general",
+    }));
     if (browser) await browser.close();
     process.exit(0);
 }
@@ -76,8 +91,6 @@ async function scrapePageOfUrls(productsData) {
     const results = [];
 
     for (const productData of productsData) {
-        console.log('product_id', productData.id)
-        console.log('url', productData.decathlon_url)
         try {
             new URL(productData.decathlon_url);
             await page.goto(productData.decathlon_url, {waitUntil: 'networkidle2', timeout: 60000});
@@ -124,6 +137,13 @@ async function scrapePageOfUrls(productsData) {
                 'variations': variations,
                 'success': true
             });
+
+            console.log(JSON.stringify({
+                type: "scrape_success",
+                product_id: productData.id,
+                message: "success in fetching results",
+                variations_count: variations.length
+            }));
         } catch (err) {
             const safeError = {
                 name: err.name,
@@ -137,7 +157,14 @@ async function scrapePageOfUrls(productsData) {
                 'success': false,
                 'error': safeError
             });
-            console.log('error in fetching results', err, 'product_id', productData.id);
+
+            console.log(JSON.stringify({
+                type: "scrape_error",
+                product_id: productData.id,
+                message: "error in fetching results",
+                error: safeError
+            }));
+
         }
     }
 
