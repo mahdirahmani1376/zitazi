@@ -45,6 +45,7 @@ async function scrapeAll() {
         console.log(JSON.stringify({
             'message': 'Fetching list',
             'url': nextUrl,
+
             'type': "general",
         }));
 
