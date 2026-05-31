@@ -124,13 +124,14 @@ Route::get('/download-torob-products', function () {
 
 Route::post('import', function (Request $request) {
     $request->validate([
-        'file' => 'required|mimes:xlsx,csv,xls|max:2048',
+        'file' => 'required|mimes:xlsx,csv,xls',
     ]);
 
-    $errors = session('import_errors') ?? [];
     Session::forget('import_errors'); // clear it after reading
 
     Excel::queueImport(new ImportDecathlonVariation, $request->file('file'));
+
+    $errors = session('import_errors') ?? [];
 
     return back()
         ->with('success', 'با موفقیت انجام شد')
