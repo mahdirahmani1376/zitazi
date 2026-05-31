@@ -127,15 +127,10 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls',
     ]);
 
-    Session::forget('import_errors'); // clear it after reading
-
     Excel::queueImport(new ImportDecathlonVariation, $request->file('file'));
 
-    $errors = session('import_errors') ?? [];
-
     return back()
-        ->with('success', 'با موفقیت انجام شد')
-        ->with('error', $errors ?? []);
+        ->with('success', 'فایل برای پردازش در صف قرار گرفت.');
 
 })->name('variations.import');
 
