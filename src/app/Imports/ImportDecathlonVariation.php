@@ -17,7 +17,7 @@ class ImportDecathlonVariation implements OnEachRow, WithHeadingRow, WithChunkRe
 {
     public function chunkSize(): int
     {
-        return 100;
+        return 20;
     }
 
     public function onRow(Row $row)
