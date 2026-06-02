@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Variations\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentVariationExport;
-use App\Jobs\BulkSyncProductsJob;
+use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use App\Models\Variation;
 use Filament\Actions\Action;
@@ -107,7 +107,7 @@ class VariationsTable
                         $records
                             ->unique('product_id')
                             ->each(function (Variation $record) use (&$jobs) {
-                                $jobs[] = new BulkSyncProductsJob($record->product);
+                                $jobs[] = new SendScrapeMessageJob($record->product);
                             });
 
                         Bus::batch($jobs)

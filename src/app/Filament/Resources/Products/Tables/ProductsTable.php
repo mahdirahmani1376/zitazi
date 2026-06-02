@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Products\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentProductExport;
-use App\Jobs\BulkSyncProductsJob;
+use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -154,7 +154,7 @@ class ProductsTable
                         ->action(function (Collection $records) {
                             $jobs = [];
                             $records->each(function (Product $record) use (&$jobs) {
-                                $jobs[] = new BulkSyncProductsJob($record);
+                                $jobs[] = new SendScrapeMessageJob($record);
                             });
                             Bus::batch($jobs)
                                 ->then(fn() => Log::info('All Bulk Sync Products finished successfully.'))
