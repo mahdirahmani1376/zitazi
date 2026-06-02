@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,16 +14,23 @@ class SendScrapeMessageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct()
+    public function __construct(
+        public Product $product
+    )
     {
     }
 
     public function handle(): void
     {
+        $product = $this->product;
+        if ($product->belongsToTrendyol()) {
+            $product->setTrendyolFullUrl();
+        }
+
         Redis::rPush(
-            'scrape-product',
+            'scrape_product',
             json_encode([
-                'test' => 'test'
+                'product' => $product->toArray()
             ])
         );
     }

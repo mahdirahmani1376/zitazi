@@ -61,20 +61,19 @@ services:
       retries: 5
 
   node:
+    container_name: zitazi-node
     build:
       context: ./node
       dockerfile: Dockerfile
     volumes:
       - ./node:/app
       - node_modules:/app/node_modules
-    container_name: zitazi-node
     restart: unless-stopped
     networks:
       - app-network
     environment:
       TZ: Asia/Tehran
       NODE_ENV: development
-
     shm_size: "1gb"
     mem_limit: 1500m
     command: npx nodemon daemon.js

@@ -4,9 +4,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     volumes:
-      - ./src:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
-      - ./supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
     networks:
       - app-network
     container_name: zitazi-php

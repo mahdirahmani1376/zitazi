@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 
 const redis = new Redis({
-    host: 'redis',
+    host: 'zitazi-redis',
     port: 6379,
 });
 
@@ -10,26 +10,30 @@ async function run() {
     console.log('Scrape worker started...');
 
     while (true) {
+        try {
+            // BLOCK until a message arrives
+            const result = await redis.blpop('laravel_database_scrape_product', 0);
 
-        // BLOCK until a message arrives
-        const result = await redis.blpop('scrape-product', 0);
+            const message = JSON.parse(result[1]);
 
-        const message = JSON.parse(result[1]);
+            console.log('Received:', result);
 
-        console.log('Received:', message);
+            // simulate processing
+            const response = {
+                result: message,
+                status: 'ok',
+                message: 'test ok',
+            };
 
-        // simulate processing
-        const response = {
-            status: 'ok',
-            message: 'test ok',
-        };
+            await redis.rpush(
+                'laravel_database_scrape_result',
+                JSON.stringify(response)
+            );
 
-        await redis.rpush(
-            'scrape-result',
-            JSON.stringify(response)
-        );
-
-        console.log('Published: scrape-result');
+            console.log('Published: scrape_result');
+        } catch (e) {
+            console.log('error happened', e)
+        }
     }
 }
 
