@@ -1,40 +1,39 @@
 const Redis = require('ioredis');
+const beginScrape = require('./newScraper'); // FIXED
 
 const redis = new Redis({
     host: 'zitazi-redis',
     port: 6379,
 });
 
+// IMPORTANT: match Laravel prefix OR remove prefix in Laravel
+const QUEUE_IN = 'laravel_database_scrape_product';
+const QUEUE_OUT = 'laravel_database_scrape_result';
+
 async function run() {
 
     console.log('Scrape worker started...');
 
     while (true) {
+
         try {
-            // BLOCK until a message arrives
-            const result = await redis.blpop('laravel_database_scrape_product', 0);
+            const result = await redis.blpop(QUEUE_IN, 0);
 
-            const message = JSON.parse(result[1]);
+            const data = JSON.parse(result[1]);
 
-            console.log('Received:', result);
-
-            // simulate processing
-            const response = {
-                result: message,
-                status: 'ok',
-                message: 'test ok',
-            };
+            const response = await beginScrape(data.product);
 
             await redis.rpush(
-                'laravel_database_scrape_result',
+                QUEUE_OUT,
                 JSON.stringify(response)
             );
 
             console.log('Published: scrape_result');
+
         } catch (e) {
-            console.log('error happened', e)
+            console.error('Worker error:', e);
         }
     }
 }
 
-run().catch(console.error);
+run();
