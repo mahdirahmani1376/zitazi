@@ -16,10 +16,8 @@ scrape_configs:
       - source_labels: [ '__meta_docker_container_name' ]
         target_label: container
 
-  - job_name: pm2
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: pm2
-          __path__: /root/.pm2/logs/*.log
+      - source_labels: [ '__meta_docker_container_log_stream' ]
+        target_label: stream
+
+      - source_labels: [ '__meta_docker_container_log_path' ]
+        target_label: __path__
