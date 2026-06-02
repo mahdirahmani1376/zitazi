@@ -13,11 +13,12 @@ class ListenForScrapeResponseCommand extends Command
 
     public function handle()
     {
-        Redis::subscribe(
-            ['scrape-result'],
-            function ($message) {
-                $this->info('message recieved', [$message]);
-            }
-        );
+        while (true) {
+            $result = Redis::blpop('scrape-result', 0);
+
+            $message = json_decode($result[1], true);
+
+            $this->info('Message received: ' . json_encode($message));
+        }
     }
 }

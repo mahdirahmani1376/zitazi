@@ -134,8 +134,10 @@ services:
       - app-network
     environment:
       TZ: Asia/Tehran
+      NODE_ENV: production
     shm_size: "1gb"
     mem_limit: 1500m
+    command: node daemon.js
 
 volumes:
   mysql:

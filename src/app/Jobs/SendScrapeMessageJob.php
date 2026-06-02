@@ -19,14 +19,10 @@ class SendScrapeMessageJob implements ShouldQueue
 
     public function handle(): void
     {
-
-
         Redis::rPush(
             'scrape-product',
             json_encode([
-                'job_id' => $this->jobId,
-                'url' => $this->url,
-                'type' => $this->type,
+                'test' => 'test'
             ])
         );
     }

@@ -29,14 +29,17 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production
+    NODE_ENV=${NODE_ENV}
 
 COPY package*.json ./
 
-RUN npm ci --omit=dev
+# 👇 conditional install
+RUN if [ "$NODE_ENV" = "production" ]; then \
+        npm ci --omit=dev; \
+    else \
+        npm install; \
+    fi
 
 COPY . .
 
 EXPOSE 3000
-
-CMD ["node", "src/index.js"]
