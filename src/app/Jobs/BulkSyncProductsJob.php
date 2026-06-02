@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Models\Product;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -10,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Redis;
 
 class BulkSyncProductsJob implements ShouldQueue
 {
@@ -21,6 +21,19 @@ class BulkSyncProductsJob implements ShouldQueue
 
     public function handle(): void
     {
-        SyncAndUpdateProductButtonAction::execute($this->product);
+        $product = $this->product;
+
+        if ($product->belongsToTrendyol()) {
+            $product->setTrendyolFullUrl();
+        }
+
+
+        Redis::rpush(
+            'scrape:product',
+            json_encode([
+                'job_id' => $this->batchId,
+                'product' => $this->product,
+            ])
+        );
     }
 }

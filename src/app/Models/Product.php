@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -131,6 +130,7 @@ class Product extends Model
         return $ratio;
     }
 
+
     public function getTrendyolContentId(): ?string
     {
         $contentId = null;
@@ -163,18 +163,27 @@ class Product extends Model
         return $this->hasMany(LogModel::class, 'product_id');
     }
 
-    protected function trUrl(): Attribute
+    protected function getTrendyolFullUrl(): string
     {
         $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
         $params = http_build_query([
             'contentId' => $this->getTrendyolContentId(),
             'merchantId' => $this->getTrendyolMerchantId(),
         ]);
-        $fullUrl = $url . '?' . $params;
 
-        return Attribute::make(
-            get: fn($value, array $attributes) => $fullUrl,
-            set: fn($value) => $value,
-        );
+        return $url . '?' . $params;
+    }
+
+    public function setTrendyolFullUrl(): static
+    {
+        $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
+        $params = http_build_query([
+            'contentId' => $this->getTrendyolContentId(),
+            'merchantId' => $this->getTrendyolMerchantId(),
+        ]);
+
+        $this->setAttribute('full_url', $url . '?' . $params);
+
+        return $this;
     }
 }

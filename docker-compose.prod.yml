@@ -6,6 +6,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
+      - ./supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
     networks:
       - app-network
     container_name: zitazi-php
@@ -123,6 +124,18 @@ services:
     networks:
       - app-network
 
+  node:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    container_name: zitazi-node
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      TZ: Asia/Tehran
+    shm_size: "1gb"
+    mem_limit: 1500m
 
 volumes:
   mysql:
