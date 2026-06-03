@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: Dockerfile.production
-          context: ./src
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-php:latest
           cache-from: type=gha
