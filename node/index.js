@@ -1,2 +1,0 @@
-require('./highWorker');
-require('./bulkWorker');

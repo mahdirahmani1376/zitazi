@@ -1,5 +1,5 @@
 const Redis = require('ioredis');
-const beginScrape = require('./newScraper'); // FIXED
+const beginScrape = require('./scraper'); // FIXED
 
 const redis = new Redis({
     host: 'zitazi-redis',
