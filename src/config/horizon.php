@@ -205,12 +205,20 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
+            'supervisor-import' => [
+                'connection' => 'redis',
+                'queue' => ['import'],
+                'maxProcesses' => 5,
+                'balance' => 'simple',
+                'tries' => 1,
+                'timeout' => 300,
+            ],
         ],
 
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 2,
+                'maxProcesses' => 16,
             ],
         ],
     ],

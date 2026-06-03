@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -15,6 +16,7 @@ use Maatwebsite\Excel\Row;
 
 class ImportDecathlonVariation implements OnEachRow, WithHeadingRow, WithChunkReading, ShouldQueue, SkipsEmptyRows
 {
+    use Importable;
     public function chunkSize(): int
     {
         return 100;

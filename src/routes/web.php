@@ -127,7 +127,7 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls',
     ]);
 
-    Excel::queueImport(new ImportDecathlonVariation, $request->file('file'));
+    Excel::import((new ImportDecathlonVariation)->queue('imports.xlsx')->allOnQueue('import'), $request->file('file'));
 
     return back()
         ->with('success', 'فایل برای پردازش در صف قرار گرفت.');
