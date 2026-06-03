@@ -15,12 +15,14 @@ class BulkScrapeProductsCommand extends Command
     public function handle(): void
     {
         $products = Product::query()
-            ->whereNot('trendyol_source', '=', '')
-            ->limit(50)
             ->get();
 
+        /** @var Product $product */
         foreach ($products as $product) {
-            /** @var Product $product */
+            if (empty($product->trendyol_source) && empty($product->decathlon_url)) {
+                continue;
+            }
+
             if ($product->belongsToTrendyol()) {
                 $product->setTrendyolFullUrl();
             }
