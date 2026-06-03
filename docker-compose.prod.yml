@@ -6,6 +6,7 @@ services:
     volumes:
       - /root/zitazi/php.ini:/usr/local/etc/php/php.ini
       - /root/zitazi/src/.env:/var/www/html/.env
+      - ./src:/var/www/html
     networks:
       - app-network
     container_name: zitazi-php
