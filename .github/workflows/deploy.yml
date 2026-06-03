@@ -1,15 +1,70 @@
-name: Deploy to VPS
+name: Build & Deploy Zitazi
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_OWNER: ${{ github.repository_owner }}
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      # ---------------------------
+      # 1. Checkout code
+      # ---------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---------------------------
+      # 2. Define image tags
+      # ---------------------------
+      - name: Set image tags
+        run: |
+          echo "PHP_IMAGE=ghcr.io/${{ env.IMAGE_OWNER }}/zitazi-php:${{ github.sha }}" >> $GITHUB_ENV
+          echo "NODE_IMAGE=ghcr.io/${{ env.IMAGE_OWNER }}/zitazi-node:${{ github.sha }}" >> $GITHUB_ENV
+
+      # ---------------------------
+      # 3. Build PHP (Laravel)
+      # ---------------------------
+      - name: Build PHP image
+        run: |
+          docker build \
+            -t $PHP_IMAGE \
+            -f Dockerfile .
+
+      # ---------------------------
+      # 4. Build Node scraper
+      # ---------------------------
+      - name: Build Node image
+        run: |
+          docker build \
+            -t $NODE_IMAGE \
+            ./node
+
+      # ---------------------------
+      # 6. Push PHP image
+      # ---------------------------
+      - name: Push PHP image
+        run: docker push $PHP_IMAGE
+
+      # ---------------------------
+      # 7. Push Node image
+      # ---------------------------
+      - name: Push Node image
+        run: docker push $NODE_IMAGE
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      # ---------------------------
+      # 1. SSH into VPS and deploy
+      # ---------------------------
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@master
         with:
@@ -17,9 +72,14 @@ jobs:
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            set -e
             cd ~/zitazi
 
-            echo "🔄 Pulling latest code..."
-            git pull origin master
+            echo "Pulling latest images..."
+            docker compose pull
+
+            echo "Restarting containers..."
+            docker compose up -d
+
+            echo "Cleaning old images..."
+            docker image prune -f
 

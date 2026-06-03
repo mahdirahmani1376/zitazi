@@ -1,8 +1,6 @@
 services:
   php:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: ghcr.io/mahdirahmani1376/zitazi-php:latest
     volumes:
       - ./php.ini:/usr/local/etc/php/php.ini
     networks:
@@ -13,6 +11,19 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       TZ: Asia/Tehran
+
+  node:
+    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
+    container_name: zitazi-node
+    restart: unless-stopped
+    networks:
+      - app-network
+    environment:
+      TZ: Asia/Tehran
+      NODE_ENV: production
+    shm_size: "1gb"
+    mem_limit: 1500m
+    command: node daemon.js
 
   nginx:
     image: nginx:latest
@@ -121,21 +132,6 @@ services:
       - loki
     networks:
       - app-network
-
-  node:
-    build:
-      context: ./node
-      dockerfile: Dockerfile-production
-    container_name: zitazi-node
-    restart: unless-stopped
-    networks:
-      - app-network
-    environment:
-      TZ: Asia/Tehran
-      NODE_ENV: production
-    shm_size: "1gb"
-    mem_limit: 1500m
-    command: node daemon.js
 
 volumes:
   mysql:
