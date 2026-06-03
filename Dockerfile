@@ -28,8 +28,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-RUN composer install \
-    --mount=type=cache,target=/tmp/composer-cache \
+COPY ./src/composer.json ./src/composer.lock ./
+
+RUN --mount=type=cache,target=/root/.composer \
+    composer install \
     --no-dev \
     --prefer-dist \
     --optimize-autoloader \
