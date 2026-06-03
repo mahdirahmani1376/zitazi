@@ -202,6 +202,7 @@ return [
         'production' => [
             'bulk-supervisor' => [
                 'maxProcesses' => 2,
+                'queue' => ['default'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
@@ -232,6 +233,7 @@ return [
         'local' => [
             'bulk-supervisor' => [
                 'maxProcesses' => 16,
+                'queue' => ['default'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
