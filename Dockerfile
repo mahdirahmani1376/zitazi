@@ -28,7 +28,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY ./src/composer.json ./src/composer.lock ./
+COPY ./src /var/www/html
 
 RUN --mount=type=cache,target=/root/.composer \
     composer install \
@@ -41,7 +41,6 @@ RUN mkdir -p /var/log/supervisor
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
-COPY ./src /var/www/html
 
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
