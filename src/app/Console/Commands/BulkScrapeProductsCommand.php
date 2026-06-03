@@ -16,7 +16,7 @@ class BulkScrapeProductsCommand extends Command
     {
         $products = Product::query()
             ->whereNot('trendyol_source', '=', '')
-            ->limit(20)
+            ->limit(50)
             ->get();
 
         foreach ($products as $product) {
