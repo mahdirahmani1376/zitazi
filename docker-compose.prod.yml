@@ -1,8 +1,6 @@
 services:
   php:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: ghcr.io/YOUR_USER/zitazi-php:latest
     volumes:
       - ./php.ini:/usr/local/etc/php/php.ini
     networks:
@@ -125,7 +123,7 @@ services:
   node:
     build:
       context: ./node
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-production
     container_name: zitazi-node
     restart: unless-stopped
     networks:
