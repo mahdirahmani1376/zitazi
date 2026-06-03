@@ -183,7 +183,7 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'bulk-supervisor' => [
             'connection' => 'redis',
             'queue' => ['default'],
             'balance' => 'auto',
@@ -200,7 +200,7 @@ return [
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
+            'bulk-supervisor' => [
                 'maxProcesses' => 2,
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
@@ -229,7 +229,7 @@ return [
 
 
         'local' => [
-            'supervisor-1' => [
+            'bulk-supervisor' => [
                 'maxProcesses' => 16,
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
