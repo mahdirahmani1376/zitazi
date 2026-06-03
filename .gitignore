@@ -32,7 +32,6 @@ mysql/
 .env
 *.sql.gz
 *.sql
-node/package-lock.json
 node/node_modules
 /src/supervisord.log
 /src/supervisord.pid
