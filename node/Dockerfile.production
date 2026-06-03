@@ -32,10 +32,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
 
 COPY package*.json ./
 
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm config set fetch-retries 5
-RUN npm config set fetch-retry-mintimeout 20000
-RUN npm config set fetch-retry-maxtimeout 120000
+RUN npm config set registry https://registry.npmmirror.com
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
 
 RUN npm ci --omit=dev
