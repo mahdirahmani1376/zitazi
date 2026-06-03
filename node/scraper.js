@@ -107,12 +107,6 @@ async function scrapeDecathlonData(productData) {
             }
         }
 
-        console.log(JSON.stringify({
-            type: "scrape_success",
-            product_id: productData.id,
-            variations_count: variations.length
-        }));
-
         return {
             product_id: productData.id,
             variations,
@@ -125,12 +119,6 @@ async function scrapeDecathlonData(productData) {
             name: err.name,
             message: err.message
         };
-
-        console.log(JSON.stringify({
-            type: "scrape_error",
-            product_id: productData.id,
-            error
-        }));
 
         return {
             product_id: productData.id,
@@ -163,11 +151,6 @@ async function scrapeTrendyolData(data) {
             success: true
         };
 
-        console.log(JSON.stringify({
-            type: "scrape_success",
-            data: result
-        }));
-
         return result;
 
     } catch (err) {
@@ -176,11 +159,6 @@ async function scrapeTrendyolData(data) {
             name: err.name,
             message: err.message
         };
-
-        console.log(JSON.stringify({
-            type: "scrape_error",
-            error
-        }));
 
         return {
             product_id: data.id,

@@ -36,7 +36,12 @@ async function waitForQueue() {
         JSON.stringify(response)
     );
 
-    console.log('Published: scrape_result');
+
+    console.log(JSON.stringify({
+        type: "scrape-response",
+        product_id: data.product.id,
+        response: JSON.stringify(response)
+    }));
 }
 
 run();
