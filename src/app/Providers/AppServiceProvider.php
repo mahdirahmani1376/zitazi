@@ -55,7 +55,9 @@ class AppServiceProvider extends ServiceProvider
             SkipIfBatchCancelled::class
         ]);
 
-        URL::forceScheme('https');
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
 
     }
 }
