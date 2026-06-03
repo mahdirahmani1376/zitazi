@@ -11,6 +11,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\Middleware\SkipIfBatchCancelled;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -53,6 +54,8 @@ class AppServiceProvider extends ServiceProvider
         Bus::pipeThrough([
             SkipIfBatchCancelled::class
         ]);
+
+        URL::forceScheme('https');
 
     }
 }
