@@ -213,6 +213,7 @@ return [
                 'tries' => 2,
                 'timeout' => 120,
                 'nice' => 0,
+                'balance' => 'auto',
             ],
             'supervisor-import' => [
                 'queue' => ['import'],
