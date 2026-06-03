@@ -5,7 +5,6 @@ services:
       dockerfile: ./Dockerfile.production
     volumes:
       - /root/zitazi/php.ini:/usr/local/etc/php/php.ini
-      - /root/zitazi/.env:/var/www/html/.env
     networks:
       - app-network
     container_name: zitazi-php
