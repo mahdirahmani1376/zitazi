@@ -28,10 +28,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY ./src /var/www/html
-
 RUN composer install \
+    --mount=type=cache,target=/tmp/composer-cache \
     --no-dev \
+    --prefer-dist \
     --optimize-autoloader \
     --no-interaction
 
@@ -39,6 +39,7 @@ RUN mkdir -p /var/log/supervisor
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
+COPY ./src /var/www/html
 
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
