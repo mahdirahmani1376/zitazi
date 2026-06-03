@@ -224,6 +224,7 @@ return [
                 'maxJobs' => 200,
                 'memory' => 128,
                 'nice' => 0,
+                'balance' => 'auto',
             ],
         ],
 
@@ -253,6 +254,7 @@ return [
                 'tries' => 2,
                 'timeout' => 120,
                 'nice' => 0,
+                'balance' => 'auto',
             ],
         ],
     ],
