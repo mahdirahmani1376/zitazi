@@ -2,7 +2,7 @@ services:
   php:
     build:
       context: .
-      dockerfile: ./Dockerfile-dev
+      dockerfile: ./Dockerfile.dev
     volumes:
       - ./src:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
@@ -64,7 +64,7 @@ services:
     container_name: zitazi-node
     build:
       context: ./node
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.production
     volumes:
       - ./node:/app
       - node_modules:/app/node_modules
