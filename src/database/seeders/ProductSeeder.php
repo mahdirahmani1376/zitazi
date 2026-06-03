@@ -40,6 +40,12 @@ class ProductSeeder extends Seeder
                 }
 
                 $ownId = data_get($value, 'Woocomerce-ID');
+                if (empty($ownId)) {
+                    Log::error('no own id for selected row', [
+                        'value' => $value
+                    ]);
+                    continue;
+                }
                 $allOwnIds[] = $ownId;
 
                 $data = [
@@ -114,6 +120,12 @@ class ProductSeeder extends Seeder
         foreach ($data as $key => $value) {
             try {
                 $ownId = data_get($value, 'Woocomerce-ID');
+                if (empty($ownId)) {
+                    Log::error('no own id for selected row', [
+                        'value' => $value
+                    ]);
+                    continue;
+                }
                 $allOwnIds[] = $ownId;
 
                 $data = [
