@@ -44,7 +44,7 @@ jobs:
       - name: Build and push Node image
         uses: docker/build-push-action@v7
         with:
-          file: Dockerfile-production
+          file: ./Dockerfile-production
           context: ./node
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-node:latest
