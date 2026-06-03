@@ -14,35 +14,31 @@ const QUEUE_OUT = 'laravel_database_scrape_result';
 async function run() {
 
     console.log('Scrape worker started...');
-    let sync = false
-
-    while (true) {
-
-        try {
-            const result = await redis.blpop(QUEUE_IN_USER, 0);
-            sync = false
-            if (!result) {
-                await redis.blpop(QUEUE_IN_BULK, 0)
-                sync = true
-            }
-
-
-            const data = JSON.parse(result[1]);
-
-            const response = await beginScrape(data.product);
-            response.sync = sync
-
-            await redis.rpush(
-                QUEUE_OUT,
-                JSON.stringify(response)
-            );
-
-            console.log('Published: scrape_result');
-
-        } catch (e) {
-            console.error('Worker error:', e);
-        }
+    try {
+        await waitForQueue()
+    } catch (e) {
+        await waitForQueue()
+        console.error('Worker error:', e);
     }
+    console.log('Scrape worker finished...');
+}
+
+async function waitForQueue() {
+    console.log('awaiting user jobs');
+
+    const result = await redis.blpop(QUEUE_IN_USER, 0)
+
+    const data = JSON.parse(result[1]);
+
+    const response = await beginScrape(data.product);
+    response.sync = true
+
+    await redis.rpush(
+        QUEUE_OUT,
+        JSON.stringify(response)
+    );
+
+    console.log('Published: scrape_result');
 }
 
 run();

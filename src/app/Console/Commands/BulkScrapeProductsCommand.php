@@ -14,13 +14,14 @@ class BulkScrapeProductsCommand extends Command
 
     public function handle(): void
     {
-        foreach (Product::all() as $product) {
-            Redis::rPush(
+        foreach (Product::where('id', 3)->get() as $product) {
+            $response = Redis::rPush(
                 'scrape_bulk_product',
                 json_encode([
                     'product' => $product->toArray()
                 ])
             );
+            dump($response);
         }
     }
 }

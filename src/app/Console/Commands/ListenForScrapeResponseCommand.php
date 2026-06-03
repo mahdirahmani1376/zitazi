@@ -17,36 +17,13 @@ class ListenForScrapeResponseCommand extends Command
 
     protected $description = 'this command listens for scrape-response message';
 
-    public function handle(
-        SeedVariationsForDecathlonAction $seedVariationsForDecathlonAction,
-        SeedVariationsForTrendyolAction  $seedVariationsForTrendyolAction
-    )
+    public function handle()
     {
-        while (true) {
-            try {
-                $this->info('starting to listen');
-
-                $message = Redis::blpop('scrape_result', 0);
-
-                $messageArray = json_decode($message[1], true);
-                $this->info('Message received: ' . json_encode($message));
-
-                if (!$messageArray['success']) {
-                    $this->logError($messageArray);
-                } else {
-                    $product = Product::findOrFail($messageArray['product_id']);
-                    if ($product->belongsToDecalthon()) {
-                        $seedVariationsForDecathlonAction->execute($messageArray, $messageArray['sync'] ?? false);
-                    } else if ($product->belongsToTrendyol()) {
-                        $seedVariationsForTrendyolAction->execute($messageArray, $messageArray['sync'] ?? false);
-                    }
-                }
-
-
-
-            } catch (\Throwable $e) {
-                $this->error($e->getMessage());
-            }
+        try {
+            $this->listenForMessages();
+        } catch (\Throwable $e) {
+            $this->listenForMessages();
+            $this->error($e->getMessage());
         }
     }
 
@@ -78,6 +55,27 @@ class ListenForScrapeResponseCommand extends Command
         LogManager::logProduct($product, 'sync-error', [
             'result' => $messageArray,
         ]);
+    }
+
+    private function listenForMessages()
+    {
+        $this->info('starting to listen');
+
+        $message = Redis::blpop('scrape_result', 0);
+
+        $messageArray = json_decode($message[1], true);
+        $this->info('Message received: ' . json_encode($message));
+
+        if (!$messageArray['success']) {
+            $this->logError($messageArray);
+        } else {
+            $product = Product::findOrFail($messageArray['product_id']);
+            if ($product->belongsToDecalthon()) {
+                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['sync'] ?? false);
+            } else if ($product->belongsToTrendyol()) {
+                app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['sync'] ?? false);
+            }
+        }
     }
 
 }
