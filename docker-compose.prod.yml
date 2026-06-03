@@ -1,6 +1,8 @@
 services:
   php:
-    image: ghcr.io/mahdirahmani1376/zitazi-php:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile.production
     volumes:
       - /root/zitazi/php.ini:/usr/local/etc/php/php.ini
       - /root/zitazi/.env:/var/www/html/.env
@@ -18,7 +20,9 @@ services:
 
 
   node:
-    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
+    build:
+      context: ./node
+      dockerfile: Dockerfile.production
     container_name: zitazi-node
     restart: unless-stopped
     networks:
