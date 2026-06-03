@@ -15,6 +15,7 @@ use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
 use App\Models\Variation;
+use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -127,10 +128,24 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls',
     ]);
 
-    Excel::import((new ImportDecathlonVariation)->queue('imports.xlsx')->allOnQueue('import'), $request->file('file'));
+    Excel::import(
+        (new ImportDecathlonVariation())
+            ->queue($request->file('file'))
+            ->allOnQueue('import')
+            ->chain([
+                new \App\Jobs\NotifyUserOfCompletedExportJob(auth()->user())
+            ])
+        ,
+        $request->file('file')
+    );
 
-    return back()
-        ->with('success', 'فایل برای پردازش در صف قرار گرفت.');
+    Notification::make()
+        ->title('Import started')
+        ->body('فایل برای پردازش در صف قرار گرفت.')
+        ->success()
+        ->sendToDatabase(auth()->user());
+
+    return back();
 
 })->name('variations.import');
 
