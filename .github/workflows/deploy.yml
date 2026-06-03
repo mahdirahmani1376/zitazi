@@ -33,7 +33,7 @@ jobs:
           file: Dockerfile
           context: .
           push: true
-          tags: zitazi-php:latest
+          tags: mahdirahmanii/zitazi-php:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -43,7 +43,7 @@ jobs:
           file: Dockerfile-production
           context: ./node
           push: true
-          tags: zitazi-node:latest
+          tags: mahdirahmanii/zitazi-node:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
