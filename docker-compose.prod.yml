@@ -59,7 +59,6 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - ./mysql:/var/lib/mysql
       - ./mysql-conf/conf.d:/etc/mysql/conf.d
     networks:
       - app-network
@@ -72,8 +71,6 @@ services:
       TZ: Asia/Tehran
     ports:
       - "6380:6379"
-    volumes:
-      - ./redis:/data
     networks:
       - app-network
     container_name: zitazi-redis
