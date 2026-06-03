@@ -67,6 +67,7 @@ services:
       dockerfile: Dockerfile.production
     volumes:
       - ./node:/app
+      - /app/node_modules
     restart: unless-stopped
     networks:
       - app-network

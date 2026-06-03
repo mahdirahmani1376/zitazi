@@ -26,6 +26,7 @@ services:
       dockerfile: Dockerfile.production
     volumes:
       - ./node:/app
+      - /app/node_modules
     container_name: zitazi-node
     restart: unless-stopped
     networks:
