@@ -1,6 +1,8 @@
 services:
   php:
-    image: ghcr.io/YOUR_USER/zitazi-php:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     volumes:
       - ./php.ini:/usr/local/etc/php/php.ini
     networks:
