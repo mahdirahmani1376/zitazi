@@ -23,10 +23,4 @@ jobs:
             echo "🔄 Pulling latest code..."
             git pull origin master
             docker-compose -f docker-compose.prod.yml restart
-            #            docker exec zitazi-php composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-#            echo "🧹 Running artisan migrate inside container..."
-#            docker exec zitazi-php php artisan migrate --force
-#            docker exec zitazi-horizon php artisan horizon:terminate
-
-#            docker image prune -af
