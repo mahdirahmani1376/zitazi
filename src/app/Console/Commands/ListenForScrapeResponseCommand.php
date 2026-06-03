@@ -19,11 +19,13 @@ class ListenForScrapeResponseCommand extends Command
 
     public function handle()
     {
-        try {
-            $this->listenForMessages();
-        } catch (\Throwable $e) {
-            $this->listenForMessages();
-            $this->error($e->getMessage());
+        while (true) {
+            try {
+                $this->info('starting to listen for messages');
+                $this->listenForMessages();
+            } catch (\Throwable $e) {
+                $this->error('error happened: ' . $e->getMessage());
+            }
         }
     }
 
@@ -57,14 +59,14 @@ class ListenForScrapeResponseCommand extends Command
         ]);
     }
 
-    private function listenForMessages()
+    private function listenForMessages(): void
     {
         $this->info('starting to listen');
 
         $message = Redis::blpop('scrape_result', 0);
 
         $messageArray = json_decode($message[1], true);
-        $this->info('Message received: ' . json_encode($message));
+        $this->info('Message received: ' . $message[0]);
 
         if (!$messageArray['success']) {
             $this->logError($messageArray);

@@ -14,14 +14,24 @@ class BulkScrapeProductsCommand extends Command
 
     public function handle(): void
     {
-        foreach (Product::where('id', 3)->get() as $product) {
-            $response = Redis::rPush(
-                'scrape_bulk_product',
+        $products = Product::query()
+            ->whereNot('trendyol_source', '=', '')
+            ->limit(20)
+            ->get();
+
+        foreach ($products as $product) {
+            /** @var Product $product */
+            if ($product->belongsToTrendyol()) {
+                $product->setTrendyolFullUrl();
+            }
+
+            Redis::rPush(
+                'scrape_product',
                 json_encode([
-                    'product' => $product->toArray()
+                    'product' => $product->toArray(),
+                    'sync' => false
                 ])
             );
-            dump($response);
         }
     }
 }

@@ -28,10 +28,11 @@ class SendScrapeMessageJob implements ShouldQueue
             $product->setTrendyolFullUrl();
         }
 
-        Redis::rPush(
+        Redis::lPush(
             'scrape_product',
             json_encode([
-                'product' => $product->toArray()
+                'product' => $product->toArray(),
+                'sync' => true
             ])
         );
     }
