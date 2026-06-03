@@ -240,12 +240,12 @@ Route::post('variation-delete', function (Request $request) {
 })->name('variation.delete');
 
 Route::get('/health-check', function () {
-//    \Illuminate\Support\Facades\Schema::getTables();
-//
-//    \Illuminate\Support\Facades\Cache::set('test', 'test');
-//    Redis::get('test');
-//
-//    \Illuminate\Support\Facades\Cache::delete('test');
+    \Illuminate\Support\Facades\Schema::getTables();
+
+    \Illuminate\Support\Facades\Cache::set('test', 'test');
+    Redis::get('test');
+
+    \Illuminate\Support\Facades\Cache::delete('test');
 
     return response()->json([
         'health' => 'ok'
