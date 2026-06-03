@@ -33,7 +33,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
 COPY package*.json ./
 
 # 👇 conditional install
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN npm ci --omit=dev
 
 COPY . .
 
