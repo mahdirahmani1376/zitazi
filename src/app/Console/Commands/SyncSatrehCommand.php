@@ -38,7 +38,7 @@ class SyncSatrehCommand extends Command
                 ]);
             }
 
-            $jobs[] = new SyncZitaziJob($variation, $updateData);
+            $jobs[] = (new SyncZitaziJob($variation, $updateData))->onQueue('bulk-sync-products');
         }
 
         Bus::batch($jobs)

@@ -61,7 +61,7 @@ class SeedVariationsForTrendyolAction
                         'stock_quantity' => $variation->stock,
                         'price' => $variation->rial_price
                     ]);
-                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue('sync-products');
                 }
 
             }

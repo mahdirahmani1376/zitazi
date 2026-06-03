@@ -69,7 +69,7 @@ class SyncZitaziCommand extends Command
                 'price' => $price,
             ]);
 
-            $jobs[] = new SyncZitaziJob($variation, $updateData);
+            $jobs[] = (new SyncZitaziJob($variation, $updateData))->onQueue('bulk-sync-products');
         }
 
         Bus::batch($jobs)

@@ -201,9 +201,23 @@ return [
 
     'environments' => [
         'production' => [
-            'bulk-supervisor' => [
+            'bulk-sync-supervisor' => [
                 'maxProcesses' => 2,
-                'queue' => ['default'],
+                'queue' => ['default', 'bulk-sync-products'],
+                'connection' => 'redis',
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+                'autoScalingStrategy' => 'time',
+                'maxTime' => 3600,
+                'maxJobs' => 200,
+                'tries' => 2,
+                'timeout' => 600,
+                'nice' => 0,
+                'balance' => 'auto',
+            ],
+            'sync-supervisor' => [
+                'maxProcesses' => 2,
+                'queue' => ['sync-products'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
