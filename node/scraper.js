@@ -145,13 +145,11 @@ async function scrapeTrendyolData(data) {
             return JSON.parse(document.body.innerText);
         });
 
-        const result = {
+        return {
             product_id: data.id,
             response: responseData,
             success: true
         };
-
-        return result;
 
     } catch (err) {
 
