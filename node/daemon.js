@@ -40,7 +40,7 @@ async function waitForQueue() {
     console.log(JSON.stringify({
         type: "scrape-response",
         product_id: data.product.id,
-        response: JSON.stringify(response)
+        response: response
     }));
 }
 
