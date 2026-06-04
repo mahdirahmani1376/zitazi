@@ -19,21 +19,19 @@ class BulkScrapeProductsCommand extends Command
 
         /** @var Product $product */
         foreach ($products as $product) {
-            if (empty($product->trendyol_source) && empty($product->decathlon_url)) {
-                continue;
-            }
+            if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
+                if ($product->belongsToTrendyol()) {
+                    $product->setTrendyolFullUrl();
+                }
 
-            if ($product->belongsToTrendyol()) {
-                $product->setTrendyolFullUrl();
+                Redis::rPush(
+                    'scrape_product',
+                    json_encode([
+                        'product' => $product->toArray(),
+                        'sync' => false
+                    ])
+                );
             }
-
-            Redis::rPush(
-                'scrape_product',
-                json_encode([
-                    'product' => $product->toArray(),
-                    'sync' => false
-                ])
-            );
         }
     }
 }
