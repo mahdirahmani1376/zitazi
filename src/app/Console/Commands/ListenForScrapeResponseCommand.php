@@ -66,7 +66,7 @@ class ListenForScrapeResponseCommand extends Command
         $message = Redis::blpop('scrape_result', 0);
 
         $messageArray = json_decode($message[1], true);
-        $this->info('Message received');
+        $this->info('Message received for product_id: ' . data_get($message, 'product_id'));
 
         if (!$messageArray['success']) {
             $this->logError($messageArray);
