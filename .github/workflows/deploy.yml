@@ -17,6 +17,8 @@ jobs:
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
+            cd ~/zitazi
+
             echo "🔴 Stopping Horizon gracefully..."
             docker exec zitazi-php php artisan horizon:terminate
             echo "🔄 Pulling latest code..."
