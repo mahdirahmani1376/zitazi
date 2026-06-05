@@ -9,6 +9,7 @@ use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
 use App\Exports\VariationExport;
 use App\Imports\ImportDecathlonVariation;
+use App\Jobs\NotifyUserOfCompletedExportJob;
 use App\Jobs\SyncZitaziJob;
 use App\Jobs\UpdateJob;
 use App\Models\Product;
@@ -128,16 +129,12 @@ Route::post('import', function (Request $request) {
         'file' => 'required|mimes:xlsx,csv,xls',
     ]);
 
-    Excel::import(
-        (new ImportDecathlonVariation())
-            ->queue($request->file('file'))
-            ->allOnQueue('import')
-            ->chain([
-                new \App\Jobs\NotifyUserOfCompletedExportJob(auth()->user())
-            ])
-        ,
-        $request->file('file')
-    );
+    (new ImportDecathlonVariation())
+        ->queue($request->file('file'))
+        ->allOnQueue('import')
+        ->chain([
+            new NotifyUserOfCompletedExportJob(auth()->user())
+        ]);
 
     Notification::make()
         ->title('Import started')
