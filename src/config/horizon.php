@@ -246,7 +246,7 @@ return [
 
         'local' => [
             'bulk-supervisor' => [
-                'maxProcesses' => 16,
+                'maxProcesses' => 8,
                 'queue' => ['default'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
@@ -262,7 +262,7 @@ return [
             'supervisor-import' => [
                 'queue' => ['import'],
                 'connection' => 'redis',
-                'maxProcesses' => 16,
+                'maxProcesses' => 8,
                 'tries' => 1,
                 'timeout' => 3600,
                 'autoScalingStrategy' => 'time',
