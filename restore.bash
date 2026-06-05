@@ -3,7 +3,7 @@ set -e
 
 # Load Laravel .env file
 set -o allexport
-source ./.env
+source ./.env.infra
 set +o allexport
 
 # Find latest backup (last 7 days)

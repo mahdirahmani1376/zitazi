@@ -23,7 +23,9 @@ jobs:
             docker exec zitazi-php php artisan horizon:terminate
             echo "🔄 Pulling latest code..."
             git pull origin master
-            
+            echo "Running migrations..."
+            docker exec zitazi-php php artisan migrate --force
+
 #            echo "📦 restarting containers..."
 #            docker compose -f docker-compose.prod.yml up -d
 #            LLEN laravel_database_scrape_product
