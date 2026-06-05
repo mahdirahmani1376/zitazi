@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->trustProxies(at: '*');
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('db:seed --force')->dailyAt('09:00');
