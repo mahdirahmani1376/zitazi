@@ -9,7 +9,7 @@ DATE=$(date +%F)
 
 # Load .env file
 set -o allexport
-source /root/zitazi/.env
+source /root/zitazi/.env.infra
 set +o allexport
 
 echo "env loaded" >> $LOGFILE

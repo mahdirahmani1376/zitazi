@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Symfony\Component\DomCrawler\Crawler;
 
 Artisan::command('test', function () {
@@ -930,4 +931,15 @@ Artisan::command('ttt', function () {
     ])->get('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=872167503&merchantId=692043');
 
     dd($response->body());
+});
+
+Artisan::command('test-redis', function () {
+    dump('start');
+    try {
+        $message = Redis::blpop('test', 0);
+        dump('message');
+    } catch (Throwable $e) {
+        dump('error', $e->getMessage());
+    }
+    dump('finish');
 });

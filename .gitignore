@@ -35,3 +35,4 @@ mysql/
 node/node_modules
 /src/supervisord.log
 /src/supervisord.pid
+/.env.infra
