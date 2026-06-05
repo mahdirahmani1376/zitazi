@@ -133,7 +133,7 @@ Route::post('import', function (Request $request) {
         ->queue($request->file('file'))
         ->allOnQueue('import')
         ->chain([
-            new NotifyUserOfCompletedExportJob(auth()->user())
+            (new NotifyUserOfCompletedExportJob(auth()->user()))->onQueue('import')
         ]);
 
     Notification::make()
