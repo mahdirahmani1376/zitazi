@@ -63,9 +63,8 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       TZ: Asia/Tehran
-
     ports:
       - "3308:3306"
     volumes:
@@ -83,7 +82,7 @@ services:
     environment:
       TZ: Asia/Tehran
     ports:
-      - "6380:6379"
+      - "6379"
     networks:
       - app-network
     container_name: zitazi-redis
@@ -106,7 +105,7 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       UPLOAD_LIMIT: 512M
       TZ: Asia/Tehran
     networks:
@@ -116,7 +115,7 @@ services:
     image: grafana/loki
     container_name: zitazi-loki
     ports:
-      - "3100:3100"
+      - "3100"
     command: -config.file=/etc/loki/config.yml
     volumes:
       - /root/zitazi/loki-config.yml:/etc/loki/config.yml
@@ -142,8 +141,8 @@ services:
     ports:
       - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     depends_on:
       - loki
     networks:
