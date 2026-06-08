@@ -73,6 +73,8 @@ services:
     networks:
       - app-network
     container_name: zitazi-mysql
+    env_file:
+      - path: ./src/.env
     restart: unless-stopped
 
   redis:
@@ -86,6 +88,8 @@ services:
     networks:
       - app-network
     container_name: zitazi-redis
+    env_file:
+      - path: ./src/.env
     restart: unless-stopped
     command: redis-server --save "" --appendonly no --maxmemory 200mb --maxmemory-policy allkeys-lru
     healthcheck:
@@ -98,6 +102,8 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: zitazi-phpmyadmin
     restart: unless-stopped
+    env_file:
+      - path: ./src/.env
     depends_on:
       - mysql
     ports:
@@ -138,6 +144,8 @@ services:
   grafana:
     image: grafana/grafana
     container_name: zitazi-grafana
+    env_file:
+      - path: ./src/.env
     ports:
       - "3001:3000"
     environment:
