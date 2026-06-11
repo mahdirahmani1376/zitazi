@@ -29,3 +29,6 @@ gunzip < "$HOME/Desktop/projects/zitazi/latest_backup.sql.gz" | \
 docker exec -i "$CONTAINER_NAME" mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE"
 
 echo "✅ Restore completed!"
+
+#docker exec -i "zitazi-mysql" mysql -u"root" -p"123" -e "DROP DATABASE IF EXISTS \`zitazi\`; CREATE DATABASE \`zitazi\`;"
+#gunzip db-backup-2026-06-08.sql.gz | docker exec -i "zitazi-mysql" mysql -u"root" -p"123" "zitazi"

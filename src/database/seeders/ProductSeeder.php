@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Actions\LogManager;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
@@ -80,22 +79,8 @@ class ProductSeeder extends Seeder
         }
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
-            foreach ($product->variations as $variation) {
-                $variation->delete();
-                LogManager::logVariation($variation, 'variation deleted', [
-                    'variation_id' => $variation->id,
-                    'variation_own_id' => $variation->own_id,
-                ]);
-            }
-
-            $product->delete();
-            info('deleted_zitazi_product_id', [
+            Log::error('deleted_zitazi_product_id', [
                 'product_id ' => $product->id
-            ]);
-
-            LogManager::logProduct($product, 'product deleted', [
-                'product_id' => $product->id,
-                'product_own_id' => $product->own_id,
             ]);
         });
 
@@ -147,22 +132,8 @@ class ProductSeeder extends Seeder
         }
 
         Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
-            foreach ($product->variations as $variation) {
-                $variation->delete();
-                LogManager::logVariation($variation, 'variation deleted', [
-                    'variation_id' => $variation->id,
-                    'variation_own_id' => $variation->own_id,
-                ]);
-            }
-
-            $product->delete();
-            info('deleted_satreh_product_id', [
+            Log::error('deleted_satreh_product_id', [
                 'product_id' => $product->id
-            ]);
-
-            LogManager::logProduct($product, 'product deleted', [
-                'product_id' => $product->id,
-                'product_own_id' => $product->own_id,
             ]);
         });
 
