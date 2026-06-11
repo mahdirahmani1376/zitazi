@@ -259,6 +259,9 @@ Route::get('/health-check', function () {
 
     \Illuminate\Support\Facades\Cache::delete('test');
 
+    \Illuminate\Support\Facades\Log::info('health check is ok');
+    \Illuminate\Support\Facades\Log::error('health check error is ok');
+
     return response()->json([
         'health' => 'ok'
     ]);
