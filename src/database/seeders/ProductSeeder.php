@@ -74,13 +74,17 @@ class ProductSeeder extends Seeder
 
             } catch (Throwable $e) {
                 dump($e->getMessage());
-                Log::error($e->getMessage());
+                Log::error('seed error', [
+                    'error' => $e->getMessage(),
+                    'type' => 'unknown'
+                ]);
             }
         }
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
-            Log::error('deleted_zitazi_product_id', [
-                'product_id ' => $product->id
+            Log::error('seed error', [
+                'product_id ' => $product->id,
+                'type' => 'not found'
             ]);
         });
 
@@ -132,8 +136,9 @@ class ProductSeeder extends Seeder
         }
 
         Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
-            Log::error('deleted_satreh_product_id', [
-                'product_id' => $product->id
+            Log::error('seed error', [
+                'product_id' => $product->id,
+                'type' => 'not found'
             ]);
         });
 
