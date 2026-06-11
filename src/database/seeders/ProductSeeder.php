@@ -26,6 +26,7 @@ class ProductSeeder extends Seeder
                 'data' => $this->notFoundProductIds
             ]);
         }
+
     }
 
     public function seedZitaziProducts(): void
