@@ -10,6 +10,8 @@ use Throwable;
 
 class ProductSeeder extends Seeder
 {
+    public array $notFoundProductIds = [];
+
     /**
      * Run the database seeds.
      */
@@ -18,6 +20,12 @@ class ProductSeeder extends Seeder
         $this->seedZitaziProducts();
         $this->seedSatreProducts();
 
+        if (!empty($this->notFoundProductIds)) {
+            Log::error('seed error', [
+                'message' => 'not found product Ids',
+                'data' => $this->notFoundProductIds
+            ]);
+        }
     }
 
     public function seedZitaziProducts(): void
@@ -82,6 +90,7 @@ class ProductSeeder extends Seeder
         }
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+            $this->notFoundProductIds[] = $product->id;
             Log::error('seed error', [
                 'product_id ' => $product->id,
                 'type' => 'not found'
@@ -136,6 +145,7 @@ class ProductSeeder extends Seeder
         }
 
         Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+            $this->notFoundProductIds[] = $product->id;
             Log::error('seed error', [
                 'product_id' => $product->id,
                 'type' => 'not found'
