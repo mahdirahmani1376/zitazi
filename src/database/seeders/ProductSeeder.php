@@ -27,6 +27,7 @@ class ProductSeeder extends Seeder
             ]);
         }
 
+
     }
 
     public function seedZitaziProducts(): void
