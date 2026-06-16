@@ -12,20 +12,22 @@ class WoocommerceService
 
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
+        $baseURl = "http://mahdi-rahmani.ir:8880";
         $securityPass = null;
         $securityKey = null;
-        $baseURl = "https://zitazi.com";
+        $appendUrl = null;
 
         if ($source === Product::ZITAZI) {
             $securityKey = env('SECURITY_KEY');
             $securityPass = env('SECURITY_PASS');
+            $appendUrl = 'zitazi';
         } else if ($source === Product::SATRE) {
             $securityKey = env('SATRE_SECURITY_KEY');
             $securityPass = env('SATRE_SECURITY_PASS');
-            $baseURl = "https://satreh.com";
+            $appendUrl = 'satreh';
         }
 
-        $fullUrl = "{$baseURl}/wp-json/wc/v3/{$url}";
+        $fullUrl = "{$baseURl}/$appendUrl/wp-json/wc/v3/{$url}";
 
 
         /** @var Response $response */
