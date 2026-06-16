@@ -12,7 +12,7 @@ class WoocommerceService
 
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
-        $baseURl = "http://mahdi-rahmani.ir";
+        $baseURl = "http://mahdi-rahmani.ir:8880";
         $securityPass = null;
         $securityKey = null;
         $appendUrl = null;
