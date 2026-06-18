@@ -164,6 +164,10 @@ class BaseVariationCrawler
                 'request_url' => $url,
             ]);
 
+            $variation->update([
+                'status' => Variation::GENERAL_ERROR,
+            ]);
+
             return 1;
         }
 
