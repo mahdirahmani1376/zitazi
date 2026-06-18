@@ -4,8 +4,9 @@ namespace App\Services\CurrencyRate;
 
 class ArzDigitalService extends CurrencyRateService implements CurrencyRateDriverInterface
 {
-//    public const BASE_URL = 'https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat';
-    public const BASE_URL = 'http://mahdi-rahmani.ir:8880/arz/web/api/v1/pub/coins?type=fiat';
+    public const BASE_URL = 'https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat';
+
+//    public const BASE_URL = 'http://mahdi-rahmani.ir:8880/arz/web/api/v1/pub/coins?type=fiat';
 
     public function getTRYRate()
     {
