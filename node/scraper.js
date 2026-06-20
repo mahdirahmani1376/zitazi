@@ -60,12 +60,12 @@ async function scrapeDecathlonData(productData) {
     try {
         await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 60000
+            timeout: 90000
         });
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
-            {timeout: 60000}
+            {timeout: 90000}
         );
 
         if (!elHandle) throw new Error("JSON-LD not found");
