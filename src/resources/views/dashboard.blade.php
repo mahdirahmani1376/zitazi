@@ -174,8 +174,6 @@
             <p>{{  \App\Models\Currency::latest()->first()->updated_at ?? 'نا موجود' }}</p>
             <h4>نرخ لیر</h4>
             <p>{{  \App\Models\Currency::syncTryRate() ?? 'نا موجود' }}</p>
-            <h4>نرخ درهم</h4>
-            <p>{{  \App\Models\Currency::syncDirhamTryRate() ?? 'نا موجود' }}</p>
             <h4>منبع</h4>
             <a href="https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat">api ارز دیجیتال</a>
         </div>

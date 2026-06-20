@@ -12,7 +12,7 @@ class CurrencyWidget extends StatsOverviewWidget
     {
         return [
             Stat::make('نرخ لیر', Currency::syncTryRate() ?? '—'),
-            Stat::make('نرخ درهم', Currency::syncDirhamTryRate() ?? '—'),
+//            Stat::make('نرخ درهم', Currency::syncDirhamTryRate() ?? '—'),
             Stat::make(
                 'آخرین بروزرسانی',
                 optional(Currency::latest()->first())->updated_at?->diffForHumans()
