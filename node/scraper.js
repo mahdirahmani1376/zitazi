@@ -67,6 +67,7 @@ async function scrapeDecathlonData(productData) {
             'script[type="application/ld+json"]',
             {visible: false, timeout: 30000}
         );
+
         if (!elHandle) throw new Error("JSON-LD not found");
 
         const el = await page.evaluate(el => el.textContent, elHandle);
