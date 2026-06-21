@@ -146,7 +146,7 @@ async function scrapeTrendyolData(data) {
     let response = null;
 
     try {
-        await page.goto(data.full_url, {
+        response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
             timeout: 60000
         });

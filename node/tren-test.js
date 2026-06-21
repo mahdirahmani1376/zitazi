@@ -12,8 +12,10 @@ async function getVariations() {
     });
 
     const page = await browser.newPage();
-    await page.goto('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=872167503&merchantId=692043', {waitUntil: 'networkidle2'});
+    const response = await page.goto('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=872167503&merchantId=692043', {waitUntil: 'networkidle2'});
     // await page.goto('https://www.trendyol.com/english-home/ethnic-bukle-kilim-80x150-cm-natural-p-966592692?boutiqueId=61&merchantId=107113&v=120-x-180', {waitUntil: 'networkidle2'});
+
+    console.log('status', response.status())
 
     console.log('data', await page.content())
 
