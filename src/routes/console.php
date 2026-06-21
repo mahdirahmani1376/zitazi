@@ -967,3 +967,23 @@ Artisan::command('temp-sync', function () {
         }
     });
 });
+
+Artisan::command('temp-sync-decathlon', function () {
+    Redis::pipeline(function ($pipe) {
+        foreach (Product::query()
+                     ->whereNot('decathlon_url', '=', '')
+                     ->cursor() as $product) {
+
+            $pipe->rpush(
+                'scrape_product',
+                json_encode([
+                    'product' => [
+                        'id' => $product->id,
+                        'decathlon_url' => $product->decathlon_url,
+                    ],
+                    'sync' => false,
+                ])
+            );
+        }
+    });
+});
