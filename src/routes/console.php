@@ -950,6 +950,8 @@ Artisan::command('temp-sync', function () {
                      ->whereNot('trendyol_source', '=', '')
                      ->cursor() as $product) {
 
+            $product->setTrendyolFullUrl();
+
             $pipe->rpush(
                 'scrape_product',
                 json_encode([
