@@ -22,11 +22,10 @@ class WoocommerceService
         } else if ($source === Product::SATRE) {
             $securityKey = env('SATRE_SECURITY_KEY');
             $securityPass = env('SATRE_SECURITY_PASS');
-            $baseURl = "https://satreh.com";
+            $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
         }
 
         $fullUrl = "{$baseURl}/wp-json/wc/v3/{$url}";
-
 
         /** @var Response $response */
         $response = Http::withBasicAuth($securityKey, $securityPass)
