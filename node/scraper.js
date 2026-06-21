@@ -63,6 +63,8 @@ async function scrapeDecathlonData(productData) {
             timeout: 90000
         });
 
+        await delay(4000);
+
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
             {timeout: 90000}
@@ -145,6 +147,8 @@ async function scrapeTrendyolData(data) {
             timeout: 60000
         });
 
+        await delay(4000);
+
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
         });
@@ -173,5 +177,16 @@ async function scrapeTrendyolData(data) {
         });
     }
 }
+
+// Source - https://stackoverflow.com/a/46965281
+// Posted by Md. Abu Taher, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-06-21, License - CC BY-SA 4.0
+
+function delay(time) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, time)
+    });
+}
+
 
 module.exports = beginScrape;
