@@ -56,9 +56,10 @@ async function beginScrape(data) {
 
 async function scrapeDecathlonData(productData) {
     const page = await browser.newPage();
+    let response = null;
 
     try {
-        await page.goto(productData.decathlon_url, {
+        response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
             timeout: 90000
         });
@@ -116,7 +117,8 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             variations,
-            success: true
+            success: true,
+            response_status: response ? response.status() : null,
         };
 
     } catch (err) {
@@ -129,6 +131,7 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             success: false,
+            response_status: response ? response.status() : null,
             error
         };
 
@@ -140,6 +143,7 @@ async function scrapeDecathlonData(productData) {
 
 async function scrapeTrendyolData(data) {
     const page = await browser.newPage();
+    let response = null;
 
     try {
         await page.goto(data.full_url, {
@@ -156,6 +160,7 @@ async function scrapeTrendyolData(data) {
         return {
             product_id: data.id,
             response: responseData,
+            response_status: response ? response.status() : null,
             success: true
         };
 
@@ -168,6 +173,7 @@ async function scrapeTrendyolData(data) {
 
         return {
             product_id: data.id,
+            response_status: response ? response.status() : null,
             success: false,
             error
         };
