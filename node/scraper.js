@@ -132,6 +132,7 @@ async function scrapeDecathlonData(productData) {
             product_id: productData.id,
             success: false,
             response_status: response ? response.status() : null,
+            response_headers: response ? response.headers() : null,
             error
         };
 
@@ -174,6 +175,7 @@ async function scrapeTrendyolData(data) {
         return {
             product_id: data.id,
             response_status: response ? response.status() : null,
+            response_headers: response ? response.headers() : null,
             success: false,
             error
         };
