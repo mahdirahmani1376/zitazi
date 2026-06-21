@@ -25,5 +25,6 @@ jobs:
             git pull origin master
             echo "Running migrations..."
             docker exec zitazi-php php artisan migrate --force
+            docker restart zitazi-nginx
 
 
