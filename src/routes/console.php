@@ -943,3 +943,25 @@ Artisan::command('test-redis', function () {
     }
     dump('finish');
 });
+
+Artisan::command('temp-sync', function () {
+    Redis::pipeline(function ($pipe) {
+        foreach (Product::query()
+                     ->whereNot('trendyol_source', '=', '')
+                     ->cursor() as $product) {
+
+            $pipe->rpush(
+                'scrape_product',
+                json_encode([
+                    'product' => [
+                        'id' => $product->id,
+                        'decathlon_url' => $product->decathlon_url,
+                        'trendyol_source' => $product->trendyol_source,
+                        'full_url' => $product->full_url
+                    ],
+                    'sync' => false,
+                ])
+            );
+        }
+    });
+});
