@@ -20,6 +20,7 @@ class SyncSatrehCommand extends Command
     {
         $variations = Variation::query()
             ->where('base_source', Product::SATRE)
+            ->whereNot('source', '=', Product::SOURCE_DECATHLON)
             ->whereRelation('product', 'promotion', '!=', 1)
             ->get();
 
