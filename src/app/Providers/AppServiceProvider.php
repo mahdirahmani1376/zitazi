@@ -59,5 +59,30 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+//        $data = Product::raw('
+//            select count(*),(
+//                select message from zitazi.log_models lm
+//                where lm.product_id = p.id
+//                order by p.created_at desc
+//                limit 1
+//            ) as message from zitazi.products p
+//            where p.decathlon_url is not null
+//            group by message
+//        ');
+
+//        $data = Product::query()
+//            ->selectRaw('count(*)')
+//            ->addSelect([
+//                'message' => LogModel::query()
+//                    ->select('message')
+//                    ->whereColumn('log_models.product_id', '=', 'products.id')
+//                    ->orderByDesc('created_at')
+//                    ->limit(1)
+//            ])
+//            ->whereNotNull('decathlon_url')
+//            ->groupByRaw('message')
+//            ->get();
+//
+//        dd($data);
     }
 }
