@@ -947,7 +947,7 @@ Artisan::command('test-redis', function () {
 Artisan::command('temp-sync', function () {
     Redis::pipeline(function ($pipe) {
         foreach (Product::query()
-                     ->whereNot('trendyol_source', '=', '')
+                     ->whereNotNull('trendyol_source')
                      ->cursor() as $product) {
 
             $product->setTrendyolFullUrl();
@@ -971,7 +971,7 @@ Artisan::command('temp-sync', function () {
 Artisan::command('temp-sync-decathlon', function () {
     Redis::pipeline(function ($pipe) {
         foreach (Product::query()
-                     ->whereNot('decathlon_url', '=', '')
+                     ->whereNotNull('decathlon_url')
                      ->cursor() as $product) {
 
             $pipe->rpush(

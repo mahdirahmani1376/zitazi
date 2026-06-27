@@ -56,20 +56,25 @@ class ProductSeeder extends Seeder
                     continue;
                 }
                 $allOwnIds[] = $ownId;
+                dump($value);
+
+                $value = array_map(function ($item) {
+                    return empty($item) ? null : $item;
+                }, $value);
 
                 $data = [
-                    'trendyol_source' => data_get($value, 'Trendyol-link'),
-                    'digikala_source' => data_get($value, 'digikala_dkp'),
-                    'torob_source' => urldecode(data_get($value, 'torob_link')),
-                    'torob_id' => !empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
                     'min_price' => $minPrice,
                     'markup' => is_numeric($value['Mark-up']) ? $value['Mark-up'] : null,
                     'category' => data_get($value, 'Category'),
                     'brand' => data_get($value, 'Brand'),
                     'owner' => data_get($value, 'Owner'),
                     'product_name' => data_get($value, 'Product Name'),
+                    'trendyol_source' => data_get($value, 'Trendyol-link'),
                     'decathlon_url' => data_get($value, 'Decathlon_link'),
                     'decathlon_id' => data_get($value, 'decathlon_id'),
+                    'digikala_source' => data_get($value, 'digikala_dkp'),
+                    'torob_source' => urldecode(data_get($value, 'torob_link')),
+                    'torob_id' => !empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
                     'elele_source' => data_get($value, 'Elele_link'),
                     'matilda_source' => data_get($value, 'matilda_source'),
                     'sazkala_source' => data_get($value, 'sazkala_url'),

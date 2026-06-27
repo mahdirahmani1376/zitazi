@@ -69,7 +69,7 @@ Route::put('/variations/{variation}/update', function (
 Route::get('decathlon-list', function () {
     return Response::json([
         'data' => Product::query()
-            ->whereNot('decathlon_url', '=', '')
+            ->whereNotNull('decathlon_url')
             ->orderBy('updated_at', 'asc')
             ->paginate()
     ]);
@@ -78,7 +78,7 @@ Route::get('decathlon-list', function () {
 Route::get('trendyol-list', function () {
 
     $data = Product::query()
-        ->whereNot('trendyol_source', '=', '')
+        ->whereNotNull('trendyol_source')
         ->orderBy('updated_at', 'asc')
         ->paginate()
         ->through(function ($product) {
@@ -102,7 +102,7 @@ Route::get('trendyol-list', function () {
 Route::get('decathlon-list-retry', function () {
     return Response::json([
         'data' => Product::query()
-            ->whereNot('decathlon_url', '=', '')
+            ->whereNotNull('decathlon_url')
             ->whereDoesntHave('variations')
             ->paginate()
     ]);
@@ -151,7 +151,7 @@ Route::post('update-decathlon-product', function (Request $request) {
 Route::get('decathlon-list-test', function () {
     return Response::json([
         'data' => Product::query()
-            ->whereNot('decathlon_url', '=', '')
+            ->whereNotNull('decathlon_url')
             ->orderBy('updated_at', 'asc')
             ->pluck('id')
     ]);
@@ -160,7 +160,7 @@ Route::get('decathlon-list-test', function () {
 Route::get('eth-list', function () {
     return Response::json([
         'data' => Product::query()
-            ->whereNot('eth_source', '=', '')
+            ->whereNotNull('elele_source')
             ->orderBy('updated_at', 'asc')
             ->paginate()
     ]);

@@ -23,7 +23,7 @@ class SyncVariationCommand extends Command
         $jobs = Variation::query()
             ->where(function (Builder $query) {
                 $query
-                    ->whereNot('url', '=', '')
+                    ->whereNotNull('url')
                     ->whereNotIn('source', [
                         Product::SOURCE_DECATHLON,
                         Product::SOURCE_AMAZON
