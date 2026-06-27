@@ -64,7 +64,7 @@ async function scrapeDecathlonData(productData) {
             timeout: 90000
         });
 
-        await delay(3000);
+        await delay(10000);
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
