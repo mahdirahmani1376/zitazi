@@ -21,6 +21,18 @@ class SeedVariationsForTrendyolAction
                 'product_id' => $product->id,
                 'product_own_id' => $product->own_id,
             ]);
+
+            foreach ($product->variations as $variation) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                    'price' => $variation->rial_price
+                ]);
+
+                SyncZitaziJob::dispatchSync($variation, $updateData);
+
+                $variation->delete();
+            }
+
             return;
         }
 
