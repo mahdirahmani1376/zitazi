@@ -29,8 +29,6 @@ class SeedVariationsForTrendyolAction
                 ]);
 
                 SyncZitaziJob::dispatchSync($variation, $updateData);
-
-                $variation->delete();
             }
 
             return;
