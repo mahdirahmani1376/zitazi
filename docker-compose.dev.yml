@@ -38,6 +38,7 @@ services:
       - "3308:3306"
     volumes:
       - ./mysql:/var/lib/mysql
+      - /root/zitazi/mysql-conf/mysqld.cnf:/etc/mysql/mysqld.cnf
     networks:
       - app-network
     container_name: zitazi-mysql
