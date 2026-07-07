@@ -68,7 +68,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - /root/zitazi/mysql-conf/mysqld.cnf:/etc/mysql/mysqld.cnf
+      - /root/zitazi/mysql-conf/my.cnf:/etc/mysql/my.cnf
       - /root/zitazi/mysql:/var/lib/mysql
     networks:
       - app-network
