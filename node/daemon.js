@@ -1,12 +1,11 @@
 const Redis = require('ioredis');
-const beginScrape = require('./scraper'); // FIXED
+const beginScrape = require('./scraper');
 
 const redis = new Redis({
     host: 'zitazi-redis',
     port: 6379,
 });
 
-// IMPORTANT: match Laravel prefix OR remove prefix in Laravel
 const QUEUE_IN = 'laravel_database_scrape_product';
 const QUEUE_OUT = 'laravel_database_scrape_result';
 

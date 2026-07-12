@@ -16,9 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed --force')->dailyAt('09:00');
-        $schedule->command('temp-sync')->dailyAt('15:00');
-        $schedule->command('temp-sync-decathlon')->dailyAt('15:00');
+        $schedule->command('db:seed --force')->dailyAt('08:00');
+        $schedule->command('app:bulk-scrape')->dailyAt('12:00');
         $schedule->command('app:sync-zitazi')->dailyAt('21:00');
         $schedule->command('app:sync-satreh')->dailyAt('21:00');
         $schedule->command('model:prune')
