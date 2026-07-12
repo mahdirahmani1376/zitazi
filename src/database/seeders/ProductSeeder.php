@@ -56,7 +56,6 @@ class ProductSeeder extends Seeder
                     continue;
                 }
                 $allOwnIds[] = $ownId;
-                dump($value);
 
                 $value = array_map(function ($item) {
                     return empty($item) ? null : $item;
