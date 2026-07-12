@@ -73,9 +73,9 @@ class ListenForScrapeResponseCommand extends Command
         } else {
             $product = Product::findOrFail($messageArray['product_id']);
             if ($product->belongsToDecalthon()) {
-                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['sync'] ?? false);
+                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             } else if ($product->belongsToTrendyol()) {
-                app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['sync'] ?? false);
+                app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
         }
     }

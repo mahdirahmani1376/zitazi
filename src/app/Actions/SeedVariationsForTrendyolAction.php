@@ -12,8 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SeedVariationsForTrendyolAction
 {
-    public function execute($response, $sync = false)
+    public function execute($response, $bulk = false)
     {
+        $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
+
         $data = data_get($response, 'response.result.variants', []);
         $product = Product::find($response['product_id']);
         if (empty($data)) {
@@ -28,9 +30,7 @@ class SeedVariationsForTrendyolAction
                     'price' => $variation->rial_price
                 ]);
 
-                if ($sync) {
-                    SyncZitaziJob::dispatch($variation, $updateData);
-                }
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
             }
 
             return;
@@ -61,20 +61,18 @@ class SeedVariationsForTrendyolAction
 
                 $availableVariations[] = $item['itemNumber'];
 
-                if ($sync) {
-                    LogManager::logVariation($variation, 'sending-trendyol-variation-update', [
-                        'variation_id' => $variation->id,
-                        'data' => [
-                            'stock_quantity' => $variation->stock,
-                            'price' => $variation->rial_price
-                        ]
-                    ]);
-                    $updateData = ZitaziUpdateDTO::createFromArray([
+                LogManager::logVariation($variation, 'sending-trendyol-variation-update', [
+                    'variation_id' => $variation->id,
+                    'data' => [
                         'stock_quantity' => $variation->stock,
                         'price' => $variation->rial_price
-                    ]);
-                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue('sync-products');
-                }
+                    ]
+                ]);
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $variation->rial_price
+                ]);
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
             }
 
@@ -88,7 +86,7 @@ class SeedVariationsForTrendyolAction
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
 
-            $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
+            $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $queue) {
 
                 LogManager::logProduct($variation->product, 'variation not found on source site', [
                     'available_variations' => $availableVariations,
@@ -106,7 +104,7 @@ class SeedVariationsForTrendyolAction
                         'stock' => 0,
                     ]);
 
-                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
                 }
 
                 $variation->delete();

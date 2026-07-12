@@ -28,7 +28,7 @@ async function waitForQueue() {
     const data = JSON.parse(result[1]);
 
     const response = await beginScrape(data.product);
-    response.sync = data.sync
+    response.bulk = data.bulk ?? false
 
     await redis.rpush(
         QUEUE_OUT,

@@ -28,7 +28,7 @@ class BulkScrapeProductsCommand extends Command
                     'scrape_product',
                     json_encode([
                         'product' => $product->toArray(),
-                        'sync' => true,
+                        'bulk' => true,
                     ])
                 );
             }
