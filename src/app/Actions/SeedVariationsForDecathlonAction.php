@@ -12,8 +12,10 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SeedVariationsForDecathlonAction
 {
-    public function execute($result, $sync = false)
+    public function execute($result, $bulk = false)
     {
+        $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
+
         $product = Product::find($result['product_id']);
 
         $variationsRawData = $result['variations'];
@@ -48,21 +50,19 @@ class SeedVariationsForDecathlonAction
                 'sku' => $variationRawData['sku'],
             ], $createData);
 
-            if ($sync) {
-                LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
-                    'variation_id' => $variation->id,
-                    'data' => [
-                        'stock_quantity' => $variation->stock,
-                        'price' => $variation->rial_price
-                    ]
-                ]);
-                $updateData = ZitaziUpdateDTO::createFromArray([
+            LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
+                'variation_id' => $variation->id,
+                'data' => [
                     'stock_quantity' => $variation->stock,
                     'price' => $variation->rial_price
-                ]);
+                ]
+            ]);
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => $variation->stock,
+                'price' => $variation->rial_price
+            ]);
 
-                SyncZitaziJob::dispatch($variation, $updateData)->onQueue('sync-products');
-            }
+            SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
@@ -111,7 +111,7 @@ class SeedVariationsForDecathlonAction
             ->where('source', Product::SOURCE_DECATHLON)
             ->get();
 
-        $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $sync) {
+        $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $queue) {
 
             LogManager::logProduct($variation->product, 'variation not found on source site', [
                 'available_variations' => $availableVariations,
@@ -129,7 +129,7 @@ class SeedVariationsForDecathlonAction
                     'stock' => 0,
                 ]);
 
-                SyncZitaziJob::dispatchSync($variation, $updateData);
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
             }
 
