@@ -26,5 +26,6 @@ jobs:
             echo "Running migrations..."
             docker exec zitazi-php php artisan migrate --force
             docker restart zitazi-node
+            docker restart zitazi-php
 
 
