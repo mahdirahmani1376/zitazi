@@ -29,7 +29,7 @@ class SeedVariationsForTrendyolAction
                 ]);
 
                 if ($sync) {
-                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                    SyncZitaziJob::dispatch($variation, $updateData);
                 }
             }
 

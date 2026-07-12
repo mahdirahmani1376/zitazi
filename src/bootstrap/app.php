@@ -17,9 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('db:seed --force')->dailyAt('08:00');
-        $schedule->command('app:bulk-scrape')->dailyAt('12:00');
-        $schedule->command('app:sync-zitazi')->dailyAt('21:00');
-        $schedule->command('app:sync-satreh')->dailyAt('21:00');
+        $schedule->command('app:bulk-scrape')->dailyAt('18:00');
         $schedule->command('model:prune')
             ->dailyAt('00:00');
     })
