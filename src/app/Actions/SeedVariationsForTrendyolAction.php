@@ -28,7 +28,9 @@ class SeedVariationsForTrendyolAction
                     'price' => $variation->rial_price
                 ]);
 
-                SyncZitaziJob::dispatchSync($variation, $updateData);
+                if ($sync) {
+                    SyncZitaziJob::dispatchSync($variation, $updateData);
+                }
             }
 
             return;

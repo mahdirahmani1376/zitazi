@@ -152,7 +152,7 @@ async function scrapeTrendyolData(data) {
             timeout: 60000
         });
 
-        await delay(1000);
+        await delay(7000);
 
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
