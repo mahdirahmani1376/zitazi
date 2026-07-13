@@ -149,10 +149,10 @@ async function scrapeTrendyolData(data) {
     try {
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 60000
+            timeout: 90000
         });
 
-        await delay(5000);
+        await delay(10000);
 
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
