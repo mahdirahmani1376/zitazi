@@ -30,6 +30,12 @@ class SeedVariationsForTrendyolAction
                     'price' => $variation->rial_price
                 ]);
 
+                $variation->update([
+                    'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+                    'stock' => 0,
+                ]);
+
+
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
             }
 
