@@ -50,13 +50,6 @@ class SeedVariationsForDecathlonAction
                 'sku' => $variationRawData['sku'],
             ], $createData);
 
-            LogManager::logVariation($variation, 'sending-decathlon-variation-update', [
-                'variation_id' => $variation->id,
-                'data' => [
-                    'stock_quantity' => $variation->stock,
-                    'price' => $variation->rial_price
-                ]
-            ]);
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => $variation->stock,
                 'price' => $variation->rial_price
