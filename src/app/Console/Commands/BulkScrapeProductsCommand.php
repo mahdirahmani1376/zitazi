@@ -15,15 +15,18 @@ class BulkScrapeProductsCommand extends Command
     public function handle(): void
     {
         Redis::pipeline(function ($pipe) {
-            foreach (Product::query()->cursor() as $product) {
-                if (!$product->belongsToTrendyol() && !$product->belongsToDecalthon()) {
-                    continue;
-                }
+            foreach (Product::query()->whereNotNull('trendyol_source')->cursor() as $product) {
+                $product->setTrendyolFullUrl();
+                $pipe->rpush(
+                    'scrape_product',
+                    json_encode([
+                        'product' => $product->toArray(),
+                        'bulk' => true,
+                    ])
+                );
+            }
 
-                if ($product->belongsToTrendyol()) {
-                    $product->setTrendyolFullUrl();
-                }
-
+            foreach (Product::query()->whereNotNull('decathlon_url')->cursor() as $product) {
                 $pipe->rpush(
                     'scrape_product',
                     json_encode([
