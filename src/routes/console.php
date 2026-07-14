@@ -960,7 +960,7 @@ Artisan::command('temp-sync', function () {
                         'trendyol_source' => $product->trendyol_source,
                         'full_url' => $product->full_url
                     ],
-                    'sync' => false,
+                    'bulk' => false,
                 ])
             );
         }
@@ -980,7 +980,7 @@ Artisan::command('temp-sync-decathlon', function () {
                         'id' => $product->id,
                         'decathlon_url' => $product->decathlon_url,
                     ],
-                    'sync' => false,
+                    'bulk' => false,
                 ])
             );
         }

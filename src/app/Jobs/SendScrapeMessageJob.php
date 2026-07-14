@@ -32,7 +32,7 @@ class SendScrapeMessageJob implements ShouldQueue
             'scrape_product',
             json_encode([
                 'product' => $product->toArray(),
-                'sync' => true
+                'bulk' => true
             ])
         );
     }
