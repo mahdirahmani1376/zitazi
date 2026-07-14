@@ -132,6 +132,10 @@ class ProductSeeder extends Seeder
                 }
                 $allOwnIds[] = $ownId;
 
+                $value = array_map(function ($item) {
+                    return empty($item) ? null : $item;
+                }, $value);
+
                 $data = [
                     'trendyol_source' => data_get($value, 'Trendyol-link'),
                     'markup' => is_numeric($value['Mark-up']) ? $value['Mark-up'] : null,
