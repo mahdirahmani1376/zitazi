@@ -39,12 +39,12 @@ process.on('SIGTERM', async () => {
 async function beginScrape(data) {
     await getBrowser();
 
-    if (data.decathlon_url) {
-        return scrapeDecathlonData(data);
-    }
-
     if (data.trendyol_source) {
         return scrapeTrendyolData(data);
+    }
+
+    if (data.decathlon_url) {
+        return scrapeDecathlonData(data);
     }
 
     return {
