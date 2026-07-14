@@ -158,6 +158,14 @@ async function scrapeTrendyolData(data) {
             return JSON.parse(document.body.innerText);
         });
 
+        if (response?.statusCode === 404) {
+            console.log({
+                'message': 'trendyol empty body',
+                'data': data
+            })
+            await delay(600000)
+        }
+
         return {
             product_id: data.id,
             response: responseData,
