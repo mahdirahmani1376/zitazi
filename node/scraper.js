@@ -170,6 +170,8 @@ async function scrapeTrendyolData(data) {
             product_id: data.id,
             response: responseData,
             response_status: response?.status(),
+            headers: response.headers(),
+            url: response.url(),
             full_url: data.full_url,
             success: true
         };
