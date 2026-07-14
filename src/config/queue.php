@@ -110,4 +110,6 @@ return [
         'table' => 'failed_jobs',
     ],
 
+    'TR_QUEUE_IN' => 'trendyol_scrape_product',
+    'DE_QUEUE_IN' => 'decathlon_scrape_product',
 ];

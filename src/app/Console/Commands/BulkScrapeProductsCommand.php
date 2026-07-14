@@ -8,33 +8,50 @@ use Illuminate\Support\Facades\Redis;
 
 class BulkScrapeProductsCommand extends Command
 {
-    protected $signature = 'app:bulk-scrape';
+    protected $signature = 'app:bulk-scrape {--source=}';
 
-    protected $description = 'Command description';
+    protected $description = 'source options:[tr,de]';
 
     public function handle(): void
     {
         Redis::pipeline(function ($pipe) {
-            foreach (Product::query()->whereNotNull('trendyol_source')->cursor() as $product) {
-                $product->setTrendyolFullUrl();
-                $pipe->rpush(
-                    'scrape_product',
-                    json_encode([
-                        'product' => $product->toArray(),
-                        'bulk' => true,
-                    ])
-                );
+            if ($this->option('source') === 'tr') {
+                foreach (Product::query()
+                             ->whereNotNull('trendyol_source')
+                             ->whereRaw("TRIM(trendyol_source) != ''")
+//                             ->limit(10)
+                             ->cursor() as $product) {
+                    $product->setTrendyolFullUrl();
+                    $pipe->rpush(
+                        config('queue.TR_QUEUE_IN'),
+                        json_encode([
+                            'product' => $product->only([
+                                'id',
+                                'full_url'
+                            ]),
+                            'bulk' => true,
+                        ])
+                    );
+                }
+            } else if ($this->option('source') === 'de') {
+                foreach (Product::query()
+                             ->whereNotNull('decathlon_url')
+                             ->whereRaw("TRIM(decathlon_url) != ''")
+//                             ->limit(5)
+                             ->cursor() as $product) {
+                    $pipe->rpush(
+                        config('queue.DE_QUEUE_IN'),
+                        json_encode([
+                            'product' => $product->only([
+                                'decathlon_url',
+                                'id'
+                            ]),
+                            'bulk' => true,
+                        ])
+                    );
+                }
             }
 
-            foreach (Product::query()->whereNotNull('decathlon_url')->cursor() as $product) {
-                $pipe->rpush(
-                    'scrape_product',
-                    json_encode([
-                        'product' => $product->toArray(),
-                        'bulk' => true,
-                    ])
-                );
-            }
         });
     }
 }

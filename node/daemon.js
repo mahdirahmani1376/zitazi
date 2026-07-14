@@ -1,46 +1,53 @@
 const Redis = require('ioredis');
 const beginScrape = require('./scraper');
 
-const redis = new Redis({
-    host: 'zitazi-redis',
-    port: 6379,
-});
 
-const QUEUE_IN = 'laravel_database_scrape_product';
+function createRedis() {
+    return new Redis({
+        host: 'zitazi-redis',
+        port: 6379,
+    });
+}
+
+const TR_QUEUE_IN = 'laravel_database_trendyol_scrape_product';
+const DE_QUEUE_IN = 'laravel_database_decathlon_scrape_product';
+
 const QUEUE_OUT = 'laravel_database_scrape_result';
 
-async function run() {
+async function runWorker(name, queueIn) {
+    const redis = createRedis();
+    console.log(`${name} worker started...`);
+
     while (true) {
         try {
-            console.log('Scrape worker started...');
-            await waitForQueue()
+
+            const result = await redis.blpop(queueIn, 0)
+
+            const data = JSON.parse(result[1]);
+
+            const response = await beginScrape(name, data.product);
+            response.bulk = data.bulk ?? false
+
+            await redis.rpush(
+                QUEUE_OUT,
+                JSON.stringify(response)
+            );
+
+
+            console.log(JSON.stringify({
+                type: "scrape-response",
+                source: name,
+                product_id: data.product.id,
+                response: response
+            }));
+
         } catch (e) {
-            console.error('Worker error:', e);
+            console.error(`${name} worker error`, e);
         }
     }
 }
 
-async function waitForQueue() {
-    console.log('awaiting user jobs');
-
-    const result = await redis.blpop(QUEUE_IN, 0)
-
-    const data = JSON.parse(result[1]);
-
-    const response = await beginScrape(data.product);
-    response.bulk = data.bulk ?? false
-
-    await redis.rpush(
-        QUEUE_OUT,
-        JSON.stringify(response)
-    );
-
-
-    console.log(JSON.stringify({
-        type: "scrape-response",
-        product_id: data.product.id,
-        response: response
-    }));
-}
-
-run();
+Promise.all([
+    runWorker("Trendyol", TR_QUEUE_IN),
+    runWorker("Decathlon", DE_QUEUE_IN)
+]).catch(console.error);

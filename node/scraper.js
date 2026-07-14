@@ -36,14 +36,14 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 
-async function beginScrape(data) {
+async function beginScrape(name, data) {
     await getBrowser();
 
-    if (data.trendyol_source) {
+    if (name === 'Trendyol') {
         return scrapeTrendyolData(data);
     }
 
-    if (data.decathlon_url) {
+    if (name === "Decathlon") {
         return scrapeDecathlonData(data);
     }
 
@@ -57,18 +57,25 @@ async function beginScrape(data) {
 async function scrapeDecathlonData(productData) {
     const page = await browser.newPage();
     let response = null;
+    if (!productData.decathlon_url?.trim()) {
+        return {
+            product_data: productData,
+            success: false,
+            message: 'empty url provided'
+        };
+    }
 
     try {
         response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 90000
+            timeout: 9000
         });
 
-        await delay(10000);
+        await delay(7000);
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
-            {timeout: 90000}
+            {timeout: 9000}
         );
 
         if (!elHandle) throw new Error("JSON-LD not found");
@@ -122,6 +129,13 @@ async function scrapeDecathlonData(productData) {
         };
 
     } catch (err) {
+        if (response?.status() === 403) {
+            console.log({
+                'message': 'decathlon rate limit',
+                'data': productData
+            })
+            await delay(1000 * 60 * 5)
+        }
 
         const error = {
             name: err.name,
@@ -146,13 +160,20 @@ async function scrapeTrendyolData(data) {
     const page = await browser.newPage();
     let response = null;
 
+    if (!data.full_url?.trim()) {
+        return {
+            product_data: data,
+            success: false,
+            message: 'empty url provided'
+        };
+    }
     try {
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 90000
+            timeout: 9000
         });
 
-        await delay(10000);
+        await delay(3000);
 
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);

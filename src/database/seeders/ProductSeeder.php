@@ -58,7 +58,7 @@ class ProductSeeder extends Seeder
                 $allOwnIds[] = $ownId;
 
                 $value = array_map(function ($item) {
-                    return empty($item) ? null : $item;
+                    return empty(trim($item)) ? null : $item;
                 }, $value);
 
                 $data = [
@@ -133,7 +133,7 @@ class ProductSeeder extends Seeder
                 $allOwnIds[] = $ownId;
 
                 $value = array_map(function ($item) {
-                    return empty($item) ? null : $item;
+                    return empty(trim($item)) ? null : $item;
                 }, $value);
 
                 $data = [
