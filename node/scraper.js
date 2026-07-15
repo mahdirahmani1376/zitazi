@@ -173,13 +173,13 @@ async function scrapeTrendyolData(data) {
             timeout: 1000 * 60
         });
 
-        await delay(3000);
+        await delay(1000 * 5);
 
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
         });
 
-        if (response?.statusCode === 404) {
+        if (responseData?.statusCode === 404) {
             console.log({
                 'message': 'trendyol empty body',
                 'data': data
