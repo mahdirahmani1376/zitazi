@@ -284,3 +284,32 @@ Route::match(['get', 'post'], '/file', function (Request $request) {
 
     return view('files');
 })->name('files');
+
+Route::get('retry-failed-tr', function () {
+    $trFailed = \App\Models\Product::query()
+        ->select('id')
+        ->whereHas('logs', function ($q) {
+            $q
+                ->where('message', 'no variants found for product')
+                ->where('created_at', '>', now()->subDay());
+        })
+        ->whereRaw('trim(trendyol_source) != ""')
+        ->get();
+
+
+    Redis::pipeline(function ($pipe) use ($trFailed) {
+        foreach ($trFailed as $product) {
+            $product->setTrendyolFullUrl();
+            $pipe->rpush(
+                config('queue.TR_QUEUE_IN'),
+                json_encode([
+                    'product' => $product->only([
+                        'id',
+                        'full_url'
+                    ]),
+                    'bulk' => true,
+                ])
+            );
+        }
+    });
+});
