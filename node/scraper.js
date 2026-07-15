@@ -134,7 +134,7 @@ async function scrapeDecathlonData(productData) {
                 'message': 'decathlon rate limit',
                 'data': productData
             })
-            await delay(1000 * 60 * 5)
+            await delay(1000 * 60 * 10)
         }
 
         const error = {
