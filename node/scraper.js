@@ -68,7 +68,7 @@ async function scrapeDecathlonData(productData) {
     try {
         response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 9000
+            timeout: 1000 * 60
         });
 
         await delay(7000);
@@ -170,7 +170,7 @@ async function scrapeTrendyolData(data) {
     try {
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
-            timeout: 9000
+            timeout: 1000 * 60
         });
 
         await delay(3000);
