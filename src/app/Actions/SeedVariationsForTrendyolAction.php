@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Variation;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Redis;
 
 class SeedVariationsForTrendyolAction
 {
@@ -18,6 +19,24 @@ class SeedVariationsForTrendyolAction
 
         $data = data_get($response, 'response.result.variants', []);
         $product = Product::find($response['product_id']);
+
+        if (data_get($response, 'response.response.statusCode') === 404) {
+            $product->setTrendyolFullUrl();
+
+            Redis::rpush(
+                config('queue.TR_QUEUE_IN'),
+                json_encode([
+                    'product' => $product->only([
+                        'id',
+                        'full_url'
+                    ]),
+                    'bulk' => true,
+                ])
+            );
+
+            LogManager::logProduct($product, 'product pushed back to queue', []);
+        }
+
         if (empty($data)) {
             LogManager::LogProduct($product, 'no variants found for product', [
                 'product_id' => $product->id,
