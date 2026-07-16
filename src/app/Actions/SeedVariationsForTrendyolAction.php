@@ -64,6 +64,7 @@ class SeedVariationsForTrendyolAction
                     'item_type' => $itemType,
                     'status' => Variation::AVAILABLE,
                     'base_source' => $product->base_source,
+                    'updated_at' => now()->toDateTimeString(),
                 ]);
 
                 $availableVariations[] = $item['itemNumber'];

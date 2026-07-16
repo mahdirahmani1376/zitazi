@@ -41,7 +41,7 @@ class SeedVariationsForDecathlonAction
                 'source' => Product::SOURCE_DECATHLON,
                 'item_type' => $itemType,
                 'status' => Variation::AVAILABLE,
-                'updated_at' => now()->toDateString(),
+                'updated_at' => now()->toDateTimeString(),
             ];
 
             $availableVariations[] = $variationRawData['sku'];
