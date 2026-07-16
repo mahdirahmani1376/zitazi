@@ -18,7 +18,7 @@ class SeedVariationsForDecathlonAction
 
         $product = Product::find($result['product_id']);
 
-        $variationsRawData = $result['variations'];
+        $variationsRawData = $result['response_data']['variations'];
         $itemType = Product::PRODUCT_UPDATE;
 
         if (count($variationsRawData) > 1) {

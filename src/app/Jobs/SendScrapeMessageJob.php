@@ -25,6 +25,7 @@ class SendScrapeMessageJob implements ShouldQueue
     {
         $product = $this->product;
         $key = config('queue.DE_QUEUE_IN');
+
         if ($product->belongsToTrendyol()) {
             $product->setTrendyolFullUrl();
             $key = config('queue.TR_QUEUE_IN');
@@ -33,10 +34,7 @@ class SendScrapeMessageJob implements ShouldQueue
         Redis::lPush(
             $key,
             json_encode([
-                'product' => $product->only([
-                    'id',
-                    'full_url'
-                ]),
+                'product' => $product->toArray(),
                 'bulk' => false
             ])
         );

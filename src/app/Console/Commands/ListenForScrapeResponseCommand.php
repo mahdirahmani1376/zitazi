@@ -89,21 +89,6 @@ class ListenForScrapeResponseCommand extends Command
             );
 
             LogManager::logProduct($product, 'product pushed back to queue', []);
-        } elseif (data_get($messageArray, 'response.response.statusCode') === 404 && data_get($messageArray, 'source') === 'Trendyol') {
-            $product->setTrendyolFullUrl();
-
-            Redis::rpush(
-                config('queue.TR_QUEUE_IN'),
-                json_encode([
-                    'product' => $product->only([
-                        'id',
-                        'full_url'
-                    ]),
-                    'bulk' => true,
-                ])
-            );
-
-            LogManager::logProduct($product, 'product pushed back to queue', []);
         }
     }
 

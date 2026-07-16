@@ -123,17 +123,18 @@ async function scrapeDecathlonData(productData) {
 
         return {
             product_id: productData.id,
-            variations,
+            response_data: variations,
             success: true,
             response_status: response ? response.status() : null,
         };
 
     } catch (err) {
         if (response?.status() === 403) {
-            console.log(JSON.stringify({
+            console.error(JSON.stringify({
                 'message': 'decathlon rate limit',
-                'data': productData
+                'data': productData,
             }))
+
             await delay(1000 * 60 * 10)
         }
 
@@ -184,17 +185,18 @@ async function scrapeTrendyolData(data) {
                 'message': 'trendyol empty body',
                 'data': data
             }))
+
             await delay(1000 * 60 * 10)
         }
 
         return {
             product_id: data.id,
-            response: responseData,
+            response_data: responseData,
             response_status: response?.status(),
             headers: response.headers(),
             url: response.url(),
             full_url: data.full_url,
-            success: true
+            success: responseData?.isSuccess
         };
 
     } catch (err) {
