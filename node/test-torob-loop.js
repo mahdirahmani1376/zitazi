@@ -40,10 +40,18 @@ async function test() {
         console.log('status', response.status());
         console.log('headers', response.headers());
         // console.log('text',await response.text());
+        await delay(1000 * 7)
 
     }
 
     await browser.close();
 }
+
+function delay(time) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, time)
+    });
+}
+
 
 test()
