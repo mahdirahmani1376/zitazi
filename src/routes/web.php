@@ -293,6 +293,7 @@ Route::get('retry-failed-tr', function () {
                 ->where('message', 'no variants found for product')
                 ->where('created_at', '>', now()->subDay());
         })
+        ->whereNotNull('trendyol_source')
         ->whereRaw('trim(trendyol_source) != ""')
         ->get();
 
