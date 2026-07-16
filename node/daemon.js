@@ -36,7 +36,7 @@ async function runWorker(name, queueIn) {
 
             console.log(JSON.stringify({
                 type: "scrape-response",
-                level: "info",
+                level: response?.response?.isSuccess || response?.success ? "info" : "error",
                 source: name,
                 product_id: data.product.id,
                 response: response
