@@ -130,10 +130,10 @@ async function scrapeDecathlonData(productData) {
 
     } catch (err) {
         if (response?.status() === 403) {
-            console.log({
+            console.log(JSON.stringify({
                 'message': 'decathlon rate limit',
                 'data': productData
-            })
+            }))
             await delay(1000 * 60 * 10)
         }
 
@@ -180,10 +180,10 @@ async function scrapeTrendyolData(data) {
         });
 
         if (responseData?.statusCode === 404) {
-            console.log({
+            console.log(JSON.stringify({
                 'message': 'trendyol empty body',
                 'data': data
-            })
+            }))
             await delay(1000 * 60 * 5)
         }
 
