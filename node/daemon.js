@@ -33,10 +33,16 @@ async function runWorker(name, queueIn) {
                 JSON.stringify(response)
             );
 
+            let level = 'info';
+            if (data.source === 'Trendyol') {
+                level = response?.isSuccess ? "info" : "error"
+            } else if (data.source === 'Decathlon') {
+                level = response?.response_status === 200 ? "info" : "error"
+            }
 
             console.log(JSON.stringify({
                 type: "scrape-response",
-                level: response?.response?.isSuccess || response?.success ? "info" : "error",
+                level: level,
                 source: name,
                 product_id: data.product.id,
                 response: response
