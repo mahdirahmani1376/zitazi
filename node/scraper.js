@@ -184,7 +184,7 @@ async function scrapeTrendyolData(data) {
                 'message': 'trendyol empty body',
                 'data': data
             }))
-            await delay(1000 * 60 * 5)
+            await delay(1000 * 60 * 10)
         }
 
         return {
