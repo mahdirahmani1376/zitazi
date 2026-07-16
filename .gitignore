@@ -37,3 +37,4 @@ node/node_modules
 /src/supervisord.pid
 /.env.infra
 /todo.txt
+/.env.prod
