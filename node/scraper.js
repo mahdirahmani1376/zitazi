@@ -135,7 +135,7 @@ async function scrapeDecathlonData(productData) {
                 'data': productData,
             }))
 
-            await delay(1000 * 60 * 10)
+            await delay(1000 * 60 * 20)
         }
 
         const error = {
@@ -186,7 +186,7 @@ async function scrapeTrendyolData(data) {
                 'data': data
             }))
 
-            await delay(1000 * 60 * 10)
+            await delay(1000 * 60 * 20)
         }
 
         return {
