@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Actions\LogManager;
 use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
+use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
@@ -53,10 +55,56 @@ class ListenForScrapeResponseCommand extends Command
 
                 SyncLog::create($data);
             }
+
+
+            $updateData = ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => 0,
+                'price' => $variation->rial_price
+            ]);
+
+            $variation->update([
+                'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
+                'stock' => 0,
+            ]);
+
+            $queue = data_get($messageArray, 'response.bulk') ? 'bulk-sync-products' : 'sync-products';
+
+            SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
         }
+
         LogManager::logProduct($product, 'sync-error', [
             'result' => $messageArray,
         ]);
+
+        if (data_get($messageArray, 'response.response_status') === 403 && data_get($messageArray, 'source') === 'Decathlon') {
+            Redis::rpush(
+                config('queue.DE_QUEUE_IN'),
+                json_encode([
+                    'product' => $product->only([
+                        'decathlon_url',
+                        'id'
+                    ]),
+                    'bulk' => true,
+                ])
+            );
+
+            LogManager::logProduct($product, 'product pushed back to queue', []);
+        } elseif (data_get($messageArray, 'response.response.statusCode') === 404 && data_get($messageArray, 'source') === 'Trendyol') {
+            $product->setTrendyolFullUrl();
+
+            Redis::rpush(
+                config('queue.TR_QUEUE_IN'),
+                json_encode([
+                    'product' => $product->only([
+                        'id',
+                        'full_url'
+                    ]),
+                    'bulk' => true,
+                ])
+            );
+
+            LogManager::logProduct($product, 'product pushed back to queue', []);
+        }
     }
 
     private function listenForMessages(): void
