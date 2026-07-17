@@ -35,7 +35,7 @@ async function runWorker(name, queueIn) {
 
             let level = 'info';
             if (data.source === 'Trendyol') {
-                level = response?.response_data?.isSuccess ? "info" : "error"
+                level = response?.response_data?.statusCode === 200 ? "info" : "error"
             } else if (data.source === 'Decathlon') {
                 level = response?.response_status === 200 ? "info" : "error"
             }
