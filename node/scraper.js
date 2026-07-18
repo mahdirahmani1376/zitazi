@@ -25,7 +25,10 @@ async function getBrowser() {
 
     browser.on('disconnected', () => {
 
-        console.log("Browser disconnected");
+        console.log(JSON.stringify({
+            'message': "Browser disconnected",
+            'level': 'debug'
+        }));
 
         browser = null;
 
@@ -37,14 +40,21 @@ async function getBrowser() {
 }
 
 process.on('SIGINT', async () => {
-    console.log('Shutting down...');
+    console.log(JSON.stringify({
+        'message': "Shutting down...",
+        'level': 'debug'
+    }));
+
     if (browser) await browser.close().catch(() => {
     });
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-    console.log('Terminating...');
+    console.log(JSON.stringify({
+        'message': "Terminating...",
+        'level': 'debug'
+    }));
     if (browser) await browser.close().catch(() => {
     });
     process.exit(0);
@@ -67,15 +77,18 @@ async function beginScrape(name, data) {
         result = scrapeDecathlonData(data);
     }
 
-    console.log('page-data', {
+    console.debug(JSON.stringify({
+        'message': "page-data",
+        'level': 'debug',
         pages: (await browser.pages()).length,
         connected: browser.connected
-    });
+    }));
 
-    console.log(
-        "goto:",
-        Date.now() - start
-    );
+    console.debug(JSON.stringify({
+        'message': "goto:",
+        'level': 'debug',
+        time: Date.now() - start
+    }));
 
     return result;
 }
@@ -236,9 +249,9 @@ async function scrapeTrendyolData(data) {
         });
 
         if (responseData?.statusCode === 404) {
-            console.log(JSON.stringify({
+            console.error(JSON.stringify({
                 'message': 'trendyol empty body',
-                'data': data
+                'data': data,
             }))
 
             await delay(1000 * 60 * 20)
@@ -295,14 +308,15 @@ function delay(time) {
 }
 
 setInterval(async () => {
-
     try {
-
-        console.log(await browser.version());
-
+        console.debug(JSON.stringify({
+            'message': "browser version",
+            version: await browser.version()
+        }));
     } catch (e) {
-
-        console.log("Browser unhealthy");
+        console.error(JSON.stringify({
+            'message': "Browser unhealthy",
+        }));
 
         browser = null;
 
