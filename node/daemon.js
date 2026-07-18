@@ -37,16 +37,25 @@ async function runWorker(name, queueIn) {
             if (data.source === 'Trendyol') {
                 level = response?.response_data?.statusCode === 200 || response.success ? "info" : "error"
             } else if (data.source === 'Decathlon') {
-                level = response?.response_status === 200 ? "info" : "error"
+                level = response?.response_status === 200 && response.success ? "info" : "error"
             }
 
-            console.info(JSON.stringify({
-                type: "scrape-response",
-                level: level,
-                source: name,
-                product_id: data.product.id,
-                response: response
-            }));
+            if (level === 'info') {
+                console.info(JSON.stringify({
+                    type: "scrape-response",
+                    source: name,
+                    product_id: data.product.id,
+                    response: response
+                }));
+            } else {
+                console.error(JSON.stringify({
+                    type: "scrape-response",
+                    source: name,
+                    product_id: data.product.id,
+                    response: response
+                }));
+            }
+
 
         } catch (e) {
             console.error(`${name} worker error`, e);
