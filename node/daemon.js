@@ -35,11 +35,11 @@ async function runWorker(name, queueIn) {
 
             let level = 'debug';
 
-            if (data.source === 'Trendyol') {
+            if (name === 'Trendyol') {
                 level = response?.response_data?.statusCode === 200 && response.success
                     ? 'info'
                     : 'error';
-            } else if (data.source === 'Decathlon') {
+            } else if (name === 'Decathlon') {
                 level = response?.response_status === 200 && response.success
                     ? 'info'
                     : 'error';
