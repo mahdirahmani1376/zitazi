@@ -23,8 +23,7 @@ async function getBrowser() {
         pageCounter = 0;
     }
 
-    browser.on('disconnected', () => {
-
+    browser.on('disconnected', async () => {
         console.log(JSON.stringify({
             'message': "Browser disconnected",
             'level': 'debug'
@@ -32,6 +31,7 @@ async function getBrowser() {
 
         browser = null;
 
+        await delay(1000 * 10)
     });
 
     pageCounter++;
