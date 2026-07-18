@@ -52,6 +52,7 @@ async function runWorker(name, queueIn) {
                 source: name,
                 product_id: data.product.id,
                 response,
+                level: level
             }));
 
 
