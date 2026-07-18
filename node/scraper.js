@@ -4,6 +4,7 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
 let browser;
+let pageCounter = 0;
 
 async function getBrowser() {
     if (!browser) {
@@ -18,7 +19,20 @@ async function getBrowser() {
                 '--no-zygote',
             ]
         });
+
+        pageCounter = 0;
     }
+
+    browser.on('disconnected', () => {
+
+        console.log("Browser disconnected");
+
+        browser = null;
+
+    });
+
+    pageCounter++;
+
     return browser;
 }
 
@@ -39,19 +53,31 @@ process.on('SIGTERM', async () => {
 async function beginScrape(name, data) {
     await getBrowser();
 
-    if (name === 'Trendyol') {
-        return scrapeTrendyolData(data);
-    }
+    const start = Date.now();
 
-    if (name === "Decathlon") {
-        return scrapeDecathlonData(data);
-    }
-
-    return {
+    let result = {
         product_id: data.id,
         success: false,
         error: "no valid source"
     };
+
+    if (name === 'Trendyol') {
+        result = scrapeTrendyolData(data);
+    } else if (name === "Decathlon") {
+        result = scrapeDecathlonData(data);
+    }
+
+    console.log('page-data', {
+        pages: (await browser.pages()).length,
+        connected: browser.connected
+    });
+
+    console.log(
+        "goto:",
+        Date.now() - start
+    );
+
+    return result;
 }
 
 async function scrapeDecathlonData(productData) {
@@ -66,10 +92,29 @@ async function scrapeDecathlonData(productData) {
     }
 
     try {
+        await page.setRequestInterception(true);
+
+        page.on('request', req => {
+
+            const type = req.resourceType();
+
+            if (
+                type === 'image' ||
+                type === 'font' ||
+                type === 'media'
+            ) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+
+        });
+
         response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
             timeout: 1000 * 60
         });
+
 
         const delayTime = Math.floor(Math.random() * (7000 - 2000) + 2000);
         await delay(delayTime);
@@ -139,6 +184,14 @@ async function scrapeDecathlonData(productData) {
             await delay(1000 * 60 * 20)
         }
 
+        if (err.name === "TimeoutError") {
+
+            await browser.close();
+
+            browser = null;
+
+        }
+
         const error = {
             name: err.name,
             message: err.message
@@ -203,6 +256,14 @@ async function scrapeTrendyolData(data) {
 
     } catch (err) {
 
+        if (err.name === "TimeoutError") {
+
+            await browser.close();
+
+            browser = null;
+
+        }
+
         const error = {
             name: err.name,
             message: err.message
@@ -233,5 +294,20 @@ function delay(time) {
     });
 }
 
+setInterval(async () => {
+
+    try {
+
+        console.log(await browser.version());
+
+    } catch (e) {
+
+        console.log("Browser unhealthy");
+
+        browser = null;
+
+    }
+
+}, 60000);
 
 module.exports = beginScrape;
