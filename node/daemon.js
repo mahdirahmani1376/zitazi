@@ -16,7 +16,7 @@ const QUEUE_OUT = 'laravel_database_scrape_result';
 
 async function runWorker(name, queueIn) {
     const redis = createRedis();
-    console.log(`${name} worker started...`);
+    console.info(`${name} worker started...`);
 
     while (true) {
         try {
@@ -40,7 +40,7 @@ async function runWorker(name, queueIn) {
                 level = response?.response_status === 200 ? "info" : "error"
             }
 
-            console.log(JSON.stringify({
+            console.info(JSON.stringify({
                 type: "scrape-response",
                 level: level,
                 source: name,
