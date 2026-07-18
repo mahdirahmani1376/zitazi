@@ -33,28 +33,26 @@ async function runWorker(name, queueIn) {
                 JSON.stringify(response)
             );
 
-            let level = 'info';
+            let level = 'debug';
+
             if (data.source === 'Trendyol') {
-                level = response?.response_data?.statusCode === 200 || response.success ? "info" : "error"
+                level = response?.response_data?.statusCode === 200 && response.success
+                    ? 'info'
+                    : 'error';
             } else if (data.source === 'Decathlon') {
-                level = response?.response_status === 200 && response.success ? "info" : "error"
+                level = response?.response_status === 200 && response.success
+                    ? 'info'
+                    : 'error';
             }
 
-            if (level === 'info') {
-                console.info(JSON.stringify({
-                    type: "scrape-response",
-                    source: name,
-                    product_id: data.product.id,
-                    response: response
-                }));
-            } else {
-                console.error(JSON.stringify({
-                    type: "scrape-response",
-                    source: name,
-                    product_id: data.product.id,
-                    response: response
-                }));
-            }
+            const logger = console[level] ?? console.log;
+
+            logger(JSON.stringify({
+                type: "scrape-response",
+                source: name,
+                product_id: data.product.id,
+                response,
+            }));
 
 
         } catch (e) {
