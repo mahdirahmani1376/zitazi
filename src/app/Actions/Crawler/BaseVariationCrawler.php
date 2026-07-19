@@ -131,25 +131,23 @@ class BaseVariationCrawler
                 $variation->update([
                     'status' => Variation::INVALID_VARIATION_ID,
                 ]);
-            }
-
-            if ($code == 'woocommerce_rest_product_invalid_id') {
+            } else if ($code == 'woocommerce_rest_product_invalid_id') {
                 $variation->update([
                     'status' => Variation::INVALID_PRODUCT_ID,
                 ]);
-            }
-
-            if ($response->getStatusCode() === 504) {
+            } else if ($response->getStatusCode() === 504) {
                 $variation->update([
                     'status' => Variation::STATUS_504,
                 ]);
-            }
-
-            if ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
+            } else if ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
                 $variation->update([
                     'status' => Variation::EMPTY_BODY,
                 ]);
                 return 3;
+            } else {
+                $variation->update([
+                    'status' => Variation::GENERAL_ERROR,
+                ]);
             }
 
             return 1;
