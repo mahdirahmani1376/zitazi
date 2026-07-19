@@ -24,10 +24,17 @@ class ImportDecathlonVariation implements OnEachRow, WithHeadingRow, WithChunkRe
 
     public function onRow(Row $row)
     {
-        return $this->updateVariationFromRow($row->toArray());
+        try {
+            return $this->updateVariationFromRow($row->toArray());
+        } catch (\Throwable $e) {
+            Log::error('import-error', [
+                'error' => $e->getMessage(),
+                'row' => $row->toArray()
+            ]);
+        }
     }
 
-    public function updateVariationFromRow(array $row)
+    public function updateVariationFromRow(array $row): Variation
     {
         $result = Variation::where('id', $row['شناسه تنوع در وب سرویس'])->first();
         if (empty($result)) {
