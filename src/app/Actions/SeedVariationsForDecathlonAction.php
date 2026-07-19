@@ -59,10 +59,6 @@ class SeedVariationsForDecathlonAction
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
-
-            LogManager::logVariation($variation, 'decathlon-variation-updated', [
-                'data' => $createData,
-            ]);
             if ($oldStock != $variation->stock || $oldPrice != $variation->rial_price) {
                 $data = [
                     'old_stock' => $oldStock,
