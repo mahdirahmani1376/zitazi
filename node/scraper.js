@@ -66,19 +66,6 @@ async function beginScrape(name, data) {
         result = scrapeDecathlonData(data);
     }
 
-    console.debug(JSON.stringify({
-        'message': "page-data",
-        'level': 'debug',
-        pages: (await browser.pages()).length,
-        connected: browser.connected
-    }));
-
-    console.debug(JSON.stringify({
-        'message': "goto:",
-        'level': 'debug',
-        time: Date.now() - start
-    }));
-
     return result;
 }
 
@@ -217,14 +204,16 @@ async function scrapeTrendyolData(data) {
     const page = await browser.newPage();
     let response = null;
 
-    if (!data.full_url?.trim()) {
-        return {
-            product_data: data,
-            success: false,
-            message: 'empty url provided'
-        };
-    }
+
     try {
+        if (!data.full_url?.trim()) {
+            return {
+                product_data: data,
+                success: false,
+                message: 'empty url provided'
+            };
+        }
+
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
             timeout: 1000 * 60
@@ -295,22 +284,5 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-
-setInterval(async () => {
-    try {
-        console.debug(JSON.stringify({
-            'message': "browser version",
-            version: await browser.version()
-        }));
-    } catch (e) {
-        console.error(JSON.stringify({
-            'message': "Browser unhealthy",
-        }));
-
-        browser = null;
-
-    }
-
-}, 60000);
 
 module.exports = beginScrape;
