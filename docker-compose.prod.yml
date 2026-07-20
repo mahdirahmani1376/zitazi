@@ -69,7 +69,7 @@ services:
       - "3308:3306"
     volumes:
       - /root/zitazi/mysql-conf/my.cnf:/etc/mysql/my.cnf
-      - zitazi-mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     networks:
       - app-network
     container_name: zitazi-mysql
@@ -80,7 +80,7 @@ services:
   redis:
     image: redis:latest
     volumes:
-      - zitazi-redis-data:/data
+      - redis-data:/data
     environment:
       TZ: Asia/Tehran
     ports:
