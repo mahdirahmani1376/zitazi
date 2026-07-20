@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class SendScrapeMessageJob implements ShouldQueue
@@ -25,18 +26,23 @@ class SendScrapeMessageJob implements ShouldQueue
     {
         $product = $this->product;
         $key = config('queue.DE_QUEUE_IN');
+
         if ($product->belongsToTrendyol()) {
             $product->setTrendyolFullUrl();
+            if (empty($product->full_url)) {
+                Log::error('no full_url for product', [
+                    'product_id' => $product->id,
+                    'trendyol_source' => $product->trendyol_source
+                ]);
+                return;
+            }
             $key = config('queue.TR_QUEUE_IN');
         }
 
         Redis::lPush(
             $key,
             json_encode([
-                'product' => $product->only([
-                    'id',
-                    'full_url'
-                ]),
+                'product' => $product->toArray(),
                 'bulk' => false
             ])
         );

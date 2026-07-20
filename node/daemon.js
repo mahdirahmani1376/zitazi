@@ -16,7 +16,7 @@ const QUEUE_OUT = 'laravel_database_scrape_result';
 
 async function runWorker(name, queueIn) {
     const redis = createRedis();
-    console.log(`${name} worker started...`);
+    console.info(`${name} worker started...`);
 
     while (true) {
         try {
@@ -33,13 +33,28 @@ async function runWorker(name, queueIn) {
                 JSON.stringify(response)
             );
 
+            let level = 'debug';
 
-            console.log(JSON.stringify({
+            if (name === 'Trendyol') {
+                level = response?.response_data?.statusCode === 200 && response.success
+                    ? 'info'
+                    : 'error';
+            } else if (name === 'Decathlon') {
+                level = response?.response_status === 200 && response.success
+                    ? 'info'
+                    : 'error';
+            }
+
+            const logger = console[level] ?? console.log;
+
+            logger(JSON.stringify({
                 type: "scrape-response",
                 source: name,
                 product_id: data.product.id,
-                response: response
+                response,
+                level: level
             }));
+
 
         } catch (e) {
             console.error(`${name} worker error`, e);

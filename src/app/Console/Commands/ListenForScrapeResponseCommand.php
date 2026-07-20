@@ -31,9 +31,68 @@ class ListenForScrapeResponseCommand extends Command
         }
     }
 
-    private function logError($messageArray): void
+    private function proccessTrendyolError($messageArray): void
     {
         $product = Product::find($messageArray['product_id']);
+
+        //todo Attempted to use detached Frame '83E1F739C7D81B6698FDD82AAB3603E9'. Error response.error.message
+        if (data_get($messageArray, 'response.response_data.statusCode') === 410 || !empty(data_get('response.error.message', null))) {
+            $this->unavailableAllVariationsAndLog($product, $messageArray);
+        }
+
+    }
+
+    private function proccessDecathlonError($messageArray): void
+    {
+        $product = Product::find($messageArray['product_id']);
+        if (in_array(data_get($messageArray, 'response.response_status'), [403, 429]) && data_get($messageArray, 'source') === 'Decathlon') {
+            Redis::rpush(
+                config('queue.DE_QUEUE_IN'),
+                json_encode([
+                    'product' => $product->only([
+                        'decathlon_url',
+                        'id'
+                    ]),
+                    'bulk' => true,
+                ])
+            );
+
+            LogManager::logProduct($product, 'product pushed back to queue', []);
+        }
+
+        if (data_get($messageArray, 'response.error.message') === 'offers is not iterable') {
+            $this->unavailableAllVariationsAndLog($product, $messageArray);
+        }
+    }
+
+
+    private function listenForMessages(): void
+    {
+        $this->info('starting to listen');
+
+        $message = Redis::blpop('scrape_result', 0);
+
+        $messageArray = json_decode($message[1], true);
+        $this->info('Message received for product_id: ' . data_get($messageArray, 'product_id'));
+
+        if (!$messageArray['success']) {
+            if ($messageArray['source'] === 'Trendyol') {
+                $this->proccessTrendyolError($messageArray);
+            } elseif ($messageArray['source'] === 'Decathlon') {
+                $this->proccessDecathlonError($messageArray);
+            }
+        } else {
+            $product = Product::findOrFail($messageArray['product_id']);
+            if ($product->belongsToDecalthon()) {
+                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
+            } else if ($product->belongsToTrendyol()) {
+                app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
+            }
+        }
+    }
+
+    private function unavailableAllVariationsAndLog(Product $product, $messageArray): void
+    {
         foreach ($product->variations as $variation) {
             $oldStock = $variation->stock;
             $oldPrice = $variation->price;
@@ -75,57 +134,6 @@ class ListenForScrapeResponseCommand extends Command
         LogManager::logProduct($product, 'sync-error', [
             'result' => $messageArray,
         ]);
-
-        if (data_get($messageArray, 'response.response_status') === 403 && data_get($messageArray, 'source') === 'Decathlon') {
-            Redis::rpush(
-                config('queue.DE_QUEUE_IN'),
-                json_encode([
-                    'product' => $product->only([
-                        'decathlon_url',
-                        'id'
-                    ]),
-                    'bulk' => true,
-                ])
-            );
-
-            LogManager::logProduct($product, 'product pushed back to queue', []);
-        } elseif (data_get($messageArray, 'response.response.statusCode') === 404 && data_get($messageArray, 'source') === 'Trendyol') {
-            $product->setTrendyolFullUrl();
-
-            Redis::rpush(
-                config('queue.TR_QUEUE_IN'),
-                json_encode([
-                    'product' => $product->only([
-                        'id',
-                        'full_url'
-                    ]),
-                    'bulk' => true,
-                ])
-            );
-
-            LogManager::logProduct($product, 'product pushed back to queue', []);
-        }
-    }
-
-    private function listenForMessages(): void
-    {
-        $this->info('starting to listen');
-
-        $message = Redis::blpop('scrape_result', 0);
-
-        $messageArray = json_decode($message[1], true);
-        $this->info('Message received for product_id: ' . data_get($messageArray, 'product_id'));
-
-        if (!$messageArray['success']) {
-            $this->logError($messageArray);
-        } else {
-            $product = Product::findOrFail($messageArray['product_id']);
-            if ($product->belongsToDecalthon()) {
-                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            } else if ($product->belongsToTrendyol()) {
-                app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            }
-        }
     }
 
 }

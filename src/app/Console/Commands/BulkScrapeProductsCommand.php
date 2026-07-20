@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Product;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class BulkScrapeProductsCommand extends Command
@@ -20,6 +21,15 @@ class BulkScrapeProductsCommand extends Command
                          ->whereRaw("TRIM(trendyol_source) != ''")
                          ->cursor() as $product) {
                 $product->setTrendyolFullUrl();
+
+                if (empty($product->full_url)) {
+                    Log::error('no full_url for product', [
+                        'product_id' => $product->id,
+                        'trendyol_source' => $product->trendyol_source
+                    ]);
+                    return;
+                }
+
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
                     json_encode([

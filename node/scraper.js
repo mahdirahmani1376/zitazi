@@ -4,6 +4,7 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
 let browser;
+let pageCounter = 0;
 
 async function getBrowser() {
     if (!browser) {
@@ -18,19 +19,31 @@ async function getBrowser() {
                 '--no-zygote',
             ]
         });
+
+        pageCounter = 0;
     }
+
+    pageCounter++;
+
     return browser;
 }
 
 process.on('SIGINT', async () => {
-    console.log('Shutting down...');
+    console.log(JSON.stringify({
+        'message': "Shutting down...",
+        'level': 'debug'
+    }));
+
     if (browser) await browser.close().catch(() => {
     });
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-    console.log('Terminating...');
+    console.log(JSON.stringify({
+        'message': "Terminating...",
+        'level': 'debug'
+    }));
     if (browser) await browser.close().catch(() => {
     });
     process.exit(0);
@@ -39,19 +52,21 @@ process.on('SIGTERM', async () => {
 async function beginScrape(name, data) {
     await getBrowser();
 
-    if (name === 'Trendyol') {
-        return scrapeTrendyolData(data);
-    }
+    const start = Date.now();
 
-    if (name === "Decathlon") {
-        return scrapeDecathlonData(data);
-    }
-
-    return {
+    let result = {
         product_id: data.id,
         success: false,
         error: "no valid source"
     };
+
+    if (name === 'Trendyol') {
+        result = scrapeTrendyolData(data);
+    } else if (name === "Decathlon") {
+        result = scrapeDecathlonData(data);
+    }
+
+    return result;
 }
 
 async function scrapeDecathlonData(productData) {
@@ -66,12 +81,32 @@ async function scrapeDecathlonData(productData) {
     }
 
     try {
+        await page.setRequestInterception(true);
+
+        page.on('request', req => {
+
+            const type = req.resourceType();
+
+            if (
+                type === 'image' ||
+                type === 'font' ||
+                type === 'media'
+            ) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+
+        });
+
         response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
             timeout: 1000 * 60
         });
 
-        await delay(7000);
+
+        const delayTime = Math.floor(Math.random() * (7000 - 2000) + 2000);
+        await delay(delayTime);
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
@@ -123,18 +158,27 @@ async function scrapeDecathlonData(productData) {
 
         return {
             product_id: productData.id,
-            variations,
+            response_data: variations,
             success: true,
             response_status: response ? response.status() : null,
         };
 
     } catch (err) {
         if (response?.status() === 403) {
-            console.log(JSON.stringify({
+            console.error(JSON.stringify({
                 'message': 'decathlon rate limit',
-                'data': productData
+                'data': productData,
             }))
-            await delay(1000 * 60 * 10)
+
+            await delay(1000 * 60 * 20)
+        }
+
+        if (err.name === "TimeoutError") {
+
+            await browser.close();
+
+            browser = null;
+
         }
 
         const error = {
@@ -160,44 +204,56 @@ async function scrapeTrendyolData(data) {
     const page = await browser.newPage();
     let response = null;
 
-    if (!data.full_url?.trim()) {
-        return {
-            product_data: data,
-            success: false,
-            message: 'empty url provided'
-        };
-    }
+
     try {
+        if (!data.full_url?.trim()) {
+            return {
+                product_data: data,
+                success: false,
+                message: 'empty url provided'
+            };
+        }
+
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
             timeout: 1000 * 60
         });
 
-        await delay(1000 * 7);
+        const delayTime = Math.floor(Math.random() * (5000 - 2000) + 2000);
+        await delay(delayTime);
 
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
         });
 
         if (responseData?.statusCode === 404) {
-            console.log(JSON.stringify({
+            console.error(JSON.stringify({
                 'message': 'trendyol empty body',
-                'data': data
+                'data': data,
             }))
-            await delay(1000 * 60 * 5)
+
+            await delay(1000 * 60 * 20)
         }
 
         return {
             product_id: data.id,
-            response: responseData,
+            response_data: responseData,
             response_status: response?.status(),
             headers: response.headers(),
             url: response.url(),
             full_url: data.full_url,
-            success: true
+            success: responseData?.isSuccess
         };
 
     } catch (err) {
+
+        if (err.name === "TimeoutError") {
+
+            await browser.close();
+
+            browser = null;
+
+        }
 
         const error = {
             name: err.name,
@@ -228,6 +284,5 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-
 
 module.exports = beginScrape;

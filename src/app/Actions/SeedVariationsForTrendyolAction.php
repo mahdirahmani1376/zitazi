@@ -16,8 +16,9 @@ class SeedVariationsForTrendyolAction
     {
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
-        $data = data_get($response, 'response.result.variants', []);
+        $data = data_get($response, 'response_data.result.variants', []);
         $product = Product::find($response['product_id']);
+
         if (empty($data)) {
             LogManager::LogProduct($product, 'no variants found for product', [
                 'product_id' => $product->id,
@@ -63,6 +64,7 @@ class SeedVariationsForTrendyolAction
                     'item_type' => $itemType,
                     'status' => Variation::AVAILABLE,
                     'base_source' => $product->base_source,
+                    'updated_at' => now()->toDateTimeString(),
                 ]);
 
                 $availableVariations[] = $item['itemNumber'];

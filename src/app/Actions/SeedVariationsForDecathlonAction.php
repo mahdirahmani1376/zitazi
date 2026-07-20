@@ -18,7 +18,7 @@ class SeedVariationsForDecathlonAction
 
         $product = Product::find($result['product_id']);
 
-        $variationsRawData = $result['variations'];
+        $variationsRawData = $result['response_data'];
         $itemType = Product::PRODUCT_UPDATE;
 
         if (count($variationsRawData) > 1) {
@@ -41,7 +41,7 @@ class SeedVariationsForDecathlonAction
                 'source' => Product::SOURCE_DECATHLON,
                 'item_type' => $itemType,
                 'status' => Variation::AVAILABLE,
-                'updated_at' => now()->toDateString(),
+                'updated_at' => now()->toDateTimeString(),
             ];
 
             $availableVariations[] = $variationRawData['sku'];
@@ -59,10 +59,6 @@ class SeedVariationsForDecathlonAction
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
-
-            LogManager::logVariation($variation, 'decathlon-variation-updated', [
-                'data' => $createData,
-            ]);
             if ($oldStock != $variation->stock || $oldPrice != $variation->rial_price) {
                 $data = [
                     'old_stock' => $oldStock,
