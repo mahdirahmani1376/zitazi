@@ -21,8 +21,8 @@
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
         "opcodesio/log-viewer": "^3.14",
-        "predis/predis": "^2.3",
-        "symfony/dom-crawler": "^7.2"
+        "symfony/dom-crawler": "^7.2",
+        "tapp/filament-progress-bar-column": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",
