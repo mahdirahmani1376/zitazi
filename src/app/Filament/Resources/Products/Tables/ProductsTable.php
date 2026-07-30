@@ -6,6 +6,7 @@ use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Enums\SyncStatusEnum;
 use App\Exports\FillamentProductExport;
 use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Variations\RelationManagers\ProductRelationManager;
 use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use Filament\Actions\Action;
@@ -36,7 +37,7 @@ class ProductsTable
                     ->searchable(),
                 TextColumn::make('sync_status')
                     ->label('Sync Status')
-                    ->state(function (Product $record, ListProducts $livewire) {
+                    ->state(function (Product $record, ListProducts|ProductRelationManager $livewire) {
                         return data_get($livewire->syncStatuses, $record->id, SyncStatusEnum::NOT_ENQUEUED);
                     })
                     ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
