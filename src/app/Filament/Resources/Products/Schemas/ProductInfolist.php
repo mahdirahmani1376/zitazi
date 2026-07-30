@@ -15,6 +15,12 @@ class ProductInfolist
         return $schema
             ->components([
                 TextEntry::make('own_id'),
+                TextEntry::make('sync_status')
+                    ->label('Sync Status')
+                    ->state(fn(Product $record) => $record->getSyncStatus())
+                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
+                    ->badge()
+                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
                 TextEntry::make('trendyol_source')
                     ->placeholder('-'),
                 TextEntry::make('base_source'),
@@ -65,12 +71,6 @@ class ProductInfolist
                     ->placeholder('-'),
                 TextEntry::make('amazon_source')
                     ->placeholder('-'),
-                TextEntry::make('sync_status')
-                    ->label('Sync Status')
-                    ->state(fn(Product $record) => $record->getSyncStatus())
-                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
-                    ->badge()
-                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
             ]);
     }
 }

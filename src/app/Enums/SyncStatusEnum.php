@@ -27,12 +27,9 @@ enum SyncStatusEnum: string
     {
         return match ($this) {
             self::ENQUEUED => 10,
-            self::PROCESSING => 40,
-            self::SUCCESSFUL_DATA_FETCH => 70,
-            self::SUCCESSFUL_UPDATE,
-            self::SKIPPED_UPDATE => 100,
-            self::FAILED_DATA_FETCH,
-            self::FAILED_UPDATE => 100,
+            self::PROCESSING, self::FAILED_DATA_FETCH => 40,
+            self::SUCCESSFUL_DATA_FETCH, self::FAILED_UPDATE, self::SKIPPED_UPDATE => 70,
+            self::SUCCESSFUL_UPDATE => 100,
             self::NOT_ENQUEUED => 0,
         };
     }
@@ -40,14 +37,14 @@ enum SyncStatusEnum: string
     public function label(): string
     {
         return match ($this) {
-            self::ENQUEUED => 'Enqueued',
-            self::PROCESSING => 'Processing',
-            self::SUCCESSFUL_DATA_FETCH => 'Data Fetched',
-            self::FAILED_DATA_FETCH => 'Data Fetch Failed',
-            self::SUCCESSFUL_UPDATE => 'Successfully Updated',
-            self::SKIPPED_UPDATE => 'Update Skipped',
-            self::FAILED_UPDATE => 'Update Failed',
-            self::NOT_ENQUEUED => 'Not enqueued',
+            self::ENQUEUED => 'اضافه شده به صف',
+            self::PROCESSING => 'در حال پردازش',
+            self::SUCCESSFUL_DATA_FETCH => 'اطلاعات با موفقیت دریافت شده',
+            self::FAILED_DATA_FETCH => 'دریافت اطلاعات با خطا مواجه شد لاگ ها چک شود',
+            self::SUCCESSFUL_UPDATE => 'بروززسانی در سایت مقصد به درستی صورت گرفت',
+            self::SKIPPED_UPDATE => 'بروززسانی در سایت مقصد صورت نگرفت',
+            self::FAILED_UPDATE => 'بروززسانی در سایت مقصد با خطا مواجه شد',
+            self::NOT_ENQUEUED => 'به صف اضافه نشده',
         };
     }
 }

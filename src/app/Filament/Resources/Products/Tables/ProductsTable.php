@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Products\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
+use App\Enums\SyncStatusEnum;
 use App\Exports\FillamentProductExport;
+use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use Filament\Actions\Action;
@@ -32,6 +34,14 @@ class ProductsTable
             ->columns([
                 TextColumn::make('own_id')
                     ->searchable(),
+                TextColumn::make('sync_status')
+                    ->label('Sync Status')
+                    ->state(function (Product $record, ListProducts $livewire) {
+                        return data_get($livewire->syncStatuses, $record->id, SyncStatusEnum::NOT_ENQUEUED);
+                    })
+                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
+                    ->badge()
+                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
                 TextColumn::make('trendyol_source')
                     ->limit(10)
                     ->tooltip(fn($record) => $record->trendyol_source)
