@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\SyncStatusEnum;
+use App\Events\ProductSyncStatusChangedEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Redis;
 
 /** @property $full_url */
 class Product extends Model
@@ -186,5 +189,29 @@ class Product extends Model
         $this->setAttribute('full_url', $url . '?' . $params);
 
         return $this;
+    }
+
+    public function getSyncStatus(): SyncStatusEnum
+    {
+        $status = Redis::get($this->getSyncStatusRedisKey());
+
+        return SyncStatusEnum::tryFrom($status) ?? SyncStatusEnum::NOT_ENQUEUED;
+    }
+
+    public function getSyncStatusRedisKey(): string
+    {
+        return "sync_status_product:{$this->id}";
+    }
+
+    public function setSyncStatus(SyncStatusEnum $statusEnum): void
+    {
+        Redis::set(
+            $this->getSyncStatusRedisKey(),
+            $statusEnum->value,
+            86400
+        );
+
+        ProductSyncStatusChangedEvent::dispatch($this->id, $statusEnum);
+
     }
 }

@@ -12,7 +12,6 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewProduct extends ViewRecord
 {
     protected static string $resource = ProductResource::class;
-
     protected function getHeaderActions(): array
     {
         return [
@@ -28,5 +27,21 @@ class ViewProduct extends ViewRecord
                     return 'Failed to update any record';
                 })
         ];
+    }
+
+    protected function getListeners(): array
+    {
+        return [
+            'echo:product-sync,.product.sync.status.updated' => 'syncStatusUpdated',
+        ];
+    }
+
+    public function syncStatusUpdated(array $data): void
+    {
+        if ((int)$data['product_id'] !== $this->record->id) {
+            return;
+        }
+
+        $this->sync_status = $data['status'];
     }
 }

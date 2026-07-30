@@ -5,6 +5,7 @@ namespace App\Actions\Crawler;
 use App\Actions\HttpService;
 use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
+use App\Enums\SyncStatusEnum;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\SyncLog;
@@ -58,6 +59,9 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
+
+            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+
             return 1;
         }
 
@@ -66,6 +70,9 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
+
+            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+
             return 1;
         }
 
@@ -74,6 +81,9 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);
+
+            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+
             return 1;
         }
 
@@ -100,6 +110,9 @@ class BaseVariationCrawler
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
+
+            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+
             return 1;
         }
 
@@ -117,6 +130,8 @@ class BaseVariationCrawler
                     'status' => Variation::AVAILABLE,
                 ]);
 
+                $variation->product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_UPDATE);
+
                 return 0;
             } else {
                 LogManager::logVariation($variation, 'update failed', [
@@ -124,6 +139,8 @@ class BaseVariationCrawler
                     'response' => $response->body(),
                     'code' => $response->getStatusCode()
                 ]);
+
+                $variation->product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
             }
 
 
@@ -165,6 +182,8 @@ class BaseVariationCrawler
             $variation->update([
                 'status' => Variation::GENERAL_ERROR,
             ]);
+
+            $variation->product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
 
             return 1;
         }

@@ -217,7 +217,7 @@ return [
             ],
             'sync-supervisor' => [
                 'maxProcesses' => 2,
-                'queue' => ['sync-products'],
+                'queue' => ['sync-products', 'events'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
@@ -260,7 +260,7 @@ return [
                 'balance' => 'auto',
             ],
             'supervisor-import' => [
-                'queue' => ['import'],
+                'queue' => ['import', 'events'],
                 'connection' => 'redis',
                 'maxProcesses' => 8,
                 'tries' => 1,

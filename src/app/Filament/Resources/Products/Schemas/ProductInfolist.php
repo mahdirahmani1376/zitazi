@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Enums\SyncStatusEnum;
+use App\Models\Product;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
@@ -63,6 +65,12 @@ class ProductInfolist
                     ->placeholder('-'),
                 TextEntry::make('amazon_source')
                     ->placeholder('-'),
+                TextEntry::make('sync_status')
+                    ->label('Sync Status')
+                    ->state(fn(Product $record) => $record->getSyncStatus())
+                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
+                    ->badge()
+                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
             ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -39,6 +40,8 @@ class SendScrapeMessageJob implements ShouldQueue
             $key = config('queue.TR_QUEUE_IN');
         }
 
+        $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
         Redis::lPush(
             $key,
             json_encode([
@@ -46,5 +49,6 @@ class SendScrapeMessageJob implements ShouldQueue
                 'bulk' => false
             ])
         );
+
     }
 }

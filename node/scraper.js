@@ -222,6 +222,8 @@ async function scrapeTrendyolData(data) {
         const delayTime = Math.floor(Math.random() * (5000 - 2000) + 2000);
         await delay(delayTime);
 
+        await delay(1000 * 10)
+
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
         });

@@ -6,6 +6,7 @@ use App\Actions\LogManager;
 use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
 use App\DTO\ZitaziUpdateDTO;
+use App\Enums\SyncStatusEnum;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
@@ -73,21 +74,35 @@ class ListenForScrapeResponseCommand extends Command
         $message = Redis::blpop('scrape_result', 0);
 
         $messageArray = json_decode($message[1], true);
+
         $this->info('Message received for product_id: ' . data_get($messageArray, 'product_id'));
 
-        if (!$messageArray['success']) {
+        $product = null;
+        if (!empty($messageArray['product_id'])) {
+            $product = Product::findOrFail($messageArray['product_id']);
+        }
+
+        if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
+            $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
+
             if ($messageArray['source'] === 'Trendyol') {
                 $this->proccessTrendyolError($messageArray);
             } elseif ($messageArray['source'] === 'Decathlon') {
                 $this->proccessDecathlonError($messageArray);
             }
-        } else {
-            $product = Product::findOrFail($messageArray['product_id']);
+        } else if (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
+            $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
             if ($product->belongsToDecalthon()) {
                 app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             } else if ($product->belongsToTrendyol()) {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
+        } else {
+            if ($product) {
+                $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
+            }
+
+            $this->error('unknown message structure scrape command message:' . $message);
         }
     }
 
