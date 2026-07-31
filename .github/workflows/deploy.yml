@@ -27,5 +27,5 @@ jobs:
             docker exec zitazi-php php artisan migrate --force
             docker restart zitazi-node
             docker restart zitazi-php
-
+            docker restart zitazi-nginx
 
