@@ -1,7 +1,11 @@
 const Redis = require('ioredis');
 const beginScrape = require('./scraper');
 
+let shuttingDown = false;
 
+process.on('SIGTERM', () => {
+    shuttingDown = true;
+});
 function createRedis() {
     return new Redis({
         host: 'zitazi-redis',
@@ -18,7 +22,7 @@ async function runWorker(name, queueIn) {
     const redis = createRedis();
     console.info(`${name} worker started...`);
 
-    while (true) {
+    while (!shuttingDown) {
         try {
 
             const result = await redis.blpop(queueIn, 0)
