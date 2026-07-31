@@ -38,3 +38,5 @@ node/node_modules
 /.env.infra
 /todo.txt
 /.env.prod
+src/public/.well-known
+nginx/certs
