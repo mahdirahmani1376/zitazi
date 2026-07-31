@@ -32,3 +32,11 @@ echo "✅ Restore completed!"
 
 #docker exec -i "zitazi-mysql" mysql -u"root" -p"123" -e "DROP DATABASE IF EXISTS \`zitazi\`; CREATE DATABASE \`zitazi\`;"
 #gunzip db-backup-2026-06-08.sql.gz | docker exec -i "zitazi-mysql" mysql -u"root" -p"123" "zitazi"
+#
+#/root/.acme.sh/acme.sh --issue \
+#    -d zitazi-crawler.ir \
+#    -d www.zitazi-crawler.ir \
+#    -d ws.zitazi-crawler.ir \
+#    -w /root/zitazi/src/public \
+#    --reloadcmd "docker exec zitazi-nginx nginx -s reload" \
+#    --force
