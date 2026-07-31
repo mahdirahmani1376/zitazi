@@ -39,4 +39,4 @@ node/node_modules
 /todo.txt
 /.env.prod
 src/public/.well-known
-./nginx/certs/*
+./nginx/production/certs/*
