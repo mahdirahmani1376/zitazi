@@ -130,7 +130,9 @@ class BaseVariationCrawler
                     'status' => Variation::AVAILABLE,
                 ]);
 
-                $variation->product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_UPDATE);
+                if (!$variation->product->hasSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH)) {
+                    $variation->product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_UPDATE);
+                }
 
                 return 0;
             } else {

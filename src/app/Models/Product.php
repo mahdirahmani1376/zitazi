@@ -214,4 +214,9 @@ class Product extends Model
         ProductSyncStatusChangedEvent::dispatch($this->id, $statusEnum);
 
     }
+
+    public function hasSyncStatus(SyncStatusEnum $statusEnum)
+    {
+        return $this->getSyncStatus() === $statusEnum;
+    }
 }
