@@ -9,9 +9,6 @@ services:
       - /root/zitazi/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
     networks:
       - app-network
-    ports:
-      - "5173:5173"
-      - "8080:8080"
     container_name: zitazi-php
     restart: unless-stopped
     extra_hosts:
