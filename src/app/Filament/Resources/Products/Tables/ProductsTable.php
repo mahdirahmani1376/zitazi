@@ -38,7 +38,7 @@ class ProductsTable
                 TextColumn::make('sync_status')
                     ->label('Sync Status')
                     ->state(function (Product $record, ListProducts|ProductRelationManager $livewire) {
-                        return data_get($livewire->syncStatuses, $record->id, SyncStatusEnum::NOT_ENQUEUED);
+                        return $record->getSyncStatus();
                     })
                     ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
                     ->badge()
