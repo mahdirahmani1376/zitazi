@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,8 @@ class BulkScrapeProductsCommand extends Command
                     return;
                 }
 
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
                     json_encode([
@@ -48,6 +51,9 @@ class BulkScrapeProductsCommand extends Command
                          ->whereNotNull('decathlon_url')
                          ->whereRaw("TRIM(decathlon_url) != ''")
                          ->cursor() as $product) {
+
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
                 $pipe->rpush(
                     config('queue.DE_QUEUE_IN'),
                     json_encode([
