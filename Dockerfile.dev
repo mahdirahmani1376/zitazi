@@ -1,5 +1,9 @@
 FROM php:8.3-fpm
 
+ARG UID=1000
+ARG GID=1000
+ARG USER=app
+
 USER root
 
 RUN apt-get update && apt-get install -y \
@@ -36,17 +40,7 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY ./src /var/www/html
-
-# Copy your custom php.ini into container
-COPY ./php.ini /usr/local/etc/php/php.ini
-
 RUN mkdir -p /var/log/supervisor
-
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy the entrypoint script
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -54,5 +48,9 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000
 
+RUN groupadd -g ${GID} ${USER} \
+ && useradd -m -u ${UID} -g ${USER} ${USER} \
+ && usermod -aG ${USER} www-data
+
 # Change the default command to run the entrypoint script
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

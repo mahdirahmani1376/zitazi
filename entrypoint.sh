@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
+set -e
 
-/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+chown -R ${USER}:${USER} storage bootstrap/cache
+chmod -R 2775 storage bootstrap/cache
+
+umask 0002
+
+exec "$@"
