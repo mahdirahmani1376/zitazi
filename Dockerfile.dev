@@ -52,5 +52,6 @@ RUN groupadd -g ${GID} ${USER} \
  && useradd -m -u ${UID} -g ${USER} ${USER} \
  && usermod -aG ${USER} www-data
 
-# Change the default command to run the entrypoint script
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+USER ${USER}
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
