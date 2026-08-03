@@ -1,30 +1,50 @@
+x-laravel: &laravel
+  env_file:
+    - path: ./.env.infra
+      required: true
+  build:
+    context: .
+    dockerfile: Dockerfile.dev
+    args:
+      UID: ${UID}
+      GID: ${GID}
+      USER: ${USER}
+  networks:
+    - app-network
+  volumes:
+    - ./src:/var/www/html
+    - ./php.ini:/usr/local/etc/php/php.ini
+  depends_on:
+    - mysql
+    - redis
+
 services:
   php:
-    env_file:
-      - path: ./.env
-        required: true
-    build:
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-        USER: ${USER:-mahdi}
-      context: .
-      dockerfile: ./Dockerfile.dev
-    volumes:
-      - ./src:/var/www/html
-      - ./php.ini:/usr/local/etc/php/php.ini
-      - ./supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
-    networks:
-      - app-network
+    <<: *laravel
+    command: php-fpm
     container_name: zitazi-php
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+  horizon:
+    <<: *laravel
+    container_name: zitazi-horizon
+    command: php artisan horizon
+
+  reverb:
+    <<: *laravel
+    command: php artisan reverb:start
+    container_name: zitazi-reverb
     ports:
-      - "5173:5173"
       - "8080:8080"
-    depends_on:
-      - mysql
-      - redis
+
+  scrape-result:
+    <<: *laravel
+    command: php artisan listen:scrape
+    container_name: zitazi-scrape-result
+
+  sync-status:
+    <<: *laravel
+    command: php artisan listen:sync-status
+    container_name: zitazi-sync-status
 
   nginx:
     image: nginx:latest
@@ -40,11 +60,12 @@ services:
     container_name: zitazi-nginx
     restart: unless-stopped
 
-
   mysql:
+    env_file:
+      - path: ./.env.infra
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3308:3306"
     volumes:
@@ -89,6 +110,8 @@ services:
     shm_size: "1gb"
     mem_limit: 1500m
     command: npx nodemon daemon.js
+    ports:
+      - "5173:5173"
     depends_on:
       - redis
 
