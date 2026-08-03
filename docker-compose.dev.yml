@@ -6,9 +6,9 @@ x-laravel: &laravel
     context: .
     dockerfile: Dockerfile.dev
     args:
-      UID: ${UID}
-      GID: ${GID}
-      USER: ${USER}
+      UID: ${DOCKER_UID}
+      GID: ${DOCKER_GID}
+      USER: ${DOCKER_USER}
   networks:
     - app-network
   volumes:
