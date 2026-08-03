@@ -21,11 +21,11 @@ echo "✅ Latest backup: $LATEST_BACKUP"
 scp -P $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST:"$LATEST_BACKUP" "./latest_backup.sql.gz"
 
 # Drop & recreate DB
-docker exec -i "$DB_CONTAINER" mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" \
+docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" \
     -e "DROP DATABASE IF EXISTS \`$DB_DATABASE\`; CREATE DATABASE \`$DB_DATABASE\`;"
 
 # Restore backup
 gunzip < "$HOME/Desktop/projects/zitazi/latest_backup.sql.gz" | \
-docker exec -i "$DB_CONTAINER" mysql -u"$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE"
+docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" "$DB_DATABASE"
 
 echo "✅ Restore completed!"
