@@ -1,6 +1,6 @@
 x-laravel: &laravel
   env_file:
-    - path: ./.env.infra
+    - path: ./.env
       required: true
   build:
     context: .
@@ -14,6 +14,8 @@ x-laravel: &laravel
   volumes:
     - ./src:/var/www/html
     - ./php.ini:/usr/local/etc/php/php.ini
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
   depends_on:
     - mysql
     - redis
@@ -62,7 +64,7 @@ services:
 
   mysql:
     env_file:
-      - path: ./.env.infra
+      - path: ./.env
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

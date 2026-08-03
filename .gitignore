@@ -35,7 +35,7 @@ mysql/
 node/node_modules
 /src/supervisord.log
 /src/supervisord.pid
-/.env.infra
+/.env
 /todo.txt
 /.env.prod
 src/public/.well-known
