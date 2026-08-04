@@ -131,7 +131,7 @@ services:
     container_name: zitazi-loki
     command: -config.file=/etc/loki/config.yml
     volumes:
-      - /opt/zitazi/loki-config.yml:/etc/loki/config.yml
+      - /opt/zitazi/infra/loki-config.yml:/etc/loki/config.yml
       - loki-data:/loki
     networks:
       - app-network
