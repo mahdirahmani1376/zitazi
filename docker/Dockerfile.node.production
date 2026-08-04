@@ -30,11 +30,11 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-COPY ../node/package.json ./package.json
-COPY ../node/package-lock.json ./package-lock.json
+COPY ./node/package.json ./package.json
+COPY ./node/package-lock.json ./package-lock.json
 
 RUN npm ci --omit=dev
 
-COPY ../node .
+COPY ./node .
 
 EXPOSE 3000

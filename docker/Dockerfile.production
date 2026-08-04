@@ -46,11 +46,11 @@ RUN composer install \
     --classmap-authoritative \
     --no-scripts
 
-COPY ../src/package.json ./src/package-lock.json ./
+COPY ./src/package.json ./src/package-lock.json ./
 
 RUN npm ci
 
-COPY ../src .
+COPY ./src .
 
 RUN composer dump-autoload
 RUN php artisan package:discover --ansi
