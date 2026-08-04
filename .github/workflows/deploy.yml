@@ -44,8 +44,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-php:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=php
+          cache-to: type=gha,mode=max,scope=php
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Nginx image
@@ -55,8 +55,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-nginx:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=nginx
+          cache-to: type=gha,mode=max,scope=nginx
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Node image
@@ -66,8 +66,8 @@ jobs:
           context: ./node
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-node:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=node
+          cache-to: type=gha,mode=max,scope=node
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy:

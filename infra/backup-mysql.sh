@@ -9,19 +9,19 @@ DATE=$(date +%F)
 
 # Load .env file
 set -o allexport
-source /root/zitazi/.env
+source /opt/zitazi/.env
 set +o allexport
 
 echo "env loaded" >> $LOGFILE
 # === Create backup dir if it doesn't exist ===
-mkdir -p /root/backup
+mkdir -p /var/backups/zitazi
 
 # === Cleanup old backups ===
-find /root/backup -type f -name "*.sql.gz" -mtime +7 -delete
+find /var/backups/zitazi -type f -name "*.sql.gz" -mtime +7 -delete
 
 echo "=== backup started at $(date) ===" >> $LOGFILE
 
 # === Run backup ===
-/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" zitazi | gzip > "/root/backup/db-backup-$DATE.sql.gz"
+/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" zitazi | gzip > "/var/backup/zitazi/db-backup-$DATE.sql.gz"
 
 echo "=== backup finished at $(date) ===" >> $LOGFILE
