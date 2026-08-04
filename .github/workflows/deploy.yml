@@ -108,9 +108,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ---------------------------
-      # 1. SSH into VPS and deploy
-      # ---------------------------
+      - name: Copy files via SSH
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          source: "./docker-compose.prod.yml"
+          target: "/opt/zitazi/docker-compose.yml"
+
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@master
         with:
