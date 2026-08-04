@@ -1,7 +1,4 @@
 x-laravel: &laravel
-  env_file:
-    - path: ./.env
-      required: true
   image: ghcr.io/mahdirahmani1376/zitazi-php:latest
   networks:
     - app-network
@@ -59,14 +56,13 @@ services:
       - redis
 
   nginx:
-    image: nginx:latest
+    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - /root/zitazi/nginx/production/default.conf:/etc/nginx/conf.d/default.conf
+      - /root/zitazi/infra/nginx/production/default.conf:/etc/nginx/conf.d/default.conf
       - /root/.acme.sh/zitazi-crawler.ir_ecc:/etc/nginx/certs:ro
-      - ./src:/var/www/html
     depends_on:
       - php
     networks:
@@ -85,13 +81,11 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - /root/zitazi/mysql-conf/my.cnf:/etc/mysql/my.cnf
+      - /root/zitazi/infra/mysql-conf/my.cnf:/etc/mysql/my.cnf
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
     container_name: zitazi-mysql
-    env_file:
-      - path: ./src/.env
     restart: unless-stopped
 
   redis:
@@ -103,8 +97,6 @@ services:
     networks:
       - app-network
     container_name: zitazi-redis
-    env_file:
-      - path: ./src/.env
     restart: unless-stopped
     command: redis-server --save "" --appendonly no --maxmemory 200mb --maxmemory-policy allkeys-lru
     healthcheck:
@@ -117,8 +109,6 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: zitazi-phpmyadmin
     restart: unless-stopped
-    env_file:
-      - path: ./src/.env
     depends_on:
       - mysql
     ports:
@@ -126,7 +116,7 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       UPLOAD_LIMIT: 512M
       TZ: Asia/Tehran
     networks:
@@ -163,8 +153,6 @@ services:
     container_name: zitazi-grafana
     volumes:
       - grafana-data:/var/lib/grafana
-    env_file:
-      - path: ./src/.env
     ports:
       - "3001:3000"
     environment:

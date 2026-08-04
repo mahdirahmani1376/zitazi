@@ -33,7 +33,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY ./php.ini /usr/local/etc/php/php.ini
+COPY infra/php.ini /usr/local/etc/php/php.ini
 COPY package.json .
 COPY package-lock.json .
 COPY src/composer.json .
