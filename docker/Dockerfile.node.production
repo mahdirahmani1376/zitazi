@@ -30,11 +30,11 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-COPY package*.json ./
+COPY ../node/package.json ./package.json
+COPY ../node/package-lock.json ./package-lock.json
 
-# 👇 conditional install
-RUN npm install
+RUN npm ci --omit=dev
 
-COPY . .
+COPY ../node .
 
 EXPOSE 3000
