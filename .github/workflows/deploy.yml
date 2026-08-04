@@ -70,15 +70,15 @@ jobs:
           cache-to: type=gha,mode=max,scope=mysql
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Build and push Grafana image
+      - name: Build and push Loki image
         uses: docker/build-push-action@v7
         with:
-          file: ./docker/Dockerfile.grafana
+          file: ./docker/Dockerfile.loki
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/zitazi-grafana:latest
-          cache-from: type=gha,scope=grafana
-          cache-to: type=gha,mode=max,scope=grafana
+          tags: ghcr.io/${{ github.repository_owner }}/zitazi-loki:latest
+          cache-from: type=gha,scope=loki
+          cache-to: type=gha,mode=max,scope=loki
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Build and push Promtail image
@@ -108,14 +108,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
       - name: Copy files via SSH
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_PRIVATE_KEY }}
-          source: "./docker-compose.prod.yml"
-          target: "/opt/zitazi/docker-compose.yml"
+          source: "docker-compose.prod.yml"
+          target: "/opt/zitazi/"
+          overwrite: true
 
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@master
@@ -125,6 +129,8 @@ jobs:
           key: ${{ secrets.VPS_PRIVATE_KEY }}
           script: |
             cd /opt/zitazi
+            
+            mv docker-compose.prod.yml docker-compose.yml
             
             echo "Pulling latest images..."
             docker compose pull
