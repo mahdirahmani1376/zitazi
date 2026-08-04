@@ -38,7 +38,7 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy the entrypoint script
-COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ../scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000

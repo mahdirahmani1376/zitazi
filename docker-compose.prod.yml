@@ -6,8 +6,8 @@ x-laravel: &laravel
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
   volumes:
-    - ./secrets/google_key.json:/var/www/html/storage/app/private/google_key.json:ro
-    - ./secrets/private.key:/var/www/html/storage/app/private/private.key:ro
+    - ./google_key.json:/var/www/html/storage/app/private/google_key.json:ro
+    - ./private.key:/var/www/html/storage/app/private/private.key:ro
     - laravel-storage:/var/www/html/storage
   env_file:
     - ./secrets/laravel.env
@@ -68,7 +68,6 @@ services:
       - "443:443"
     volumes:
       - /root/.acme.sh/zitazi-crawler.ir_ecc:/etc/nginx/certs:ro
-      - /opt/zitazi/infra/nginx/production/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
     networks:
@@ -80,15 +79,12 @@ services:
     restart: unless-stopped
 
   mysql:
-    image: mysql:8.0
+    image: ghcr.io/mahdirahmani1376/zitazi-mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       TZ: Asia/Tehran
     ports:
       - "3308:3306"
-    volumes:
-      - /opt/zitazi/infra/mysql-conf/my.cnf:/etc/mysql/my.cnf
-      - mysql-data:/var/lib/mysql
     networks:
       - app-network
     container_name: zitazi-mysql
@@ -127,22 +123,20 @@ services:
       - app-network
 
   loki:
-    image: grafana/loki
+    image: ghcr.io/mahdirahmani1376/zitazi-loki:latest
     container_name: zitazi-loki
     command: -config.file=/etc/loki/config.yml
     volumes:
-      - /opt/zitazi/infra/loki-config.yml:/etc/loki/config.yml
       - loki-data:/loki
     networks:
       - app-network
 
   promtail:
-    image: grafana/promtail
+    image: ghcr.io/mahdirahmani1376/zitazi-promtail:latest
     container_name: zitazi-promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - /opt/zitazi/infra/promtail-config.yml:/etc/promtail/config.yml
       - promtail-data:/tmp
     command: -config.file=/etc/promtail/config.yml
     depends_on:

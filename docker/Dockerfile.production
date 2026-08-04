@@ -34,9 +34,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY infra/php.ini /usr/local/etc/php/php.ini
+COPY ../infra/php.ini /usr/local/etc/php/php.ini
 
-COPY ./src/composer.json ./src/composer.lock ./
+COPY ../src/composer.json ./src/composer.lock ./
 
 RUN composer install \
     --no-dev \
@@ -46,11 +46,11 @@ RUN composer install \
     --classmap-authoritative \
     --no-scripts
 
-COPY ./src/package.json ./src/package-lock.json ./
+COPY ../src/package.json ./src/package-lock.json ./
 
 RUN npm ci
 
-COPY ./src .
+COPY ../src .
 
 RUN composer dump-autoload
 RUN php artisan package:discover --ansi

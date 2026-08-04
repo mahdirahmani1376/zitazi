@@ -59,6 +59,39 @@ jobs:
           cache-to: type=gha,mode=max,scope=nginx
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Build and push Mysql image
+        uses: docker/build-push-action@v7
+        with:
+          file: ./Dockerfile.mysql
+          context: ./docker
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zitazi-mysql:latest
+          cache-from: type=gha,scope=mysql
+          cache-to: type=gha,mode=max,scope=mysql
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Grafana image
+        uses: docker/build-push-action@v7
+        with:
+          file: ./Dockerfile.grafana
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zitazi-grafana:latest
+          cache-from: type=gha,scope=grafana
+          cache-to: type=gha,mode=max,scope=grafana
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Promtail image
+        uses: docker/build-push-action@v7
+        with:
+          file: ./Dockerfile.promtail
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zitazi-promtail:latest
+          cache-from: type=gha,scope=promtail
+          cache-to: type=gha,mode=max,scope=promtail
+          labels: ${{ steps.meta.outputs.labels }}
+
       - name: Build and push Node image
         uses: docker/build-push-action@v7
         with:

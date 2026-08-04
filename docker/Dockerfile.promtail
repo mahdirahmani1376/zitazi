@@ -1,0 +1,3 @@
+FROM grafana/loki
+
+COPY ../infra/promtail-config.yml /etc/promtail/config.yml
