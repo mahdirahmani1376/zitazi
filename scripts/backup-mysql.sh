@@ -22,6 +22,6 @@ find /var/backups/zitazi -type f -name "*.sql.gz" -mtime +7 -delete
 echo "=== backup started at $(date) ===" >> $LOGFILE
 
 # === Run backup ===
-/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" zitazi | gzip > "/var/backup/zitazi/db-backup-$DATE.sql.gz"
+/usr/bin/docker exec zitazi-mysql /usr/bin/mysqldump -u"$DB_USER" -p"$DB_PASSWORD" zitazi | gzip > "/var/backups/zitazi/db-backup-$DATE.sql.gz"
 
 echo "=== backup finished at $(date) ===" >> $LOGFILE
