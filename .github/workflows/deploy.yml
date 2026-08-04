@@ -85,16 +85,16 @@ jobs:
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd ~/zitazi
+            cd /opt/zitazi
             
             echo "Pulling latest images..."
-            docker compose -f docker-compose.prod.yml pull
+            docker compose pull
             
             echo "Recreating containers..."
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans --no-build
+            docker compose up -d --remove-orphans --no-build
             
             echo "Running migrations..."
-            docker exec zitazi-php php artisan migrate --force
+            docker compose exec php php artisan migrate --force
 
             echo "Cleaning old images..."
             docker image prune -f
