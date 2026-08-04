@@ -2,53 +2,48 @@ x-laravel: &laravel
   env_file:
     - path: ./.env
       required: true
-  build:
-    context: .
-    dockerfile: Dockerfile.dev
-    args:
-      UID: ${DOCKER_UID}
-      GID: ${DOCKER_GID}
-      USER: ${DOCKER_USER}
+  image: ghcr.io/mahdirahmani1376/zitazi-php:latest
   networks:
     - app-network
-  volumes:
-    - ./src:/var/www/html
-    - ./php.ini:/usr/local/etc/php/php.ini
   extra_hosts:
     - "host.docker.internal:host-gateway"
+  restart: unless-stopped
+  environment:
+    TZ: Asia/Tehran
   depends_on:
     - mysql
     - redis
 
 services:
   php:
-    build:
-      context: .
-      dockerfile: ./Dockerfile.production
-    volumes:
-      - /root/zitazi/php.ini:/usr/local/etc/php/php.ini
-      - /root/zitazi/src:/var/www/html
-      - /root/zitazi/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
-    networks:
-      - app-network
+    <<: *laravel
     container_name: zitazi-php
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    environment:
-      TZ: Asia/Tehran
-    depends_on:
-      - mysql
-      - redis
+    command: php-fpm
 
+  horizon:
+    <<: *laravel
+    container_name: zitazi-horizon
+    command: php artisan horizon
+
+  reverb:
+    <<: *laravel
+    command: php artisan reverb:start
+    container_name: zitazi-reverb
+    ports:
+      - "8080:8080"
+
+  scrape-result:
+    <<: *laravel
+    command: php artisan listen:scrape
+    container_name: zitazi-scrape-result
+
+  sync-status:
+    <<: *laravel
+    command: php artisan listen:sync-status
+    container_name: zitazi-sync-status
 
   node:
-    build:
-      context: ./node
-      dockerfile: Dockerfile.production
-    volumes:
-      - ./node:/app
-      - /app/node_modules
+    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
     container_name: zitazi-node
     restart: unless-stopped
     networks:
