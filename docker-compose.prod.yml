@@ -10,7 +10,7 @@ x-laravel: &laravel
     - ./private.key:/var/www/html/storage/app/private/private.key:ro
     - laravel-storage:/var/www/html/storage
   env_file:
-    - ./secrets/laravel.env
+    - /opt/zitazi/.env
   environment:
     TZ: Asia/Tehran
   depends_on:
