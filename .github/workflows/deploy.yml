@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.production
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-php:latest
           cache-from: type=gha,scope=php
@@ -52,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.nginx
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-nginx:latest
           cache-from: type=gha,scope=nginx
@@ -63,7 +63,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.mysql
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-mysql:latest
           cache-from: type=gha,scope=mysql
@@ -74,7 +74,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.grafana
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-grafana:latest
           cache-from: type=gha,scope=grafana
@@ -85,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.promtail
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-promtail:latest
           cache-from: type=gha,scope=promtail
@@ -96,7 +96,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.node.production
-          context: ./docker
+          context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-node:latest
           cache-from: type=gha,scope=node
