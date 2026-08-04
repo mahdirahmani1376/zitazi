@@ -18,7 +18,7 @@ fi
 echo "✅ Latest backup: $LATEST_BACKUP"
 
 # Download
-scp -P $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST:"$LATEST_BACKUP" "./latest_backup.sql.gz"
+scp -P $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST:"$LATEST_BACKUP" "../latest_backup.sql.gz"
 
 # Drop & recreate DB
 docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" \
