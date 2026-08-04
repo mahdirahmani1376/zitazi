@@ -7,6 +7,8 @@ x-laravel: &laravel
   restart: unless-stopped
   environment:
     TZ: Asia/Tehran
+  volumes:
+    - ./secrets/.env:/var/www/html/src/.env
   depends_on:
     - mysql
     - redis
