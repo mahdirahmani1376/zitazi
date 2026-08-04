@@ -13,6 +13,7 @@ x-laravel: &laravel
     - app-network
   volumes:
     - ./src:/var/www/html
+    - ./.env:/var/www/html/.env
     - ./infra/php.ini:/usr/local/etc/php/php.ini
   extra_hosts:
     - "host.docker.internal:host-gateway"
