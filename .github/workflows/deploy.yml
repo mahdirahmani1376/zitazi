@@ -83,7 +83,8 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
-          password: ${{ secrets.VPS_PASSWORD }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          #          password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd /opt/zitazi
             
