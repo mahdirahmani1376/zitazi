@@ -1,11 +1,8 @@
 /root/.acme.sh/acme.sh --issue \
+    --dns dns_cf \
     -d zitazi-crawler.ir \
-    -d www.zitazi-crawler.ir \
-    -d ws.zitazi-crawler.ir \
-    -d www.grafana.zitazi-crawler.ir \
-    -d grafana.zitazi-crawler.ir \
-    -d phpmyadmin.zitazi-crawler.ir \
-    -d www.phpmyadmin.zitazi-crawler.ir \
-    -w /root/zitazi/src/public \
-    --reloadcmd "docker exec zitazi-nginx nginx -s reload" \
-    --force
+    -d '*.zitazi-crawler.ir'
+
+/root/.acme.sh/acme.sh --install-cert \
+-d zitazi-crawler.ir \
+--reloadcmd "docker exec zitazi-nginx nginx -s reload"
