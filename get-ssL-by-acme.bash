@@ -2,6 +2,10 @@
     -d zitazi-crawler.ir \
     -d www.zitazi-crawler.ir \
     -d ws.zitazi-crawler.ir \
+    -d www.grafana.zitazi-crawler.ir \
+    -d grafana.zitazi-crawler.ir \
+    -d phpmyadmin.zitazi-crawler.ir \
+    -d www.phpmyadmin.zitazi-crawler.ir \
     -w /root/zitazi/src/public \
     --reloadcmd "docker exec zitazi-nginx nginx -s reload" \
     --force
