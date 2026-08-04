@@ -14,8 +14,10 @@ x-laravel: &laravel
   environment:
     TZ: Asia/Tehran
   depends_on:
-    - mysql
-    - redis
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
 
 services:
   php:
@@ -80,6 +82,16 @@ services:
 
   mysql:
     image: ghcr.io/mahdirahmani1376/zitazi-mysql:latest
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       TZ: Asia/Tehran
