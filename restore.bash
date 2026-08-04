@@ -18,14 +18,14 @@ fi
 echo "✅ Latest backup: $LATEST_BACKUP"
 
 # Download
-scp -P $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST:"$LATEST_BACKUP" "../latest_backup.sql.gz"
+scp -P $REMOTE_PORT $REMOTE_USER@$REMOTE_HOST:"$LATEST_BACKUP" "./latest_backup.sql.gz"
 
 # Drop & recreate DB
-docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" \
-    -e "DROP DATABASE IF EXISTS \`$DB_DATABASE\`; CREATE DATABASE \`$DB_DATABASE\`;"
+docker exec -i "zitazi-mysql" mysql -u"root" -p"$DB_PASSWORD" \
+    -e "DROP DATABASE IF EXISTS \`zitazi\`; CREATE DATABASE \`zitazi\`;"
 
 # Restore backup
 gunzip < "$HOME/Desktop/projects/zitazi/latest_backup.sql.gz" | \
-docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" "$DB_DATABASE"
+docker exec -i "zitazi-mysql" mysql -u"root" -p"$DB_PASSWORD" "zitazi"
 
 echo "✅ Restore completed!"
