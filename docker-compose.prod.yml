@@ -6,8 +6,8 @@ x-laravel: &laravel
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
   volumes:
-    - ./secrets/google_key.json:/var/www/html/storage/keys/google_key.json:ro
-    - ./secrets/private.key:/var/www/html/storage/keys/private.key:ro
+    - ./secrets/google_key.json:/var/www/html/storage/app/private/google_key.json:ro
+    - ./secrets/private.key:/var/www/html/storage/app/private/private.key:ro
     - laravel-storage:/var/www/html/storage
   env_file:
     - ./secrets/laravel.env
