@@ -40,7 +40,7 @@ jobs:
       - name: Build and push PHP image
         uses: docker/build-push-action@v7
         with:
-          file: Dockerfile.production
+          file: ./docker/Dockerfile.production
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-php:latest
@@ -51,7 +51,7 @@ jobs:
       - name: Build and push Nginx image
         uses: docker/build-push-action@v7
         with:
-          file: ./Dockerfile.nginx
+          file: ./docker/Dockerfile.nginx
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-nginx:latest
@@ -62,7 +62,7 @@ jobs:
       - name: Build and push Mysql image
         uses: docker/build-push-action@v7
         with:
-          file: ./Dockerfile.mysql
+          file: ./docker/Dockerfile.mysql
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-mysql:latest
@@ -73,7 +73,7 @@ jobs:
       - name: Build and push Grafana image
         uses: docker/build-push-action@v7
         with:
-          file: ./Dockerfile.grafana
+          file: ./docker/Dockerfile.grafana
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-grafana:latest
@@ -84,7 +84,7 @@ jobs:
       - name: Build and push Promtail image
         uses: docker/build-push-action@v7
         with:
-          file: ./Dockerfile.promtail
+          file: ./docker/Dockerfile.promtail
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-promtail:latest
@@ -95,7 +95,7 @@ jobs:
       - name: Build and push Node image
         uses: docker/build-push-action@v7
         with:
-          file: ./Dockerfile.node.production
+          file: ./docker/Dockerfile.node.production
           context: ./docker
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/zitazi-node:latest
