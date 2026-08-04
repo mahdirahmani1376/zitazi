@@ -30,7 +30,8 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-COPY package*.json ./
+COPY package.json ./package.json
+COPY package-lock.json ./package-lock.json
 
 RUN npm ci --omit=dev
 

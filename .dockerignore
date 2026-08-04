@@ -1,7 +1,9 @@
 .git
 src/node_modules
 src/vendor
-src/storage/logs
-src/storage/framework/cache
+src/storage/logs/*.log
+src/storage/framework/cache/*
+src/bootstrap/cache/*.php
+!src/bootstrap/cache/.gitignore
 .env
 src/.env
