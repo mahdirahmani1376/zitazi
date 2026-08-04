@@ -86,7 +86,7 @@ services:
     ports:
       - "3308:3306"
     volumes:
-      - /root/zitazi/infra/mysql-conf/my.cnf:/etc/mysql/my.cnf
+      - /opt/zitazi/infra/mysql-conf/my.cnf:/etc/mysql/my.cnf
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
@@ -134,7 +134,7 @@ services:
       - "3100"
     command: -config.file=/etc/loki/config.yml
     volumes:
-      - /root/zitazi/loki-config.yml:/etc/loki/config.yml
+      - /opt/zitazi/loki-config.yml:/etc/loki/config.yml
       - loki-data:/loki
     networks:
       - app-network
@@ -145,7 +145,7 @@ services:
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/zitazi/promtail-config.yml:/etc/promtail/config.yml
+      - /opt/zitazi/promtail-config.yml:/etc/promtail/config.yml
       - promtail-data:/tmp
     command: -config.file=/etc/promtail/config.yml
     depends_on:
