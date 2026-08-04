@@ -34,11 +34,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY infra/php.ini /usr/local/etc/php/php.ini
-COPY package.json .
-COPY package-lock.json .
-COPY src/composer.json .
-COPY src/composer.lock .
-COPY src/app/Helpers/helper.php ./app/Helpers/helper.php
+COPY ./src .
 
 RUN composer install \
     --no-dev \
@@ -47,10 +43,9 @@ RUN composer install \
     --optimize-autoloader \
     --classmap-authoritative
 
-RUN npm ci --omit=dev
+RUN npm ci
 RUN npm run build
-
-COPY ./src .
+RUN npm prune --omit=dev
 
 RUN chown -R www-data:www-data \
     /var/www/html/storage \

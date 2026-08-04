@@ -5,10 +5,14 @@ x-laravel: &laravel
   extra_hosts:
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
+  volumes:
+    - ./secrets/google_key.json:/var/www/html/storage/keys/google_key.json:ro
+    - ./secrets/private.key:/var/www/html/storage/keys/private.key:ro
+    - laravel-storage:/var/www/html/storage
+  env_file:
+    - ./secrets/laravel.env
   environment:
     TZ: Asia/Tehran
-  volumes:
-    - ./secrets/.env:/var/www/html/src/.env
   depends_on:
     - mysql
     - redis
@@ -58,7 +62,7 @@ services:
       - redis
 
   nginx:
-    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
+    image: ghcr.io/mahdirahmani1376/zitazi-nginx:latest
     ports:
       - "80:80"
       - "443:443"
@@ -166,6 +170,8 @@ services:
       - app-network
 
 volumes:
+  laravel-storage:
+    name: zitazi-laravel-storage
   promtail-data:
     name: zitazi-promtail-data
   loki-data:

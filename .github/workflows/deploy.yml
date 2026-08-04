@@ -48,6 +48,17 @@ jobs:
           cache-to: type=gha,mode=max
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Build and push Nginx image
+        uses: docker/build-push-action@v7
+        with:
+          file: ./Dockerfile.nginx
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/zitazi-nginx:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: ${{ steps.meta.outputs.labels }}
+
       - name: Build and push Node image
         uses: docker/build-push-action@v7
         with:
