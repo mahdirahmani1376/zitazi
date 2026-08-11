@@ -14,7 +14,7 @@ route:
 receivers:
   - name: telegram
     telegram_configs:
-      - bot_token: "${TELEGRAM_BOT_TOKEN}"
-        chat_id: ${TELEGRAM_CHAT_ID}
+      - bot_token_file: /etc/alertmanager/telegram_bot_token
+        chat_id: 3953278794
         send_resolved: true
         parse_mode: HTML

@@ -70,6 +70,7 @@ services:
       - "443:443"
     volumes:
       - /root/.acme.sh/zitazi-crawler.ir_ecc:/etc/nginx/certs:ro
+      - /opt/zitazi/infra/nginx/production/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
     networks:
@@ -81,7 +82,7 @@ services:
     restart: unless-stopped
 
   mysql:
-    image: ghcr.io/mahdirahmani1376/zitazi-mysql:latest
+    image: mysql:8.0
     healthcheck:
       test:
         [
@@ -101,6 +102,9 @@ services:
       - app-network
     container_name: zitazi-mysql
     restart: unless-stopped
+    volumes:
+      - /opt/zitazi/infra/mysql-conf/my.cnf:/etc/mysql/my.cnf
+      - mysql-data:/var/lib/mysql
 
   redis:
     image: redis:latest
@@ -135,20 +139,22 @@ services:
       - app-network
 
   loki:
-    image: ghcr.io/mahdirahmani1376/zitazi-loki:latest
+    image: grafana/loki
     container_name: zitazi-loki
     command: -config.file=/etc/loki/config.yml
     volumes:
+      - /opt/zitazi/infra/loki-config.yml:/etc/loki/config.yml
       - loki-data:/loki
     networks:
       - app-network
 
   promtail:
-    image: ghcr.io/mahdirahmani1376/zitazi-promtail:latest
+    image: grafana/promtail:latest
     container_name: zitazi-promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/zitazi/infra/promtail-config.yml:/etc/promtail/config.yml
       - promtail-data:/tmp
     command: -config.file=/etc/promtail/config.yml
     depends_on:
@@ -207,9 +213,6 @@ services:
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
       - --storage.path=/alertmanager
-      - --config.expand-env=true
-    env_file:
-      - /opt/zitazi/.env
     volumes:
       - alertmanager-data:/alertmanager
       - /opt/zitazi/infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro

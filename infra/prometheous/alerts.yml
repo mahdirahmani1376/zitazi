@@ -2,6 +2,14 @@ groups:
 
   - name: server
     rules:
+      - alert: TestTelegramAlert
+        expr: vector(1)
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Test alert"
+          description: "This is a Telegram alert test."
 
       - alert: HighCPUUsage
         expr: |
