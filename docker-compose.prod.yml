@@ -206,7 +206,7 @@ services:
     networks:
       - app-network
 
-  alert-manager:
+  alertmanager:
     image: prom/alertmanager:latest
     container_name: zitazi-alertmanager
     restart: unless-stopped

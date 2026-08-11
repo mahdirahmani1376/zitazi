@@ -21,4 +21,4 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            - alert-manager:9093
+            - alertmanager:9093
