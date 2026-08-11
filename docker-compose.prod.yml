@@ -171,6 +171,51 @@ services:
     networks:
       - app-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: zitazi-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - prometheus-data:/prometheus
+      - /opt/zitazi/infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/zitazi/infra/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on:
+      - node-exporter
+      - alertmanager
+    networks:
+      - app-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: zitazi-node-exporter
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    volumes:
+      - /:/host:ro,rslave
+    networks:
+      - app-network
+
+  alert-manager:
+    image: prom/alertmanager:latest
+    container_name: zitazi-alertmanager
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+      - --config.expand-env=true
+    env_file:
+      - /opt/zitazi/.env
+    volumes:
+      - alertmanager-data:/alertmanager
+      - /opt/zitazi/infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - app-network
+
 volumes:
   laravel-storage:
     name: zitazi-laravel-storage
@@ -184,6 +229,10 @@ volumes:
     name: zitazi-mysql-data
   redis-data:
     name: zitazi-redis-data
+  prometheus-data:
+    name: zitazi-prometheus-data
+  alertmanager-data:
+    name: zitazi-alertmanager-data
 
 networks:
   app-network:

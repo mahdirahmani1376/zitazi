@@ -117,7 +117,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_PRIVATE_KEY }}
-          source: "docker-compose.prod.yml"
+          source: "docker-compose.prod.yml,infra/"
           target: "/opt/zitazi/"
           overwrite: true
 
