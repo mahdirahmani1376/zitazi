@@ -6,8 +6,8 @@ x-laravel: &laravel
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
   volumes:
-    - ./google_key.json:/var/www/html/storage/app/private/google_key.json:ro
-    - ./private.key:/var/www/html/storage/app/private/private.key:ro
+    - ./secrets/google_key.json:/var/www/html/storage/app/private/google_key.json:ro
+    - ./secrets/private.key:/var/www/html/storage/app/private/private.key:ro
     - laravel-storage:/var/www/html/storage
   env_file:
     - /opt/zitazi/.env
@@ -216,6 +216,7 @@ services:
     volumes:
       - alertmanager-data:/alertmanager
       - /opt/zitazi/infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./secrets/telegram_bot_token:/etc/alertmanager/telegram_bot_token:ro
     networks:
       - app-network
 
