@@ -191,7 +191,7 @@ services:
       - /opt/zitazi/infra/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     depends_on:
       - node-exporter
-      - alert-manager
+      - alertmanager
     networks:
       - app-network
 
