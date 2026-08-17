@@ -273,7 +273,7 @@ Route::get('/health-check', function () {
 
 Route::get('command', function (Request $request) {
     return \Illuminate\Support\Facades\Artisan::call($request->get('command'));
-});
+})->middleware('auth');
 
 Route::match(['get', 'post'], '/file', function (Request $request) {
     if ($request->isMethod('post')) {
@@ -283,7 +283,7 @@ Route::match(['get', 'post'], '/file', function (Request $request) {
     }
 
     return view('files');
-})->name('files');
+})->middleware('auth')->name('files');
 
 Route::get('retry-failed-tr', function () {
     $trFailed = \App\Models\Product::query()

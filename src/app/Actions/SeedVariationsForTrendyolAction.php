@@ -85,6 +85,7 @@ class SeedVariationsForTrendyolAction
                 })
                 ->where('product_id', $product->id)
                 ->where('source', Product::SOURCE_TRENDYOL)
+                ->where('base_source', $product->base_source)
                 ->get();
 
             $unavailableOnSourceSiteVariations->each(function (Variation $variation) use ($itemType, $availableVariations, $queue) {

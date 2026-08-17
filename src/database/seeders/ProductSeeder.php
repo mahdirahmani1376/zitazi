@@ -79,8 +79,8 @@ class ProductSeeder extends Seeder
                     'sazkala_source' => data_get($value, 'sazkala_url'),
                     'amazon_source' => !empty($value) ? data_get(explode('/', data_get($value, 'amazon_source')), 4) : null,
                     'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
-                    'updated_at' => now()->toDateString(),
-                    'created_at' => now()->toDateString(),
+                    'updated_at' => now()->toDateTimeString(),
+                    'created_at' => now()->toDateTimeString(),
                     'base_source' => Product::ZITAZI,
                 ];
 

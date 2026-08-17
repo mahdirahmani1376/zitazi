@@ -1,8 +1,10 @@
 <?php
 
 use App\Actions\HttpService;
+use App\Actions\LogManager;
 use App\Actions\SyncVariationsActions;
 use App\DTO\ZitaziUpdateDTO;
+use App\Enums\SyncStatusEnum;
 use App\Jobs\SeedVariationsForProductJob;
 use App\Jobs\SyncVariationsJob;
 use App\Jobs\SyncZitaziJob;
@@ -1033,4 +1035,57 @@ Artisan::command('test-torob', function () {
     ]);
 
     dd($response->status(), $response->body());
+});
+
+Artisan::command('empty-sync', function () {
+    Redis::pipeline(function ($pipe) {
+        foreach (Product::query()
+                     ->whereDoesntHave('logs')
+                     ->cursor() as $product) {
+
+            if ($product->belongsToTrendyol()) {
+
+                $product->setTrendyolFullUrl();
+                if (empty($product->full_url)) {
+                    LogManager::logProduct($product, 'no full_url', [
+                        'product_id' => $product->id,
+                        'trendyol_source' => $product->trendyol_source
+                    ]);
+
+                    return;
+                }
+
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
+                LogManager::logProduct($product, 'product enqueued for batch processing');
+
+                $pipe->rpush(
+                    config('queue.TR_QUEUE_IN'),
+                    json_encode([
+                        'product' => $product->only([
+                            'id',
+                            'full_url'
+                        ]),
+                        'bulk' => true,
+                    ])
+                );
+            } elseif ($product->belongsToDecalthon()) {
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
+                LogManager::logProduct($product, 'product enqueued for batch processing');
+
+                $pipe->rpush(
+                    config('queue.DE_QUEUE_IN'),
+                    json_encode([
+                        'product' => $product->only([
+                            'decathlon_url',
+                            'id'
+                        ]),
+                        'bulk' => true,
+                    ])
+                );
+            }
+
+        }
+    });
 });

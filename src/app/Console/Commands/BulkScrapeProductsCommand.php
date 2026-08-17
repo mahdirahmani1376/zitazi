@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\LogManager;
 use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use Illuminate\Console\Command;
@@ -33,6 +34,8 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
+                LogManager::logProduct($product, 'product enqueued for batch processing');
+
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
                     json_encode([
@@ -53,6 +56,8 @@ class BulkScrapeProductsCommand extends Command
                          ->cursor() as $product) {
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+
+                LogManager::logProduct($product, 'product enqueued for batch processing');
 
                 $pipe->rpush(
                     config('queue.DE_QUEUE_IN'),
