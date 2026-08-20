@@ -17,9 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('db:seed --force')->dailyAt('12:30');
-        $schedule->command('app:bulk-scrape')->dailyAt('13:00');
-        $schedule->command('model:prune')->dailyAt('00:00');
+        $schedule->command('db:seed --force')->dailyAt('12:30')->thenWithOutput(fn($output) => print $output);
+        $schedule->command('app:bulk-scrape')->dailyAt('13:00')->thenWithOutput(fn($output) => print $output);
+        $schedule->command('model:prune')->dailyAt('00:00')->thenWithOutput(fn($output) => print $output);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
