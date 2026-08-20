@@ -1091,6 +1091,9 @@ Artisan::command('empty-sync', function () {
 });
 
 Artisan::command('test-write', function () {
-    Log::info('hi');
-    Log::info('error');
+    Log::info('LOG INFO TEST');
+    Log::error('LOG ERROR TEST');
+
+    $this->info('CONSOLE INFO TEST');
+    $this->error('CONSOLE ERROR TEST');
 });
