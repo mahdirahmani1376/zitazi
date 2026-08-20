@@ -1089,3 +1089,8 @@ Artisan::command('empty-sync', function () {
         }
     });
 });
+
+Artisan::command('test-write', function () {
+    Log::info('hi');
+    Log::info('error');
+});

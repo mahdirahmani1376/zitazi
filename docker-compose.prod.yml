@@ -47,6 +47,11 @@ services:
     command: php artisan listen:sync-status
     container_name: zitazi-sync-status
 
+  scheduler:
+    <<: *laravel
+    container_name: zitazi-scheduler
+    command: php artisan schedule:work
+
   node:
     image: ghcr.io/mahdirahmani1376/zitazi-node:latest
     container_name: zitazi-node
