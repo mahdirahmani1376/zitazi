@@ -26,7 +26,7 @@ class SendScrapeMessageJob implements ShouldQueue
     public function handle(): void
     {
         $product = $this->product;
-        $key = config('queue.DE_QUEUE_IN');
+        $key = null;
 
         if ($product->belongsToTrendyol()) {
             $product->setTrendyolFullUrl();
@@ -38,6 +38,16 @@ class SendScrapeMessageJob implements ShouldQueue
                 return;
             }
             $key = config('queue.TR_QUEUE_IN');
+        } elseif ($product->belongsToDecalthon()) {
+            $key = config('queue.DE_QUEUE_IN');
+
+        }
+
+        if (!$key) {
+            Log::error('product does not have source', [
+                'product_id' => $product->id,
+            ]);
+            return;
         }
 
         $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
