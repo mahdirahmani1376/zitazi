@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\LogManager;
 use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use Illuminate\Console\Command;
@@ -25,7 +24,8 @@ class BulkScrapeProductsCommand extends Command
                 $product->setTrendyolFullUrl();
 
                 if (empty($product->full_url)) {
-                    Log::error('no full_url for product', [
+                    Log::error('bulk scrape log', [
+                        'message' => 'no full_url for product',
                         'product_id' => $product->id,
                         'trendyol_source' => $product->trendyol_source
                     ]);
@@ -34,7 +34,11 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                LogManager::logProduct($product, 'product enqueued for batch processing');
+                Log::info('bulk scrape log', [
+                    'product_id' => $product->id,
+                    'message' => 'product enqueued for batch processing',
+                    'trendyol_source' => $product->trendyol_source
+                ]);
 
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
@@ -57,7 +61,10 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                LogManager::logProduct($product, 'product enqueued for batch processing');
+                Log::info('bulk scrape log', [
+                    'product_id' => $product->id,
+                    'message' => 'product enqueued for batch processing',
+                ]);
 
                 $pipe->rpush(
                     config('queue.DE_QUEUE_IN'),

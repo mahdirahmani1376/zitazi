@@ -21,7 +21,7 @@ class ProductSeeder extends Seeder
         $this->seedSatreProducts();
 
         if (!empty($this->notFoundProductIds)) {
-            Log::error('seed error', [
+            Log::error('product seeder log', [
                 'message' => 'not found product Ids',
                 'data' => $this->notFoundProductIds
             ]);
@@ -50,7 +50,8 @@ class ProductSeeder extends Seeder
 
                 $ownId = data_get($value, 'Woocomerce-ID');
                 if (empty($ownId)) {
-                    Log::error('no own id for selected row', [
+                    Log::error('product seeder log', [
+                        'message' => 'no own id for selected row',
                         'value' => $value
                     ]);
                     continue;
@@ -87,17 +88,18 @@ class ProductSeeder extends Seeder
                 Product::updateOrCreate(['own_id' => $ownId], $data);
 
             } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error('seed error', [
+                Log::error('product seeder log', [
                     'error' => $e->getMessage(),
-                    'type' => 'unknown'
+                    'type' => 'unknown',
+                    'message' => 'zitazi seed failed'
                 ]);
             }
         }
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             $this->notFoundProductIds[] = $product->id;
-            Log::error('seed error', [
+            Log::error('product seeder log', [
+                'message' => 'zitazi not found products for seeder',
                 'product_id ' => $product->id,
                 'type' => 'not found'
             ]);
@@ -125,7 +127,8 @@ class ProductSeeder extends Seeder
             try {
                 $ownId = data_get($value, 'Woocomerce-ID');
                 if (empty($ownId)) {
-                    Log::error('no own id for selected row', [
+                    Log::error('product seeder log', [
+                        'message' => 'no own id for selected row',
                         'value' => $value
                     ]);
                     continue;
@@ -149,14 +152,16 @@ class ProductSeeder extends Seeder
                 Product::updateOrCreate(['own_id' => $ownId], $data);
 
             } catch (Throwable $e) {
-                dump($e->getMessage());
-                Log::error($e->getMessage());
+                Log::error('product seeder log', [
+                    'error' => $e->getMessage(),
+                    'message' => 'satre seed failed'
+                ]);
             }
         }
 
         Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             $this->notFoundProductIds[] = $product->id;
-            Log::error('seed error', [
+            Log::error('satre not found products for seeder', [
                 'product_id' => $product->id,
                 'type' => 'not found'
             ]);

@@ -163,6 +163,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/zitazi/infra/promtail-config.yml:/etc/promtail/config.yml
       - promtail-data:/tmp
+      - laravel-storage:/var/www/html/storage:ro
     command: -config.file=/etc/promtail/config.yml
     depends_on:
       - loki

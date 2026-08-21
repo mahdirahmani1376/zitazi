@@ -28,4 +28,17 @@ class ZitaziUpdateDTO
             fn($value) => !is_null($value)
         );
     }
+
+    public static function getFullPayloadFromPriceAndStock(int $stock = 0, ?int $price = null): array
+    {
+        $data = [];
+        $data['stock_status'] = $stock ? static::IN_STOCK : static::OUT_OF_STOCK;
+
+        if ($price) {
+            $data['sale_price'] = null;
+            $data['regular_price'] = '' . $price;
+        }
+
+        return $data;
+    }
 }

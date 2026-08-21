@@ -1097,3 +1097,37 @@ Artisan::command('test-write', function () {
     $this->info('CONSOLE INFO TEST');
     $this->error('CONSOLE ERROR TEST');
 });
+
+Artisan::command('tmp-fix-tr', function () {
+    $products = Product::whereDoesntHave('variations')->whereNotNull('own_id')->with('variations')->get();
+    Log::info('temp fix log', [
+        'total products' => $products->count()
+    ]);
+
+    foreach ($products as $product) {
+        $errorMessage = null;
+        try {
+            WoocommerceService::sendRequest(
+                "products/{$product->own_id}",
+                ZitaziUpdateDTO::getFullPayloadFromPriceAndStock(0),
+                'post',
+                Product::SOURCE_TRENDYOL
+            );
+            $success = true;
+        } catch (Exception $e) {
+            Log::error('seed variation error', [
+                'message' => 'error in sending http request to source',
+                'error message' => $e->getMessage(),
+                'product_id' => $product->id
+            ]);
+            $success = false;
+            $errorMessage = $e->getMessage();
+        } finally {
+            Log::info('temp fix log', [
+                'product_id' => $product->id,
+                'success' => $success,
+                'error_message' => $errorMessage
+            ]);
+        }
+    }
+});

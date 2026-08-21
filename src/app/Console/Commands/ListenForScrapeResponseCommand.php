@@ -36,10 +36,7 @@ class ListenForScrapeResponseCommand extends Command
     {
         $product = Product::find($messageArray['product_id']);
 
-        //todo Attempted to use detached Frame '83E1F739C7D81B6698FDD82AAB3603E9'. Error response.error.message
-        if (data_get($messageArray, 'response.response_data.statusCode') === 410 || !empty(data_get('response.error.message', null))) {
-            $this->unavailableAllVariationsAndLog($product, $messageArray);
-        }
+        $this->unavailableAllVariationsAndLog($product, $messageArray);
 
     }
 
@@ -102,7 +99,7 @@ class ListenForScrapeResponseCommand extends Command
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             }
 
-            $this->error('unknown message structure scrape command message:' . $message);
+            $this->error('unknown message structure scrape command message:' . json_encode($message));
         }
     }
 

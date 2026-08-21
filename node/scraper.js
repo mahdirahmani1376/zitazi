@@ -159,7 +159,7 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             response_data: variations,
-            success: true,
+            success: response.ok,
             response_status: response ? response.status() : null,
         };
 
@@ -234,6 +234,8 @@ async function scrapeTrendyolData(data) {
             await delay(1000 * 60 * 20)
         }
 
+        let success = responseData?.isSuccess && responseData?.statusCode === 200 && response?.ok
+
         return {
             product_id: data.id,
             response_data: responseData,
@@ -241,7 +243,7 @@ async function scrapeTrendyolData(data) {
             headers: response.headers(),
             url: response.url(),
             full_url: data.full_url,
-            success: responseData?.isSuccess
+            success: success
         };
 
     } catch (err) {
