@@ -34,8 +34,6 @@ services:
     <<: *laravel
     command: php artisan reverb:start
     container_name: zitazi-reverb
-    ports:
-      - "8080:8080"
 
   scrape-result:
     <<: *laravel
