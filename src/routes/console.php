@@ -1104,6 +1104,8 @@ Artisan::command('tmp-fix-tr', function () {
         'total products' => $products->count()
     ]);
 
+    $success = false;
+
     foreach ($products as $product) {
         $errorMessage = null;
         if (!$product->belongsToDecalthon() && !$product->belongsToTrendyol()) {
@@ -1114,7 +1116,7 @@ Artisan::command('tmp-fix-tr', function () {
                 "products/{$product->own_id}",
                 ZitaziUpdateDTO::getFullPayloadFromPriceAndStock(0),
                 'post',
-                Product::SOURCE_TRENDYOL
+                $product->base_source
             );
             $success = true;
         } catch (Exception $e) {
