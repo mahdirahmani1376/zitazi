@@ -1106,6 +1106,9 @@ Artisan::command('tmp-fix-tr', function () {
 
     foreach ($products as $product) {
         $errorMessage = null;
+        if (!$product->belongsToDecalthon() && !$product->belongsToTrendyol()) {
+            continue;
+        }
         try {
             WoocommerceService::sendRequest(
                 "products/{$product->own_id}",

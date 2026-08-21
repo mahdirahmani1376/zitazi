@@ -121,7 +121,7 @@ services:
       - app-network
     container_name: zitazi-redis
     restart: unless-stopped
-    command: redis-server --save "" --appendonly no --maxmemory 200mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru  --appendonly yes --appendfsync everysec
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
