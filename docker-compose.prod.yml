@@ -24,31 +24,43 @@ services:
     <<: *laravel
     container_name: zitazi-php
     command: php-fpm
+    environment:
+      APP_SERVICE: php
 
   horizon:
     <<: *laravel
     container_name: zitazi-horizon
     command: php artisan horizon
+    environment:
+      APP_SERVICE: horizon
 
   reverb:
     <<: *laravel
     command: php artisan reverb:start
     container_name: zitazi-reverb
+    environment:
+      APP_SERVICE: reverb
 
   scrape-result:
     <<: *laravel
     command: php artisan listen:scrape
     container_name: zitazi-scrape-result
+    environment:
+      APP_SERVICE: scrape-result
 
   sync-status:
     <<: *laravel
     command: php artisan listen:sync-status
     container_name: zitazi-sync-status
+    environment:
+      APP_SERVICE: sync-status
 
   scheduler:
     <<: *laravel
     container_name: zitazi-scheduler
     command: php artisan schedule:work
+    environment:
+      APP_SERVICE: scheduler
 
   node:
     image: ghcr.io/mahdirahmani1376/zitazi-node:latest

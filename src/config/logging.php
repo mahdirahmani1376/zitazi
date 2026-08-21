@@ -63,6 +63,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
+            'tap' => [\App\Logging\CustomizeFormatter::class]
         ],
 
         'daily' => [
@@ -71,6 +72,7 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 7),
             'replace_placeholders' => true,
+            'tap' => [\App\Logging\CustomizeFormatter::class]
         ],
 
         'slack' => [
@@ -126,7 +128,6 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
-
     ],
 
 ];

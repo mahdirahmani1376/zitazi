@@ -1091,11 +1091,14 @@ Artisan::command('empty-sync', function () {
 });
 
 Artisan::command('test-write', function () {
-    Log::info('LOG INFO TEST');
+    Log::info('LOG INFO TEST', [
+        'data' => 'test'
+    ]);
     Log::error('LOG ERROR TEST');
 
     $this->info('CONSOLE INFO TEST');
     $this->error('CONSOLE ERROR TEST');
+
 });
 
 Artisan::command('tmp-fix-tr', function () {

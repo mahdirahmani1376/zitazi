@@ -24,8 +24,7 @@ class BulkScrapeProductsCommand extends Command
                 $product->setTrendyolFullUrl();
 
                 if (empty($product->full_url)) {
-                    Log::error('bulk scrape log', [
-                        'message' => 'no full_url for product',
+                    Log::error('no full_url for product', [
                         'product_id' => $product->id,
                         'trendyol_source' => $product->trendyol_source
                     ]);
@@ -34,9 +33,8 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                Log::info('bulk scrape log', [
+                Log::info('product enqueued for batch processing', [
                     'product_id' => $product->id,
-                    'message' => 'product enqueued for batch processing',
                     'trendyol_source' => $product->trendyol_source
                 ]);
 
@@ -61,9 +59,8 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                Log::info('bulk scrape log', [
+                Log::info('product enqueued for batch processing', [
                     'product_id' => $product->id,
-                    'message' => 'product enqueued for batch processing',
                 ]);
 
                 $pipe->rpush(
