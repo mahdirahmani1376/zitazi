@@ -89,7 +89,7 @@ services:
       - app-network
     container_name: zitazi-redis
     restart: unless-stopped
-    command: redis-server --save "" --appendonly no
+    command: redis-server
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s

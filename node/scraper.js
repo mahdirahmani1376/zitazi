@@ -204,7 +204,6 @@ async function scrapeTrendyolData(data) {
     const page = await browser.newPage();
     let response = null;
 
-
     try {
         if (!data.full_url?.trim()) {
             return {
@@ -234,8 +233,6 @@ async function scrapeTrendyolData(data) {
             await delay(1000 * 60 * 20)
         }
 
-        let success = responseData?.isSuccess && responseData?.statusCode === 200 && response?.ok
-
         return {
             product_id: data.id,
             response_data: responseData,
@@ -243,7 +240,7 @@ async function scrapeTrendyolData(data) {
             headers: response.headers(),
             url: response.url(),
             full_url: data.full_url,
-            success: success
+            success: responseData?.isSuccess && responseData?.statusCode === 200 && response?.ok()
         };
 
     } catch (err) {
