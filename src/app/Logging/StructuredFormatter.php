@@ -11,7 +11,6 @@ class StructuredFormatter extends JsonFormatter
     public function format(LogRecord $record): string
     {
         $data = [
-            'timestamp' => $record->datetime->format('c'),
             'level' => strtolower($record->level->getName()),
             'message' => $record->message,
             'context' => $this->normalizeContext($record->context),
