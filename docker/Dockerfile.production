@@ -1,5 +1,5 @@
 # ============================================================
-# Stage 1: Frontend builder
+# 1. Frontend
 # ============================================================
 
 FROM node:20-bookworm-slim AS frontend
@@ -16,10 +16,12 @@ RUN npm run build
 
 
 # ============================================================
-# Stage 2: Composer dependencies
+# 2. Composer dependencies
 # ============================================================
 
-FROM composer:2 AS composer
+FROM php:8.3-cli AS composer
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
@@ -35,7 +37,7 @@ RUN composer install \
 
 
 # ============================================================
-# Stage 3: Final PHP image
+# 3. Production PHP
 # ============================================================
 
 FROM php:8.3-fpm AS production
@@ -74,24 +76,14 @@ WORKDIR /var/www/html
 
 COPY ./infra/php.ini /usr/local/etc/php/php.ini
 
-# Laravel source
 COPY ./src .
 
-# Composer dependencies
 COPY --from=composer /app/vendor ./vendor
 
-# Compiled frontend assets
 COPY --from=frontend /app/public/build ./public/build
 
-# Laravel autoload
-RUN composer dump-autoload \
-    --optimize \
-    --classmap-authoritative
+RUN php artisan package:discover --ansi && php artisan filament:upgrade
 
-# Laravel package discovery
-RUN php artisan package:discover --ansi
-
-# Permissions
 RUN chown -R www-data:www-data \
         storage \
         bootstrap/cache \

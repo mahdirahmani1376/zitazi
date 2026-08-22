@@ -35,6 +35,6 @@ COPY package*.json ./
 # 👇 conditional install
 RUN npm install
 
-COPY ./node .
+COPY ./scraper .
 
 EXPOSE 3000

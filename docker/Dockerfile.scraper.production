@@ -35,6 +35,6 @@ COPY ./node/package-lock.json ./package-lock.json
 
 RUN npm ci --omit=dev
 
-COPY ./node .
+COPY ./scraper .
 
 EXPOSE 3000
