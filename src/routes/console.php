@@ -1095,6 +1095,7 @@ Artisan::command('test-write', function () {
     Log::info('LOG INFO TEST', [
         'data' => 'test'
     ]);
+
     Log::error('LOG ERROR TEST');
 
     $this->info('CONSOLE INFO TEST');
