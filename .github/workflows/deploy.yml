@@ -1,22 +1,58 @@
-name: Build & Deploy To Vps
+name: Build & Deploy To VPS
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_OWNER: ${{ github.repository_owner }}
   DOCKER_BUILDKIT: 1
 
 jobs:
-  build-and-push:
+  detect-changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      node: ${{ steps.filter.outputs.node }}
+      nginx: ${{ steps.filter.outputs.nginx }}
+      deploy: ${{ steps.filter.outputs.deploy }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      - name: Detect changed components
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            php:
+              - 'src/**'
+              - 'docker/Dockerfile.production'
+            node:
+              - 'node/**'
+              - 'docker/Dockerfile.node.production'
+            nginx:
+              - 'src/public/**'
+              - 'docker/Dockerfile.nginx'
+            deploy:
+              - 'docker-compose.prod.yml'
+              - 'infra/**'
+
+  build-php:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.php == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
@@ -31,22 +67,73 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v6
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
       - name: Build and push PHP image
         uses: docker/build-push-action@v7
         with:
           file: ./docker/Dockerfile.production
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/zitazi-php:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-php:latest
           cache-from: type=gha,scope=php
           cache-to: type=gha,mode=max,scope=php
-          labels: ${{ steps.meta.outputs.labels }}
+
+  build-node:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Node scraper image
+        uses: docker/build-push-action@v7
+        with:
+          file: ./docker/Dockerfile.node.production
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-node:latest
+          cache-from: type=gha,scope=node
+          cache-to: type=gha,mode=max,scope=node
+
+  build-nginx:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.nginx == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Nginx image
         uses: docker/build-push-action@v7
@@ -54,31 +141,35 @@ jobs:
           file: ./docker/Dockerfile.nginx
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/zitazi-nginx:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-nginx:latest
           cache-from: type=gha,scope=nginx
           cache-to: type=gha,mode=max,scope=nginx
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Build and push Node image
-        uses: docker/build-push-action@v7
-        with:
-          file: ./docker/Dockerfile.node.production
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/zitazi-node:latest
-          cache-from: type=gha,scope=node
-          cache-to: type=gha,mode=max,scope=node
-          labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    needs: build-and-push
+    needs:
+      - detect-changes
+      - build-php
+      - build-node
+      - build-nginx
+    if: >-
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      needs.build-php.result != 'failure' &&
+      needs.build-node.result != 'failure' &&
+      needs.build-nginx.result != 'failure' &&
+      (
+        needs.detect-changes.outputs.php == 'true' ||
+        needs.detect-changes.outputs.node == 'true' ||
+        needs.detect-changes.outputs.nginx == 'true' ||
+        needs.detect-changes.outputs.deploy == 'true'
+      )
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
 
-      - name: Copy files via SSH
+      - name: Copy deployment files
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -90,27 +181,47 @@ jobs:
 
       - name: SSH to VPS and deploy
         uses: appleboy/ssh-action@master
+        env:
+          PHP_CHANGED: ${{ needs.detect-changes.outputs.php }}
+          NODE_CHANGED: ${{ needs.detect-changes.outputs.node }}
+          NGINX_CHANGED: ${{ needs.detect-changes.outputs.nginx }}
+          CONFIG_CHANGED: ${{ needs.detect-changes.outputs.deploy }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_PRIVATE_KEY }}
+          envs: PHP_CHANGED,NODE_CHANGED,NGINX_CHANGED,CONFIG_CHANGED
           script: |
             set -euo pipefail
-            
+
             cd /opt/zitazi
-            
-            mv docker-compose.prod.yml docker-compose.yml
-            
-            echo "Pulling latest images..."
-            docker compose pull
-            
-            echo "Recreating containers..."
+
+            mv -f docker-compose.prod.yml docker-compose.yml
+
+            echo "Changed components: php=$PHP_CHANGED node=$NODE_CHANGED nginx=$NGINX_CHANGED config=$CONFIG_CHANGED"
+
+            if [ "$PHP_CHANGED" = "true" ]; then
+              echo "Pulling PHP image..."
+              docker compose pull php
+            fi
+
+            if [ "$NODE_CHANGED" = "true" ]; then
+              echo "Pulling Node scraper image..."
+              docker compose pull node
+            fi
+
+            if [ "$NGINX_CHANGED" = "true" ]; then
+              echo "Pulling Nginx image..."
+              docker compose pull nginx
+            fi
+
+            echo "Recreating changed containers..."
             docker compose up -d --remove-orphans --no-build --wait
-            
-            echo "Running migrations..."
-            docker compose exec -T php php artisan migrate --force
+
+            if [ "$PHP_CHANGED" = "true" ]; then
+              echo "Running migrations..."
+              docker compose exec -T php php artisan migrate --force
+            fi
 
             echo "Cleaning old images..."
             docker image prune -f
-            
-
