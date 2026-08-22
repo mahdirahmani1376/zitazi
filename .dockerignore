@@ -7,3 +7,5 @@ src/bootstrap/cache/*.php
 !src/bootstrap/cache/.gitignore
 .env
 src/.env
+scraper/node_modules
+scraper/.cache

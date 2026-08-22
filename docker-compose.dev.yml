@@ -99,7 +99,7 @@ services:
   node:
     container_name: zitazi-node
     build:
-      context: ./node
+      context: scraper
       dockerfile: node/Dockerfile.node.production
     volumes:
       - ./node:/app

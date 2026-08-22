@@ -32,7 +32,7 @@ mysql/
 .env
 *.sql.gz
 *.sql
-node/node_modules
+scraper/node_modules
 /src/supervisord.log
 /src/supervisord.pid
 /.env
