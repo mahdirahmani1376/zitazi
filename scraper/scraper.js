@@ -159,7 +159,7 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             response_data: variations,
-            success: response.ok,
+            success: response?.ok(),
             response_status: response ? response.status() : null,
         };
 
