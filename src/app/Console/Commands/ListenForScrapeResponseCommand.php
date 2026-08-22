@@ -27,7 +27,7 @@ class ListenForScrapeResponseCommand extends Command
                 $this->info('starting to listen for messages');
                 $this->listenForMessages();
             } catch (\Throwable $e) {
-                $this->error('error happened: ' . $e->getMessage());
+                $this->error('error happened: ' . json_encode($e->getMessage()));
             }
         }
     }
