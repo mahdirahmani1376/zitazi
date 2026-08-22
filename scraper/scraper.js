@@ -230,6 +230,7 @@ async function scrapeTrendyolData(data) {
                 'data': data,
             }))
 
+
             await delay(1000 * 60 * 20)
         }
 
