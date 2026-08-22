@@ -75,7 +75,6 @@ services:
     mem_limit: 1500m
     command: node daemon.js
     depends_on:
-      - php
       - redis
 
   nginx:

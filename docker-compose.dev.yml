@@ -102,7 +102,7 @@ services:
       context: scraper
       dockerfile: node/Dockerfile.node.production
     volumes:
-      - ./node:/app
+      - ./scraper:/app
       - /app/node_modules
     restart: unless-stopped
     networks:

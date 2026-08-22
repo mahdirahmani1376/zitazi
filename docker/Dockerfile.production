@@ -1,4 +1,44 @@
-FROM php:8.3-fpm
+# ============================================================
+# Stage 1: Frontend builder
+# ============================================================
+
+FROM node:20-bookworm-slim AS frontend
+
+WORKDIR /app
+
+COPY ./src/package.json ./src/package-lock.json ./
+
+RUN npm ci
+
+COPY ./src .
+
+RUN npm run build
+
+
+# ============================================================
+# Stage 2: Composer dependencies
+# ============================================================
+
+FROM composer:2 AS composer
+
+WORKDIR /app
+
+COPY ./src/composer.json ./src/composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --classmap-authoritative \
+    --no-scripts
+
+
+# ============================================================
+# Stage 3: Final PHP image
+# ============================================================
+
+FROM php:8.3-fpm AS production
 
 USER root
 
@@ -14,10 +54,10 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libicu-dev \
     libpng-dev \
-    nodejs \
-    npm \
     && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
     && docker-php-ext-install \
         pdo \
         pdo_mysql \
@@ -30,40 +70,33 @@ RUN apt-get update && apt-get install -y \
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
 WORKDIR /var/www/html
 
 COPY ./infra/php.ini /usr/local/etc/php/php.ini
 
-COPY ./src/composer.json ./src/composer.lock ./
-
-RUN composer install \
-    --no-dev \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader \
-    --classmap-authoritative \
-    --no-scripts
-
-COPY ./src/package.json ./src/package-lock.json ./
-
-RUN npm ci
-
+# Laravel source
 COPY ./src .
 
-RUN composer dump-autoload
+# Composer dependencies
+COPY --from=composer /app/vendor ./vendor
+
+# Compiled frontend assets
+COPY --from=frontend /app/public/build ./public/build
+
+# Laravel autoload
+RUN composer dump-autoload \
+    --optimize \
+    --classmap-authoritative
+
+# Laravel package discovery
 RUN php artisan package:discover --ansi
 
-RUN npm run build \
-    && npm prune --omit=dev
-
+# Permissions
 RUN chown -R www-data:www-data \
         storage \
         bootstrap/cache \
     && chmod -R 775 \
         storage \
         bootstrap/cache
-
 
 USER www-data

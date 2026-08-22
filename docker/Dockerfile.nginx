@@ -1,3 +1,5 @@
+FROM ghcr.io/mahdirahmani1376/zitazi-php:latest AS laravel
+
 FROM nginx:latest
 
-COPY ./src/public /var/www/html/public
+COPY --from=laravel /var/www/html/public /var/www/html/public

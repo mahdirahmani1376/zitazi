@@ -4,169 +4,97 @@ on:
   push:
     branches: ["master"]
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+  
 env:
   REGISTRY: ghcr.io
   IMAGE_OWNER: ${{ github.repository_owner }}
-  DOCKER_BUILDKIT: 1
 
 jobs:
-  detect-changes:
+  build-php-nginx:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
-    outputs:
-      php: ${{ steps.filter.outputs.php }}
-      node: ${{ steps.filter.outputs.node }}
-      nginx: ${{ steps.filter.outputs.nginx }}
-      deploy: ${{ steps.filter.outputs.deploy }}
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-
-      - name: Detect changed components
-        id: filter
-        uses: dorny/paths-filter@v4
-        with:
-          filters: |
-            php:
-              - 'src/**'
-              - 'docker/Dockerfile.production'
-            node:
-              - 'node/**'
-              - 'docker/Dockerfile.node.production'
-            nginx:
-              - 'src/public/**'
-              - 'docker/Dockerfile.nginx'
-            deploy:
-              - 'docker-compose.prod.yml'
-              - 'infra/**'
-
-  build-php:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.php == 'true'
-    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-      attestations: write
-      id-token: write
 
     steps:
-      - name: Checkout source code
+      - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up Docker Buildx
+      - name: Setup Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Log in to the Container registry
+      - name: Login to GHCR
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push PHP image
+      - name: Build and push PHP
         uses: docker/build-push-action@v7
         with:
-          file: ./docker/Dockerfile.production
           context: .
+          file: ./docker/Dockerfile.production
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-php:latest
           cache-from: type=gha,scope=php
           cache-to: type=gha,mode=max,scope=php
 
-  build-node:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.node == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Node scraper image
+      - name: Build and push Nginx
         uses: docker/build-push-action@v7
         with:
-          file: ./docker/Dockerfile.node.production
           context: .
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-node:latest
-          cache-from: type=gha,scope=node
-          cache-to: type=gha,mode=max,scope=node
-
-  build-nginx:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.nginx == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Nginx image
-        uses: docker/build-push-action@v7
-        with:
           file: ./docker/Dockerfile.nginx
-          context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-nginx:latest
           cache-from: type=gha,scope=nginx
           cache-to: type=gha,mode=max,scope=nginx
 
+  build-scraper:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push scraper
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/Dockerfile.scraper.production
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/zitazi-scraper:latest
+          cache-from: type=gha,scope=scraper
+          cache-to: type=gha,mode=max,scope=scraper
+
   deploy:
     needs:
-      - detect-changes
-      - build-php
-      - build-node
-      - build-nginx
-    if: >-
-      always() &&
-      needs.detect-changes.result == 'success' &&
-      needs.build-php.result != 'failure' &&
-      needs.build-node.result != 'failure' &&
-      needs.build-nginx.result != 'failure' &&
-      (
-        needs.detect-changes.outputs.php == 'true' ||
-        needs.detect-changes.outputs.node == 'true' ||
-        needs.detect-changes.outputs.nginx == 'true' ||
-        needs.detect-changes.outputs.deploy == 'true'
-      )
+      - build-php-nginx
+      - build-scraper
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+
+      - name: Checkout
         uses: actions/checkout@v6
 
       - name: Copy deployment files
@@ -179,18 +107,12 @@ jobs:
           target: "/opt/zitazi/"
           overwrite: true
 
-      - name: SSH to VPS and deploy
+      - name: Deploy
         uses: appleboy/ssh-action@master
-        env:
-          PHP_CHANGED: ${{ needs.detect-changes.outputs.php }}
-          NODE_CHANGED: ${{ needs.detect-changes.outputs.node }}
-          NGINX_CHANGED: ${{ needs.detect-changes.outputs.nginx }}
-          CONFIG_CHANGED: ${{ needs.detect-changes.outputs.deploy }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_PRIVATE_KEY }}
-          envs: PHP_CHANGED,NODE_CHANGED,NGINX_CHANGED,CONFIG_CHANGED
           script: |
             set -euo pipefail
 
@@ -198,30 +120,14 @@ jobs:
 
             mv -f docker-compose.prod.yml docker-compose.yml
 
-            echo "Changed components: php=$PHP_CHANGED node=$NODE_CHANGED nginx=$NGINX_CHANGED config=$CONFIG_CHANGED"
+            echo "Pulling application images..."
+            docker compose pull php scraper nginx
 
-            if [ "$PHP_CHANGED" = "true" ]; then
-              echo "Pulling PHP image..."
-              docker compose pull php
-            fi
-
-            if [ "$NODE_CHANGED" = "true" ]; then
-              echo "Pulling Node scraper image..."
-              docker compose pull node
-            fi
-
-            if [ "$NGINX_CHANGED" = "true" ]; then
-              echo "Pulling Nginx image..."
-              docker compose pull nginx
-            fi
-
-            echo "Recreating changed containers..."
+            echo "Starting application..."
             docker compose up -d --remove-orphans --no-build --wait
 
-            if [ "$PHP_CHANGED" = "true" ]; then
-              echo "Running migrations..."
-              docker compose exec -T php php artisan migrate --force
-            fi
+            echo "Running migrations..."
+            docker compose exec -T php php artisan migrate --force
 
-            echo "Cleaning old images..."
+            echo "Cleaning unused images..."
             docker image prune -f
