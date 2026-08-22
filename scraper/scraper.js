@@ -233,6 +233,7 @@ async function scrapeTrendyolData(data) {
             await delay(1000 * 60 * 20)
         }
 
+
         return {
             product_id: data.id,
             response_data: responseData,
