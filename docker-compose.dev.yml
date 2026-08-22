@@ -97,7 +97,7 @@ services:
       retries: 5
 
   node:
-    container_name: zitazi-node
+    container_name: zitazi-scraper
     build:
       context: scraper
       dockerfile: node/Dockerfile.node.production

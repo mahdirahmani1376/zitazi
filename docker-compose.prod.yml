@@ -62,9 +62,9 @@ services:
     environment:
       APP_SERVICE: scheduler
 
-  node:
-    image: ghcr.io/mahdirahmani1376/zitazi-node:latest
-    container_name: zitazi-node
+  scraper:
+    image: ghcr.io/mahdirahmani1376/zitazi-scraper:latest
+    container_name: zitazi-scraper
     restart: unless-stopped
     networks:
       - app-network
