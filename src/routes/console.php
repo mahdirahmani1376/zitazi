@@ -1107,6 +1107,7 @@ Artisan::command('tmp-fix-tr', function () {
         'total products' => $products->count()
     ]);
 
+
     $success = false;
 
     foreach ($products as $product) {
