@@ -1074,6 +1074,7 @@ Artisan::command('empty-sync', function () {
 
                 LogManager::logProduct($product, 'product enqueued for batch processing');
 
+
                 $pipe->rpush(
                     config('queue.DE_QUEUE_IN'),
                     json_encode([
