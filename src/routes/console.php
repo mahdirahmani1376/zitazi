@@ -1103,6 +1103,7 @@ Artisan::command('test-write', function () {
 });
 
 Artisan::command('tmp-fix-tr', function () {
+
     $products = Product::whereDoesntHave('variations')->whereNotNull('own_id')->with('variations')->get();
     Log::info('temp fix log', [
         'total products' => $products->count()
