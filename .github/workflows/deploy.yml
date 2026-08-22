@@ -120,6 +120,8 @@ jobs:
 
             mv -f docker-compose.prod.yml docker-compose.yml
 
+            docker compose exec -T horizon php artisan horizon:terminate
+            
             echo "Pulling application images..."
             docker compose pull php scraper nginx
 
