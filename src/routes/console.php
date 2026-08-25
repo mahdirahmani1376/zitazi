@@ -1155,13 +1155,15 @@ Artisan::command('delete not found', function () {
                 'stock' => 0
             ]);
 
-            SyncZitaziJob::dispatchSync($variation, ZitaziUpdateDTO::createFromArray([
+            SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => 0
             ]));
 
-            if ($variation->status === Variation::AVAILABLE) {
-                $variation->delete();
-            }
+            $variation->delete();
         }
+
+        $product->delete();
+
+
     }
 });
