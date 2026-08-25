@@ -1164,6 +1164,8 @@ Artisan::command('delete not found', function () {
 
         $product->delete();
 
-
+        Log::info('product deleted', [
+            'product_id' => $product->id
+        ]);
     }
 });
