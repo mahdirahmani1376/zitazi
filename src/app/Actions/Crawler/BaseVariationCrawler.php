@@ -110,9 +110,7 @@ class BaseVariationCrawler
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
-
             $variation->product->setSyncStatus(SyncStatusEnum::NO_ROUTE_FOUND_FOR_VARIATION);
-
             return 1;
         }
 

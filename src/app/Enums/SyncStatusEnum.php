@@ -52,7 +52,7 @@ enum SyncStatusEnum: string
             self::ENV_DISABLED => 'آپدیت در برنامه غیر فعال است',
             self::VARIATION_HAS_PROMOTION_ACTIVE => 'پروموشن روشن است آپدیت صورت نگرفته',
             self::VARIATION_IS_DELETED => 'تنوع پاک شده از ربات',
-            self::NO_ROUTE_FOUND_FOR_VARIATION => 'هیچ آدرسی برای آپدیت تنوع یافت نشد',
+            self::NO_ROUTE_FOUND_FOR_VARIATION => 'آپدیت انجام نشد! ستون own_id چک شود اگر این محصول تنوع دارد',
         };
     }
 }
