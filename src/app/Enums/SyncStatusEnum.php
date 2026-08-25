@@ -10,13 +10,17 @@ enum SyncStatusEnum: string
     case FAILED_DATA_FETCH = 'failed_data_fetch';
     case SUCCESSFUL_UPDATE = 'successful_update';
     case SKIPPED_UPDATE = 'skipped_update';
+    case ENV_DISABLED = 'update is disabled in .env';
+    case VARIATION_HAS_PROMOTION_ACTIVE = 'variation on promotion';
+    case VARIATION_IS_DELETED = 'variation_is_deleted';
+    case NO_ROUTE_FOUND_FOR_VARIATION = 'no-route-found-for-variation';
     case FAILED_UPDATE = 'failed_update';
 
     public function getBadgeColorForState(): string
     {
         return match ($this) {
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH => 'info',
-            self::SKIPPED_UPDATE => 'warning',
+            self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
             self::FAILED_DATA_FETCH, self::FAILED_UPDATE => 'danger',
             default => 'gray',
@@ -45,6 +49,10 @@ enum SyncStatusEnum: string
             self::SKIPPED_UPDATE => 'بروززسانی در سایت مقصد صورت نگرفت',
             self::FAILED_UPDATE => 'بروززسانی در سایت مقصد با خطا مواجه شد',
             self::NOT_ENQUEUED => 'به صف اضافه نشده',
+            self::ENV_DISABLED => 'آپدیت در برنامه غیر فعال است',
+            self::VARIATION_HAS_PROMOTION_ACTIVE => 'پروموشن روشن است آپدیت صورت نگرفته',
+            self::VARIATION_IS_DELETED => 'تنوع پاک شده از ربات',
+            self::NO_ROUTE_FOUND_FOR_VARIATION => 'هیچ آدرسی برای آپدیت تنوع یافت نشد',
         };
     }
 }

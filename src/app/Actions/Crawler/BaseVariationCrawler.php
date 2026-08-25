@@ -60,7 +60,7 @@ class BaseVariationCrawler
                 'data' => $dto->getUpdateBody(),
             ]);
 
-            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+            $variation->product->setSyncStatus(SyncStatusEnum::ENV_DISABLED);
 
             return 1;
         }
@@ -71,7 +71,7 @@ class BaseVariationCrawler
                 'data' => $dto->getUpdateBody(),
             ]);
 
-            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+            $variation->product->setSyncStatus(SyncStatusEnum::VARIATION_HAS_PROMOTION_ACTIVE);
 
             return 1;
         }
@@ -82,7 +82,7 @@ class BaseVariationCrawler
                 'data' => $dto->getUpdateBody(),
             ]);
 
-            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+            $variation->product->setSyncStatus(SyncStatusEnum::VARIATION_IS_DELETED);
 
             return 1;
         }
@@ -111,7 +111,7 @@ class BaseVariationCrawler
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
 
-            $variation->product->setSyncStatus(SyncStatusEnum::SKIPPED_UPDATE);
+            $variation->product->setSyncStatus(SyncStatusEnum::NO_ROUTE_FOUND_FOR_VARIATION);
 
             return 1;
         }

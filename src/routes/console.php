@@ -1144,3 +1144,24 @@ Artisan::command('tmp-fix-tr', function () {
         }
     }
 });
+
+Artisan::command('delete not found', function () {
+    $zitazi = \Illuminate\Support\Facades\Cache::get('zitazi-not-found-product-ids');
+    $satre = \Illuminate\Support\Facades\Cache::get('satre-not-found-product-ids');
+
+    foreach (Product::whereIn('id', array_merge($zitazi, $satre)) as $product) {
+        foreach ($product->variations as $variation) {
+            $variation->update([
+                'stock' => 0
+            ]);
+
+            SyncZitaziJob::dispatchSync($variation, ZitaziUpdateDTO::createFromArray([
+                'stock_quantity' => 0
+            ]));
+
+            if ($variation->status === Variation::AVAILABLE) {
+                $variation->delete();
+            }
+        }
+    }
+});
