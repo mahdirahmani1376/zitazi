@@ -203,7 +203,7 @@ class Product extends Model
         return "sync_status_product:{$this->id}";
     }
 
-    public function setSyncStatus(SyncStatusEnum $statusEnum): void
+    public function setSyncStatus(SyncStatusEnum $statusEnum, bool $broadcast = true): void
     {
         Redis::set(
             $this->getSyncStatusRedisKey(),
@@ -211,7 +211,9 @@ class Product extends Model
             86400
         );
 
-        ProductSyncStatusChangedEvent::dispatch($this->id, $statusEnum);
+        if ($broadcast) {
+            ProductSyncStatusChangedEvent::dispatch($this->id, $statusEnum);
+        }
 
     }
 

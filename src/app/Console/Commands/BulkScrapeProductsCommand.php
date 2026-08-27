@@ -32,7 +32,7 @@ class BulkScrapeProductsCommand extends Command
                     return;
                 }
 
-                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED, false);
 
                 LogManager::logProduct($product, 'product enqueued for batch processing');
 
@@ -55,7 +55,7 @@ class BulkScrapeProductsCommand extends Command
                          ->whereRaw("TRIM(decathlon_url) != ''")
                          ->cursor() as $product) {
 
-                $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
+                $product->setSyncStatus(SyncStatusEnum::ENQUEUED, false);
 
                 LogManager::logProduct($product, 'product enqueued for batch processing');
 
