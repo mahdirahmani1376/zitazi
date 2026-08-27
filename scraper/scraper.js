@@ -220,6 +220,16 @@ async function scrapeTrendyolData(data) {
 
         const delayTime = Math.floor(Math.random() * (5000 - 2000) + 2000);
         await delay(delayTime);
+
+        if (response?.status() === 418) {
+            console.error(JSON.stringify({
+                'message': 'trendyol tea pot bot blocked',
+                'data': data,
+            }))
+
+            await delay(1000 * 60 * 20)
+        }
+
         const responseData = await page.evaluate(() => {
             return JSON.parse(document.body.innerText);
         });
@@ -227,16 +237,6 @@ async function scrapeTrendyolData(data) {
         if (responseData?.statusCode === 404) {
             console.error(JSON.stringify({
                 'message': 'trendyol empty body',
-                'data': data,
-            }))
-
-
-            await delay(1000 * 60 * 20)
-        }
-
-        if (responseData?.statusCode === 418) {
-            console.error(JSON.stringify({
-                'message': 'trendyol tea pot bot blocked',
                 'data': data,
             }))
 
