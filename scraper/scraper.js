@@ -225,6 +225,7 @@ async function scrapeTrendyolData(data) {
             console.error(JSON.stringify({
                 'message': 'trendyol tea pot bot blocked',
                 'data': data,
+                'level': error
             }))
 
             await delay(1000 * 60 * 20)
@@ -238,6 +239,7 @@ async function scrapeTrendyolData(data) {
             console.error(JSON.stringify({
                 'message': 'trendyol empty body',
                 'data': data,
+                'level': error
             }))
 
 
