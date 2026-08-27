@@ -25,7 +25,7 @@ docker exec -i "zitazi-mysql" mysql -u"root" -p"$DB_PASSWORD" \
     -e "DROP DATABASE IF EXISTS \`zitazi\`; CREATE DATABASE \`zitazi\`;"
 
 # Restore backup
-gunzip < "$HOME/Desktop/projects/zitazi/latest_backup.sql.gz" | \
+gunzip < "$HOME/Desktop/projects/zitazi/scripts/latest_backup.sql.gz" | \
 docker exec -i "zitazi-mysql" mysql -u"root" -p"$DB_PASSWORD" "zitazi"
 
 echo "✅ Restore completed!"

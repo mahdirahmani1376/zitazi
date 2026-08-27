@@ -15,7 +15,7 @@ scrape_configs:
         labels:
           job: laravel
           app: zitazi
-          __path__: /var/www/html/storage/logs/laravel-*.log
+          __path__: /var/www/html/storage/logs/*.log
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
