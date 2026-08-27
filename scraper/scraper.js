@@ -52,25 +52,40 @@ process.on('SIGTERM', async () => {
 async function beginScrape(name, data) {
     await getBrowser();
 
-    const start = Date.now();
+    let context = await browser.createBrowserContext();
 
-    let result = {
-        product_id: data.id,
-        success: false,
-        error: "no valid source"
-    };
+    try {
+        let result = {
+            product_id: data.id,
+            success: false,
+            error: "no valid source"
+        };
 
-    if (name === 'Trendyol') {
-        result = scrapeTrendyolData(data);
-    } else if (name === "Decathlon") {
-        result = scrapeDecathlonData(data);
+        if (name === 'Trendyol') {
+            result = await scrapeTrendyolData(data, context);
+
+            // Trendyol can return a misleading 404 when the current browser
+            // session has stale site state. Retry once with a completely fresh
+            // browser context before treating the product as deleted.
+            if (result.retryWithFreshContext) {
+                await context.close();
+                context = await browser.createBrowserContext();
+
+                result = await scrapeTrendyolData(data, context, false);
+            }
+        } else if (name === "Decathlon") {
+            result = await scrapeDecathlonData(data, context);
+        }
+
+        return result;
+    } finally {
+        await context.close().catch(() => {
+        });
     }
-
-    return result;
 }
 
-async function scrapeDecathlonData(productData) {
-    const page = await browser.newPage();
+async function scrapeDecathlonData(productData, context) {
+    const page = await context.newPage();
     let response = null;
     if (!productData.decathlon_url?.trim()) {
         return {
@@ -205,8 +220,8 @@ async function scrapeDecathlonData(productData) {
     }
 }
 
-async function scrapeTrendyolData(data) {
-    const page = await browser.newPage();
+async function scrapeTrendyolData(data, context, allowFreshContextRetry = true) {
+    const page = await context.newPage();
     let response = null;
 
     try {
@@ -225,6 +240,20 @@ async function scrapeTrendyolData(data) {
 
         const delayTime = Math.floor(Math.random() * (5000 - 2000) + 2000);
         await delay(delayTime);
+
+        // Trendyol may use HTTP 404 as a soft block for a stale/suspicious
+        // browser session. A fresh browser context is equivalent to clearing
+        // Trendyol's site data without restarting Chromium.
+        if (response?.status() === 404 && allowFreshContextRetry) {
+            return {
+                product_id: data.id,
+                response_status: response.status(),
+                response_headers: response.headers(),
+                full_url: data.full_url,
+                success: false,
+                retryWithFreshContext: true
+            };
+        }
 
         if (response?.status() === 418) {
             console.error(JSON.stringify({
@@ -248,11 +277,28 @@ async function scrapeTrendyolData(data) {
         });
 
         if (responseData?.statusCode === 404) {
+            if (allowFreshContextRetry) {
+                console.error(JSON.stringify({
+                    'message': 'trendyol 404 response; retrying with fresh browser context',
+                    'data': data,
+                    'level': 'warning'
+                }));
+
+                return {
+                    product_id: data.id,
+                    response_status: response?.status(),
+                    response_headers: response?.headers(),
+                    full_url: data.full_url,
+                    success: false,
+                    retryWithFreshContext: true
+                };
+            }
+
             console.error(JSON.stringify({
-                'message': 'trendyol empty body',
+                'message': 'trendyol product not found after fresh context retry',
                 'data': data,
                 'level': 'error'
-            }))
+            }));
 
             return {
                 product_id: data.id,
