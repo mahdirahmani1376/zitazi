@@ -224,7 +224,7 @@ async function scrapeTrendyolData(data) {
             return JSON.parse(document.body.innerText);
         });
 
-        if (responseData?.statusCode === 404) {
+        if (responseData?.statusCode === 404 || responseData?.statusCode === 418) {
             console.error(JSON.stringify({
                 'message': 'trendyol empty body',
                 'data': data,
