@@ -15,6 +15,7 @@ enum SyncStatusEnum: string
     case VARIATION_IS_DELETED = 'variation_is_deleted';
     case NO_ROUTE_FOUND_FOR_VARIATION = 'no-route-found-for-variation';
     case FAILED_UPDATE = 'failed_update';
+    case COOLDOWN = 'cooldown';
 
     public function getBadgeColorForState(): string
     {
@@ -22,7 +23,7 @@ enum SyncStatusEnum: string
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_UPDATE => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN => 'danger',
             default => 'gray',
         };
     }
@@ -53,6 +54,7 @@ enum SyncStatusEnum: string
             self::VARIATION_HAS_PROMOTION_ACTIVE => 'پروموشن روشن است آپدیت صورت نگرفته',
             self::VARIATION_IS_DELETED => 'تنوع پاک شده از ربات',
             self::NO_ROUTE_FOUND_FOR_VARIATION => 'آپدیت انجام نشد! ستون own_id چک شود اگر این محصول تنوع دارد',
+            self::COOLDOWN => 'ربات مسدوده شده لطفا صبر کنید',
         };
     }
 }

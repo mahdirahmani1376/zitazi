@@ -64,6 +64,7 @@ services:
 
   scraper:
     image: ghcr.io/mahdirahmani1376/zitazi-scraper:latest
+    stop_grace_period: 30s
     container_name: zitazi-scraper
     restart: unless-stopped
     networks:

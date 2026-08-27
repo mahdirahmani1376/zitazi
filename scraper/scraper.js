@@ -104,6 +104,20 @@ async function scrapeDecathlonData(productData) {
             timeout: 1000 * 60
         });
 
+        if (response.status() === 403) {
+            console.error(JSON.stringify({
+                'message': 'decathlon rate limit',
+                'data': productData,
+            }))
+
+            return {
+                product_id: productData.id,
+                success: false,
+                response_status: response.status(),
+                response_headers: response.headers(),
+                blocked: true,
+            };
+        }
 
         const delayTime = Math.floor(Math.random() * (7000 - 2000) + 2000);
         await delay(delayTime);
@@ -164,15 +178,6 @@ async function scrapeDecathlonData(productData) {
         };
 
     } catch (err) {
-        if (response?.status() === 403) {
-            console.error(JSON.stringify({
-                'message': 'decathlon rate limit',
-                'data': productData,
-            }))
-
-            await delay(1000 * 60 * 20)
-        }
-
         if (err.name === "TimeoutError") {
 
             await browser.close();
@@ -228,14 +233,13 @@ async function scrapeTrendyolData(data) {
                 'level': 'error'
             }))
 
-            await delay(1000 * 60 * 20)
-
             return {
                 product_id: data.id,
                 response_status: response?.status(),
                 response_headers: response?.headers(),
                 full_url: data.full_url,
                 success: false,
+                blocked: true,
             };
         }
 
@@ -251,7 +255,6 @@ async function scrapeTrendyolData(data) {
             }))
 
 
-            await delay(1000 * 60 * 20)
         }
 
 
