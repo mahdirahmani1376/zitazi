@@ -84,6 +84,10 @@ class ListenForScrapeResponseCommand extends Command
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             }
 
+            if (data_get($messageArray, 'deleted') === true) {
+                $product->setSyncStatus(SyncStatusEnum::PRODUCT_GOT_DELETED);
+            }
+
             if ($messageArray['source'] === 'Trendyol') {
                 $this->processTrendyolError($messageArray);
             } elseif ($messageArray['source'] === 'Decathlon') {

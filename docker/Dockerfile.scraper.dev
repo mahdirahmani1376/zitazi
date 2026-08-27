@@ -29,12 +29,3 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
-COPY package*.json ./
-
-# 👇 conditional install
-RUN npm install
-
-COPY ./scraper .
-
-EXPOSE 3000

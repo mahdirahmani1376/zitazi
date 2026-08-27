@@ -8,6 +8,7 @@ enum SyncStatusEnum: string
     case PROCESSING = 'processing';
     case SUCCESSFUL_DATA_FETCH = 'successful_data_fetch';
     case FAILED_DATA_FETCH = 'failed_data_fetch';
+    case PRODUCT_GOT_DELETED = 'product_is_deleted';
     case SUCCESSFUL_UPDATE = 'successful_update';
     case SKIPPED_UPDATE = 'skipped_update';
     case ENV_DISABLED = 'update is disabled in .env';
@@ -23,7 +24,7 @@ enum SyncStatusEnum: string
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED => 'danger',
             default => 'gray',
         };
     }
@@ -55,6 +56,7 @@ enum SyncStatusEnum: string
             self::VARIATION_IS_DELETED => 'تنوع پاک شده از ربات',
             self::NO_ROUTE_FOUND_FOR_VARIATION => 'آپدیت انجام نشد! ستون own_id چک شود اگر این محصول تنوع دارد',
             self::COOLDOWN => 'ربات مسدوده شده لطفا صبر کنید',
+            self::PRODUCT_GOT_DELETED => 'محصول از سایت اصلی پاک شده لینک چک شود',
         };
     }
 }

@@ -96,14 +96,13 @@ services:
       timeout: 5s
       retries: 5
 
-  node:
+  scraper:
     container_name: zitazi-scraper
     build:
-      context: scraper
-      dockerfile: node/Dockerfile.node.production
+      context: .
+      dockerfile: docker/Dockerfile.scraper.dev
     volumes:
       - ./scraper:/app
-      - /app/node_modules
     restart: unless-stopped
     networks:
       - app-network
@@ -112,14 +111,11 @@ services:
       NODE_ENV: development
     shm_size: "1gb"
     mem_limit: 1500m
-    command: npx nodemon daemon.js
-    ports:
-      - "5173:5173"
+    command: sleep infinity
     depends_on:
       - redis
 
 volumes:
-  node_modules:
   mysql-data:
     name: zitazi-mysql-data
   redis-data:
