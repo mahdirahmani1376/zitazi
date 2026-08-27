@@ -43,12 +43,6 @@ async function runWorker(name, queueIn) {
 
             const data = JSON.parse(result[1]);
 
-            await redis.setex(
-                `laravel_database_sync_status_product:${data.product.id}`,
-                86400,
-                'processing'
-            );
-
             await redis.publish(
                 `laravel_database_product_sync_status_changed`,
                 JSON.stringify({
