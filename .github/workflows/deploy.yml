@@ -129,6 +129,12 @@ jobs:
             echo "Starting application..."
             docker compose up -d --remove-orphans --no-build --wait
 
+            echo "Validating nginx configuration..."
+            docker compose exec -T nginx nginx -t
+            
+            echo "Reloading nginx..."
+            docker compose exec -T nginx nginx -s reload
+            
             echo "Running migrations..."
             docker compose exec -T php php artisan migrate --force
 
