@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\LogManager;
 use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use Illuminate\Console\Command;
@@ -33,10 +34,7 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                Log::info('product enqueued for batch processing', [
-                    'product_id' => $product->id,
-                    'trendyol_source' => $product->trendyol_source
-                ]);
+                LogManager::logProduct($product, 'product enqueued for batch processing');
 
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
@@ -59,9 +57,7 @@ class BulkScrapeProductsCommand extends Command
 
                 $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-                Log::info('product enqueued for batch processing', [
-                    'product_id' => $product->id,
-                ]);
+                LogManager::logProduct($product, 'product enqueued for batch processing');
 
                 $pipe->rpush(
                     config('queue.DE_QUEUE_IN'),
