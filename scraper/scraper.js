@@ -224,9 +224,19 @@ async function scrapeTrendyolData(data) {
             return JSON.parse(document.body.innerText);
         });
 
-        if (responseData?.statusCode === 404 || responseData?.statusCode === 418) {
+        if (responseData?.statusCode === 404) {
             console.error(JSON.stringify({
                 'message': 'trendyol empty body',
+                'data': data,
+            }))
+
+
+            await delay(1000 * 60 * 20)
+        }
+
+        if (responseData?.statusCode === 418) {
+            console.error(JSON.stringify({
+                'message': 'trendyol tea pot bot blocked',
                 'data': data,
             }))
 
