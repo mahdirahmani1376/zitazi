@@ -95,9 +95,7 @@ class ListenForScrapeResponseCommand extends Command
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
         } else {
-            if ($product) {
-                $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
-            }
+            $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
 
             $this->error('unknown message structure scrape command message:' . json_encode($message));
         }

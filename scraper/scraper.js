@@ -229,6 +229,14 @@ async function scrapeTrendyolData(data) {
             }))
 
             await delay(1000 * 60 * 20)
+
+            return {
+                product_id: data.id,
+                response_status: response?.status(),
+                response_headers: response?.headers(),
+                full_url: data.full_url,
+                success: false,
+            };
         }
 
         const responseData = await page.evaluate(() => {
