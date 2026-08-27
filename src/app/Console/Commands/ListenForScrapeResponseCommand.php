@@ -20,7 +20,7 @@ class ListenForScrapeResponseCommand extends Command
 
     protected $description = 'this command listens for scrape-response message';
 
-    public function handle()
+    public function handle(): void
     {
         while (true) {
             try {
@@ -32,7 +32,7 @@ class ListenForScrapeResponseCommand extends Command
         }
     }
 
-    private function proccessTrendyolError($messageArray): void
+    private function processTrendyolError($messageArray): void
     {
         $product = Product::find($messageArray['product_id']);
 
@@ -40,7 +40,7 @@ class ListenForScrapeResponseCommand extends Command
 
     }
 
-    private function proccessDecathlonError($messageArray): void
+    private function processDecathlonError($messageArray): void
     {
         $product = Product::find($messageArray['product_id']);
         if (in_array(data_get($messageArray, 'response.response_status'), [403, 429]) && data_get($messageArray, 'source') === 'Decathlon') {
@@ -80,12 +80,14 @@ class ListenForScrapeResponseCommand extends Command
         }
 
         if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
-            $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
+            if (data_get($messageArray, 'blocked') === false) {
+                $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
+            }
 
             if ($messageArray['source'] === 'Trendyol') {
-                $this->proccessTrendyolError($messageArray);
+                $this->processTrendyolError($messageArray);
             } elseif ($messageArray['source'] === 'Decathlon') {
-                $this->proccessDecathlonError($messageArray);
+                $this->processDecathlonError($messageArray);
             }
         } else if (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
