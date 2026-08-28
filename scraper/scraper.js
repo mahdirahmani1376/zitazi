@@ -195,7 +195,7 @@ async function scrapeDecathlonData(productData, context) {
     } catch (err) {
         if (err.name === "TimeoutError") {
 
-            await browser.close();
+            await context.close();
 
             browser = null;
 
@@ -323,15 +323,6 @@ async function scrapeTrendyolData(data, context, allowFreshContextRetry = true) 
         };
 
     } catch (err) {
-
-        if (err.name === "TimeoutError") {
-
-            await browser.close();
-
-            browser = null;
-
-        }
-
         const error = {
             name: err.name,
             message: err.message
@@ -347,7 +338,7 @@ async function scrapeTrendyolData(data, context, allowFreshContextRetry = true) 
         };
 
     } finally {
-        await page.close().catch(() => {
+        await context.close().catch(() => {
         });
     }
 }
