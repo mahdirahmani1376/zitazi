@@ -42,6 +42,6 @@ class ViewProduct extends ViewRecord
             return;
         }
 
-        $this->sync_status = $data['status'];
+        $this->record->sync_status = $data['status'];
     }
 }

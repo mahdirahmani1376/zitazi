@@ -300,14 +300,10 @@ Route::get('retry-failed-tr', function () {
 
     Redis::pipeline(function ($pipe) use ($trFailed) {
         foreach ($trFailed as $product) {
-            $product->setTrendyolFullUrl();
             $pipe->rpush(
                 config('queue.TR_QUEUE_IN'),
                 json_encode([
-                    'product' => $product->only([
-                        'id',
-                        'full_url'
-                    ]),
+                    'product' => $product->getTrendyolQueueScrapeData(),
                     'bulk' => true,
                 ])
             );

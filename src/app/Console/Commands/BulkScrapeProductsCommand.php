@@ -34,9 +34,7 @@ class BulkScrapeProductsCommand extends Command
                          ->whereNotNull('trendyol_source')
                          ->whereRaw("TRIM(trendyol_source) != ''")
                          ->cursor() as $product) {
-                $product->setTrendyolFullUrl();
-
-                if (empty($product->full_url)) {
+                if (empty($product->getTrendyolFullUrl())) {
                     Log::error('no full_url for product', [
                         'product_id' => $product->id,
                         'trendyol_source' => $product->trendyol_source
@@ -51,10 +49,7 @@ class BulkScrapeProductsCommand extends Command
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
                     json_encode([
-                        'product' => $product->only([
-                            'id',
-                            'full_url'
-                        ]),
+                        'product' => $product->getTrendyolQueueScrapeData(),
                         'bulk' => true,
                     ])
                 );

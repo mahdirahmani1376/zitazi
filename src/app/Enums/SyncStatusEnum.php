@@ -59,4 +59,11 @@ enum SyncStatusEnum: string
             self::PRODUCT_GOT_DELETED => 'محصول از سایت اصلی پاک شده لینک چک شود',
         };
     }
+
+    public static function getValues()
+    {
+        return array_map(function ($item) {
+            return $item->value;
+        }, self::cases());
+    }
 }

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Facades\Redis;
 
 /** @property $full_url */
 class Product extends Model
@@ -27,6 +26,10 @@ class Product extends Model
 
     public const SATRE = 'satre';
     public const ZITAZI = 'zitazi';
+
+    protected $casts = [
+        'sync_status' => SyncStatusEnum::class
+    ];
 
     public static function getAllSourceLabels()
     {
@@ -134,7 +137,6 @@ class Product extends Model
         return $ratio;
     }
 
-
     public function getTrendyolContentId(): ?string
     {
         $contentId = null;
@@ -167,50 +169,11 @@ class Product extends Model
         return $this->hasMany(LogModel::class, 'product_id');
     }
 
-    protected function getTrendyolFullUrl(): string
-    {
-        $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
-        $params = http_build_query([
-            'contentId' => $this->getTrendyolContentId(),
-            'merchantId' => $this->getTrendyolMerchantId(),
-        ]);
-
-        return $url . '?' . $params;
-    }
-
-    public function setTrendyolFullUrl(): static
-    {
-        $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
-        $params = http_build_query([
-            'contentId' => $this->getTrendyolContentId(),
-            'merchantId' => $this->getTrendyolMerchantId(),
-            'countryCode' => 'TR'
-        ]);
-
-        $this->setAttribute('full_url', $url . '?' . $params);
-
-        return $this;
-    }
-
-    public function getSyncStatus(): SyncStatusEnum
-    {
-        $status = Redis::get($this->getSyncStatusRedisKey());
-
-        return SyncStatusEnum::tryFrom($status) ?? SyncStatusEnum::NOT_ENQUEUED;
-    }
-
-    public function getSyncStatusRedisKey(): string
-    {
-        return "sync_status_product:{$this->id}";
-    }
-
     public function setSyncStatus(SyncStatusEnum $statusEnum, bool $broadcast = true): void
     {
-        Redis::set(
-            $this->getSyncStatusRedisKey(),
-            $statusEnum->value,
-            86400
-        );
+        $this->update([
+            'sync_status' => $statusEnum
+        ]);
 
         if ($broadcast) {
             ProductSyncStatusChangedEvent::dispatch($this->id, $statusEnum);
@@ -218,8 +181,32 @@ class Product extends Model
 
     }
 
-    public function hasSyncStatus(SyncStatusEnum $statusEnum)
+    public function hasSyncStatus(SyncStatusEnum $statusEnum): bool
     {
-        return $this->getSyncStatus() === $statusEnum;
+        return $this->sync_status === $statusEnum;
+    }
+
+    public function getTrendyolFullUrl(): ?string
+    {
+        $contentId = $this->getTrendyolContentId();
+        if (empty($contentId)) {
+            return null;
+        }
+
+        $url = 'https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content';
+        $params = http_build_query([
+            'contentId' => $contentId,
+            'merchantId' => $this->getTrendyolMerchantId(),
+            'countryCode' => 'TR'
+        ]);
+        return $url . '?' . $params;
+    }
+
+    public function getTrendyolQueueScrapeData(): array
+    {
+        return [
+            'id' => $this->id,
+            'full_url' => $this->getTrendyolFullUrl()
+        ];
     }
 }

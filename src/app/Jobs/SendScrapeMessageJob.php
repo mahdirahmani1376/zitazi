@@ -27,10 +27,10 @@ class SendScrapeMessageJob implements ShouldQueue
     {
         $product = $this->product;
         $key = null;
+        $data = [];
 
         if ($product->belongsToTrendyol()) {
-            $product->setTrendyolFullUrl();
-            if (empty($product->full_url)) {
+            if (empty($product->getTrendyolFullUrl())) {
                 Log::error('no full_url for product', [
                     'product_id' => $product->id,
                     'trendyol_source' => $product->trendyol_source
@@ -38,9 +38,22 @@ class SendScrapeMessageJob implements ShouldQueue
                 return;
             }
             $key = config('queue.TR_QUEUE_IN');
+
+            $data = json_encode([
+                'product' => $product->getTrendyolQueueScrapeData(),
+                'bulk' => true,
+            ]);
+
         } elseif ($product->belongsToDecalthon()) {
             $key = config('queue.DE_QUEUE_IN');
 
+            $data = json_encode([
+                'product' => $product->only([
+                    'decathlon_url',
+                    'id'
+                ]),
+                'bulk' => true,
+            ]);
         }
 
         if (!$key) {
@@ -52,13 +65,7 @@ class SendScrapeMessageJob implements ShouldQueue
 
         $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
-        Redis::lPush(
-            $key,
-            json_encode([
-                'product' => $product->toArray(),
-                'bulk' => false
-            ])
-        );
+        Redis::lPush($key, $data);
 
     }
 }

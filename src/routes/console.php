@@ -952,15 +952,13 @@ Artisan::command('temp-sync', function () {
                      ->whereNotNull('trendyol_source')
                      ->cursor() as $product) {
 
-            $product->setTrendyolFullUrl();
-
             $pipe->rpush(
                 'scrape_product',
                 json_encode([
                     'product' => [
                         'id' => $product->id,
                         'trendyol_source' => $product->trendyol_source,
-                        'full_url' => $product->full_url
+                        'full_url' => $product->getTrendyolFullUrl()
                     ],
                     'bulk' => false,
                 ])
@@ -1045,8 +1043,7 @@ Artisan::command('empty-sync', function () {
 
             if ($product->belongsToTrendyol()) {
 
-                $product->setTrendyolFullUrl();
-                if (empty($product->full_url)) {
+                if (empty($product->getTrendyolFullUrl())) {
                     LogManager::logProduct($product, 'no full_url', [
                         'product_id' => $product->id,
                         'trendyol_source' => $product->trendyol_source
@@ -1062,10 +1059,7 @@ Artisan::command('empty-sync', function () {
                 $pipe->rpush(
                     config('queue.TR_QUEUE_IN'),
                     json_encode([
-                        'product' => $product->only([
-                            'id',
-                            'full_url'
-                        ]),
+                        'product' => $product->getTrendyolQueueScrapeData(),
                         'bulk' => true,
                     ])
                 );
