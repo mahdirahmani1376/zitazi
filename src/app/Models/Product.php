@@ -184,6 +184,7 @@ class Product extends Model
         $params = http_build_query([
             'contentId' => $this->getTrendyolContentId(),
             'merchantId' => $this->getTrendyolMerchantId(),
+            'countryCode' => 'TR'
         ]);
 
         $this->setAttribute('full_url', $url . '?' . $params);
