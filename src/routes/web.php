@@ -8,10 +8,12 @@ use App\Exports\ProductExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
 use App\Exports\VariationExport;
-use App\Imports\ImportDecathlonVariation;
+use App\Imports\ImportVariationsAction;
+use App\Jobs\GenerateImportReportJob;
 use App\Jobs\NotifyUserOfCompletedExportJob;
 use App\Jobs\SyncZitaziJob;
 use App\Jobs\UpdateJob;
+use App\Models\ImportBatch;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\TorobProduct;
@@ -123,28 +125,6 @@ Route::get('/download-torob-products', function () {
 
     return Excel::download(new TorobProductsExport, "variations_{$now}.xlsx");
 })->name('torob-products.download');
-
-Route::post('import', function (Request $request) {
-    $request->validate([
-        'file' => 'required|mimes:xlsx,csv,xls',
-    ]);
-
-    (new ImportDecathlonVariation())
-        ->queue($request->file('file'))
-        ->allOnQueue('import')
-        ->chain([
-            (new NotifyUserOfCompletedExportJob(auth()->user()))->onQueue('import')
-        ]);
-
-    Notification::make()
-        ->title('Import started')
-        ->body('فایل برای پردازش در صف قرار گرفت.')
-        ->success()
-        ->sendToDatabase(auth()->user());
-
-    return back();
-
-})->name('variations.import');
 
 Route::get('ci-cd', function () {
     return 'hello ci-cd';
@@ -310,3 +290,79 @@ Route::get('retry-failed-tr', function () {
         }
     });
 });
+
+Route::post('import', function (Request $request) {
+    $request->validate([
+        'file' => 'required|mimes:xlsx,csv,xls',
+    ]);
+
+    $user = auth()->user();
+
+    /*
+     * IMPORTANT:
+     *
+     * Store the original file ourselves.
+     * The queued import should not depend on the temporary
+     * uploaded file from the HTTP request.
+     */
+    $sourcePath = $request->file('file')->store(
+        'imports/originals',
+        'local'
+    );
+
+    $file = $request->file('file');
+
+    $sourcePath = Storage::drive('local')->putFileAs('imports/originals', $file, $file->getClientOriginalName());
+
+    $batch = ImportBatch::create([
+        'user_id' => $user->id,
+        'original_filename' => $file->getClientOriginalName(),
+        'source_path' => $sourcePath,
+        'status' => \App\Enums\ImportStatusEnum::PENDING,
+    ]);
+
+    (new ImportVariationsAction($batch->id))
+        ->queue(
+            Storage::disk('local')->path($sourcePath)
+        )
+        ->allOnQueue('import')
+        ->chain([
+            (new GenerateImportReportJob($batch->id))
+                ->onQueue('import'),
+
+            (new NotifyUserOfCompletedExportJob($batch->id))
+                ->onQueue('import'),
+        ]);
+
+    Notification::make()
+        ->title('Import started')
+        ->body(
+            'فایل برای پردازش در صف قرار گرفت. پس از اتمام نتیجه اطلاع داده می‌شود.'
+        )
+        ->success()
+        ->sendToDatabase($user);
+
+    return back();
+})
+    ->middleware('auth')
+    ->name('variations.import');
+
+Route::get('/import/{importBatch}/report', function (ImportBatch $importBatch) {
+    abort_unless(
+        $importBatch->status === \App\Enums\ImportStatusEnum::COMPLETED
+        && $importBatch->report_path,
+        404
+    );
+
+    abort_unless(
+        Storage::disk('local')->exists($importBatch->report_path),
+        404
+    );
+
+    return Storage::disk('local')->download(
+        $importBatch->report_path,
+        'import_result_' . $importBatch->id . '.xlsx'
+    );
+})
+    ->middleware('auth')
+    ->name('variations.import-report');

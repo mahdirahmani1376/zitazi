@@ -3,6 +3,8 @@
 namespace App\Enums;
 enum SyncStatusEnum: string
 {
+    use EnumMethods;
+
     case ENQUEUED = 'enqueued';
     case NOT_ENQUEUED = 'not_enqueued';
     case PROCESSING = 'processing';
@@ -60,10 +62,4 @@ enum SyncStatusEnum: string
         };
     }
 
-    public static function getValues()
-    {
-        return array_map(function ($item) {
-            return $item->value;
-        }, self::cases());
-    }
 }

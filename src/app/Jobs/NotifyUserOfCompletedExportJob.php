@@ -2,29 +2,54 @@
 
 namespace App\Jobs;
 
-use App\Models\User;
+use App\Models\ImportBatch;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class NotifyUserOfCompletedExportJob implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    public $user;
-
-    public function __construct(User $user)
+    public function __construct(
+        public readonly int $importBatchId,
+    )
     {
-        $this->user = $user;
     }
 
-    public function handle()
+    public function handle(): void
     {
-        Notification::make()
+        $batch = ImportBatch::with('user')
+            ->findOrFail($this->importBatchId);
+
+        $failed = $batch->failed_rows;
+        $successful_rows = $batch->successful_rows;
+
+        $notification = Notification::make()
             ->title('Import completed')
-            ->body('Your Excel import has finished successfully.')
-            ->success()
-            ->sendToDatabase($this->user);
+            ->body(
+                $failed > 0
+                    ? "{$successful_rows} rows imported successfully, {$failed} rows failed."
+                    : "{$successful_rows} rows imported successfully."
+            )
+            ->success();
+
+        if ($failed > 0) {
+            $notification->warning();
+        }
+
+        $notification
+            ->actions([
+                Action::make('download')
+                    ->label('Download report')
+                    ->url(route('variations.import-report', $batch))
+                    ->button(),
+            ])
+            ->sendToDatabase($batch->user);
     }
 }
