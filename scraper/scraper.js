@@ -276,7 +276,7 @@ async function scrapeTrendyolData(data, context, allowFreshContextRetry = true) 
             return JSON.parse(document.body.innerText);
         });
 
-        if (responseData?.statusCode === 404) {
+        if ([404, 410].includes(responseData?.statusCode)) {
             if (allowFreshContextRetry) {
                 console.error(JSON.stringify({
                     'message': 'trendyol 404 response; retrying with fresh browser context',

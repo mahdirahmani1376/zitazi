@@ -3,9 +3,9 @@ const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 puppeteer.use(stealthPlugin());
 
-let browser
+let browser;
 
-async function getVariations() {
+async function getVariations(url) {
     browser = await puppeteer.launch({
         headless: true,
         protocolTimeout: 60000,
@@ -18,18 +18,32 @@ async function getVariations() {
         ]
     });
 
-    let context = await browser.createBrowserContext();
+    const context = await browser.createBrowserContext();
     const page = await context.newPage();
 
-    const response = await page.goto('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=330697668&merchantId=298133&countryCode=TR', {waitUntil: 'domcontentloaded'});
+    try {
+        const response = await page.goto(url, {
+            waitUntil: 'domcontentloaded'
+        });
 
-    console.log('status', response.status())
-
-    console.log('data', await page.content())
-
-    await page.close();
-
-    await browser.close();
+        console.log('status:', response?.status());
+        console.log('data:', await page.content());
+    } finally {
+        await context.close().catch(() => {
+        });
+        await browser.close().catch(() => {
+        });
+    }
 }
 
-getVariations().then(r => console.log(r));
+const url = process.argv[2];
+
+if (!url) {
+    console.error('Usage: node test.js <url>');
+    process.exit(1);
+}
+
+getVariations(url).catch(error => {
+    console.error(error);
+    process.exit(1);
+});
