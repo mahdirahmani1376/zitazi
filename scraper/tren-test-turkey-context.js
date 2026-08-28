@@ -21,7 +21,7 @@ async function getVariations() {
     let context = await browser.createBrowserContext();
     const page = await context.newPage();
 
-    const response = await page.goto('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=330697668&merchantId=298133', {waitUntil: 'domcontentloaded'});
+    const response = await page.goto('https://apigw.trendyol.com/discovery-storefront-trproductgw-service/api/product-detail/content?contentId=330697668&merchantId=298133&countryCode=TR', {waitUntil: 'domcontentloaded'});
 
     console.log('status', response.status())
 
