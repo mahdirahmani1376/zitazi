@@ -78,3 +78,8 @@ advanced scraping.
 - WooCommerce SDK
 - Laravel Sanctum
 - Laravel Excel
+-
+
+### How to Set up node service in development environment
+
+`npm install && npx nodemon daemon.js`
