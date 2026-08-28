@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ImportStatusEnum;
 use App\Events\ImportCompleted;
 use App\Models\ImportBatch;
 use Illuminate\Bus\Queueable;
@@ -30,7 +31,7 @@ class GenerateImportReportJob implements ShouldQueue
         $batch = ImportBatch::findOrFail($this->importBatchId);
 
         $batch->update([
-            'status' => 'processing',
+            'status' => ImportStatusEnum::PROCESSING,
             'started_at' => $batch->started_at ?? now(),
         ]);
 

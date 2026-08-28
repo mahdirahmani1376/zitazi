@@ -64,18 +64,22 @@ class ImportVariationsAction implements
             ]);
         }
 
-        /*
-         * Broadcast every 50 rows.
-         */
-        $processed =
-            $batch->successful_rows
-            + $batch->failed_rows;
+//        /*
+//         * Broadcast every 50 rows.
+//         */
+//        $processed =
+//            $batch->successful_rows
+//            + $batch->failed_rows;
+//
+//        if ($processed % 50 === 0) {
+//            $batch->refresh();
+//
+//            ImportProgressUpdated::dispatch($batch);
+//        }
 
-        if ($processed % 50 === 0) {
-            $batch->refresh();
+        $batch->refresh();
 
-            ImportProgressUpdated::dispatch($batch);
-        }
+        ImportProgressUpdated::dispatch($batch);
     }
 
     public function updateVariationFromRow(array $row): Variation

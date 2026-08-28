@@ -70,10 +70,10 @@ class ImportBatchResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'processing' => 'Processing',
-                        'completed' => 'Completed',
-                        'failed' => 'Failed',
+                        'pending' => ImportStatusEnum::PENDING->value,
+                        'processing' => ImportStatusEnum::PROCESSING->value,
+                        'completed' => ImportStatusEnum::COMPLETED->value,
+                        'failed' => ImportStatusEnum::FAILED->value,
                     ]),
             ])
             ->recordActions([

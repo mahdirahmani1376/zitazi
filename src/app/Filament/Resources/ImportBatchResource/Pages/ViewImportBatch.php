@@ -13,7 +13,6 @@ use Filament\Schemas\Schema;
 class ViewImportBatch extends ViewRecord
 {
     protected static string $resource = ImportBatchResource::class;
-
     public function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -52,16 +51,11 @@ class ViewImportBatch extends ViewRecord
             return;
         }
 
-        $this->importIsCompleted = true;
-    }
+        $this->record->total_rows = $data['total'];
+        $this->record->successful_rows = $data['successful'];
+        $this->record->failed_rows = $data['failed'];
+        $this->record->status = $data['status'];
 
-    public function importCompleted(array $data): void
-    {
-        if ((int)$data['id'] !== $this->record->id) {
-            return;
-        }
-
-        $this->importIsCompleted = true;
     }
 
     protected function getHeaderActions(): array
@@ -81,7 +75,7 @@ class ViewImportBatch extends ViewRecord
     protected function getListeners(): array
     {
         return [
-            'echo:imports-update,.import.progress' => 'importProgressUpdated',
-            'echo:imports-complete,.import.completed' => 'importCompleted',];
+            'echo:imports-update,.import.progress' => 'importProgressUpdated'
+        ];
     }
 }

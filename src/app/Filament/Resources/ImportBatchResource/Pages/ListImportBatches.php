@@ -12,22 +12,11 @@ use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ListImportBatches extends ListRecords
 {
     protected static string $resource = ImportBatchResource::class;
-    public array $importUpdateProgresses = [];
-    public array $importCompletionProgresses = [];
-
-    public function syncImportState(array $data): void
-    {
-        $this->importUpdateProgresses[$data['id']] = $data;
-    }
-
-    public function syncImportCompletion(array $data): void
-    {
-        $this->importCompletionProgresses[$data['id']] = $data;
-    }
 
     protected function getHeaderActions(): array
     {
@@ -58,11 +47,14 @@ class ListImportBatches extends ListRecords
     {
         $absolutePath = Storage::disk('local')->path($path);
 
+        $totalRows = $this->countRows($path);
+
         $batch = ImportBatch::create([
             'user_id' => auth()->id(),
             'original_filename' => basename($path),
             'source_path' => $path,
             'status' => ImportStatusEnum::PENDING,
+            'total_rows' => $totalRows
         ]);
 
         (new ImportVariationsAction($batch->id))
@@ -89,7 +81,25 @@ class ListImportBatches extends ListRecords
     {
         return [
             'echo:imports-update,.import.progress' => 'syncImportState',
-            'echo:imports-complete,.import.completed' => 'syncImportCompletion',
         ];
+    }
+
+    public function syncImportState(array $data): void
+    {
+        $this->resetTable();
+    }
+
+    private function countRows(string $path): int
+    {
+        $absolutePath = Storage::disk('local')->path($path);
+
+        $spreadsheet = IOFactory::load($absolutePath);
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        return max(
+            0,
+            $sheet->getHighestRow() - 1
+        );
     }
 }
