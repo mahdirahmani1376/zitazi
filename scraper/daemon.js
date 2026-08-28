@@ -10,6 +10,7 @@ function createRedis() {
     return new Redis({
         host: 'zitazi-redis',
         port: 6379,
+        password: process.env.REDIS_PASSWORD,
     });
 }
 
