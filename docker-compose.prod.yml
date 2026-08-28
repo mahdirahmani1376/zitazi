@@ -254,6 +254,8 @@ services:
       - redisinsight_data:/data
     depends_on:
       - redis
+    networks:
+      - app-network
     environment:
       RI_ENCRYPTION_KEY: ${REDISINSIGHT_ENCRYPTION_KEY}
 
