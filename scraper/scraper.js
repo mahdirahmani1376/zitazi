@@ -59,9 +59,9 @@ async function beginScrape(name, data) {
     };
 
     if (name === 'Trendyol') {
-        result = scrapeTrendyolData(data);
+        result = await scrapeTrendyolData(data);
     } else if (name === "Decathlon") {
-        result = scrapeDecathlonData(data);
+        result = await scrapeDecathlonData(data);
     }
 
     return result;
