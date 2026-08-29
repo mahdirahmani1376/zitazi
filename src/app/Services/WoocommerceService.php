@@ -17,11 +17,11 @@ class WoocommerceService
         $baseURl = "https://zitazi.com";
 
         if ($source === Product::ZITAZI) {
-            $securityKey = env('SECURITY_KEY');
-            $securityPass = env('SECURITY_PASS');
+            $securityKey = config('services.zitazi.security_key');
+            $securityPass = config('services.zitazi.security_pass');
         } else if ($source === Product::SATRE) {
-            $securityKey = env('SATRE_SECURITY_KEY');
-            $securityPass = env('SATRE_SECURITY_PASS');
+            $securityKey = config('services.satreh.security_key');
+            $securityPass = config('services.satreh.security_key');
             $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
         }
 
@@ -38,14 +38,19 @@ class WoocommerceService
 
     public static function getClient(string $source = Product::ZITAZI): Client
     {
-        $baseURl = env('BASE_URL');
-        $securityKey = env('SECURITY_KEY');
-        $securityPass = env('SECURITY_PASS');
-        if ($source === Product::SATRE) {
-            $baseURl = env('SATRE_BASE_URL');
-            $securityKey = env('SATRE_SECURITY_KEY');
-            $securityPass = env('SATRE_SECURITY_PASS');
+        $securityPass = null;
+        $securityKey = null;
+        $baseURl = "https://zitazi.com";
+
+        if ($source === Product::ZITAZI) {
+            $securityKey = config('services.zitazi.security_key');
+            $securityPass = config('services.zitazi.security_pass');
+        } else if ($source === Product::SATRE) {
+            $securityKey = config('services.satreh.security_key');
+            $securityPass = config('services.satreh.security_key');
+            $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
         }
+
         return new Client(
             $baseURl,
             $securityKey,

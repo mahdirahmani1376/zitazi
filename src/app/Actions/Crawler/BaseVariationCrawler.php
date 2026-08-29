@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
+use Illuminate\Support\Facades\Cache;
 
 class BaseVariationCrawler
 {
@@ -54,8 +55,8 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): int
     {
-        if (!env('ZITAZ_SYNC_ENABLED', true)) {
-            LogManager::logVariation($variation, 'sync is disabled in .env', [
+        if (!Cache::get('sync_enabled', config('sync_enabled'))) {
+            LogManager::logVariation($variation, 'sync is disabled in config', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
             ]);

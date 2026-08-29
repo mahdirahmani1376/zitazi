@@ -40,6 +40,18 @@ return [
             'arzdigital' => App\Services\CurrencyRate\ArzDigitalService::class,
             'navasan' => App\Services\CurrencyRate\NavasanService::class,
         ]
+    ],
+
+    'sync_enabled' => env('SYNC_ENABLED'),
+
+    'zitazi' => [
+        'security_key' => env('SECURITY_KEY'),
+        'security_pass' => env('SECURITY_PASS'),
+    ],
+    'satreh' => [
+        'sync_enabled' => env('SYNC_ENABLED'),
+        'security_key' => env('SATRE_SECURITY_KEY'),
+        'security_pass' => env('SATRE_SECURITY_PASS'),
     ]
 
 ];
