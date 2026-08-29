@@ -41,7 +41,7 @@ class SendScrapeMessageJob implements ShouldQueue
 
             $data = json_encode([
                 'product' => $product->getTrendyolQueueScrapeData(),
-                'bulk' => true,
+                'bulk' => false,
             ]);
 
         } elseif ($product->belongsToDecalthon()) {
@@ -52,7 +52,7 @@ class SendScrapeMessageJob implements ShouldQueue
                     'decathlon_url',
                     'id'
                 ]),
-                'bulk' => true,
+                'bulk' => false,
             ]);
         }
 

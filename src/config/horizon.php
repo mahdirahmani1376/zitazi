@@ -247,7 +247,7 @@ return [
         'local' => [
             'bulk-supervisor' => [
                 'maxProcesses' => 8,
-                'queue' => ['default'],
+                'queue' => ['default', 'bulk-sync-products', 'sync-products'],
                 'connection' => 'redis',
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
