@@ -2,19 +2,22 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Product;
 use App\Models\Variation;
 use Filament\Widgets\ChartWidget;
 
-class VariationsStockReport extends ChartWidget
+class TrendyolVariationsStockReport extends ChartWidget
 {
-    protected ?string $heading = 'وضعیت موجودی تنوع ها';
+    protected ?string $heading = 'وضعیت موجودی تنوع های ترندیول';
 
     protected string $color = 'success';
-    protected int|string|array $columnSpan = 'full';
 
     protected function getData(): array
     {
-        $data = Variation::selectRaw('count(*) as total,stock,source')->groupBy(['source', 'stock'])->get();
+        $data = Variation::selectRaw('count(*) as total,stock')
+            ->groupBy('stock')
+            ->where('source', Product::SOURCE_TRENDYOL)
+            ->get();
 
         return [
             'datasets' => [
@@ -23,7 +26,7 @@ class VariationsStockReport extends ChartWidget
                     'data' => $data->map(fn($item) => $item->total),
                 ],
             ],
-            'labels' => $data->map(fn($item) => $item->source . '-' . $item->stock ?? 'نامشخص'),
+            'labels' => $data->map(fn($item) => $item->stock ?? 'نامشخص'),
         ];
     }
 
