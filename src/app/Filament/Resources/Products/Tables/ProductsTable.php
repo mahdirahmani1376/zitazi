@@ -15,13 +15,16 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -112,29 +115,103 @@ class ProductsTable
                 ,
             ])
             ->filters([
+                SelectFilter::make('source')
+                    ->preload()
+                    ->options([
+                        Product::SOURCE_TRENDYOL => Product::SOURCE_TRENDYOL,
+                        Product::SOURCE_DECATHLON => Product::SOURCE_DECATHLON
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(data_get($data, 'value') === Product::SOURCE_DECATHLON,
+                                function (Builder $query, string $value) {
+                                    return $query
+                                        ->whereNotNull('decathlon_url')
+                                        ->orWhereRaw('trim(decathlon_url) != ""');
+                                })
+                            ->when(data_get($data, 'value') === Product::SOURCE_TRENDYOL,
+                                function (Builder $query, string $value) {
+                                    return $query
+                                        ->whereNotNull('trendyol_source')
+                                        ->orWhereRaw('trim(trendyol_source) != ""');
+                                }
+                            );
+                    }),
+                Filter::make('created_at')
+                    ->label('Created at')
+                    ->schema([
+                        DatePicker::make('from')
+                            ->label('created_at from'),
+
+                        DatePicker::make('until')
+                            ->label('created_at until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date)
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)
+                            );
+                    }),
+                Filter::make('updated_at')
+                    ->label('Updated at')
+                    ->schema([
+                        DatePicker::make('from')
+                            ->label('updated_at From'),
+
+                        DatePicker::make('until')
+                            ->label('updated_at Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '>=', $date)
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '<=', $date)
+                            );
+                    }),
                 SelectFilter::make('category')
                     ->multiple()
+                    ->preload()
                     ->options(
-                        array_combine(
-                            Product::query()->whereNotNull('category')->distinct('category')->pluck('category')->all(),
-                            Product::query()->whereNotNull('category')->distinct('category')->pluck('category')->all()
-                        ),
+                        Product::query()
+                            ->whereNotNull('category')
+                            ->where('category', '!=', '')
+                            ->distinct('category')
+                            ->orderBy('category')
+                            ->pluck('category', 'category')
+                            ->toArray()
                     ),
                 SelectFilter::make('brand')
                     ->multiple()
+                    ->preload()
                     ->options(
-                        array_combine(
-                            Product::whereNotNull('brand')->distinct('brand')->pluck('brand')->all(),
-                            Product::whereNotNull('brand')->distinct('brand')->pluck('brand')->all()
-                        ),
+                        Product::query()
+                            ->whereNotNull('brand')
+                            ->where('brand', '!=', '')
+                            ->distinct('brand')
+                            ->orderBy('brand')
+                            ->pluck('brand', 'brand')
+                            ->toArray()
                     ),
                 SelectFilter::make('owner')
+                    ->preload()
                     ->multiple()
                     ->options(
-                        array_combine(
-                            Product::whereNotNull('owner')->distinct('owner')->pluck('owner')->all(),
-                            Product::whereNotNull('owner')->distinct('owner')->pluck('owner')->all(),
-                        )
+                        Product::query()
+                            ->whereNotNull('owner')
+                            ->where('owner', '!=', '')
+                            ->distinct('owner')
+                            ->orderBy('owner')
+                            ->pluck('owner', 'owner')
+                            ->toArray()
                     ),
                 SelectFilter::make('base_source')
                     ->multiple()
@@ -143,6 +220,9 @@ class ProductsTable
                         Product::ZITAZI => Product::ZITAZI,
                     ]),
                 TernaryFilter::make('promotion'),
+                SelectFilter::make('sync_status')
+                    ->multiple()
+                    ->options(SyncStatusEnum::getValues()),
             ])
             ->recordActions([
                 ViewAction::make(),
