@@ -31,7 +31,7 @@ class SyncWidget extends Widget
     public function getSyncEnabled(): bool
     {
         return filter_var(
-            Cache::get('sync_enabled', config('sync_enabled')),
+            Cache::get('sync_enabled', config('services.sync_enabled')),
             FILTER_VALIDATE_BOOLEAN,
         );
     }
