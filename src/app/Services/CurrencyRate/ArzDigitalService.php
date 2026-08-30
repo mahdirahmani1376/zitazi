@@ -15,6 +15,13 @@ class ArzDigitalService extends CurrencyRateService implements CurrencyRateDrive
         return collect($response['data'])->keyBy('symbol')->get('TRY')['toman'];
     }
 
+    public function getEURRate()
+    {
+        $response = $this->httpService->sendWithCache('get', self::BASE_URL);
+
+        return collect($response['data'])->keyBy('symbol')->get('EUR')['toman'];
+    }
+
     public function getAEDRate()
     {
         $response = $this->httpService->sendWithCache('get', self::BASE_URL);

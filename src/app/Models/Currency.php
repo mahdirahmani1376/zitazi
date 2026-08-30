@@ -23,6 +23,11 @@ class Currency extends Model
         return self::orderByDesc('created_at')->where('name', 'try')->first()?->rate;
     }
 
+    public static function lastEurRate()
+    {
+        return self::orderByDesc('created_at')->where('name', 'eur')->first()?->rate;
+    }
+
     public static function syncTryRate()
     {
         $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
@@ -48,9 +53,39 @@ class Currency extends Model
         });
     }
 
-    public static function convertToRial($price): int
+    public static function syncEurRate()
     {
-        $rialPrice = static::syncTryRate() * $price;
+        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
+
+        return Cache::remember('eur_rate', $timeUntilEndOfDay, function () {
+            try {
+                $rate = app()->make(CurrencyRateDriverInterface::class)->getEURRate();
+
+                if (empty($rate)) {
+                    $rate = static::lastEurRate() ?? 2400;
+                } else {
+                    static::create([
+                        'rate' => $rate,
+                        'name' => 'eur',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+                $rate = static::lastEurRate() ?? 2400;
+            }
+
+            return $rate;
+        });
+    }
+
+
+    public static function convertToRial($price, $symbol = 'TRY'): int
+    {
+        if ($symbol === 'TRY') {
+            $rialPrice = static::syncTryRate() * $price;
+        } elseif ($symbol === 'EUR') {
+            $rialPrice = static::syncEurRate() * $price;
+        }
 
         return floor($rialPrice / 10000) * 10000;
     }

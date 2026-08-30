@@ -53,7 +53,9 @@ class SeedVariationsForTrendyolAction
                 ], [
                     'size' => $item['value'] ?? null,
                     'price' => $price = $item['price']['value'],
-                    'rial_price' => Currency::convertToRial($price) * $product->getRatio(),
+                    'rial_price' => Currency::convertToRial(
+                            $price, data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency', 'TRY')
+                        ) * $product->getRatio(),
                     'stock' => !empty($item['inStock']) ? 88 : 0,
                     'barcode' => $item['barcode'],
                     'color' => $item['value'],

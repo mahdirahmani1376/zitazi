@@ -24,4 +24,9 @@ class NavasanService extends CurrencyRateService implements CurrencyRateDriverIn
 
         return data_get($response, 'aed.value');
     }
+
+    public function getEURRate()
+    {
+        // TODO: Implement getEURRate() method.
+    }
 }

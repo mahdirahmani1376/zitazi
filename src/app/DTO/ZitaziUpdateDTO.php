@@ -33,10 +33,12 @@ class ZitaziUpdateDTO
     {
         $data = [];
         $data['stock_status'] = $stock ? static::IN_STOCK : static::OUT_OF_STOCK;
+        $data['stock_quantity'] = $stock ? 88 : 0;
 
         if ($price) {
             $data['sale_price'] = null;
             $data['regular_price'] = '' . $price;
+            $data['price'] = $price;
         }
 
         return $data;

@@ -7,4 +7,7 @@ interface CurrencyRateDriverInterface
     public function getTRYRate();
 
     public function getAEDRate();
+
+    public function getEURRate();
+
 }

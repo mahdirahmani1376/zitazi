@@ -15,6 +15,11 @@ class CurrencyWidget extends StatsOverviewWidget
             Stat::make(
                 'آخرین بروزرسانی',
                 optional(Currency::latest()->first())->updated_at?->diffForHumans()
+            ),
+            Stat::make('نرح یورو', Currency::syncEurRate() ?? '—'),
+            Stat::make(
+                'آخرین بروزرسانی',
+                optional(Currency::latest()->first())->updated_at?->diffForHumans()
             )
         ];
     }
