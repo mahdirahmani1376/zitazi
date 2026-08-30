@@ -143,22 +143,6 @@ class EmergencyProductUpdateCommand extends Command
         $bar->finish();
     }
 
-    private function getZitaziDto($id = null, $price = null, $stock = null): array
-    {
-        if ($this->option('invalid')) {
-            return [
-                "id" => $id,
-                'stock_status' => ZitaziUpdateDTO::OUT_OF_STOCK,
-                'stock_quantity' => 0,
-            ];
-        }
-
-        return [
-            "id" => $id,
-            ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock($price, $stock)
-        ];
-    }
-
     private function beginSendingRequestsForProducts(Builder $productQuery): void
     {
         $bar = $this->output->createProgressBar($productQuery->count());
@@ -209,6 +193,22 @@ class EmergencyProductUpdateCommand extends Command
         });
 
         $bar->finish();
+    }
+
+    private function getZitaziDto($id = null, $price = null, $stock = null): array
+    {
+        if ($this->option('invalid')) {
+            return [
+                "id" => $id,
+                'stock_status' => ZitaziUpdateDTO::OUT_OF_STOCK,
+                'stock_quantity' => 0,
+            ];
+        }
+
+        return [
+            "id" => $id,
+            ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock($price, $stock)
+        ];
     }
 
 }
