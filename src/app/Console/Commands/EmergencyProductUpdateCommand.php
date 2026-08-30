@@ -59,6 +59,41 @@ class EmergencyProductUpdateCommand extends Command
         $this->beginSendingRequestsForVariations($productsForBatchVariationsUpdate);
     }
 
+    private function emergencySyncVariationsWithoutOwnId(): void
+    {
+        $productsForBatchProductUpdate = DB::table('products as p')
+            ->join('variations as v', 'p.id', '=', 'v.product_id')
+            ->whereNotNull('v.own_id')
+            ->where('p.promotion', '=', false)
+            ->where('v.item_type', '=', Product::PRODUCT_UPDATE)
+            ->when($this->option('source') === 'tr', function (Builder $query) {
+                $query
+                    ->whereNotNull('trendyol_source')
+                    ->whereRaw('trim(trendyol_source) != ""');
+            })
+            ->when($this->option('source') === 'de', function (Builder $query) {
+                $query
+                    ->whereNotNull('p.decathlon_url')
+                    ->whereRaw("TRIM(p.decathlon_url) != ''");
+            })
+            ->selectRaw("
+                p.own_id as product_own_id,
+                p.base_source as base_source,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                            'variation_own_id', v.own_id,
+                            'rial_price', v.rial_price,
+                            'stock', v.stock
+                    )
+                ) as variations
+                ")
+            ->groupByRaw('p.own_id')
+            ->orderBy('product_own_id')
+            ->havingRaw('count(*) = 1');
+
+        $this->beginSendingRequestsForProducts($productsForBatchProductUpdate);
+    }
+
     private function beginSendingRequestsForVariations(Builder $productQuery): void
     {
         $bar = $this->output->createProgressBar($productQuery->count());
@@ -122,41 +157,6 @@ class EmergencyProductUpdateCommand extends Command
             "id" => $id,
             ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock($price, $stock)
         ];
-    }
-
-    private function emergencySyncVariationsWithoutOwnId(): void
-    {
-        $productsForBatchProductUpdate = DB::table('products as p')
-            ->join('variations as v', 'p.id', '=', 'v.product_id')
-            ->whereNotNull('v.own_id')
-            ->where('p.promotion', '=', false)
-            ->where('v.item_type', '=', Product::PRODUCT_UPDATE)
-            ->when($this->option('source') === 'tr', function (Builder $query) {
-                $query
-                    ->whereNotNull('trendyol_source')
-                    ->whereRaw('trim(trendyol_source) != ""');
-            })
-            ->when($this->option('source') === 'de', function (Builder $query) {
-                $query
-                    ->whereNotNull('p.decathlon_url')
-                    ->whereRaw("TRIM(p.decathlon_url) != ''");
-            })
-            ->selectRaw("
-                p.own_id as product_own_id,
-                p.base_source as base_source,
-                JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                            'variation_own_id', v.own_id,
-                            'rial_price', v.rial_price,
-                            'stock', v.stock
-                    )
-                ) as variations
-                ")
-            ->groupByRaw('p.own_id')
-            ->orderBy('product_own_id')
-            ->havingRaw('count(*) = 1');
-
-        $this->beginSendingRequestsForProducts($productsForBatchProductUpdate);
     }
 
     private function beginSendingRequestsForProducts(Builder $productQuery): void
