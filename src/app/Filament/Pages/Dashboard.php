@@ -7,6 +7,7 @@ use App\Filament\Widgets\DecathlonLogModelsReport;
 use App\Filament\Widgets\DecathlonProductSyncStatusReport;
 use App\Filament\Widgets\DecathlonVariationReport;
 use App\Filament\Widgets\DecathlonVariationsStockReport;
+use App\Filament\Widgets\EmergencyUpdate;
 use App\Filament\Widgets\SyncWidget;
 use App\Filament\Widgets\TrendyolLogModelsReport;
 use App\Filament\Widgets\TrendyolProductSyncStatusReport;
@@ -29,6 +30,7 @@ class Dashboard extends BaseDashboard
             DecathlonProductSyncStatusReport::class,
             TrendyolLogModelsReport::class,
             DecathlonLogModelsReport::class,
+            EmergencyUpdate::class,
         ];
     }
 }

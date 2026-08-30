@@ -20,8 +20,6 @@ class EmergencyProductUpdateCommand extends Command
 
     public function handle(): void
     {
-        Log::info('command ran', [$this->option('source'), $this->option('invalid')]);
-        return;
         $this->emergencySyncVariationsWithOwnId();
         $this->emergencySyncVariationsWithoutOwnId();
     }
