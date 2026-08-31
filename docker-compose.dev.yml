@@ -27,11 +27,6 @@ services:
     command: php-fpm
     container_name: zitazi-php
 
-  horizon:
-    <<: *laravel
-    container_name: zitazi-horizon
-    command: php artisan horizon
-
   reverb:
     <<: *laravel
     command: php artisan reverb:start

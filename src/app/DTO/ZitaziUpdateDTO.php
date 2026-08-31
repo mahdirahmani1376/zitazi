@@ -32,8 +32,8 @@ class ZitaziUpdateDTO
     public static function getFullPayloadFromPriceAndStock(int $stock = 0, ?int $price = null): array
     {
         $data = [];
-        $data['stock_status'] = $stock ? static::IN_STOCK : static::OUT_OF_STOCK;
-        $data['stock_quantity'] = $stock ? 88 : 0;
+        $data['stock_status'] = $stock > 0 ? static::IN_STOCK : static::OUT_OF_STOCK;
+        $data['stock_quantity'] = $stock > 0 ? 88 : 0;
 
         if ($price) {
             $data['sale_price'] = null;

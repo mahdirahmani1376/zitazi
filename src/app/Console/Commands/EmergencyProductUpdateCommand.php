@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
 use App\Models\User;
@@ -74,7 +75,7 @@ class EmergencyProductUpdateCommand extends Command
     {
         $productsForBatchProductUpdate = DB::table('products as p')
             ->join('variations as v', 'p.id', '=', 'v.product_id')
-            ->whereNotNull('v.own_id')
+            ->whereNull('v.own_id')
             ->where('p.promotion', '=', false)
             ->where('v.item_type', '=', Product::PRODUCT_UPDATE)
             ->when($this->option('id'), function (Builder $query) {
@@ -116,7 +117,7 @@ class EmergencyProductUpdateCommand extends Command
         $productQuery->chunk(16, function (Collection $chunk) use ($bar) {
             try {
                 $responses = Http::pool(function (Pool $pool) use ($chunk, $bar) {
-                    return $chunk->map(function ($product) use ($pool, $bar) {
+                    $result = $chunk->map(function ($product) use ($pool, $bar) {
                         $baseURl = "https://zitazi.com";
                         if ($product->base_source === Product::ZITAZI) {
                             $securityKey = config('services.zitazi.security_key');
@@ -134,19 +135,33 @@ class EmergencyProductUpdateCommand extends Command
                             $body[] = $this->getZitaziDto(id: $variation['variation_own_id'], price: $variation['rial_price'], stock: $variation['stock']);
                         }
 
-                        $pool->withBasicAuth($securityKey, $securityPass)->post($fullUrl, [
+                        $fullBody = [
                             "update" => $body
-                        ]);
+                        ];
 
-                        $bar->advance();
-
-                        return $product;
+                        return $pool->as($product->product_own_id)->withBasicAuth($securityKey, $securityPass)->post($fullUrl, $fullBody);
                     });
+
+                    $bar->advance();
+
+                    return $result;
                 });
 
-                collect($responses)->each(function (\Illuminate\Http\Client\Response $response) {
-                    $this->info($response->status());
-                });
+                foreach ($responses as $productOwnId => $response) {
+                    $jsonResponse = $response->json();
+                    $responseStatus = $response->status();
+
+                    $product = Product::firstWhere('own_id', $productOwnId);
+
+                    if (!$product) {
+                        continue;
+                    }
+
+                    LogManager::logProduct($product, 'emergency update response', [
+                        'response' => $jsonResponse['update'],
+                        'response_status' => $responseStatus,
+                    ]);
+                }
 
             } catch (\Exception $e) {
                 Log::error('error-in-emergency update', [
@@ -165,7 +180,7 @@ class EmergencyProductUpdateCommand extends Command
         $productQuery->chunk(16, function (Collection $chunk) use ($bar) {
             try {
                 $responses = Http::pool(function (Pool $pool) use ($chunk, $bar) {
-                    return $chunk->map(function ($product) use ($pool, $bar) {
+                    $result = $chunk->map(function ($product) use ($pool, $bar) {
                         $baseURl = "https://zitazi.com";
                         if ($product->base_source === Product::ZITAZI) {
                             $securityKey = config('services.zitazi.security_key');
@@ -176,28 +191,32 @@ class EmergencyProductUpdateCommand extends Command
                             $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
                         }
 
-                        $fullUrl = "{$baseURl}/wp-json/wc/v3/products/batch";
-                        $body = [];
+                        $fullUrl = "{$baseURl}/wp-json/wc/v3/products/$product->product_own_id";
+                        $variation = json_decode($product->variations, true)[0];
+                        $body = $this->getZitaziDto(id: $product->product_own_id, price: $variation['rial_price'], stock: $variation['stock'], idRequired: false);
 
-                        foreach (json_decode($product->variations, true) as $variation) {
-                            $body[] = $this->getZitaziDto(id: $product->product_own_id, price: $variation['rial_price'], stock: $variation['stock']);
-                        }
+                        return $pool->as($product->product_own_id)->withBasicAuth($securityKey, $securityPass)->post($fullUrl, $body);
 
-                        $fullBody = [
-                            "update" => $body
-                        ];
-
-                        $pool->withBasicAuth($securityKey, $securityPass)->post($fullUrl, $fullBody);
-
-                        $bar->advance();
-
-                        return $product;
                     });
+                    $bar->advance();
+                    return $result;
                 });
 
-                collect($responses)->each(function (\Illuminate\Http\Client\Response $response) {
-                    $this->info($response->status());
-                });
+                foreach ($responses as $productOwnId => $response) {
+                    $jsonResponse = $response->json();
+                    $responseStatus = $response->status();
+
+                    $product = Product::firstWhere('own_id', $productOwnId);
+
+                    if (!$product) {
+                        continue;
+                    }
+
+                    LogManager::logProduct($product, 'emergency update response', [
+                        'response' => $jsonResponse,
+                        'response_status' => $responseStatus,
+                    ]);
+                }
 
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
@@ -210,20 +229,25 @@ class EmergencyProductUpdateCommand extends Command
         $bar->finish();
     }
 
-    private function getZitaziDto($id = null, $price = null, $stock = null): array
+    private function getZitaziDto($id = null, $price = null, $stock = null, bool $idRequired = true): array
     {
         if ($this->option('invalid')) {
-            return [
-                "id" => $id,
+            $result = [
                 'stock_status' => ZitaziUpdateDTO::OUT_OF_STOCK,
                 'stock_quantity' => 0,
             ];
+        } else {
+            $result = [
+                "id" => $id,
+                ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock(stock: $stock, price: $price)
+            ];
         }
 
-        return [
-            "id" => $id,
-            ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock($price, $stock)
-        ];
+        if ($idRequired) {
+            $result['id'] = $id;
+        }
+
+        return $result;
     }
 
 }
