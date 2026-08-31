@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Tables;
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Enums\SyncStatusEnum;
 use App\Exports\FillamentProductExport;
+use App\Jobs\EmergencySyncJob;
 use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use Filament\Actions\Action;
@@ -304,6 +305,17 @@ class ProductsTable
                         ->successNotificationTitle('toggle completed')
                         ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                             return 'Failed to toggle';
+                        }),
+                    BulkAction::make('emergency deactivate')
+                        ->label('ناموجود کردن اضطراری')
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('danger')
+                        ->action(function (Collection $records) {
+                            EmergencySyncJob::dispatch(source: null, invalid: true, ids: $records->pluck('id')->unique()->toArray());
+                        })
+                        ->successNotificationTitle('محصولات به صف آپدیت اضطراری اضافه شدند')
+                        ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                            return 'اضافه کردن محصولات به صف اضطراری با خطا مواجه شد';
                         }),
                 ]),
 

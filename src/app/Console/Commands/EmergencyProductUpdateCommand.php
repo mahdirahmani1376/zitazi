@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
+use App\Models\User;
+use Filament\Notifications\Notification;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Client\Pool;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class EmergencyProductUpdateCommand extends Command
 {
-    protected $signature = 'emergency:product-update {--source=} {--invalid}';
+    protected $signature = 'emergency:product-update {--source=} {--invalid} {--id=*}';
 
     protected $description = 'source options:[tr,de]';
 
@@ -22,6 +24,11 @@ class EmergencyProductUpdateCommand extends Command
     {
         $this->emergencySyncVariationsWithOwnId();
         $this->emergencySyncVariationsWithoutOwnId();
+
+        Notification::make()
+            ->title('آپدیت اضطراری انجام شد')
+            ->success()
+            ->sendToDatabase(User::find(1));
     }
 
     private function emergencySyncVariationsWithOwnId(): void
@@ -31,6 +38,10 @@ class EmergencyProductUpdateCommand extends Command
             ->whereNotNull('v.own_id')
             ->where('p.promotion', '=', false)
             ->where('v.item_type', '=', Product::VARIATION_UPDATE)
+            ->when($this->option('id'), function (Builder $query) {
+                $query
+                    ->whereIn('p.id', $this->option('id'));
+            })
             ->when($this->option('source') === 'tr', function (Builder $query) {
                 $query
                     ->whereNotNull('trendyol_source')
@@ -66,6 +77,10 @@ class EmergencyProductUpdateCommand extends Command
             ->whereNotNull('v.own_id')
             ->where('p.promotion', '=', false)
             ->where('v.item_type', '=', Product::PRODUCT_UPDATE)
+            ->when($this->option('id'), function (Builder $query) {
+                $query
+                    ->whereIn('p.id', $this->option('id'));
+            })
             ->when($this->option('source') === 'tr', function (Builder $query) {
                 $query
                     ->whereNotNull('trendyol_source')

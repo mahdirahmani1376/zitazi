@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Variations\Tables;
 
 use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Exports\FillamentVariationExport;
+use App\Jobs\EmergencySyncJob;
 use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use App\Models\Variation;
@@ -287,6 +288,17 @@ class VariationsTable
                     ->successNotificationTitle('export completed')
                     ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                         return 'Failed to export';
+                    }),
+                BulkAction::make('emergency deactivate')
+                    ->label('ناموجود کردن اضطراری')
+                    ->icon('heroicon-m-arrow-path')
+                    ->color('danger')
+                    ->action(function (Collection $records) {
+                        EmergencySyncJob::dispatch(source: null, invalid: true, ids: $records->pluck('product_id')->unique()->toArray());
+                    })
+                    ->successNotificationTitle('محصولات به صف آپدیت اضطراری اضافه شدند')
+                    ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
+                        return 'اضافه کردن محصولات به صف اضطراری با خطا مواجه شد';
                     }),
             ]);
     }
