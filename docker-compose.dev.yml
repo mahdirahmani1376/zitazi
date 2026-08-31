@@ -4,7 +4,7 @@ x-laravel: &laravel
       required: true
   build:
     context: .
-    dockerfile: Dockerfile.dev
+    dockerfile: ./docker/Dockerfile.dev
     args:
       UID: ${DOCKER_UID:-1000}
       GID: ${DOCKER_GID:-1000}
