@@ -79,11 +79,11 @@ class Currency extends Model
     }
 
 
-    public static function convertToRial($price, $symbol = 'TRY'): int
+    public static function convertToRial($price, $symbol = 'try'): int
     {
-        if ($symbol === 'TRY') {
+        if (strtolower($symbol) === 'try') {
             $rialPrice = static::syncTryRate() * $price;
-        } elseif ($symbol === 'EUR') {
+        } elseif (strtolower($symbol) === 'eur') {
             $rialPrice = static::syncEurRate() * $price;
         }
 

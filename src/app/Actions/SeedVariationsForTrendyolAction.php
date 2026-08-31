@@ -17,6 +17,15 @@ class SeedVariationsForTrendyolAction
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
         $data = data_get($response, 'response_data.result.variants', []);
+        $attributes = data_get($response, 'response_data.result.attributes', []);
+
+        $color = null;
+        foreach ($attributes as $attribute) {
+            if (data_get($attribute, 'key.id') === 348) {
+                $color = data_get($attribute, 'value.name');
+            }
+        }
+
         $product = Product::find($response['product_id']);
 
         if (empty($data)) {
@@ -58,7 +67,7 @@ class SeedVariationsForTrendyolAction
                         ) * $product->getRatio(),
                     'stock' => !empty($item['inStock']) ? 88 : 0,
                     'barcode' => $item['barcode'],
-                    'color' => $item['value'],
+                    'color' => $color,
                     'url' => Product::PRODUCT_UPDATE ? $product->trendyol_source : data_get($item, 'merchantListing.otherMerchants.0.url', $product->trendyol_source),
                     'sku' => $response['result']['id'] ?? null,
                     'product_id' => $product->id,

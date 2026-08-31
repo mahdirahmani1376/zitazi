@@ -143,6 +143,7 @@ async function scrapeDecathlonData(productData) {
                     price: offer.price ?? null,
                     url: offer.url ?? null,
                     stock: offer.availability === 'https://schema.org/InStock' ? 88 : 0,
+                    priceCurrency: offer?.priceCurrency
                 });
 
             }
