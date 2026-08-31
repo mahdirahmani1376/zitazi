@@ -27,6 +27,11 @@ class SeedVariationsForDecathlonAction
 
         $availableVariations = [];
         foreach ($variationsRawData as $variationRawData) {
+            $url = $variationRawData['url'];
+            $color = parse_url($url, PHP_URL_QUERY);
+            parse_str($color, $query);
+            $color = $query['c'] ?? null;
+
             $price = $variationRawData['price'];
             $rialPrice = Currency::convertToRial($price, $variationRawData['priceCurrency']) * $product->getRatio();
 
@@ -37,6 +42,7 @@ class SeedVariationsForDecathlonAction
                 'url' => $variationRawData['url'],
                 'stock' => $variationRawData['stock'],
                 'size' => $variationRawData['size'],
+                'color' => $color,
                 'rial_price' => $rialPrice,
                 'source' => Product::SOURCE_DECATHLON,
                 'item_type' => $itemType,
