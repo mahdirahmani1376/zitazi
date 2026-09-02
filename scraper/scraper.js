@@ -254,7 +254,8 @@ async function scrapeTrendyolData(data) {
                 full_url: data.full_url,
                 success: false,
                 blocked: false,
-                deleted: true
+                deleted: true,
+                retry_count: data.retry_count ?? 0
             };
         }
 
