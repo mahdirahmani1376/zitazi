@@ -51,6 +51,7 @@ return [
     'satreh' => [
         'security_key' => env('SATRE_SECURITY_KEY'),
         'security_pass' => env('SATRE_SECURITY_PASS'),
+        'base_url' => env('SATRE_BASE_URL')
     ]
 
 ];
