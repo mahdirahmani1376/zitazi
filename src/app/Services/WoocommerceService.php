@@ -22,7 +22,6 @@ class WoocommerceService
         } else if ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
             $securityPass = config('services.satreh.security_key');
-//            $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
             $baseURl = config('services.satreh.base_url');
         }
 
