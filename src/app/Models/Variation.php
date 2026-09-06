@@ -49,6 +49,7 @@ class Variation extends Model
     public const INVALID_PRODUCT_ID = 'invalid_product_id';
     public const INVALID_VARIATION_ID = 'invalid_variation_id';
     public const UNAVAILABLE_ON_SOURCE_SITE = 'unavailable_on_source_site';
+    public const INVALID_CURRENCY = 'invalid_currency';
     public const GENERAL_ERROR = 'general error';
     public const EMPTY_BODY = 'empty body';
     public const STATUS_504 = 'status 504';
@@ -66,6 +67,7 @@ class Variation extends Model
         self::INVALID_VARIATION_ID,
         self::INVALID_PRODUCT_ID,
         self::STATUS_504,
+        self::INVALID_CURRENCY
     ];
 
     public static function TableFilters(): array
@@ -80,6 +82,7 @@ class Variation extends Model
             self::INVALID_PRODUCT_ID => self::INVALID_PRODUCT_ID,
             self::INVALID_VARIATION_ID => self::INVALID_VARIATION_ID,
             self::STATUS_504 => self::STATUS_504,
+            self::INVALID_CURRENCY => self::INVALID_CURRENCY
         ];
     }
 

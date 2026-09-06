@@ -54,6 +54,29 @@ class SeedVariationsForTrendyolAction
 
         $itemType = count($data) > 1 ? Product::VARIATION_UPDATE : Product::PRODUCT_UPDATE;
 
+        $currency = data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency');
+        if (!($currency === 'TRY')) {
+
+            LogManager::logProduct($product->id, 'invalid currency for product', [
+                'product_id' => $product->id,
+            ]);
+
+            foreach ($product->variations as $variation) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                    'price' => $variation->rial_price
+                ]);
+
+                $variation->update([
+                    'status' => Variation::INVALID_CURRENCY,
+                    'stock' => 0,
+                ]);
+
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+
+            }
+        }
+
         try {
             $availableVariations = [];
             foreach ($data as $item) {
