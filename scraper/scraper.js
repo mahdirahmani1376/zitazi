@@ -284,7 +284,6 @@ async function scrapeTrendyolData(data) {
         }
 
         if (responseData?.result?.merchantListing?.winnerVariant?.price?.currency !== 'TRY') {
-            console.log('EUR READ!!!!!')
             return {
                 product_id: data.id,
                 response_status: response?.status(),
