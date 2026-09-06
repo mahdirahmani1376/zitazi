@@ -3,12 +3,12 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 puppeteer.use(StealthPlugin());
 
-let browser;
-let pageCounter = 0;
+let trendyolBrowser;
+let decathlonBrowser;
 
-async function getBrowser() {
-    if (!browser) {
-        browser = await puppeteer.launch({
+async function getTrendyolBrowser() {
+    if (!trendyolBrowser) {
+        trendyolBrowser = await puppeteer.launch({
             headless: true,
             protocolTimeout: 60000,
             args: [
@@ -20,12 +20,30 @@ async function getBrowser() {
             ]
         });
 
-        pageCounter = 0;
     }
 
-    pageCounter++;
 
-    return browser;
+    return trendyolBrowser;
+}
+
+async function getDecathlonBrowser() {
+    if (!decathlonBrowser) {
+        decathlonBrowser = await puppeteer.launch({
+            headless: true,
+            protocolTimeout: 60000,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--no-zygote',
+            ]
+        });
+
+    }
+
+
+    return decathlonBrowser;
 }
 
 process.on('SIGINT', async () => {
@@ -34,7 +52,9 @@ process.on('SIGINT', async () => {
         'level': 'debug'
     }));
 
-    if (browser) await browser.close().catch(() => {
+    if (trendyolBrowser) await trendyolBrowser.close().catch(() => {
+    });
+    if (decathlonBrowser) await decathlonBrowser.close().catch(() => {
     });
     process.exit(0);
 });
@@ -44,13 +64,16 @@ process.on('SIGTERM', async () => {
         'message': "Terminating...",
         'level': 'debug'
     }));
-    if (browser) await browser.close().catch(() => {
+    if (trendyolBrowser) await trendyolBrowser.close().catch(() => {
+    });
+    if (decathlonBrowser) await decathlonBrowser.close().catch(() => {
     });
     process.exit(0);
 });
 
 async function beginScrape(name, data) {
-    await getBrowser();
+    await getDecathlonBrowser();
+    await getTrendyolBrowser();
 
     let result = {
         product_id: data.id,
@@ -68,7 +91,7 @@ async function beginScrape(name, data) {
 }
 
 async function scrapeDecathlonData(productData) {
-    const page = await browser.newPage();
+    const page = await decathlonBrowser.newPage();
     let response = null;
     if (!productData.decathlon_url?.trim()) {
         return {
@@ -184,9 +207,9 @@ async function scrapeDecathlonData(productData) {
 
         if (err.name === "TimeoutError") {
 
-            await browser.close();
+            await decathlonBrowser.close();
 
-            browser = null;
+            decathlonBrowser = null;
 
         }
 
@@ -205,7 +228,8 @@ async function scrapeDecathlonData(productData) {
 }
 
 async function scrapeTrendyolData(data) {
-    const page = await browser.newPage();
+    const page = await trendyolBrowser.newPage();
+    console.log('page', page, data.full_url)
     let response = null;
 
     try {
@@ -247,6 +271,20 @@ async function scrapeTrendyolData(data) {
         });
 
         if ([404, 410].includes(responseData?.statusCode)) {
+            return {
+                product_id: data.id,
+                response_status: response?.status(),
+                response_headers: response?.headers(),
+                full_url: data.full_url,
+                success: false,
+                blocked: false,
+                deleted: true,
+                retry_count: data.retry_count ?? 0
+            };
+        }
+
+        if (responseData?.result?.merchantListing?.winnerVariant?.price?.currency !== 'TRY') {
+            console.log('EUR READ!!!!!')
             return {
                 product_id: data.id,
                 response_status: response?.status(),

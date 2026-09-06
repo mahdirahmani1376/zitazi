@@ -23,11 +23,24 @@ async function getVariations(url) {
 
     try {
         const response = await page.goto(url, {
-            waitUntil: 'domcontentloaded'
+            waitUntil: 'domcontentloaded',
+            timeout: 60000
         });
 
-        console.log('status:', response?.status());
-        console.log('data:', await page.content());
+        const result = await page.evaluate(async (url) => {
+            const response = await fetch(url, {
+                credentials: 'include'
+            });
+
+            return {
+                status: response.status,
+                headers: Object.fromEntries(response.headers.entries()),
+                data: await response.json()
+            };
+        }, url);
+
+        console.log('status:', result.status);
+        console.log('data:', JSON.stringify(result.data, null, 2));
     } finally {
         await context.close().catch(() => {
         });
