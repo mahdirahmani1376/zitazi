@@ -284,6 +284,10 @@ async function scrapeTrendyolData(data) {
         }
 
         if (responseData?.result?.merchantListing?.winnerVariant?.price?.currency !== 'TRY') {
+            await trendyolBrowser.close();
+
+            trendyolBrowser = null;
+
             return {
                 product_id: data.id,
                 response_status: response?.status(),
