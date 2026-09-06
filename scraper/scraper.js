@@ -229,7 +229,6 @@ async function scrapeDecathlonData(productData) {
 
 async function scrapeTrendyolData(data) {
     const page = await trendyolBrowser.newPage();
-    console.log('page', page, data.full_url)
     let response = null;
 
     try {
@@ -284,6 +283,12 @@ async function scrapeTrendyolData(data) {
         }
 
         if (responseData?.result?.merchantListing?.winnerVariant?.price?.currency !== 'TRY') {
+            console.log(JSON.stringify({
+                'message': "invalid currency",
+                'level': 'error',
+                'product_id': data.id
+            }));
+
             await trendyolBrowser.close();
 
             trendyolBrowser = null;
