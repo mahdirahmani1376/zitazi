@@ -121,15 +121,9 @@ async function runWorker(name, queueIn) {
 
             let level = 'debug';
 
-            if (name === 'Trendyol') {
-                level = response?.response_data?.statusCode === 200 && response.success
-                    ? 'info'
-                    : 'error';
-            } else if (name === 'Decathlon') {
-                level = response?.response_status === 200 && response.success
-                    ? 'info'
-                    : 'error';
-            }
+            level = response.success
+                ? 'info'
+                : 'error';
 
             const logger = console[level] ?? console.log;
 

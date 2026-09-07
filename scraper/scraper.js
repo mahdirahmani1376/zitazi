@@ -195,7 +195,7 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             response_data: variations,
-            success: response?.ok(),
+            success: (response?.status() >= 200 && response?.status() < 400),
             response_status: response ? response.status() : null,
         };
 
@@ -314,7 +314,7 @@ async function scrapeTrendyolData(data) {
             headers: response.headers(),
             url: response.url(),
             full_url: data.full_url,
-            success: responseData?.isSuccess && responseData?.statusCode === 200 && response?.ok()
+            success: responseData?.isSuccess && responseData?.statusCode === 200 && (response?.status() >= 200 && response?.status() < 400)
         };
 
     } catch (err) {
