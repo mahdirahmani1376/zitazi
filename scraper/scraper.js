@@ -230,6 +230,7 @@ async function scrapeDecathlonData(productData) {
 async function scrapeTrendyolData(data) {
     const page = await trendyolBrowser.newPage();
     let response = null;
+    let closeBrowser = false;
 
     try {
         if (!data.full_url?.trim()) {
@@ -290,9 +291,7 @@ async function scrapeTrendyolData(data) {
                 'currency': responseData?.result?.merchantListing?.winnerVariant?.price?.currency
             }));
 
-            await trendyolBrowser.close();
-
-            trendyolBrowser = null;
+            closeBrowser = true;
 
             return {
                 product_id: data.id,
@@ -301,7 +300,8 @@ async function scrapeTrendyolData(data) {
                 full_url: data.full_url,
                 success: false,
                 blocked: false,
-                deleted: true,
+                deleted: false,
+                invalid_currency: true,
                 retry_count: data.retry_count ?? 0
             };
         }
@@ -335,6 +335,12 @@ async function scrapeTrendyolData(data) {
     } finally {
         await page.close().catch(() => {
         });
+
+        if (closeBrowser) {
+            await trendyolBrowser.close().catch(() => {
+            });
+            trendyolBrowser = null;
+        }
     }
 }
 

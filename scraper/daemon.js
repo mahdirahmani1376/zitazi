@@ -96,6 +96,19 @@ async function runWorker(name, queueIn) {
                 console.info(
                     `Product ${data.product.id} may be deleted`
                 );
+            } else if (response.invalid_currency) {
+                data.retry_count = (data.retry_count || 0) + 1;
+                if (data.retry_count <= 1) {
+                    await redis.rpush(queueIn, JSON.stringify(data));
+                }
+
+                await redis.publish(
+                    'laravel_database_product_sync_status_changed',
+                    JSON.stringify({
+                        product_id: data.product.id,
+                        status: 'no_response_retrying'
+                    })
+                );
             }
 
             response.bulk = data.bulk ?? false

@@ -138,7 +138,8 @@ class BaseVariationCrawler
                 LogManager::logVariation($variation, 'update failed', [
                     'body' => $data,
                     'response' => $response->body(),
-                    'code' => $response->getStatusCode()
+                    'code' => $response->getStatusCode(),
+                    'url' => $url
                 ]);
 
                 $variation->product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
