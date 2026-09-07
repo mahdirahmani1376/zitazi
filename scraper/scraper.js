@@ -286,7 +286,8 @@ async function scrapeTrendyolData(data) {
             console.log(JSON.stringify({
                 'message': "invalid currency",
                 'level': 'error',
-                'product_id': data.id
+                'product_id': data.id,
+                'currency': responseData?.result?.merchantListing?.winnerVariant?.price?.currency
             }));
 
             await trendyolBrowser.close();
