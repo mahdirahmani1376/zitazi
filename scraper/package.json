@@ -10,7 +10,8 @@
     "ioredis": "^5.11.0",
     "puppeteer": "^24.16.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "reap": "^0.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
