@@ -1,7 +1,5 @@
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const reap = require('reap');
-setInterval(() => reap(), 30000);
 
 puppeteer.use(StealthPlugin());
 
