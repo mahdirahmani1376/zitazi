@@ -5,21 +5,20 @@ puppeteer.use(StealthPlugin());
 
 let trendyolBrowser;
 let decathlonBrowser;
-
+const puppeteerOptions = {
+    headless: true,
+    protocolTimeout: 120000,
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-breakpad'
+    ]
+}
 async function getTrendyolBrowser() {
     if (!trendyolBrowser) {
-        trendyolBrowser = await puppeteer.launch({
-            headless: true,
-            protocolTimeout: 120000,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--no-zygote',
-            ]
-        });
-
+        trendyolBrowser = await puppeteer.launch(puppeteerOptions);
     }
 
 
@@ -28,18 +27,7 @@ async function getTrendyolBrowser() {
 
 async function getDecathlonBrowser() {
     if (!decathlonBrowser) {
-        decathlonBrowser = await puppeteer.launch({
-            headless: true,
-            protocolTimeout: 120000,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--no-zygote',
-            ]
-        });
-
+        decathlonBrowser = await puppeteer.launch(puppeteerOptions);
     }
 
 
@@ -237,7 +225,7 @@ async function scrapeTrendyolData(data) {
     let response = null;
     let closeBrowser = false;
     let page = null;
-    
+
     try {
         const page = await trendyolBrowser.newPage();
 
