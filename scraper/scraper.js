@@ -10,7 +10,7 @@ async function getTrendyolBrowser() {
     if (!trendyolBrowser) {
         trendyolBrowser = await puppeteer.launch({
             headless: true,
-            protocolTimeout: 60000,
+            protocolTimeout: 120000,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -30,7 +30,7 @@ async function getDecathlonBrowser() {
     if (!decathlonBrowser) {
         decathlonBrowser = await puppeteer.launch({
             headless: true,
-            protocolTimeout: 60000,
+            protocolTimeout: 120000,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -72,8 +72,6 @@ process.on('SIGTERM', async () => {
 });
 
 async function beginScrape(name, data) {
-    await getDecathlonBrowser();
-    await getTrendyolBrowser();
 
     let result = {
         product_id: data.id,
@@ -82,8 +80,11 @@ async function beginScrape(name, data) {
     };
 
     if (name === 'Trendyol') {
+        await getTrendyolBrowser();
+
         result = await scrapeTrendyolData(data);
     } else if (name === "Decathlon") {
+        await getDecathlonBrowser();
         result = await scrapeDecathlonData(data);
     }
 
@@ -91,17 +92,18 @@ async function beginScrape(name, data) {
 }
 
 async function scrapeDecathlonData(productData) {
-    const page = await decathlonBrowser.newPage();
     let response = null;
-    if (!productData.decathlon_url?.trim()) {
-        return {
-            product_data: productData,
-            success: false,
-            message: 'empty url provided'
-        };
-    }
-
+    let page = null;
     try {
+        const page = await decathlonBrowser.newPage();
+        if (!productData.decathlon_url?.trim()) {
+            return {
+                product_data: productData,
+                success: false,
+                message: 'empty url provided'
+            };
+        }
+
         await page.setRequestInterception(true);
 
         page.on('request', req => {
@@ -205,7 +207,11 @@ async function scrapeDecathlonData(productData) {
             message: err.message
         };
 
-        if (err.name === "TimeoutError") {
+        if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+            console.error(JSON.stringify({
+                message: "Decathlon browser became unhealthy",
+                error
+            }));
 
             await decathlonBrowser.close();
 
@@ -222,17 +228,19 @@ async function scrapeDecathlonData(productData) {
         };
 
     } finally {
-        await page.close().catch(() => {
+        await page?.close().catch(() => {
         });
     }
 }
 
 async function scrapeTrendyolData(data) {
-    const page = await trendyolBrowser.newPage();
     let response = null;
     let closeBrowser = false;
-
+    let page = null;
+    
     try {
+        const page = await trendyolBrowser.newPage();
+
         if (!data.full_url?.trim()) {
             return {
                 product_data: data,
@@ -323,6 +331,15 @@ async function scrapeTrendyolData(data) {
             message: err.message
         };
 
+        if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+            console.error(JSON.stringify({
+                message: "Trendyol browser became unhealthy",
+                error
+            }));
+
+            closeBrowser = true;
+        }
+
         return {
             product_id: data.id,
             response_status: response?.status(),
@@ -333,7 +350,7 @@ async function scrapeTrendyolData(data) {
         };
 
     } finally {
-        await page.close().catch(() => {
+        await page?.close().catch(() => {
         });
 
         if (closeBrowser) {
