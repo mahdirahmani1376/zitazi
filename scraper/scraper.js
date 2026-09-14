@@ -17,7 +17,7 @@ setInterval(() => {
         });
         decathlonBrowser = null;
     }
-}, 30000);
+}, 1800000);
 
 const puppeteerOptions = {
     headless: true,
