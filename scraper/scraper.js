@@ -5,6 +5,20 @@ puppeteer.use(StealthPlugin());
 
 let trendyolBrowser;
 let decathlonBrowser;
+
+setInterval(() => {
+    if (trendyolBrowser) {
+        trendyolBrowser.close().catch(() => {
+        });
+        trendyolBrowser = null;
+    }
+    if (decathlonBrowser) {
+        decathlonBrowser.close().catch(() => {
+        });
+        decathlonBrowser = null;
+    }
+}, 30000);
+
 const puppeteerOptions = {
     headless: true,
     protocolTimeout: 120000,
@@ -13,7 +27,9 @@ const puppeteerOptions = {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-breakpad'
+        '--single-process',
+        '--disable-breakpad',
+        '--disable-crashpad-for-testing',
     ]
 }
 async function getTrendyolBrowser() {
