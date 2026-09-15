@@ -6,6 +6,18 @@ let shuttingDown = false;
 process.on('SIGTERM', () => {
     shuttingDown = true;
 });
+
+process.on('unhandledRejection', (reason) => {
+    console.error(JSON.stringify({
+        message: 'unhandled rejection',
+        error: {
+            name: reason?.name || 'Error',
+            message: reason?.message || String(reason),
+            stack: reason?.stack
+        },
+        level: 'error'
+    }));
+});
 function createRedis() {
     return new Redis({
         host: 'zitazi-redis',
@@ -141,7 +153,15 @@ async function runWorker(name, queueIn) {
 
 
         } catch (e) {
-            console.error(`${name} worker error`, e);
+            console.error(JSON.stringify({
+                message: `${name} worker error`,
+                error: {
+                    name: e.name,
+                    message: e.message,
+                    stack: e.stack
+                },
+                level: 'error'
+            }));
         }
     }
 }
