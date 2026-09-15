@@ -93,9 +93,13 @@ async function runWorker(name, queueIn) {
                     })
                 );
 
-                console.info(
-                    `Product ${data.product.id} may be deleted`
-                );
+                console.error(JSON.stringify({
+                    message: "product may be deleted",
+                    source: name,
+                    product_id: data.product.id,
+                    level: 'error'
+                }))
+
             } else if (response.invalid_currency) {
                 data.retry_count = (data.retry_count || 0) + 1;
                 if (data.retry_count <= 1) {
