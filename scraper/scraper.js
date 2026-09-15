@@ -57,8 +57,7 @@ let initialTrendyolTime = Date.now()
 
 let currentDecathlonTime = Date.now()
 let initialDecathlonTime = Date.now()
-// const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
-const BROWSER_RESTART_INTERVAL = 10 * 1000;
+const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
 
 async function beginScrape(name, data) {
     let result = {
