@@ -6,19 +6,6 @@ puppeteer.use(StealthPlugin());
 let trendyolBrowser;
 let decathlonBrowser;
 
-setInterval(() => {
-    if (trendyolBrowser) {
-        trendyolBrowser.close().catch(() => {
-        });
-        trendyolBrowser = null;
-    }
-    if (decathlonBrowser) {
-        decathlonBrowser.close().catch(() => {
-        });
-        decathlonBrowser = null;
-    }
-}, 1800000);
-
 const puppeteerOptions = {
     headless: true,
     protocolTimeout: 120000,
@@ -75,8 +62,15 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 
-async function beginScrape(name, data) {
+let currentTrendyolTime = Date.now()
+let initialTrendyolTime = Date.now()
 
+let currentDecathlonTime = Date.now()
+let initialDecathlonTime = Date.now()
+// const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
+const BROWSER_RESTART_INTERVAL = 10 * 1000;
+
+async function beginScrape(name, data) {
     let result = {
         product_id: data.id,
         success: false,
@@ -84,11 +78,27 @@ async function beginScrape(name, data) {
     };
 
     if (name === 'Trendyol') {
+        if (trendyolBrowser && Date.now() - initialTrendyolTime > BROWSER_RESTART_INTERVAL) {
+            await trendyolBrowser.close().catch(() => {
+            });
+            trendyolBrowser = null;
+            initialTrendyolTime = Date.now();
+        }
+
         await getTrendyolBrowser();
 
         result = await scrapeTrendyolData(data);
+
     } else if (name === "Decathlon") {
+        if (decathlonBrowser && Date.now() - initialDecathlonTime > BROWSER_RESTART_INTERVAL) {
+            await decathlonBrowser.close().catch(() => {
+            });
+            decathlonBrowser = null;
+            initialDecathlonTime = Date.now();
+        }
+
         await getDecathlonBrowser();
+
         result = await scrapeDecathlonData(data);
     }
 
@@ -99,7 +109,7 @@ async function scrapeDecathlonData(productData) {
     let response = null;
     let page = null;
     try {
-        const page = await decathlonBrowser.newPage();
+        page = await decathlonBrowser.newPage();
         if (!productData.decathlon_url?.trim()) {
             return {
                 product_data: productData,
@@ -234,6 +244,8 @@ async function scrapeDecathlonData(productData) {
     } finally {
         await page?.close().catch(() => {
         });
+
+        currentDecathlonTime = Date.now()
     }
 }
 
@@ -243,7 +255,7 @@ async function scrapeTrendyolData(data) {
     let page = null;
 
     try {
-        const page = await trendyolBrowser.newPage();
+        page = await trendyolBrowser.newPage();
 
         if (!data.full_url?.trim()) {
             return {
@@ -362,6 +374,8 @@ async function scrapeTrendyolData(data) {
             });
             trendyolBrowser = null;
         }
+
+        currentTrendyolTime = Date.now()
     }
 }
 
