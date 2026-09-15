@@ -5,6 +5,7 @@ puppeteer.use(StealthPlugin());
 
 let trendyolBrowser;
 let decathlonBrowser;
+let scraperShuttingDown = false;
 
 const puppeteerOptions = {
     headless: true,
@@ -20,46 +21,35 @@ const puppeteerOptions = {
     ]
 }
 async function getTrendyolBrowser() {
+    if (scraperShuttingDown) {
+        throw new Error('Scraper is shutting down');
+    }
+
     if (!trendyolBrowser) {
         trendyolBrowser = await puppeteer.launch(puppeteerOptions);
     }
-
 
     return trendyolBrowser;
 }
 
 async function getDecathlonBrowser() {
+    if (scraperShuttingDown) {
+        throw new Error('Scraper is shutting down');
+    }
+
     if (!decathlonBrowser) {
         decathlonBrowser = await puppeteer.launch(puppeteerOptions);
     }
 
-
     return decathlonBrowser;
 }
 
-process.on('SIGINT', async () => {
-    console.log(JSON.stringify({
-        'message': "Shutting down...",
-        'level': 'debug'
-    }));
-
-    if (trendyolBrowser) await trendyolBrowser.close().catch(() => {
-    });
-    if (decathlonBrowser) await decathlonBrowser.close().catch(() => {
-    });
-    process.exit(0);
+process.on('SIGINT', () => {
+    scraperShuttingDown = true;
 });
 
-process.on('SIGTERM', async () => {
-    console.log(JSON.stringify({
-        'message': "Terminating...",
-        'level': 'debug'
-    }));
-    if (trendyolBrowser) await trendyolBrowser.close().catch(() => {
-    });
-    if (decathlonBrowser) await decathlonBrowser.close().catch(() => {
-    });
-    process.exit(0);
+process.on('SIGTERM', () => {
+    scraperShuttingDown = true;
 });
 
 let currentTrendyolTime = Date.now()
@@ -245,6 +235,12 @@ async function scrapeDecathlonData(productData) {
         await page?.close().catch(() => {
         });
 
+        if (scraperShuttingDown) {
+            await decathlonBrowser?.close().catch(() => {
+            });
+            decathlonBrowser = null;
+        }
+
         currentDecathlonTime = Date.now()
     }
 }
@@ -369,8 +365,8 @@ async function scrapeTrendyolData(data) {
         await page?.close().catch(() => {
         });
 
-        if (closeBrowser) {
-            await trendyolBrowser.close().catch(() => {
+        if (closeBrowser || scraperShuttingDown) {
+            await trendyolBrowser?.close().catch(() => {
             });
             trendyolBrowser = null;
         }
