@@ -30,9 +30,7 @@ class Currency extends Model
 
     public static function syncTryRate()
     {
-        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
-
-        return Cache::remember('try_rate', $timeUntilEndOfDay, function () {
+        return Cache::remember('try_rate', now()->endOfDay(), function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getTRYRate();
 
@@ -55,9 +53,7 @@ class Currency extends Model
 
     public static function syncEurRate()
     {
-        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
-
-        return Cache::remember('eur_rate', $timeUntilEndOfDay, function () {
+        return Cache::remember('eur_rate', now()->endOfDay(), function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getEURRate();
 
@@ -87,14 +83,12 @@ class Currency extends Model
             $rialPrice = static::syncEurRate() * $price;
         }
 
-        return floor($rialPrice / 10000) * 10000;
+        return (int)(floor(round($rialPrice) / 10000) * 10000);
     }
 
     public static function syncDirhamTryRate()
     {
-        $timeUntilEndOfDay = now()->diffInMinutes(now()->endOfDay());
-
-        return Cache::remember('aed_rate', $timeUntilEndOfDay, function () {
+        return Cache::remember('aed_rate', now()->endOfDay(), function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getAEDRate();
 
@@ -119,7 +113,7 @@ class Currency extends Model
     {
         $rialPrice = static::syncDirhamTryRate() * $price;
 
-        return floor($rialPrice / 10000) * 10000;
+        return (int)(floor(round($rialPrice) / 10000) * 10000);
     }
 
 }
