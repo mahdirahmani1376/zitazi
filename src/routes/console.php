@@ -1151,13 +1151,22 @@ Artisan::command('app:clean-deleted-products', function () {
                 'stock_quantity' => 0
             ]));
 
+            Log::info('variation deleted', [
+                'variation_id' => $variation->id,
+                'woocommerce_id' => $variation->product->own_id,
+                'data' => $variation->toArray()
+            ]);
+
             $variation->delete();
         }
 
+        Log::info('product deleted', [
+            'product_id' => $product->id,
+            'woocommerce_id' => $product->own_id,
+            'data' => $product->toArray()
+        ]);
+
         $product->delete();
 
-        Log::info('product deleted', [
-            'product_id' => $product->id
-        ]);
     }
 });
