@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\UnsupportedCurrencyException;
 use App\Services\CurrencyRate\CurrencyRateDriverInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -84,15 +85,20 @@ class Currency extends Model
     }
 
 
-    public static function convertToRial($price, $symbol = 'try'): int
+    /**
+     * @throws UnsupportedCurrencyException
+     */
+    public static function convertToRial($price, $ratio = 1.6, $symbol = 'try'): int
     {
         if (strtolower($symbol) === 'try') {
             $rialPrice = static::syncTryRate() * $price;
-        } elseif (strtolower($symbol) === 'eur') {
-            $rialPrice = static::syncEurRate() * $price;
+        } else {
+            UnsupportedCurrencyException::throwException();
         }
 
-        return (int)(floor(round($rialPrice) / 10000) * 10000);
+        $rialPrice = $rialPrice * $ratio;
+        $rialPrice = (int)$rialPrice;
+        return (int)(floor($rialPrice / 10000) * 10000);
     }
 
     public static function syncDirhamRate()

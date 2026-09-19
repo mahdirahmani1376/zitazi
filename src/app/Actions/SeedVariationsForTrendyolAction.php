@@ -3,16 +3,18 @@
 namespace App\Actions;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Exceptions\UnsupportedCurrencyException;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class SeedVariationsForTrendyolAction
 {
-    public function execute($response, $bulk = false)
+    public function execute($response, $bulk = false): void
     {
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
@@ -37,7 +39,6 @@ class SeedVariationsForTrendyolAction
             foreach ($product->variations as $variation) {
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => 0,
-                    'price' => $variation->rial_price
                 ]);
 
                 $variation->update([
@@ -54,40 +55,23 @@ class SeedVariationsForTrendyolAction
 
         $itemType = count($data) > 1 ? Product::VARIATION_UPDATE : Product::PRODUCT_UPDATE;
 
-        $currency = data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency');
-        if (!($currency === 'TRY')) {
-
-            LogManager::logProduct($product->id, 'invalid currency for product', [
-                'product_id' => $product->id,
-            ]);
-
-            foreach ($product->variations as $variation) {
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => 0,
-                    'price' => $variation->rial_price
-                ]);
-
-                $variation->update([
-                    'status' => Variation::INVALID_CURRENCY,
-                    'stock' => 0,
-                ]);
-
-                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
-
-            }
-        }
-
         try {
             $availableVariations = [];
             foreach ($data as $item) {
+                $price = $item['price']['value'];
+
+                $rialPrice = Currency::convertToRial(
+                    $price,
+                    $product->getRatio(),
+                    data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
+                );
+
                 $variation = Variation::updateOrCreate([
                     'item_number' => $item['itemNumber']
                 ], [
                     'size' => $item['value'] ?? null,
-                    'price' => $price = $item['price']['value'],
-                    'rial_price' => Currency::convertToRial(
-                            $price, data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency', 'TRY')
-                        ) * $product->getRatio(),
+                    'price' => $price,
+                    'rial_price' => $rialPrice,
                     'stock' => !empty($item['inStock']) ? 88 : 0,
                     'barcode' => $item['barcode'],
                     'color' => $color,
@@ -105,7 +89,7 @@ class SeedVariationsForTrendyolAction
 
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => $variation->stock,
-                    'price' => $variation->rial_price
+                    'price' => $rialPrice
                 ]);
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
@@ -132,7 +116,6 @@ class SeedVariationsForTrendyolAction
                 if ($itemType === Product::VARIATION_UPDATE) {
                     $updateData = ZitaziUpdateDTO::createFromArray([
                         'stock_quantity' => 0,
-                        'price' => $variation->rial_price
                     ]);
 
                     $variation->update([
@@ -147,8 +130,28 @@ class SeedVariationsForTrendyolAction
 
                 return 1;
             });
+        } catch (UnsupportedCurrencyException $e) {
+            LogManager::logProduct($product->id, 'invalid currency for product', [
+                'product_id' => $product->id,
+            ]);
+
+            foreach ($product->variations as $variation) {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => 0,
+                ]);
+
+                $variation->update([
+                    'status' => Variation::INVALID_CURRENCY,
+                    'stock' => 0,
+                ]);
+
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+            }
         } catch (Exception $e) {
-            dump($e->getMessage(), $product->id);
+            Log::error('seed variation for trendyol error', [
+                'error' => $e->getMessage(),
+                'product_id' => $product->id
+            ]);
             LogManager::LogProduct($product, 'error-seed-variations', [
                 'product_id' => $product->id,
                 'product_own_id' => $product->own_id,

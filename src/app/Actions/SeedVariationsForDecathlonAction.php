@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Exceptions\UnsupportedCurrencyException;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SeedVariationsForDecathlonAction
 {
-    public function execute($result, $bulk = false)
+    public function execute($result, $bulk = false): void
     {
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
@@ -33,7 +34,35 @@ class SeedVariationsForDecathlonAction
             $color = $query['c'] ?? null;
 
             $price = $variationRawData['price'];
-            $rialPrice = Currency::convertToRial($price, $variationRawData['priceCurrency']) * $product->getRatio();
+
+
+            try {
+                $rialPrice = Currency::convertToRial(
+                    $price,
+                    $product->getRatio(),
+                    $variationRawData['priceCurrency'],
+                );
+            } catch (UnsupportedCurrencyException $e) {
+                LogManager::logProduct($product->id, 'invalid currency for product', [
+                    'product_id' => $product->id,
+                ]);
+
+                foreach ($product->variations as $variation) {
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => 0,
+                        'price' => $variation->rial_price
+                    ]);
+
+                    $variation->update([
+                        'status' => Variation::INVALID_CURRENCY,
+                        'stock' => 0,
+                    ]);
+
+                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+                }
+                return;
+            }
+
 
             $createData = [
                 'product_id' => $product->id,
@@ -58,7 +87,7 @@ class SeedVariationsForDecathlonAction
 
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => $variation->stock,
-                'price' => $variation->rial_price
+                'price' => $rialPrice
             ]);
 
             SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
