@@ -25,6 +25,8 @@ class ProductSeeder extends Seeder
             Log::error('not found product Ids', [
                 'data' => $this->notFoundProductIds
             ]);
+
+            Cache::put('deleted-products', $this->notFoundProductIds);
         }
 
 
@@ -96,8 +98,6 @@ class ProductSeeder extends Seeder
 
         Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             $this->notFoundProductIds[] = $product->id;
-            Cache::delete('zitazi-not-found-product-ids');
-            Cache::set('zitazi-not-found-product-ids', $this->notFoundProductIds);
             Log::error('product seeder not found', [
                 'product_id ' => $product->id,
             ]);
@@ -158,8 +158,6 @@ class ProductSeeder extends Seeder
 
         Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
             $this->notFoundProductIds[] = $product->id;
-            Cache::delete('satre-not-found-product-ids');
-            Cache::set('satre-not-found-product-ids', $this->notFoundProductIds);
             Log::error('product seeder not found', [
                 'product_id' => $product->id,
             ]);

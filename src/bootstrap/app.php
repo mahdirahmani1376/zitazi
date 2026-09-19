@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('db:seed --force')->dailyAt('12:30');
+        $schedule->command('app:clean-deleted-products')->dailyAt('12:45');
         $schedule->command('app:bulk-scrape')->dailyAt('13:00');
         $schedule->command('model:prune')->dailyAt('00:00');
     })

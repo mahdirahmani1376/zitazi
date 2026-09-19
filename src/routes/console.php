@@ -1139,11 +1139,9 @@ Artisan::command('tmp-fix-tr', function () {
     }
 });
 
-Artisan::command('delete not found', function () {
-    $zitazi = \Illuminate\Support\Facades\Cache::get('zitazi-not-found-product-ids');
-    $satre = \Illuminate\Support\Facades\Cache::get('satre-not-found-product-ids');
-
-    foreach (Product::whereIn('id', array_merge($zitazi, $satre)) as $product) {
+Artisan::command('app:clean-deleted-products', function () {
+    $deletedProducts = \Illuminate\Support\Facades\Cache::get('deleted-products');
+    foreach (Product::whereIn('id', $deletedProducts)->get() as $product) {
         foreach ($product->variations as $variation) {
             $variation->update([
                 'stock' => 0
