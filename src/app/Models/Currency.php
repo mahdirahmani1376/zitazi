@@ -28,6 +28,11 @@ class Currency extends Model
         return self::orderByDesc('created_at')->where('name', 'eur')->first()?->rate;
     }
 
+    public static function lastAedRate()
+    {
+        return self::orderByDesc('created_at')->where('name', 'aed')->first()?->rate;
+    }
+
     public static function syncTryRate()
     {
         return Cache::remember('try_rate', now()->endOfDay(), function () {
@@ -60,7 +65,7 @@ class Currency extends Model
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getEURRate();
 
                 if (empty($rate)) {
-                    $rate = static::lastEurRate() ?? 2400;
+                    $rate = static::lastEurRate() ?? 250000;
                 } else {
                     static::create([
                         'rate' => $rate,
@@ -71,7 +76,7 @@ class Currency extends Model
                 Log::error('error fetching eur rate', [
                     'error' => $e->getMessage()
                 ]);
-                $rate = static::lastEurRate() ?? 2400;
+                $rate = static::lastEurRate() ?? 250000;
             }
 
             return $rate;
@@ -90,14 +95,14 @@ class Currency extends Model
         return (int)(floor(round($rialPrice) / 10000) * 10000);
     }
 
-    public static function syncDirhamTryRate()
+    public static function syncDirhamRate()
     {
         return Cache::remember('aed_rate', now()->endOfDay(), function () {
             try {
                 $rate = app()->make(CurrencyRateDriverInterface::class)->getAEDRate();
 
                 if (empty($rate)) {
-                    $rate = static::lastTryRate() ?? 2400;
+                    $rate = static::lastAedRate() ?? 200000;
                 } else {
                     static::create([
                         'rate' => $rate,
@@ -108,7 +113,7 @@ class Currency extends Model
                 Log::error('error fetching dir rate', [
                     'error' => $e->getMessage()
                 ]);
-                $rate = static::lastTryRate() ?? 2400;
+                $rate = static::lastAedRate() ?? 200000;
             }
 
             return $rate;
@@ -117,7 +122,7 @@ class Currency extends Model
 
     public static function convertDirhamToRial($price): int
     {
-        $rialPrice = static::syncDirhamTryRate() * $price;
+        $rialPrice = static::syncDirhamRate() * $price;
 
         return (int)(floor(round($rialPrice) / 10000) * 10000);
     }

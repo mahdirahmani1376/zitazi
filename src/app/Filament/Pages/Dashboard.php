@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\CurrencyRefreshWidget;
 use App\Filament\Widgets\CurrencyWidget;
 use App\Filament\Widgets\DecathlonLogModelsReport;
 use App\Filament\Widgets\DecathlonProductSyncStatusReport;
@@ -21,6 +22,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             SyncWidget::class,
+            CurrencyRefreshWidget::class,
             CurrencyWidget::class,
             TrendyolVariationsStockReport::class,
             DecathlonVariationsStockReport::class,
