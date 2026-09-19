@@ -43,7 +43,9 @@ class Currency extends Model
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error($e->getMessage());
+                Log::error('error fetching try rate', [
+                    'error' => $e->getMessage()
+                ]);
                 $rate = static::lastTryRate() ?? 2400;
             }
 
@@ -66,7 +68,9 @@ class Currency extends Model
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error($e->getMessage());
+                Log::error('error fetching eur rate', [
+                    'error' => $e->getMessage()
+                ]);
                 $rate = static::lastEurRate() ?? 2400;
             }
 
@@ -101,7 +105,9 @@ class Currency extends Model
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error($e->getMessage());
+                Log::error('error fetching dir rate', [
+                    'error' => $e->getMessage()
+                ]);
                 $rate = static::lastTryRate() ?? 2400;
             }
 
