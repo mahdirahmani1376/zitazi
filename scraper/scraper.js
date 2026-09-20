@@ -97,6 +97,8 @@ async function beginScrape(name, data) {
 async function scrapeDecathlonData(productData) {
     let response = null;
     let page = null;
+    let closeBrowser = false;
+
     try {
         page = await decathlonBrowser.newPage();
         if (!productData.decathlon_url?.trim()) {
@@ -216,10 +218,7 @@ async function scrapeDecathlonData(productData) {
                 error
             }));
 
-            await decathlonBrowser.close();
-
-            decathlonBrowser = null;
-
+            closeBrowser = true;
         }
 
         return {
@@ -234,7 +233,7 @@ async function scrapeDecathlonData(productData) {
         await page?.close().catch(() => {
         });
 
-        if (scraperShuttingDown) {
+        if (scraperShuttingDown || closeBrowser) {
             await decathlonBrowser?.close().catch(() => {
             });
             decathlonBrowser = null;
