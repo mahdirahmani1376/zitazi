@@ -155,7 +155,7 @@ async function scrapeDecathlonData(productData) {
             };
         }
 
-        const delayTime = Math.floor(Math.random() * (5000 - 2000) + 7000);
+        const delayTime = Math.floor(Math.random() * (5000 - 2000) + 5000);
         await delay(delayTime);
 
         const elHandle = await page.waitForSelector(
