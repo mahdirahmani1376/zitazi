@@ -27,6 +27,7 @@ async function getTrendyolBrowser() {
 
     if (!trendyolBrowser) {
         trendyolBrowser = await puppeteer.launch(puppeteerOptions);
+        initialTrendyolTime = Date.now();
     }
 
     return trendyolBrowser;
@@ -39,6 +40,7 @@ async function getDecathlonBrowser() {
 
     if (!decathlonBrowser) {
         decathlonBrowser = await puppeteer.launch(puppeteerOptions);
+        initialDecathlonTime = Date.now();
     }
 
     return decathlonBrowser;
@@ -68,7 +70,7 @@ async function beginScrape(name, data) {
 
     if (name === 'Trendyol') {
         if (trendyolBrowser && Date.now() - initialTrendyolTime > BROWSER_RESTART_INTERVAL) {
-            await trendyolBrowser.close().catch(() => {
+            trendyolBrowser.close().catch(() => {
             });
             trendyolBrowser = null;
             initialTrendyolTime = Date.now();
@@ -80,7 +82,7 @@ async function beginScrape(name, data) {
 
     } else if (name === "Decathlon") {
         if (decathlonBrowser && Date.now() - initialDecathlonTime > BROWSER_RESTART_INTERVAL) {
-            await decathlonBrowser.close().catch(() => {
+            decathlonBrowser.close().catch(() => {
             });
             decathlonBrowser = null;
             initialDecathlonTime = Date.now();
@@ -152,10 +154,8 @@ async function scrapeDecathlonData(productData) {
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
-            {timeout: 9000}
+            {timeout: 15000}
         );
-
-        if (!elHandle) throw new Error("JSON-LD not found");
 
         const el = await page.evaluate(el => el.textContent, elHandle);
         const targetData = JSON.parse(el);
@@ -230,13 +230,17 @@ async function scrapeDecathlonData(productData) {
         };
 
     } finally {
-        await page?.close().catch(() => {
-        });
+        if (page) {
+            page.close().catch(() => {
+            });
+        }
 
         if (scraperShuttingDown || closeBrowser) {
-            await decathlonBrowser?.close().catch(() => {
-            });
-            decathlonBrowser = null;
+            if (decathlonBrowser) {
+                decathlonBrowser.close().catch(() => {
+                });
+                decathlonBrowser = null;
+            }
         }
 
         currentDecathlonTime = Date.now()
@@ -360,13 +364,17 @@ async function scrapeTrendyolData(data) {
         };
 
     } finally {
-        await page?.close().catch(() => {
-        });
+        if (page) {
+            page.close().catch(() => {
+            });
+        }
 
         if (closeBrowser || scraperShuttingDown) {
-            await trendyolBrowser?.close().catch(() => {
-            });
-            trendyolBrowser = null;
+            if (trendyolBrowser) {
+                trendyolBrowser.close().catch(() => {
+                });
+                trendyolBrowser = null;
+            }
         }
 
         currentTrendyolTime = Date.now()
