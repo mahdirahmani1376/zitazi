@@ -28,7 +28,7 @@ function createRedis() {
 
 const TR_QUEUE_IN = 'laravel_database_trendyol_scrape_product';
 const DE_QUEUE_IN = 'laravel_database_decathlon_scrape_product';
-const COOLDOWN_SECONDS = 20 * 60;
+const COOLDOWN_SECONDS = 10 * 60;
 const QUEUE_OUT = 'laravel_database_scrape_result';
 
 async function runWorker(name, queueIn) {
