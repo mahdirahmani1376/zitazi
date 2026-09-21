@@ -86,9 +86,13 @@ async function runWorker(name, queueIn) {
                     })
                 );
 
-                console.info(
-                    `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${COOLDOWN_SECONDS}s`
-                );
+                console.error(
+                    JSON.stringify({
+                        message: `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${COOLDOWN_SECONDS}s`,
+                        level: 'error'
+                    })
+                )
+
             }
 
             if (response.deleted) {

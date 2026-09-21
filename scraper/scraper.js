@@ -41,6 +41,7 @@ async function getDecathlonBrowser() {
     if (!decathlonBrowser) {
         decathlonBrowser = await puppeteer.launch(puppeteerOptions);
         initialDecathlonTime = Date.now();
+        decathlonRequestCount = 0;
     }
 
     return decathlonBrowser;
@@ -59,6 +60,7 @@ let initialTrendyolTime = Date.now()
 
 let currentDecathlonTime = Date.now()
 let initialDecathlonTime = Date.now()
+let decathlonRequestCount = 0
 const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
 
 async function beginScrape(name, data) {
@@ -139,6 +141,7 @@ async function scrapeDecathlonData(productData) {
                 'message': 'decathlon rate limit',
                 'status': response.status(),
                 'data': productData,
+                'level': 'error'
             }))
 
             closeBrowser = true
@@ -200,6 +203,12 @@ async function scrapeDecathlonData(productData) {
             if (match) {
                 variation.size = match[1];
             }
+        }
+
+        decathlonRequestCount++;
+
+        if (decathlonRequestCount >= 3) {
+            closeBrowser = true;
         }
 
         return {
