@@ -134,11 +134,14 @@ async function scrapeDecathlonData(productData) {
             timeout: 1000 * 60
         });
 
-        if (response.status() === 403) {
+        if ([403, 429].includes(response.status())) {
             console.error(JSON.stringify({
                 'message': 'decathlon rate limit',
+                'status': response.status(),
                 'data': productData,
             }))
+
+            closeBrowser = true
 
             return {
                 product_id: productData.id,
