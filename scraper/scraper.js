@@ -150,7 +150,7 @@ async function scrapeDecathlonData(productData) {
                 'message': 'decathlon rate limit',
                 'status': response.status(),
                 'data': productData,
-                'level': 'error up'
+                'level': 'error'
             }))
 
             closeBrowser = true
@@ -224,25 +224,7 @@ async function scrapeDecathlonData(productData) {
             message: err.message
         };
 
-        if ([403, 429].includes(response?.status())) {
-            console.error(JSON.stringify({
-                'message': 'decathlon rate limit',
-                'status': response?.status(),
-                'data': productData,
-                'level': 'error down'
-            }))
-
-            closeBrowser = true
-
-            return {
-                product_id: productData.id,
-                success: false,
-                response_status: response?.status(),
-                response_headers: response?.headers(),
-                blocked: true,
-                error,
-            };
-        } else if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+        if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
             console.error(JSON.stringify({
                 message: "Decathlon browser had timeout",
                 error
