@@ -138,6 +138,9 @@ async function scrapeDecathlonData(productData) {
 
         });
 
+        const preDelay = Math.floor(Math.random() * (11000 - 8000) + 6000);
+        await delay(preDelay);
+
         response = await page.goto(productData.decathlon_url, {
             waitUntil: 'domcontentloaded',
             timeout: 1000 * 60
@@ -161,9 +164,6 @@ async function scrapeDecathlonData(productData) {
                 blocked: true,
             };
         }
-
-        const delayTime = Math.floor(Math.random() * (5000 - 2000) + 5000);
-        await delay(delayTime);
 
         const elHandle = await page.waitForSelector(
             'script[type="application/ld+json"]',
