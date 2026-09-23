@@ -150,7 +150,7 @@ async function scrapeDecathlonData(productData) {
                 'message': 'decathlon rate limit',
                 'status': response.status(),
                 'data': productData,
-                'level': 'error'
+                'level': 'error up'
             }))
 
             closeBrowser = true
@@ -229,7 +229,7 @@ async function scrapeDecathlonData(productData) {
                 'message': 'decathlon rate limit',
                 'status': response?.status(),
                 'data': productData,
-                'level': 'error'
+                'level': 'error down'
             }))
 
             closeBrowser = true
