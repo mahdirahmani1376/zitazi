@@ -56,7 +56,6 @@ let initialTrendyolTime = Date.now()
 
 let currentDecathlonTime = Date.now()
 let initialDecathlonTime = Date.now()
-let decathlonRequestCounter = 0;
 const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
 
 async function beginScrape(name, data) {
@@ -210,18 +209,6 @@ async function scrapeDecathlonData(productData) {
             if (match) {
                 variation.size = match[1];
             }
-        }
-
-        decathlonRequestCounter++;
-        if (decathlonRequestCounter % 3 === 0) {
-            const batchPause = 15000;
-            console.log(JSON.stringify({
-                'message': 'decathlon batch pause',
-                'requests_completed': decathlonRequestCounter,
-                'pause_ms': batchPause,
-                'level': 'info'
-            }));
-            await delay(batchPause);
         }
 
         return {
