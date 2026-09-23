@@ -137,7 +137,7 @@ async function scrapeDecathlonData(productData) {
 
         });
 
-        const preDelay = Math.floor(Math.random() * (11000 - 9000) + 5000);
+        const preDelay = Math.floor(Math.random() * (15000) + 5000);
         await delay(preDelay);
 
         response = await page.goto(productData.decathlon_url, {
