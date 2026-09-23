@@ -36,7 +36,7 @@ class ListenForScrapeResponseCommand extends Command
     {
         $product = Product::find($messageArray['product_id']);
 
-        if (data_get($messageArray, 'response.blocked') === false) {
+        if (data_get($messageArray, 'response.deleted') === true) {
             $this->unavailableAllVariationsAndLog($product, $messageArray);
         }
 
