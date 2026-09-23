@@ -257,7 +257,7 @@ async function scrapeDecathlonData(productData) {
             response_status: response?.status(),
             response_headers: response?.headers(),
             error,
-            blocked: true,
+            blocked: false,
         };
 
     } finally {

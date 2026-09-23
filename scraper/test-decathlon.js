@@ -5,7 +5,7 @@ puppeteer.use(StealthPlugin());
 
 (async () => {
     const browser = await puppeteer.launch({
-        headless: "new",
+        headless: true,
         args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
@@ -17,7 +17,8 @@ puppeteer.use(StealthPlugin());
     const page = await browser.newPage();
 
     const response = await page.goto(
-        "https://www.decathlon.com.tr/p/mikrofiber-havlu-l-boy-lila-80-130-cm/_/R-p-158325?mc=8732957&c=MAV%C4%B0",
+        // "https://www.decathlon.com.tr/p/mikrofiber-havlu-l-boy-lila-80-130-cm/_/R-p-158325?mc=8732957&c=MAV%C4%B0",
+        "https://www.decathlon.com.tr/p/olta-takimi-seti-balikcilik-3000-240-cm-ufish-2-40/_/R-p-350584?mc=8843245",
         {waitUntil: "domcontentloaded"}
     );
 
