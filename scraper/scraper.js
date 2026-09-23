@@ -8,33 +8,13 @@ let decathlonBrowser;
 let scraperShuttingDown = false;
 
 const puppeteerOptions = {
-    headless: true,
+    headless: "new",
     protocolTimeout: 120000,
     args: [
-        // --- 🐋 Critical Environment & Stability Flags ---
         '--no-sandbox',
         '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage', // Vital for 10k runs to prevent /dev/shm memory crashes
-        '--disable-gpu',           // Drops heavy CPU load on headless servers
-        '--no-zygote',             // Disables zygote process spawning to save RAM
-        '--single-process',        // Optional: Drastically lowers memory, but test for your specific stability
-
-        // --- 🏎️ Performance & Resource Stripping ---
-        '--disable-http-cache',                     // Forces fresh asset checks without hoarding disk space
-        '--disable-extensions',                     // Blocks background extensions from chewing memory
-        '--disable-component-extensions-with-background-pages',
-        '--disable-default-apps',                   // Strips baseline Google apps
-        '--disable-background-networking',          // Blocks silent telemetry calls home
-        '--disable-background-timer-throttling',    // Keeps pages running fast even when out of view
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
-        '--js-flags="--max-old-space-size=512"',    // Hard caps Chrome V8 engine memory usage per tab
-
-        // --- 🕵️ Stealth & Fingerprint Alignments ---
-        '--incognito',
-        '--disable-blink-features=AutomationControlled',
-        '--disable-infobars',                       // Hides the "Chrome is being controlled" banner
-        '--window-size=1920,1080',                  // Sets a standard viewport to match real users
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
     ]
 }
 async function getTrendyolBrowser() {
