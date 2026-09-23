@@ -138,7 +138,7 @@ async function scrapeDecathlonData(productData) {
 
         });
 
-        const preDelay = Math.floor(Math.random() * (11000 - 8000) + 6000);
+        const preDelay = Math.floor(Math.random() * (11000 - 9000) + 5000);
         await delay(preDelay);
 
         response = await page.goto(productData.decathlon_url, {
@@ -214,7 +214,7 @@ async function scrapeDecathlonData(productData) {
 
         decathlonRequestCounter++;
         if (decathlonRequestCounter % 3 === 0) {
-            const batchPause = Math.floor(Math.random() * (30000 - 15000) + 15000);
+            const batchPause = Math.floor(Math.random() * (11000 - 8000) + 10000);
             console.log(JSON.stringify({
                 'message': 'decathlon batch pause',
                 'requests_completed': decathlonRequestCounter,
