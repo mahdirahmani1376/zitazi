@@ -36,27 +36,15 @@ class ListenForScrapeResponseCommand extends Command
     {
         $product = Product::find($messageArray['product_id']);
 
-        $this->unavailableAllVariationsAndLog($product, $messageArray);
+        if (data_get($messageArray, 'response.blocked') === false) {
+            $this->unavailableAllVariationsAndLog($product, $messageArray);
+        }
 
     }
 
     private function processDecathlonError($messageArray): void
     {
         $product = Product::find($messageArray['product_id']);
-        if (in_array(data_get($messageArray, 'response.response_status'), [403, 429]) && data_get($messageArray, 'source') === 'Decathlon') {
-            Redis::rpush(
-                config('queue.DE_QUEUE_IN'),
-                json_encode([
-                    'product' => $product->only([
-                        'decathlon_url',
-                        'id'
-                    ]),
-                    'bulk' => true,
-                ])
-            );
-
-            LogManager::logProduct($product, 'product pushed back to queue', []);
-        }
 
         if (data_get($messageArray, 'response.error.message') === 'offers is not iterable') {
             $this->unavailableAllVariationsAndLog($product, $messageArray);

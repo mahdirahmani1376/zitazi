@@ -40,7 +40,6 @@ async function getDecathlonBrowser() {
     if (!decathlonBrowser) {
         decathlonBrowser = await puppeteer.launch(puppeteerOptions);
         initialDecathlonTime = Date.now();
-        decathlonRequestCount = 0;
     }
 
     return decathlonBrowser;
@@ -59,7 +58,6 @@ let initialTrendyolTime = Date.now()
 
 let currentDecathlonTime = Date.now()
 let initialDecathlonTime = Date.now()
-let decathlonRequestCount = 0
 const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
 
 async function beginScrape(name, data) {
@@ -71,8 +69,13 @@ async function beginScrape(name, data) {
 
     if (name === 'Trendyol') {
         if (trendyolBrowser && Date.now() - initialTrendyolTime > BROWSER_RESTART_INTERVAL) {
-            trendyolBrowser.close().catch(() => {
-            });
+            try {
+                await Promise.race([
+                    trendyolBrowser.close(),
+                    new Promise(resolve => setTimeout(resolve, 10000))
+                ]);
+            } catch {
+            }
             trendyolBrowser = null;
             initialTrendyolTime = Date.now();
         }
@@ -83,8 +86,13 @@ async function beginScrape(name, data) {
 
     } else if (name === "Decathlon") {
         if (decathlonBrowser && Date.now() - initialDecathlonTime > BROWSER_RESTART_INTERVAL) {
-            decathlonBrowser.close().catch(() => {
-            });
+            try {
+                await Promise.race([
+                    decathlonBrowser.close(),
+                    new Promise(resolve => setTimeout(resolve, 10000))
+                ]);
+            } catch {
+            }
             decathlonBrowser = null;
             initialDecathlonTime = Date.now();
         }
@@ -205,12 +213,6 @@ async function scrapeDecathlonData(productData) {
             }
         }
 
-        decathlonRequestCount++;
-
-        if (decathlonRequestCount >= 3) {
-            closeBrowser = true;
-        }
-
         return {
             product_id: productData.id,
             response_data: variations,
@@ -224,9 +226,27 @@ async function scrapeDecathlonData(productData) {
             message: err.message
         };
 
-        if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+        if ([403, 429].includes(response?.status())) {
             console.error(JSON.stringify({
-                message: "Decathlon browser became unhealthy",
+                'message': 'decathlon rate limit',
+                'status': response?.status(),
+                'data': productData,
+                'level': 'error'
+            }))
+
+            closeBrowser = true
+
+            return {
+                product_id: productData.id,
+                success: false,
+                response_status: response?.status(),
+                response_headers: response?.headers(),
+                blocked: true,
+                error,
+            };
+        } else if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+            console.error(JSON.stringify({
+                message: "Decathlon browser had timeout",
                 error
             }));
 
@@ -236,9 +256,10 @@ async function scrapeDecathlonData(productData) {
         return {
             product_id: productData.id,
             success: false,
-            response_status: response ? response.status() : null,
-            response_headers: response ? response.headers() : null,
-            error
+            response_status: response?.status(),
+            response_headers: response?.headers(),
+            error,
+            blocked: true,
         };
 
     } finally {
@@ -283,6 +304,7 @@ async function scrapeTrendyolData(data) {
     }
 
     try {
+
         page = await trendyolBrowser.newPage();
 
         response = await page.goto(data.full_url, {
@@ -293,7 +315,7 @@ async function scrapeTrendyolData(data) {
         const delayTime = Math.floor(Math.random() * (5000 - 2000) + 5000);
         await delay(delayTime);
 
-        if (response?.status() === 418) {
+        if ([418, 429].includes(response?.status())) {
             console.error(JSON.stringify({
                 'message': 'trendyol tea pot bot blocked',
                 'data': data,
@@ -369,7 +391,7 @@ async function scrapeTrendyolData(data) {
 
         if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
             console.error(JSON.stringify({
-                message: "Trendyol browser became unhealthy",
+                message: "Trendyol browser has Timeout error",
                 error
             }));
 

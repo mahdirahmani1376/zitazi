@@ -28,7 +28,7 @@ function createRedis() {
 
 const TR_QUEUE_IN = 'laravel_database_trendyol_scrape_product';
 const DE_QUEUE_IN = 'laravel_database_decathlon_scrape_product';
-const COOLDOWN_SECONDS = 10 * 60;
+const COOLDOWN_ARRAY = [5, 300, 600, 12000]
 const QUEUE_OUT = 'laravel_database_scrape_result';
 
 async function runWorker(name, queueIn) {
@@ -67,35 +67,49 @@ async function runWorker(name, queueIn) {
             const response = await beginScrape(name, data.product);
 
             if (response.blocked) {
-                await redis.setex(
-                    `scraper:cooldown:${name.toLowerCase()}`,
-                    COOLDOWN_SECONDS,
-                    '1',
-                );
+                let retryCount = data.retry_count ?? 0;
 
-                await redis.rpush(
-                    queueIn,
-                    JSON.stringify(data)
-                );
+                if (retryCount <= 3) {
+                    let cooldownSeconds = COOLDOWN_ARRAY[retryCount];
 
-                await redis.publish(
-                    'laravel_database_product_sync_status_changed',
-                    JSON.stringify({
-                        product_id: data.product.id,
-                        status: 'cooldown'
-                    })
-                );
+                    data.retry_count = retryCount + 1;
 
-                console.error(
-                    JSON.stringify({
-                        message: `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${COOLDOWN_SECONDS}s`,
-                        level: 'error'
-                    })
-                )
+                    await redis.publish(
+                        'laravel_database_product_sync_status_changed',
+                        JSON.stringify({
+                            product_id: data.product.id,
+                            status: 'no_response_retrying'
+                        })
+                    );
 
-            }
 
-            if (response.deleted) {
+                    await redis.setex(
+                        `scraper:cooldown:${name.toLowerCase()}`,
+                        cooldownSeconds,
+                        '1',
+                    );
+
+                    await redis.rpush(
+                        queueIn,
+                        JSON.stringify(data)
+                    );
+
+                    await redis.publish(
+                        'laravel_database_product_sync_status_changed',
+                        JSON.stringify({
+                            product_id: data.product.id,
+                            status: 'cooldown'
+                        })
+                    );
+
+                    console.error(
+                        JSON.stringify({
+                            message: `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
+                            level: 'error'
+                        })
+                    )
+                }
+            } else if (response.deleted) {
                 data.retry_count = (data.retry_count || 0) + 1;
                 if (data.retry_count <= 1) {
                     await redis.rpush(queueIn, JSON.stringify(data));
@@ -126,7 +140,7 @@ async function runWorker(name, queueIn) {
                     'laravel_database_product_sync_status_changed',
                     JSON.stringify({
                         product_id: data.product.id,
-                        status: 'no_response_retrying'
+                        status: 'invalid_currency'
                     })
                 );
             }

@@ -20,6 +20,7 @@ enum SyncStatusEnum: string
     case FAILED_UPDATE = 'failed_update';
     case COOLDOWN = 'cooldown';
     case NO_RESPONSE_RETRYING = 'no_response_retrying';
+    case INVALID_CURRENCY = 'invalid_currency';
 
     public function getBadgeColorForState(): string
     {
@@ -27,7 +28,7 @@ enum SyncStatusEnum: string
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::NO_RESPONSE_RETRYING => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING => 'danger',
             default => 'gray',
         };
     }
@@ -61,6 +62,7 @@ enum SyncStatusEnum: string
             self::COOLDOWN => 'ربات مسدوده شده لطفا صبر کنید',
             self::PRODUCT_GOT_DELETED => 'محصول از سایت اصلی پاک شده لینک چک شود',
             self::NO_RESPONSE_RETRYING => 'پاسخی دریافت نشد محصول به صف سینک مجدد اضافه شده',
+            self::INVALID_CURRENCY => 'ارز اشتباهی دریافت شده',
         };
     }
 
