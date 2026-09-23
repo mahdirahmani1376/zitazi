@@ -105,7 +105,8 @@ async function runWorker(name, queueIn) {
                     console.error(
                         JSON.stringify({
                             message: `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
-                            level: 'error'
+                            level: 'error',
+                            current_retry: retryCount
                         })
                     )
                 }
