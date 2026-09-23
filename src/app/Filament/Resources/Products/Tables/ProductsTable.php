@@ -221,7 +221,7 @@ class ProductsTable
                 TernaryFilter::make('promotion'),
                 SelectFilter::make('sync_status')
                     ->multiple()
-                    ->options(SyncStatusEnum::getValues()),
+                    ->options(array_combine(SyncStatusEnum::getValues(), SyncStatusEnum::getValues())),
             ])
             ->recordActions([
                 ViewAction::make(),
