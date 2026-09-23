@@ -15,7 +15,6 @@ const puppeteerOptions = {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--single-process',
         '--disable-breakpad',
         '--disable-crashpad-for-testing',
     ]
@@ -103,15 +102,16 @@ async function scrapeDecathlonData(productData) {
     let page = null;
     let closeBrowser = false;
 
+    if (!productData.decathlon_url?.trim()) {
+        return {
+            product_data: productData,
+            success: false,
+            message: 'empty url provided'
+        };
+    }
+
     try {
         page = await decathlonBrowser.newPage();
-        if (!productData.decathlon_url?.trim()) {
-            return {
-                product_data: productData,
-                success: false,
-                message: 'empty url provided'
-            };
-        }
 
         await page.setRequestInterception(true);
 
@@ -243,14 +243,24 @@ async function scrapeDecathlonData(productData) {
 
     } finally {
         if (page) {
-            page.close().catch(() => {
-            });
+            try {
+                await Promise.race([
+                    page.close(),
+                    new Promise(resolve => setTimeout(resolve, 10000))
+                ]);
+            } catch {
+            }
         }
 
         if (scraperShuttingDown || closeBrowser) {
             if (decathlonBrowser) {
-                decathlonBrowser.close().catch(() => {
-                });
+                try {
+                    await Promise.race([
+                        decathlonBrowser.close(),
+                        new Promise(resolve => setTimeout(resolve, 10000))
+                    ]);
+                } catch {
+                }
                 decathlonBrowser = null;
             }
         }
@@ -264,16 +274,16 @@ async function scrapeTrendyolData(data) {
     let closeBrowser = false;
     let page = null;
 
+    if (!data.full_url?.trim()) {
+        return {
+            product_data: data,
+            success: false,
+            message: 'empty url provided'
+        };
+    }
+
     try {
         page = await trendyolBrowser.newPage();
-
-        if (!data.full_url?.trim()) {
-            return {
-                product_data: data,
-                success: false,
-                message: 'empty url provided'
-            };
-        }
 
         response = await page.goto(data.full_url, {
             waitUntil: 'domcontentloaded',
@@ -377,14 +387,24 @@ async function scrapeTrendyolData(data) {
 
     } finally {
         if (page) {
-            page.close().catch(() => {
-            });
+            try {
+                await Promise.race([
+                    page.close(),
+                    new Promise(resolve => setTimeout(resolve, 10000))
+                ]);
+            } catch {
+            }
         }
 
         if (closeBrowser || scraperShuttingDown) {
             if (trendyolBrowser) {
-                trendyolBrowser.close().catch(() => {
-                });
+                try {
+                    await Promise.race([
+                        trendyolBrowser.close(),
+                        new Promise(resolve => setTimeout(resolve, 10000))
+                    ]);
+                } catch {
+                }
                 trendyolBrowser = null;
             }
         }
