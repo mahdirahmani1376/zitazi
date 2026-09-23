@@ -89,7 +89,7 @@ async function runWorker(name, queueIn) {
                         '1',
                     );
 
-                    await redis.rpush(
+                    await redis.lpush(
                         queueIn,
                         JSON.stringify(data)
                     );
@@ -112,7 +112,7 @@ async function runWorker(name, queueIn) {
             } else if (response.deleted) {
                 data.retry_count = (data.retry_count || 0) + 1;
                 if (data.retry_count <= 1) {
-                    await redis.rpush(queueIn, JSON.stringify(data));
+                    await redis.lpush(queueIn, JSON.stringify(data));
                 }
 
                 await redis.publish(
@@ -133,7 +133,7 @@ async function runWorker(name, queueIn) {
             } else if (response.invalid_currency) {
                 data.retry_count = (data.retry_count || 0) + 1;
                 if (data.retry_count <= 1) {
-                    await redis.rpush(queueIn, JSON.stringify(data));
+                    await redis.lpush(queueIn, JSON.stringify(data));
                 }
 
                 await redis.publish(
