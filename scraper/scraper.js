@@ -8,15 +8,13 @@ let decathlonBrowser;
 let scraperShuttingDown = false;
 
 const puppeteerOptions = {
-    headless: true,
+    headless: "new",
     protocolTimeout: 120000,
     args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-breakpad',
-        '--disable-crashpad-for-testing',
     ]
 }
 async function getTrendyolBrowser() {
@@ -315,6 +313,10 @@ async function scrapeTrendyolData(data) {
         const delayTime = Math.floor(Math.random() * (5000 - 2000) + 5000);
         await delay(delayTime);
 
+        const responseData = await page.evaluate(() => {
+            return JSON.parse(document.body.innerText);
+        });
+
         if ([418, 429].includes(response?.status())) {
             console.error(JSON.stringify({
                 'message': 'trendyol tea pot bot blocked',
@@ -324,17 +326,14 @@ async function scrapeTrendyolData(data) {
 
             return {
                 product_id: data.id,
-                response_status: response?.status(),
-                response_headers: response?.headers(),
+                response_status: response.status(),
+                response_headers: response.headers(),
                 full_url: data.full_url,
                 success: false,
                 blocked: true,
             };
-        }
 
-        const responseData = await page.evaluate(() => {
-            return JSON.parse(document.body.innerText);
-        });
+        }
 
         if ([404, 410].includes(responseData?.statusCode)) {
             return {
@@ -372,7 +371,6 @@ async function scrapeTrendyolData(data) {
             };
         }
 
-
         return {
             product_id: data.id,
             response_data: responseData,
@@ -389,7 +387,24 @@ async function scrapeTrendyolData(data) {
             message: err.message
         };
 
-        if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
+        if ([418, 429].includes(response?.status())) {
+            console.error(JSON.stringify({
+                'message': 'trendyol tea pot bot blocked',
+                'data': data,
+                'level': 'error'
+            }))
+
+            return {
+                product_id: data.id,
+                response_status: responseStatus,
+                response_headers: responseHeaders,
+                full_url: data.full_url,
+                success: false,
+                blocked: true,
+                error: error
+            };
+
+        } else if (error.name === "TimeoutError" || error.message.includes('Target.createTarget timed out')) {
             console.error(JSON.stringify({
                 message: "Trendyol browser has Timeout error",
                 error
@@ -400,8 +415,6 @@ async function scrapeTrendyolData(data) {
 
         return {
             product_id: data.id,
-            response_status: response?.status(),
-            response_headers: response?.headers(),
             full_url: data.full_url,
             success: false,
             error
