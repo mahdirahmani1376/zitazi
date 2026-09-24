@@ -98,7 +98,7 @@ class Currency extends Model
 
         $rialPrice = $rialPrice * $ratio;
         $rialPrice = (int)$rialPrice;
-        return (int)(floor($rialPrice / 10000) * 10000);
+        return (int)(floor($rialPrice / 1000) * 1000);
     }
 
     public static function syncDirhamRate()
