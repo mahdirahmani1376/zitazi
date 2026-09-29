@@ -14,11 +14,11 @@ class WoocommerceService
     {
         $securityPass = null;
         $securityKey = null;
-        $baseURl = "https://zitazi.com";
 
         if ($source === Product::ZITAZI) {
             $securityKey = config('services.zitazi.security_key');
             $securityPass = config('services.zitazi.security_pass');
+            $baseURl = config('services.zitazi.base_url', 'https://zitazi.com');
         } else if ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
             $securityPass = config('services.satreh.security_key');

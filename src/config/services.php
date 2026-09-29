@@ -47,6 +47,7 @@ return [
     'zitazi' => [
         'security_key' => env('SECURITY_KEY'),
         'security_pass' => env('SECURITY_PASS'),
+        'base_url' => env('ZITAZI_BASE_URL')
     ],
     'satreh' => [
         'security_key' => env('SATRE_SECURITY_KEY'),
