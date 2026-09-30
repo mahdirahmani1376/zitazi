@@ -6,3 +6,7 @@
 /root/.acme.sh/acme.sh --install-cert \
 -d zitazi-monitoring.ir \
 --reloadcmd "docker exec zitazi-nginx nginx -s reload"
+
+/root/.acme.sh/acme.sh --renew  \
+-d zitazi-monitoring.ir \
+-d '*.zitazi-monitoring.ir'
