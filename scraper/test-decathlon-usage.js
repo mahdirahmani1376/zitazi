@@ -16,44 +16,125 @@ puppeteer.use(StealthPlugin());
 
     const page = await browser.newPage();
 
+    // -----------------------------
+    // Network traffic measurement
+    // -----------------------------
+
+    const client = await page.target().createCDPSession();
+
+    await client.send('Network.enable');
+
+    let totalBytes = 0;
+    let responseCount = 0;
+
+    client.on('Network.responseReceived', ({response}) => {
+        const url = response.url;
+
+        if (
+            url.startsWith('http://') ||
+            url.startsWith('https://')
+        ) {
+            responseCount++;
+
+            console.log(
+                `[RESPONSE] ${response.status} ${url}`
+            );
+        }
+    });
+
+    client.on('Network.loadingFinished', ({encodedDataLength}) => {
+        totalBytes += encodedDataLength;
+    });
+
+    // -----------------------------
+    // Only allow the main HTML
+    // -----------------------------
+
     await page.setRequestInterception(true);
 
-    page.on('request', (request) => {
-        // We only need the initial HTML document.
-        if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+    page.on('request', request => {
+        if (
+            request.isNavigationRequest() &&
+            request.frame() === page.mainFrame()
+        ) {
             request.continue();
         } else {
             request.abort();
         }
     });
 
-    const response = await page.goto(
-        'https://www.decathlon.com.tr/p/mikrofiber-havlu-l-boy-lila-80-130-cm/_/R-p-158325?mc=8732957&c=MAV%C4%B0',
-        {
-            waitUntil: 'domcontentloaded',
-            timeout: 30000,
-        }
-    );
+    // -----------------------------
+    // Navigate
+    // -----------------------------
 
-    console.log('status:', response.status());
+    const url =
+        'https://www.decathlon.com.tr/p/mikrofiber-havlu-l-boy-lila-80-130-cm/_/R-p-158325?mc=8732957&c=MAV%C4%B0';
 
-    // #__dkt
+    const response = await page.goto(url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+    });
+
+    console.log('HTTP status:', response.status());
+
+    // -----------------------------
+    // Extract #__dkt
+    // -----------------------------
+
     const dkt = await page.$eval(
         '#__dkt',
         el => el.textContent
     );
 
-    // application/ld+json
+    // -----------------------------
+    // Extract JSON-LD
+    // -----------------------------
+
     const jsonLd = await page.$eval(
         'script[type="application/ld+json"]',
         el => el.textContent
     );
 
-    console.log('DKT length:', dkt.length);
-    console.log('JSON-LD length:', jsonLd.length);
+    const jsonData = JSON.parse(jsonLd);
 
-    console.log('DKT:', dkt);
-    console.log('JSON-LD:', JSON.parse(jsonLd));
+    // -----------------------------
+    // Give CDP events time to finish
+    // -----------------------------
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // -----------------------------
+    // Results
+    // -----------------------------
+
+    console.log('');
+    console.log('==============================');
+    console.log('SCRAPE RESULTS');
+    console.log('==============================');
+
+    console.log('Response count:', responseCount);
+
+    console.log(
+        'Transferred:',
+        `${(totalBytes / 1024).toFixed(2)} KB`
+    );
+
+    console.log(
+        'Transferred:',
+        `${(totalBytes / 1024 / 1024).toFixed(3)} MB`
+    );
+
+    console.log(
+        '#__dkt size:',
+        `${(Buffer.byteLength(dkt, 'utf8') / 1024).toFixed(2)} KB`
+    );
+
+    console.log(
+        'JSON-LD size:',
+        `${(Buffer.byteLength(jsonLd, 'utf8') / 1024).toFixed(2)} KB`
+    );
+
+    console.log('==============================');
 
     await browser.close();
 })();
