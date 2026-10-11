@@ -10,11 +10,3 @@
 /root/.acme.sh/acme.sh --renew  \
 -d zitazi-monitoring.ir \
 -d '*.zitazi-monitoring.ir'
-
-
-/root/.acme.sh/acme.sh --issue \
-    --dns dns_cf \
-    -d sub.igamezone.ir
-
-/root/.acme.sh/acme.sh --install-cert \
--d sub.igamezone.ir
