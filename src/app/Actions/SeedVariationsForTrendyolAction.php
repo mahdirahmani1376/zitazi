@@ -87,11 +87,16 @@ class SeedVariationsForTrendyolAction
 
                 $availableVariations[] = $item['itemNumber'];
 
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => $variation->stock,
-                    'price' => $rialPrice
-                ]);
-                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+                if ($product->hasTorobUrl()) {
+                    SyncTorobAction::execute($variation->product);
+                } else {
+
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => $variation->stock,
+                        'price' => $rialPrice
+                    ]);
+                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+                }
 
             }
 

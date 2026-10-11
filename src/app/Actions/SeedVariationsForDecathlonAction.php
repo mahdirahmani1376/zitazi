@@ -85,12 +85,16 @@ class SeedVariationsForDecathlonAction
                 'sku' => $variationRawData['sku'],
             ], $createData);
 
-            $updateData = ZitaziUpdateDTO::createFromArray([
-                'stock_quantity' => $variation->stock,
-                'price' => $rialPrice
-            ]);
+            if ($product->hasTorobUrl()) {
+                SyncTorobAction::execute($variation->product);
+            } else {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $rialPrice
+                ]);
 
-            SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+            }
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;

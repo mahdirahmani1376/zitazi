@@ -112,4 +112,5 @@ return [
 
     'TR_QUEUE_IN' => 'trendyol_scrape_product',
     'DE_QUEUE_IN' => 'decathlon_scrape_product',
+    'TOROB_QUEUE_IN' => 'torob_scrape_product',
 ];

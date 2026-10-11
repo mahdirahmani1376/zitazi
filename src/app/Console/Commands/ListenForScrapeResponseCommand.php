@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 
 class ListenForScrapeResponseCommand extends Command
@@ -93,6 +94,8 @@ class ListenForScrapeResponseCommand extends Command
 
             $this->error('unknown message structure scrape command message:' . json_encode($message));
         }
+
+        Cache::forget($product->getTorobCacheKey());
     }
 
     private function unavailableAllVariationsAndLog(Product $product, $messageArray): void
