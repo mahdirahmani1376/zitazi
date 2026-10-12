@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\LogManager;
+use App\Actions\ProcessTorobResponseAction;
 use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
 use App\DTO\ZitaziUpdateDTO;
@@ -88,10 +89,11 @@ class ListenForScrapeResponseCommand extends Command
                 app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             } else if ($product->belongsToTrendyol()) {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
+            } else if ($product->belongsToTorob()) {
+                ProcessTorobResponseAction::execute($product, $messageArray);
             }
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
-
             $this->error('unknown message structure scrape command message:' . json_encode($message));
         }
 

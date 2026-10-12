@@ -1,5 +1,5 @@
-const Redis = require('ioredis');
 const beginScrape = require('./scraper');
+const Worker = require('./Worker');
 
 let shuttingDown = false;
 
@@ -18,153 +18,10 @@ process.on('unhandledRejection', (reason) => {
         level: 'error'
     }));
 });
-function createRedis() {
-    return new Redis({
-        host: 'zitazi-redis',
-        port: 6379,
-        password: process.env.REDIS_PASSWORD,
-    });
-}
 
-const TR_QUEUE_IN = 'laravel_database_trendyol_scrape_product';
-const DE_QUEUE_IN = 'laravel_database_decathlon_scrape_product';
-const COOLDOWN_ARRAY = [15, 60, 300, 600, 12000]
-const QUEUE_OUT = 'laravel_database_scrape_result';
+const workers = [
+    new Worker("Trendyol", 'laravel_database_trendyol_scrape_product'),
+    new Worker("Decathlon", 'laravel_database_decathlon_scrape_product'),
+];
 
-async function runWorker(name, queueIn) {
-    const redis = createRedis();
-    console.info(`${name} worker started...`);
-
-    const cooldownKey = `scraper:cooldown:${name.toLowerCase()}`;
-
-    while (!shuttingDown) {
-        try {
-            const ttl = await redis.ttl(cooldownKey);
-
-            if (ttl > 0) {
-                await new Promise(resolve =>
-                    setTimeout(resolve, Math.min(ttl, 60) * 1000)
-                );
-                continue;
-            }
-
-
-            const result = await redis.blpop(queueIn, 1)
-            if (!result) {
-                continue;
-            }
-
-            const data = JSON.parse(result[1]);
-
-            await redis.publish(
-                `laravel_database_product_sync_status_changed`,
-                JSON.stringify({
-                    product_id: data.product.id,
-                    status: 'processing'
-                })
-            );
-
-            const response = await beginScrape(name, data.product);
-
-            if (response.blocked) {
-                let retryCount = data.retry_count ?? 0;
-
-                if (retryCount <= 3) {
-                    let cooldownSeconds = COOLDOWN_ARRAY[retryCount];
-
-                    data.retry_count = retryCount + 1;
-
-                    await redis.publish(
-                        'laravel_database_product_sync_status_changed',
-                        JSON.stringify({
-                            product_id: data.product.id,
-                            status: 'no_response_retrying'
-                        })
-                    );
-
-
-                    await redis.setex(
-                        `scraper:cooldown:${name.toLowerCase()}`,
-                        cooldownSeconds,
-                        '1',
-                    );
-
-                    await redis.lpush(
-                        queueIn,
-                        JSON.stringify(data)
-                    );
-
-                    await redis.publish(
-                        'laravel_database_product_sync_status_changed',
-                        JSON.stringify({
-                            product_id: data.product.id,
-                            status: 'cooldown'
-                        })
-                    );
-
-                    console.error(
-                        JSON.stringify({
-                            message: `${name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
-                            level: 'error',
-                            current_retry: retryCount
-                        })
-                    )
-                }
-            } else if (response.invalid_currency) {
-                data.retry_count = (data.retry_count || 0) + 1;
-                if (data.retry_count <= 1) {
-                    await redis.rpush(queueIn, JSON.stringify(data));
-                }
-
-                await redis.publish(
-                    'laravel_database_product_sync_status_changed',
-                    JSON.stringify({
-                        product_id: data.product.id,
-                        status: 'invalid_currency'
-                    })
-                );
-            }
-
-            response.bulk = data.bulk ?? false
-            response.source = name
-
-            await redis.rpush(
-                QUEUE_OUT,
-                JSON.stringify(response)
-            );
-
-            let level = 'debug';
-
-            level = response.success
-                ? 'info'
-                : 'error';
-
-            const logger = console[level] ?? console.log;
-
-            logger(JSON.stringify({
-                type: "scrape-response",
-                source: name,
-                product_id: data.product.id,
-                response,
-                level: level
-            }));
-
-
-        } catch (e) {
-            console.error(JSON.stringify({
-                message: `${name} worker error`,
-                error: {
-                    name: e.name,
-                    message: e.message,
-                    stack: e.stack
-                },
-                level: 'error'
-            }));
-        }
-    }
-}
-
-Promise.all([
-    runWorker("Trendyol", TR_QUEUE_IN),
-    runWorker("Decathlon", DE_QUEUE_IN)
-]).catch(console.error);
+Promise.all(workers.map(w => w.run(beginScrape, () => shuttingDown))).catch(console.error);

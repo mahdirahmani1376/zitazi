@@ -86,7 +86,7 @@ class SeedVariationsForDecathlonAction
             ], $createData);
 
             if ($product->hasTorobUrl()) {
-                SyncTorobAction::execute($variation->product);
+                PushToTorobQueueAction::execute($variation->product);
             } else {
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => $variation->stock,
