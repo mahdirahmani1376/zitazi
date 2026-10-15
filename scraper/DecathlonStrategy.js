@@ -1,4 +1,4 @@
-const {BaseStrategy, delay, safeClose, scraperShuttingDown} = require('./BaseStrategy');
+const {BaseStrategy, delay, safeClose, isShuttingDown} = require('./BaseStrategy');
 
 class DecathlonStrategy extends BaseStrategy {
     constructor() {
@@ -100,7 +100,7 @@ class DecathlonStrategy extends BaseStrategy {
             };
         } finally {
             if (page) await safeClose(() => page.close());
-            if (scraperShuttingDown || closeBrowser) await this.closeBrowser();
+            if (isShuttingDown() || closeBrowser) await this.closeBrowser();
         }
     }
 }

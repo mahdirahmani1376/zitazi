@@ -4,8 +4,14 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
 let scraperShuttingDown = false;
-process.on('SIGINT', () => (scraperShuttingDown = true));
-process.on('SIGTERM', () => (scraperShuttingDown = true));
+
+function setShuttingDown() {
+    scraperShuttingDown = true;
+}
+
+function isShuttingDown() {
+    return scraperShuttingDown;
+}
 
 const puppeteerOptions = {
     headless: 'new',
@@ -62,4 +68,4 @@ class BaseStrategy {
     }
 }
 
-module.exports = {BaseStrategy, delay, safeClose, scraperShuttingDown};
+module.exports = {BaseStrategy, delay, safeClose, setShuttingDown, isShuttingDown};

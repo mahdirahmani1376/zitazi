@@ -1,4 +1,4 @@
-const {BaseStrategy, delay, safeClose, scraperShuttingDown} = require('./BaseStrategy');
+const {BaseStrategy, delay, safeClose, isShuttingDown} = require('./BaseStrategy');
 
 class TorobStrategy extends BaseStrategy {
     constructor() {
@@ -37,7 +37,7 @@ class TorobStrategy extends BaseStrategy {
                 };
             }
 
-            if (responseData?.statusCode === 404) {
+            if (response?.status() === 404) {
                 return {
                     product_id: data.id,
                     response_status: response?.status(),
@@ -52,12 +52,12 @@ class TorobStrategy extends BaseStrategy {
 
             return {
                 product_id: data.id,
-                response_data: responseData,
+                response_data: responseData['products_info'],
                 response_status: response?.status(),
                 headers: response.headers(),
                 url: response.url(),
                 full_url: data.full_url,
-                success: responseData?.isSuccess && responseData?.statusCode === 200 && (response?.status() >= 200 && response?.status() < 400),
+                success: (response?.status() >= 200 && response?.status() < 400),
             };
         } catch (err) {
             const error = {name: err.name, message: err.message};
@@ -70,7 +70,7 @@ class TorobStrategy extends BaseStrategy {
             return {product_id: data.id, full_url: data.full_url, success: false, error};
         } finally {
             if (page) await safeClose(() => page.close());
-            if (closeBrowser || scraperShuttingDown) await this.closeBrowser();
+            if (closeBrowser || isShuttingDown()) await this.closeBrowser();
         }
     }
 }

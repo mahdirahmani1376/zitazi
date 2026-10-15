@@ -2,14 +2,14 @@
 
 namespace App\Actions\Filament;
 
-use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
+use App\Services\ScraperQueueService;
 
 class SyncAndUpdateProductButtonAction
 {
-    public static function execute(Product $product)
+    public static function execute(Product $product): array
     {
-        SendScrapeMessageJob::dispatch($product);
+        app(ScraperQueueService::class)->sendToAllScraperQueues($product);
 
         return [
             'success' => true,

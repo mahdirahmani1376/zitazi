@@ -9,7 +9,9 @@ enum SyncStatusEnum: string
     case NOT_ENQUEUED = 'not_enqueued';
     case PROCESSING = 'processing';
     case SUCCESSFUL_DATA_FETCH = 'successful_data_fetch';
+    case SUCCESSFUL_DATA_FETCH_TOROB = 'successful_data_fetch_torob';
     case FAILED_DATA_FETCH = 'failed_data_fetch';
+    case FAILED_DATA_FETCH_TOROB = 'failed_data_fetch_torob';
     case PRODUCT_GOT_DELETED = 'product_is_deleted';
     case SUCCESSFUL_UPDATE = 'successful_update';
     case SKIPPED_UPDATE = 'skipped_update';
@@ -25,10 +27,10 @@ enum SyncStatusEnum: string
     public function getBadgeColorForState(): string
     {
         return match ($this) {
-            self::PROCESSING, self::SUCCESSFUL_DATA_FETCH => 'info',
+            self::PROCESSING, self::SUCCESSFUL_DATA_FETCH, self::SUCCESSFUL_DATA_FETCH_TOROB => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_DATA_FETCH_TOROB, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING => 'danger',
             default => 'gray',
         };
     }
@@ -50,7 +52,9 @@ enum SyncStatusEnum: string
             self::ENQUEUED => 'اضافه شده به صف',
             self::PROCESSING => 'در حال پردازش',
             self::SUCCESSFUL_DATA_FETCH => 'اطلاعات با موفقیت دریافت شده',
+            self::SUCCESSFUL_DATA_FETCH_TOROB => 'اطلاعات ترب با موفقیت دریافت شده',
             self::FAILED_DATA_FETCH => 'دریافت اطلاعات با خطا مواجه شد لاگ ها چک شود',
+            self::FAILED_DATA_FETCH_TOROB => 'دریافت اطلاعات از ترب با خطا مواجه شد',
             self::SUCCESSFUL_UPDATE => 'بروززسانی در سایت مقصد به درستی صورت گرفت',
             self::SKIPPED_UPDATE => 'بروززسانی در سایت مقصد صورت نگرفت',
             self::FAILED_UPDATE => 'بروززسانی در سایت مقصد با خطا مواجه شد',

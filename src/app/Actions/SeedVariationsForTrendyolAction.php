@@ -16,6 +16,8 @@ class SeedVariationsForTrendyolAction
 {
     public function execute($response, $bulk = false): void
     {
+        // 2716 id for trendyol
+
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
         $data = data_get($response, 'response_data.result.variants', []);
@@ -56,6 +58,10 @@ class SeedVariationsForTrendyolAction
         $itemType = count($data) > 1 ? Product::VARIATION_UPDATE : Product::PRODUCT_UPDATE;
 
         try {
+            $logVariationForTorobChange = false;
+            $originalPrice = false;
+            $lowestPossiblePrice = null;
+
             $availableVariations = [];
             foreach ($data as $item) {
                 $price = $item['price']['value'];
@@ -65,6 +71,26 @@ class SeedVariationsForTrendyolAction
                     $product->getRatio(),
                     data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
                 );
+
+                $rivalMinPrice = $product->min_price;
+                if ($rivalMinPrice) {
+                    $lowestPossiblePrice = Currency::convertToRial(
+                        $price,
+                        1.20,
+                        data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
+                    );
+
+                    $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
+
+                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+
+                    if ($recommendedPrice >= $lowestPossiblePrice) {
+                        $originalPrice = $rialPrice;
+                        $logVariationForTorobChange = true;
+
+                        $rialPrice = $recommendedPrice;
+                    }
+                }
 
                 $variation = Variation::updateOrCreate([
                     'item_number' => $item['itemNumber']
@@ -85,18 +111,23 @@ class SeedVariationsForTrendyolAction
                     'updated_at' => now()->toDateTimeString(),
                 ]);
 
+                if ($logVariationForTorobChange) {
+                    LogManager::logVariation($variation, 'torob decrease step', [
+                        'original_price' => $originalPrice,
+                        'decreased_price' => $rialPrice,
+                        'lowest_possible_price' => $lowestPossiblePrice,
+                        'rival_price' => $product->min_price
+                    ]);
+                }
+
                 $availableVariations[] = $item['itemNumber'];
 
-                if ($product->hasTorobUrl()) {
-                    PushToTorobQueueAction::execute($variation->product);
-                } else {
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $rialPrice
+                ]);
 
-                    $updateData = ZitaziUpdateDTO::createFromArray([
-                        'stock_quantity' => $variation->stock,
-                        'price' => $rialPrice
-                    ]);
-                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
-                }
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
             }
 

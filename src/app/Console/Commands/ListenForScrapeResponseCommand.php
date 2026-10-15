@@ -12,8 +12,9 @@ use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
+use App\Services\ScraperQueueService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class ListenForScrapeResponseCommand extends Command
@@ -69,7 +70,15 @@ class ListenForScrapeResponseCommand extends Command
             $product = Product::findOrFail($messageArray['product_id']);
         }
 
-        if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
+        if ($messageArray['source'] === 'Torob') {
+            try {
+                app(ProcessTorobResponseAction::class)->execute($product, $messageArray);
+            } catch (\Exception $e) {
+                Log::error('error in processing torob', ['error' => $e->getMessage()]);
+            }
+
+            app(ScraperQueueService::class)->addToForeignQueue($product);
+        } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             }
@@ -83,21 +92,21 @@ class ListenForScrapeResponseCommand extends Command
             } elseif ($messageArray['source'] === 'Decathlon') {
                 $this->processDecathlonError($messageArray);
             }
+
         } else if (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
-            if ($product->belongsToDecalthon()) {
+
+            if ($messageArray['source'] === 'Decathlon') {
                 app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            } else if ($product->belongsToTrendyol()) {
+            } else if ($messageArray['source'] === 'Trendyol') {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            } else if ($product->belongsToTorob()) {
-                ProcessTorobResponseAction::execute($product, $messageArray);
             }
+
+
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             $this->error('unknown message structure scrape command message:' . json_encode($message));
         }
-
-        Cache::forget($product->getTorobCacheKey());
     }
 
     private function unavailableAllVariationsAndLog(Product $product, $messageArray): void

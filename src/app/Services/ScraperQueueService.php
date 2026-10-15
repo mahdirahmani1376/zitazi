@@ -1,31 +1,39 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Services;
 
 use App\Enums\SyncStatusEnum;
 use App\Models\Product;
-use Illuminate\Bus\Batchable;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
-class SendScrapeMessageJob implements ShouldQueue
+class ScraperQueueService
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public string $queue = 'torob';
 
-    public function __construct(
-        public Product $product
-    )
+    public function sendToAllScraperQueues(Product $product): void
     {
+        if ($product->belongsToTorob()) {
+            $this->addToTorobQueue($product);
+        } else {
+            $this->addToForeignQueue($product);
+        }
     }
 
-    public function handle(): void
+    private function addToTorobQueue(Product $product): void
     {
-        $product = $this->product;
+        $key = config('queue.TOROB_QUEUE_IN');
+
+        $data = json_encode([
+            'product' => $product->getTorobQueueScrapeData(),
+            'bulk' => false,
+        ]);
+
+        Redis::lPush($key, $data);
+    }
+
+    public function addToForeignQueue(Product $product): void
+    {
         $key = null;
         $data = [];
 
@@ -66,6 +74,5 @@ class SendScrapeMessageJob implements ShouldQueue
         $product->setSyncStatus(SyncStatusEnum::ENQUEUED);
 
         Redis::lPush($key, $data);
-
     }
 }

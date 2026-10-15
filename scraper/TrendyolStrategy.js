@@ -1,4 +1,4 @@
-const {BaseStrategy, delay, safeClose, scraperShuttingDown} = require('./BaseStrategy');
+const {BaseStrategy, delay, safeClose, isShuttingDown} = require('./BaseStrategy');
 
 class TrendyolStrategy extends BaseStrategy {
     constructor() {
@@ -91,7 +91,7 @@ class TrendyolStrategy extends BaseStrategy {
             return {product_id: data.id, full_url: data.full_url, success: false, error};
         } finally {
             if (page) await safeClose(() => page.close());
-            if (closeBrowser || scraperShuttingDown) await this.closeBrowser();
+            if (closeBrowser || isShuttingDown()) await this.closeBrowser();
         }
     }
 }

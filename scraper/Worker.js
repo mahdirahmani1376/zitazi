@@ -24,9 +24,7 @@ class Worker {
                 const ttl = await this.redis.ttl(this.cooldownKey);
 
                 if (ttl > 0) {
-                    await new Promise(resolve =>
-                        setTimeout(resolve, Math.min(ttl, 60) * 1000)
-                    );
+                    await this.sleep(Math.min(ttl, 60) * 1000, shuttingDown);
                     continue;
                 }
 
@@ -78,6 +76,22 @@ class Worker {
                     level: 'error'
                 }));
             }
+        }
+    }
+
+    async sleep(ms, shuttingDown) {
+        const started = Date.now();
+
+        while (!shuttingDown() && Date.now() - started < ms) {
+            await new Promise(resolve => setTimeout(resolve, Math.min(200, ms)));
+        }
+    }
+
+    async close() {
+        try {
+            await this.redis.quit();
+        } catch (e) {
+            this.redis.disconnect();
         }
     }
 
