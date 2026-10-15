@@ -37,22 +37,24 @@ class SeedVariationsForDecathlonAction
 
 
             try {
+                if ($variationRawData['priceCurrency'] !== 'try') {
+                    UnsupportedCurrencyException::throwException();
+                }
+
                 $logVariationForTorobChange = false;
                 $originalPrice = false;
                 $lowestPossiblePrice = null;
 
                 $rialPrice = Currency::convertToRial(
                     $price,
-                    $product->getRatio(),
-                    $variationRawData['priceCurrency'],
+                    $product->getRatio()
                 );
 
                 $rivalMinPrice = $product->rival_min_price;
                 if ($rivalMinPrice) {
                     $lowestPossiblePrice = Currency::convertToRial(
                         $price,
-                        1.20,
-                        $variationRawData['priceCurrency'],
+                        1.20
                     );
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
@@ -83,6 +85,7 @@ class SeedVariationsForDecathlonAction
 
                     SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
                 }
+
                 return;
             }
 

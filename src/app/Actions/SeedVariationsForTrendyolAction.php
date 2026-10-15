@@ -72,22 +72,24 @@ class SeedVariationsForTrendyolAction
             $originalPrice = false;
             $lowestPossiblePrice = null;
 
+            if (data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency') !== 'try') {
+                UnsupportedCurrencyException::throwException();
+            }
+
             $availableVariations = [];
             foreach ($data as $item) {
                 $price = $item['price']['value'];
 
                 $rialPrice = Currency::convertToRial(
                     $price,
-                    $product->getRatio(),
-                    data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
+                    $product->getRatio()
                 );
 
                 $rivalMinPrice = $product->rival_min_price;
                 if ($rivalMinPrice) {
                     $lowestPossiblePrice = Currency::convertToRial(
                         $price,
-                        1.20,
-                        data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
+                        1.20
                     );
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
@@ -192,6 +194,8 @@ class SeedVariationsForTrendyolAction
                 ]);
 
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+
+                return;
             }
         } catch (Exception $e) {
             Log::error('seed variation for trendyol error', [
