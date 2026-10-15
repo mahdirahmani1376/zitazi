@@ -20,19 +20,19 @@ class ScraperQueueService
         }
     }
 
-    private function addToTorobQueue(Product $product): void
+    private function addToTorobQueue(Product $product, $bulk = false): void
     {
         $key = config('queue.TOROB_QUEUE_IN');
 
         $data = json_encode([
             'product' => $product->getTorobQueueScrapeData(),
-            'bulk' => false,
+            'bulk' => $bulk,
         ]);
 
         Redis::lPush($key, $data);
     }
 
-    public function addToForeignQueue(Product $product): void
+    public function addToForeignQueue(Product $product, $bulk = false): void
     {
         $key = null;
         $data = [];
@@ -49,7 +49,7 @@ class ScraperQueueService
 
             $data = json_encode([
                 'product' => $product->getTrendyolQueueScrapeData(),
-                'bulk' => false,
+                'bulk' => $bulk,
             ]);
 
         } elseif ($product->belongsToDecalthon()) {
@@ -60,7 +60,7 @@ class ScraperQueueService
                     'decathlon_url',
                     'id'
                 ]),
-                'bulk' => false,
+                'bulk' => $bulk,
             ]);
         }
 

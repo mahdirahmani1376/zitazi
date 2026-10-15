@@ -77,7 +77,20 @@ class ListenForScrapeResponseCommand extends Command
                 Log::error('error in processing torob', ['error' => $e->getMessage()]);
             }
 
-            app(ScraperQueueService::class)->addToForeignQueue($product);
+            if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
+                app(ScraperQueueService::class)->addToForeignQueue($product);
+            } else {
+                $queue = $messageArray['bulk'] ?? false ? 'bulk-sync-products' : 'sync-products';
+
+                foreach ($product->variations as $variation) {
+                    $updateData = ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => $variation->stock,
+                        'price' => $variation->rial_price
+                    ]);
+
+                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+                }
+            }
         } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
