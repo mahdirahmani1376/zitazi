@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Actions;
+namespace App\Services;
 
+use App\Actions\LogManager;
+use App\DTO\ZitaziUpdateDTO;
 use App\Enums\SyncStatusEnum;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Illuminate\Support\Facades\Log;
 
-class ProcessTorobResponseAction
+class TorobService
 {
-    public function execute(Product $product, array $response): void
+    public function processResponse(Product $product, array $response): void
     {
         if ($response['success'] === false) {
             Log::error('torob sync error', [
@@ -49,7 +52,7 @@ class ProcessTorobResponseAction
                     ]);
 
                     $product->update([
-                        'min_price' => $minPrice
+                        'rival_min_price' => $minPrice
                     ]);
 
                 } else {
@@ -59,7 +62,7 @@ class ProcessTorobResponseAction
                     ]);
 
                     $product->update([
-                        'min_price' => null
+                        'rival_min_price' => null
                     ]);
                 }
             }
@@ -67,6 +70,46 @@ class ProcessTorobResponseAction
 
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
 
+        }
+    }
+
+    public function updateProductVariationsAndSync(Product $product, bool $bulk = false): void
+    {
+        $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
+
+        $rivalMinPrice = $product->rival_min_price;
+
+        if ($rivalMinPrice) {
+            $lowestPossiblePrice = $product->min_price;
+
+            $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
+
+            $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+
+            if ($recommendedPrice < $lowestPossiblePrice) {
+                return;
+            }
+
+            foreach ($product->variations as $variation) {
+                $originalPrice = $variation->rial_price;
+                $variation->update([
+                    'rial_price' => $recommendedPrice
+                ]);
+
+                LogManager::logVariation($variation, 'torob decrease step', [
+                    'original_price' => $originalPrice,
+                    'decreased_price' => $recommendedPrice,
+                    'lowest_possible_price' => $lowestPossiblePrice,
+                    'rival_price' => $product->rival_min_price
+                ]);
+
+                $updateData = ZitaziUpdateDTO::createFromArray([
+                    'stock_quantity' => $variation->stock,
+                    'price' => $recommendedPrice
+                ]);
+
+                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+            }
         }
     }
 }

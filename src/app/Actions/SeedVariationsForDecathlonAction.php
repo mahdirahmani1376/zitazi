@@ -47,7 +47,7 @@ class SeedVariationsForDecathlonAction
                     $variationRawData['priceCurrency'],
                 );
 
-                $rivalMinPrice = $product->min_price;
+                $rivalMinPrice = $product->rival_min_price;
                 if ($rivalMinPrice) {
                     $lowestPossiblePrice = Currency::convertToRial(
                         $price,
@@ -113,7 +113,7 @@ class SeedVariationsForDecathlonAction
                     'original_price' => $originalPrice,
                     'decreased_price' => $rialPrice,
                     'lowest_possible_price' => $lowestPossiblePrice,
-                    'rival_price' => $product->min_price
+                    'rival_price' => $product->rival_min_price
                 ]);
             }
 

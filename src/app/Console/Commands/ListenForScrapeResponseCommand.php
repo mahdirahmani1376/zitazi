@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Actions\LogManager;
-use App\Actions\ProcessTorobResponseAction;
 use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Enums\SyncStatusEnum;
+use App\Facades\TorobServiceFacade;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
@@ -74,26 +74,15 @@ class ListenForScrapeResponseCommand extends Command
             $bulk = $messageArray['bulk'] ?? false;
 
             try {
-                app(ProcessTorobResponseAction::class)->execute($product, $messageArray);
+                TorobServiceFacade::processResponse($product, $messageArray);
             } catch (\Exception $e) {
                 Log::error('error in processing torob', ['error' => $e->getMessage()]);
             }
 
             if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
                 app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
-
             } else {
-
-                foreach ($product->variations as $variation) {
-                    $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
-
-                    $updateData = ZitaziUpdateDTO::createFromArray([
-                        'stock_quantity' => $variation->stock,
-                        'price' => $variation->rial_price
-                    ]);
-
-                    SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
-                }
+                TorobServiceFacade::updateProductVariationsAndSync($product, $bulk);
             }
         } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {

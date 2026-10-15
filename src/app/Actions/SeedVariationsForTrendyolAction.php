@@ -72,7 +72,7 @@ class SeedVariationsForTrendyolAction
                     data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
                 );
 
-                $rivalMinPrice = $product->min_price;
+                $rivalMinPrice = $product->rival_min_price;
                 if ($rivalMinPrice) {
                     $lowestPossiblePrice = Currency::convertToRial(
                         $price,
@@ -116,7 +116,7 @@ class SeedVariationsForTrendyolAction
                         'original_price' => $originalPrice,
                         'decreased_price' => $rialPrice,
                         'lowest_possible_price' => $lowestPossiblePrice,
-                        'rival_price' => $product->min_price
+                        'rival_price' => $product->rival_min_price
                     ]);
                 }
 
