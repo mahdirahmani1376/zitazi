@@ -71,6 +71,8 @@ class ListenForScrapeResponseCommand extends Command
         }
 
         if ($messageArray['source'] === 'Torob') {
+            $bulk = $messageArray['bulk'] ?? false;
+
             try {
                 app(ProcessTorobResponseAction::class)->execute($product, $messageArray);
             } catch (\Exception $e) {
@@ -78,11 +80,13 @@ class ListenForScrapeResponseCommand extends Command
             }
 
             if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
-                app(ScraperQueueService::class)->addToForeignQueue($product);
+                app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
+
             } else {
-                $queue = $messageArray['bulk'] ?? false ? 'bulk-sync-products' : 'sync-products';
 
                 foreach ($product->variations as $variation) {
+                    $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
+
                     $updateData = ZitaziUpdateDTO::createFromArray([
                         'stock_quantity' => $variation->stock,
                         'price' => $variation->rial_price
