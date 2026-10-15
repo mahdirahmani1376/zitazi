@@ -23,6 +23,7 @@ enum SyncStatusEnum: string
     case COOLDOWN = 'cooldown';
     case NO_RESPONSE_RETRYING = 'no_response_retrying';
     case INVALID_CURRENCY = 'invalid_currency';
+    case INVALID_WOOCOMMERCE_ID = 'invalid_woocommerce_id';
 
     public function getBadgeColorForState(): string
     {
@@ -67,6 +68,7 @@ enum SyncStatusEnum: string
             self::PRODUCT_GOT_DELETED => 'محصول از سایت اصلی پاک شده لینک چک شود',
             self::NO_RESPONSE_RETRYING => 'پاسخی دریافت نشد محصول به صف سینک مجدد اضافه شده',
             self::INVALID_CURRENCY => 'ارز اشتباهی دریافت شده',
+            self::INVALID_WOOCOMMERCE_ID => 'شناسه ووکامرس محصول اشتباه هست',
         };
     }
 

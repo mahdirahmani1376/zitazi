@@ -35,15 +35,6 @@ class BaseVariationCrawler
         };
     }
 
-    protected function getProfitRatioForVariation(Variation $variation): float|int
-    {
-        if (!empty($variation->product->markup)) {
-            return 1 + ($variation->product->markup / 100);
-        }
-
-        return 1.6;
-    }
-
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): int
     {
         if (!Cache::get('sync_enabled', config('sync_enabled'))) {

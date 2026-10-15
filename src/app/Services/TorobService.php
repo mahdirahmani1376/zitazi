@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Actions\LogManager;
-use App\DTO\ZitaziUpdateDTO;
 use App\Enums\SyncStatusEnum;
-use App\Jobs\SyncZitaziJob;
+use App\Jobs\SyncWoocommerceProductJob;
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class TorobService
@@ -26,27 +26,28 @@ class TorobService
         } else {
             if (empty(data_get($response, 'response_data.result'))) {
                 LogManager::logProduct($product, 'product has no seller in torob');
+                $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
                 return;
             }
 
-            $minShop = collect(
+            $validShops = collect(
                 data_get($response, 'response_data.result')
             )
                 ->filter(function ($item) {
                     return $item['price'] != 0;
-                })
-                ->sortBy('price')
-                ->first();
+                });
 
-            if (empty($minShop['price'])) {
-                LogManager::logProduct($product, 'no min shop found', [
-                    'shop_name' => $minShop['shop_name'],
-                ]);
+            if ($validShops->isEmpty()) {
+                LogManager::logProduct($product, 'no valid shops found', $validShops->toArray());
 
                 $product->update([
-                    'min_price' => null
+                    'rival_min_price' => null
                 ]);
             } else {
+                $minShop = $validShops
+                    ->sortBy('price')
+                    ->first();
+
                 $minPrice = $minShop['price'];
                 $rivalShop = $minShop['shop_id'];
 
@@ -78,43 +79,38 @@ class TorobService
         }
     }
 
-    public function updateProductVariationsAndSync(Product $product, bool $bulk = false): void
+    public function updateProductAndSync(Product $product, bool $bulk = false): void
     {
-        $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
-
         $rivalMinPrice = $product->rival_min_price;
 
-        if ($rivalMinPrice) {
-            $lowestPossiblePrice = $product->min_price;
-
-            $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
-
-            $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
-
-            if ($recommendedPrice < $lowestPossiblePrice) {
-                return;
-            }
-
-            foreach ($product->variations as $variation) {
-                $originalPrice = $variation->rial_price;
-                $variation->update([
-                    'rial_price' => $recommendedPrice
-                ]);
-
-                LogManager::logVariation($variation, 'torob decrease step', [
-                    'original_price' => $originalPrice,
-                    'decreased_price' => $recommendedPrice,
-                    'lowest_possible_price' => $lowestPossiblePrice,
-                    'rival_price' => $product->rival_min_price
-                ]);
-
-                $updateData = ZitaziUpdateDTO::createFromArray([
-                    'stock_quantity' => $variation->stock,
-                    'price' => $recommendedPrice
-                ]);
-
-                SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
-            }
+        if (!$rivalMinPrice) {
+            return;
         }
+
+        $lowestPossiblePrice = $product->min_price;
+
+        $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
+
+        $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+
+        if ($recommendedPrice < $lowestPossiblePrice) {
+            return;
+        }
+
+        if (!Cache::get('sync_enabled', config('sync_enabled'))) {
+            LogManager::logProduct($product, 'sync is disabled in config');
+            $product->setSyncStatus(SyncStatusEnum::ENV_DISABLED);
+            return;
+        }
+
+        if ($product->onPromotion()) {
+            LogManager::logProduct($product, 'product on promotion');
+            $product->setSyncStatus(SyncStatusEnum::VARIATION_HAS_PROMOTION_ACTIVE);
+            return;
+        }
+
+        $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
+
+        SyncWoocommerceProductJob::dispatch($product->id, $recommendedPrice)->onQueue($queue);
     }
 }

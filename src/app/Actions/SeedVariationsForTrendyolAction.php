@@ -22,7 +22,10 @@ class SeedVariationsForTrendyolAction
         // 8304 for deleted decathlon and torob
         // 1075556 for decathlon and only zitazi torob
         // 1075639 for decathlon and torob both
+        // 3603 only torob with no rival
         // 3603 only torob
+        // 4307 only torob with no sellers
+        // 4530 elele + torob
         //todo ممکنه تنوع ها با ترب فرق کنن
 
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';

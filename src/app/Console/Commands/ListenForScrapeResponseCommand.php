@@ -76,15 +76,16 @@ class ListenForScrapeResponseCommand extends Command
             try {
                 TorobServiceFacade::processResponse($product, $messageArray);
             } catch (\Exception $e) {
-                Log::error('error in processing torob', ['error' => $e->getMessage()]);
+                Log::error('error in processing torob', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
 
             if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
                 app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
             } else {
-                TorobServiceFacade::updateProductVariationsAndSync($product, $bulk);
-
-                // todo check if has not variation should update directly only here
+                TorobServiceFacade::updateProductAndSync($product, $bulk);
             }
         } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {

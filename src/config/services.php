@@ -47,13 +47,13 @@ return [
     'zitazi' => [
         'security_key' => env('SECURITY_KEY'),
         'security_pass' => env('SECURITY_PASS'),
-        'base_url' => env('ZITAZI_BASE_URL'),
+        'base_url' => env('ZITAZI_BASE_URL', 'https://zitazi.com'),
         'torob_shop_id' => 12259
     ],
     'satreh' => [
         'security_key' => env('SATRE_SECURITY_KEY'),
         'security_pass' => env('SATRE_SECURITY_PASS'),
-        'base_url' => env('SATRE_BASE_URL')
+        'base_url' => env('SATRE_BASE_URL', 'https://satreh.com')
     ]
 
 ];
