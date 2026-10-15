@@ -83,6 +83,8 @@ class ListenForScrapeResponseCommand extends Command
                 app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
             } else {
                 TorobServiceFacade::updateProductVariationsAndSync($product, $bulk);
+
+                // todo check if has not variation should update directly only here
             }
         } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {

@@ -16,7 +16,14 @@ class SeedVariationsForTrendyolAction
 {
     public function execute($response, $bulk = false): void
     {
-        // 2716 id for trendyol
+        // 2716 id for trendyol and torob
+        // 1071444 for only trendyol
+        // 1078696 for only decathlon
+        // 8304 for deleted decathlon and torob
+        // 1075556 for decathlon and only zitazi torob
+        // 1075639 for decathlon and torob both
+        // 3603 only torob
+        //todo ممکنه تنوع ها با ترب فرق کنن
 
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 

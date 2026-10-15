@@ -90,13 +90,19 @@ class DecathlonStrategy extends BaseStrategy {
                 closeBrowser = true;
             }
 
+            let deleted = false;
+            if (error.message === 'offers is not iterable') {
+                deleted = true
+            }
+
             return {
                 product_id: productData.id,
                 success: false,
                 response_status: response?.status(),
                 response_headers: response?.headers(),
                 error,
-                blocked: false
+                blocked: false,
+                deleted: deleted
             };
         } finally {
             if (page) await safeClose(() => page.close());

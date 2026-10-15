@@ -24,6 +24,11 @@ class TorobService
             LogManager::logProduct($product, 'error fetching torob data', $response);
 
         } else {
+            if (empty(data_get($response, 'response_data.result'))) {
+                LogManager::logProduct($product, 'product has no seller in torob');
+                return;
+            }
+
             $minShop = collect(
                 data_get($response, 'response_data.result')
             )
