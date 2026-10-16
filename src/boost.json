@@ -15,6 +15,9 @@
         "testing-best-practices",
         "configuring-horizon",
         "echo-development",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "zitazi-filament-admin",
+        "zitazi-queue-flow",
+        "zitazi-woocommerce-sync"
     ]
 }
