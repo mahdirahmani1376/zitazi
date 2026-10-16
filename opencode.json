@@ -45,8 +45,7 @@
     "laravel-boost": {
       "type": "local",
       "enabled": true,
-      "command": ["php", "artisan", "boost:mcp"],
-      "cwd": "src"
+      "command": ["docker", "exec", "-i", "zitazi-php", "php", "artisan", "boost:mcp"]
     }
   },
   "instructions": [
