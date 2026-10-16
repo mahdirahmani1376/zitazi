@@ -25,9 +25,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(CrawlerManager::class, function () {
             return new CrawlerManager([
-                new EleleCrawler(),
-                new DigikalaCrawler(),
-                new TorobCrawler(),
             ]);
         });
 

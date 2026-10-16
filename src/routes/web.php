@@ -191,10 +191,6 @@ Horizon::auth(function () {
     return true; // disables all auth checks
 });
 
-\Opcodes\LogViewer\Facades\LogViewer::auth(function () {
-    return true;
-});
-
 Route::get('/movie', function () {
     $url = Storage::disk('local')->get('video_url.txt');
     return redirect(trim($url));

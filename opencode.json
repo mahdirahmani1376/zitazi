@@ -1,0 +1,57 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "mixroute/deepseek-v4-flash",
+  "small_model": "mixroute/deepseek-v4-flash",
+  "provider": {
+    "mixroute": {
+      "name": "Mixroute Api",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.mixroute.ai/v1",
+        "apiKey": "{env:MIXROUTE_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4-flash": { "name": "deepseek-v4-flash" },
+        "gemini-3.5-flash-lite": { "name": "gemini-3.5-flash-lite" },
+        "gpt-5": { "name": "gpt-5" },
+        "gpt-5-mini": { "name": "gpt-5-mini" }
+      }
+    },
+    "ai_prime": {
+      "name": "Ai Prime",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.aiprime.shop/v1",
+        "apiKey": "{env:AI_PRIME_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4-pro": { "name": "deepseek-v4-pro" },
+        "deepseek-v4.1-flash": { "name": "deepseek-v4.1-flash" },
+        "deepseek-v4-flash": { "name": "deepseek-v4-flash" },
+        "gemini-3.5-flash-lite": { "name": "gemini-3.5-flash-lite" },
+        "gpt-5.6-terra": { "name": "gpt-5.6-terra" },
+        "gpt-5-mini": { "name": "gpt-5-mini" }
+      }
+    },
+    "anthropic": {
+      "name": "Anthropic",
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "apiKey": "{env:ANTHROPIC_API_KEY}"
+      }
+    }
+  },
+  "mcp": {
+    "laravel-boost": {
+      "type": "local",
+      "enabled": true,
+      "command": ["php", "artisan", "boost:mcp"],
+      "cwd": "src"
+    }
+  },
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "lsp": true,
+  "share": "auto"
+}
