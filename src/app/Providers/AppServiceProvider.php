@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         if ($this->app->environment('production')) {
-//            URL::forceScheme('https');
+            URL::forceScheme('https');
         }
 
     }
