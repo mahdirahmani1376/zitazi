@@ -2,22 +2,27 @@
     "agents": [
         "opencode"
     ],
-    "cloud": true,
+    "cloud": false,
     "guidelines": true,
     "mcp": true,
     "nightwatch": false,
+    "packages": [
+        "filament/filament",
+        "maatwebsite/excel"
+    ],
     "sail": false,
     "skills": [
         "infer-conventions",
-        "deploying-to-cloud",
         "ai-sdk-development",
         "laravel-best-practices",
         "testing-best-practices",
         "configuring-horizon",
         "echo-development",
         "tailwindcss-development",
+        "filament-development",
         "zitazi-filament-admin",
         "zitazi-queue-flow",
-        "zitazi-woocommerce-sync"
+        "zitazi-woocommerce-sync",
+        "laravel-excel"
     ]
 }

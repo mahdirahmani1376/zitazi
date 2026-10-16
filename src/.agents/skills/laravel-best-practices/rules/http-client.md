@@ -2,8 +2,7 @@
 
 ## Set Explicit Timeouts
 
-Laravel's HTTP client has a 30-second response timeout by default. Choose response and connection timeouts that fit the
-service and the calling request or job. Remember that retries can multiply the total elapsed time.
+Laravel's HTTP client has a 30-second response timeout by default. Choose response and connection timeouts that fit the service and the calling request or job. Remember that retries can multiply the total elapsed time.
 
 Less resilient:
 
@@ -34,9 +33,7 @@ $response = Http::github()->get('/repos/laravel/framework');
 
 ## Retry Only Safe Operations
 
-Retry transient connection failures, rate-limit responses, and server errors with an appropriate delay. Retry idempotent
-requests such as `GET` when the operation can safely run more than once. Retry a state-changing request only when the
-remote API supports an idempotency key or provides equivalent duplicate protection.
+Retry transient connection failures, rate-limit responses, and server errors with an appropriate delay. Retry idempotent requests such as `GET` when the operation can safely run more than once. Retry a state-changing request only when the remote API supports an idempotency key or provides equivalent duplicate protection.
 
 Unsafe without an idempotency guarantee:
 
@@ -74,8 +71,7 @@ $response = Http::withHeaders(['Idempotency-Key' => $paymentAttempt->uuid])
 
 ## Handle Errors Explicitly
 
-The HTTP client returns responses for `4xx` and `5xx` status codes instead of throwing by default. Inspect the expected
-statuses or call `throw()` before consuming a success payload.
+The HTTP client returns responses for `4xx` and `5xx` status codes instead of throwing by default. Inspect the expected statuses or call `throw()` before consuming a success payload.
 
 Unsafe when a success payload is expected:
 
@@ -113,8 +109,7 @@ $response->throw();
 
 ## Pool Independent Requests
 
-Use `Http::pool()` when several independent requests can run concurrently. Pooling changes execution time, not error
-handling; inspect or throw for each response as needed.
+Use `Http::pool()` when several independent requests can run concurrently. Pooling changes execution time, not error handling; inspect or throw for each response as needed.
 
 ```php
 use Illuminate\Http\Client\Pool;
@@ -132,8 +127,7 @@ $posts = $responses['posts']->throw()->json();
 
 ## Fake HTTP Requests in Tests
 
-Use `Http::fake()` for external integrations, and use `Http::preventStrayRequests()` when an unexpected real request
-should fail the test. Also test timeouts, connection failures, and error responses that the application handles.
+Use `Http::fake()` for external integrations, and use `Http::preventStrayRequests()` when an unexpected real request should fail the test. Also test timeouts, connection failures, and error responses that the application handles.
 
 ```php
 it('syncs a user from the API', function () {
