@@ -55,7 +55,7 @@ COPY --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-COPY ./infra/php.ini /usr/local/etc/php/php.ini
+COPY ./infra/production.php.ini /usr/local/etc/php/php.ini
 
 # Composer dependency cache
 COPY ./src/composer.json ./src/composer.lock ./
