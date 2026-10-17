@@ -41,4 +41,4 @@ scraper/node_modules
 src/public/.well-known
 infra/alertmanager/telegram_bot_token
 /test.json
-./opencode.json
+/opencode.json
