@@ -37,11 +37,36 @@ class SeedVariationsForDecathlonAction
 
 
             try {
+                if ($variationRawData['priceCurrency'] !== 'try') {
+                    UnsupportedCurrencyException::throwException();
+                }
+
+                $logVariationForTorobChange = false;
+                $originalPrice = false;
+                $lowestPossiblePrice = null;
+
                 $rialPrice = Currency::convertToRial(
                     $price,
-                    $product->getRatio(),
-                    $variationRawData['priceCurrency'],
+                    $product->getRatio()
                 );
+
+                $rivalMinPrice = $product->rival_min_price;
+                if ($rivalMinPrice) {
+                    $lowestPossiblePrice = Currency::convertToRial(
+                        $price,
+                        1.20
+                    );
+
+                    $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
+
+                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+
+                    if ($recommendedPrice >= $lowestPossiblePrice) {
+                        $originalPrice = $rialPrice;
+                        $logVariationForTorobChange = true;
+                        $rialPrice = $recommendedPrice;
+                    }
+                }
             } catch (UnsupportedCurrencyException $e) {
                 LogManager::logProduct($product->id, 'invalid currency for product', [
                     'product_id' => $product->id,
@@ -60,6 +85,7 @@ class SeedVariationsForDecathlonAction
 
                     SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
                 }
+
                 return;
             }
 
@@ -85,12 +111,22 @@ class SeedVariationsForDecathlonAction
                 'sku' => $variationRawData['sku'],
             ], $createData);
 
+            if ($logVariationForTorobChange) {
+                LogManager::logVariation($variation, 'torob decrease step', [
+                    'original_price' => $originalPrice,
+                    'decreased_price' => $rialPrice,
+                    'lowest_possible_price' => $lowestPossiblePrice,
+                    'rival_price' => $product->rival_min_price
+                ]);
+            }
+
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => $variation->stock,
                 'price' => $rialPrice
             ]);
 
             SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;

@@ -6,8 +6,8 @@ use App\Actions\Filament\SyncAndUpdateProductButtonAction;
 use App\Enums\SyncStatusEnum;
 use App\Exports\FillamentProductExport;
 use App\Jobs\EmergencySyncJob;
-use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
+use App\Services\ScraperQueueService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -25,8 +25,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductsTable
@@ -242,15 +240,9 @@ class ProductsTable
                     DeleteBulkAction::make(),
                     BulkAction::make('bulk sync')
                         ->action(function (Collection $records) {
-                            $jobs = [];
-                            $records->each(function (Product $record) use (&$jobs) {
-                                $jobs[] = new SendScrapeMessageJob($record);
+                            $records->each(function (Product $record) {
+                                app(ScraperQueueService::class)->sendToAllScraperQueues($record);
                             });
-                            Bus::batch($jobs)
-                                ->then(fn() => Log::info('All Bulk Sync Products finished successfully.'))
-                                ->catch(fn() => Log::error('Some Bulk Sync Products failed.'))
-                                ->name('Bulk Sync Products')
-                                ->dispatch();
                         })
                         ->icon('heroicon-m-arrow-path')
                         ->color('success')

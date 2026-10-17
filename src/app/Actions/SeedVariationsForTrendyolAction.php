@@ -16,6 +16,18 @@ class SeedVariationsForTrendyolAction
 {
     public function execute($response, $bulk = false): void
     {
+        // 2716 id for trendyol and torob
+        // 1071444 for only trendyol
+        // 1078696 for only decathlon
+        // 8304 for deleted decathlon and torob
+        // 1075556 for decathlon and only zitazi torob
+        // 1075639 for decathlon and torob both
+        // 3603 only torob with no rival
+        // 3603 only torob
+        // 4307 only torob with no sellers
+        // 4530 elele + torob
+        //todo ممکنه تنوع ها با ترب فرق کنن
+
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
         $data = data_get($response, 'response_data.result.variants', []);
@@ -56,15 +68,41 @@ class SeedVariationsForTrendyolAction
         $itemType = count($data) > 1 ? Product::VARIATION_UPDATE : Product::PRODUCT_UPDATE;
 
         try {
+            $logVariationForTorobChange = false;
+            $originalPrice = false;
+            $lowestPossiblePrice = null;
+
+            if (data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency') !== 'try') {
+                UnsupportedCurrencyException::throwException();
+            }
+
             $availableVariations = [];
             foreach ($data as $item) {
                 $price = $item['price']['value'];
 
                 $rialPrice = Currency::convertToRial(
                     $price,
-                    $product->getRatio(),
-                    data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency'),
+                    $product->getRatio()
                 );
+
+                $rivalMinPrice = $product->rival_min_price;
+                if ($rivalMinPrice) {
+                    $lowestPossiblePrice = Currency::convertToRial(
+                        $price,
+                        1.20
+                    );
+
+                    $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
+
+                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+
+                    if ($recommendedPrice >= $lowestPossiblePrice) {
+                        $originalPrice = $rialPrice;
+                        $logVariationForTorobChange = true;
+
+                        $rialPrice = $recommendedPrice;
+                    }
+                }
 
                 $variation = Variation::updateOrCreate([
                     'item_number' => $item['itemNumber']
@@ -85,12 +123,22 @@ class SeedVariationsForTrendyolAction
                     'updated_at' => now()->toDateTimeString(),
                 ]);
 
+                if ($logVariationForTorobChange) {
+                    LogManager::logVariation($variation, 'torob decrease step', [
+                        'original_price' => $originalPrice,
+                        'decreased_price' => $rialPrice,
+                        'lowest_possible_price' => $lowestPossiblePrice,
+                        'rival_price' => $product->rival_min_price
+                    ]);
+                }
+
                 $availableVariations[] = $item['itemNumber'];
 
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => $variation->stock,
                     'price' => $rialPrice
                 ]);
+
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
 
             }
@@ -146,6 +194,8 @@ class SeedVariationsForTrendyolAction
                 ]);
 
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
+
+                return;
             }
         } catch (Exception $e) {
             Log::error('seed variation for trendyol error', [

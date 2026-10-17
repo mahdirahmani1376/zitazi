@@ -88,14 +88,9 @@ class Currency extends Model
     /**
      * @throws UnsupportedCurrencyException
      */
-    public static function convertToRial($price, $ratio = 1.6, $symbol = 'try'): int
+    public static function convertToRial($price, $ratio = 1.6): int
     {
-        if (strtolower($symbol) === 'try') {
-            $rialPrice = static::syncTryRate() * $price;
-        } else {
-            UnsupportedCurrencyException::throwException();
-        }
-
+        $rialPrice = static::syncTryRate() * $price;
         $rialPrice = $rialPrice * $ratio;
         $rialPrice = (int)$rialPrice;
         return (int)(floor($rialPrice / 1000) * 1000);

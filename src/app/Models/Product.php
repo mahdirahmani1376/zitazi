@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Cache;
 
 /** @property $full_url */
 class Product extends Model
@@ -112,6 +113,11 @@ class Product extends Model
         return !empty($this->amazon_source);
     }
 
+    public function hasTorobUrl(): bool
+    {
+        return !empty($this->torob_source);
+    }
+
     public function decathlonVariation(): HasOne
     {
         return $this->hasOne(Variation::class, 'trendyol_product_id');
@@ -208,5 +214,36 @@ class Product extends Model
             'id' => $this->id,
             'full_url' => $this->getTrendyolFullUrl()
         ];
+    }
+
+    public function getTorobFullUrl(): ?string
+    {
+        if (empty($this->torob_id)) {
+            return null;
+        }
+
+        $url = 'https://api.torob.com/v4/base-product/details/';
+        $params = http_build_query([
+            'prk' => $this->torob_id,
+        ]);
+        return $url . '?' . $params;
+    }
+
+    public function getTorobQueueScrapeData(): array
+    {
+        return [
+            'id' => $this->id,
+            'full_url' => $this->getTorobFullUrl()
+        ];
+    }
+
+    public function getTorobCacheKey(): string
+    {
+        return "torob:mp:{$this->id}";
+    }
+
+    public function getTorobMinPrice()
+    {
+        return Cache::get($this->getTorobCacheKey());
     }
 }

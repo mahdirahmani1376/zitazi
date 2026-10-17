@@ -7,11 +7,14 @@ use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Enums\SyncStatusEnum;
+use App\Facades\TorobServiceFacade;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
+use App\Services\ScraperQueueService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class ListenForScrapeResponseCommand extends Command
@@ -67,7 +70,24 @@ class ListenForScrapeResponseCommand extends Command
             $product = Product::findOrFail($messageArray['product_id']);
         }
 
-        if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
+        if ($messageArray['source'] === 'Torob') {
+            $bulk = $messageArray['bulk'] ?? false;
+
+            try {
+                TorobServiceFacade::processResponse($product, $messageArray);
+            } catch (\Exception $e) {
+                Log::error('error in processing torob', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+
+            if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
+                app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
+            } else {
+                TorobServiceFacade::updateProductAndSync($product, $bulk);
+            }
+        } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             }
@@ -81,16 +101,19 @@ class ListenForScrapeResponseCommand extends Command
             } elseif ($messageArray['source'] === 'Decathlon') {
                 $this->processDecathlonError($messageArray);
             }
+
         } else if (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
-            if ($product->belongsToDecalthon()) {
+
+            if ($messageArray['source'] === 'Decathlon') {
                 app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            } else if ($product->belongsToTrendyol()) {
+            } else if ($messageArray['source'] === 'Trendyol') {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
+
+
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
-
             $this->error('unknown message structure scrape command message:' . json_encode($message));
         }
     }

@@ -43,4 +43,15 @@ class ZitaziUpdateDTO
 
         return $data;
     }
+
+    public static function getPriceUpdatePayload(int $price): array
+    {
+        $data = [];
+
+        $data['sale_price'] = null;
+        $data['regular_price'] = '' . $price;
+        $data['price'] = $price;
+
+        return $data;
+    }
 }
