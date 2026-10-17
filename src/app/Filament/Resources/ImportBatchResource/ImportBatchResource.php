@@ -14,11 +14,12 @@ use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-
 class ImportBatchResource extends Resource
 {
     protected static ?string $model = ImportBatch::class;
+
     protected static ?string $navigationLabel = 'Imports';
+
     protected static ?string $modelLabel = 'Import';
 
     protected static ?string $pluralModelLabel = 'Imports';
@@ -39,7 +40,7 @@ class ImportBatchResource extends Resource
 
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn(ImportStatusEnum $state): string => $state->getBadgeColorForState()),
+                    ->color(fn (ImportStatusEnum $state): string => $state->getBadgeColorForState()),
 
                 TextColumn::make('total_rows')
                     ->label('Rows')
@@ -54,7 +55,7 @@ class ImportBatchResource extends Resource
                     ->label('Failed')
                     ->numeric()
                     ->badge()
-                    ->color(fn(int $state): string => $state > 0 ? 'danger' : 'success'
+                    ->color(fn (int $state): string => $state > 0 ? 'danger' : 'success'
                     ),
 
                 TextColumn::make('created_at')
@@ -80,10 +81,10 @@ class ImportBatchResource extends Resource
                 Action::make('download')
                     ->label('Download report')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->visible(fn(ImportBatch $record) => $record->status === ImportStatusEnum::COMPLETED
+                    ->visible(fn (ImportBatch $record) => $record->status === ImportStatusEnum::COMPLETED
                         && filled($record->report_path)
                     )
-                    ->url(fn(ImportBatch $record) => route('variations.import-report', $record)
+                    ->url(fn (ImportBatch $record) => route('variations.import-report', $record)
                     ),
                 ViewAction::make(),
             ], position: RecordActionsPosition::BeforeColumns);

@@ -23,15 +23,15 @@ class SeedVariationsForProductJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 1 * 60 * 10;
+
     public $tries = 2;
+
     public $backoff = [1 * 60 * 5];
 
     public function __construct(
         public Product $product,
         public bool $sync = false,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -39,15 +39,15 @@ class SeedVariationsForProductJob implements ShouldQueue
 
         try {
             if ($product->belongsToTrendyol()) {
-//                $this->seedTrendyolVariations($product);
-            } else if ($product->belongsToAmazon()) {
+                //                $this->seedTrendyolVariations($product);
+            } elseif ($product->belongsToAmazon()) {
                 $this->seedAmazonVariations($product);
-            } else if ($product->belongsToElele()) {
+            } elseif ($product->belongsToElele()) {
                 LogManager::logProduct($product, 'elele is temporary down', [
                     'product_id' => $product->id,
                     'product_own_id' => $product->own_id,
                 ]);
-//                $this->seedEleleVariation($product);
+                //                $this->seedEleleVariation($product);
             } else {
                 LogManager::logProduct($product, 'no url is assigned to product', [
                     'product_id' => $product->id,
@@ -59,7 +59,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                 foreach ($product->variations as $variation) {
                     $updateData = ZitaziUpdateDTO::createFromArray([
                         'stock_quantity' => $variation->stock,
-                        'price' => $variation->rial_price
+                        'price' => $variation->rial_price,
                     ]);
                     SyncZitaziJob::dispatchSync($variation, $updateData);
                 }
@@ -84,6 +84,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                 'product_id' => $product->id,
                 'product_own_id' => $product->own_id,
             ]);
+
             return;
         }
 
@@ -93,12 +94,12 @@ class SeedVariationsForProductJob implements ShouldQueue
             $availableVariations = [];
             foreach ($data as $item) {
                 Variation::updateOrCreate([
-                    'item_number' => $item['itemNumber']
+                    'item_number' => $item['itemNumber'],
                 ], [
                     'size' => $item['value'] ?? null,
                     'price' => $price = $item['price']['value'],
                     'rial_price' => Currency::convertToRial($price) * $product->getRatio(),
-                    'stock' => !empty($item['inStock']) ? 88 : 0,
+                    'stock' => ! empty($item['inStock']) ? 88 : 0,
                     'barcode' => $item['barcode'],
                     'color' => $item['value'],
                     'url' => Product::PRODUCT_UPDATE ? $product->trendyol_source : data_get($item, 'merchantListing.otherMerchants.0.url', $product->trendyol_source),
@@ -120,7 +121,7 @@ class SeedVariationsForProductJob implements ShouldQueue
                 ->where('source', Product::SOURCE_TRENDYOL)
                 ->get();
 
-            $unavailableOnSourceSiteVariations->each(fn(Variation $variation) => $variation->update([
+            $unavailableOnSourceSiteVariations->each(fn (Variation $variation) => $variation->update([
                 'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
             ]));
         } catch (Exception $e) {
@@ -143,7 +144,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             'source' => Product::SOURCE_AMAZON,
             'product_id' => $product->id,
             'sku' => $product->amazon_source,
-            'item_type' => Product::PRODUCT_UPDATE
+            'item_type' => Product::PRODUCT_UPDATE,
         ]);
     }
 
@@ -156,7 +157,7 @@ class SeedVariationsForProductJob implements ShouldQueue
             'source' => Product::SOURCE_Elele,
             'product_id' => $product->id,
             'sku' => $product->elele_source,
-            'item_type' => Product::PRODUCT_UPDATE
+            'item_type' => Product::PRODUCT_UPDATE,
         ]);
 
         app(EleleCrawler::class)->crawl($variation);
@@ -171,11 +172,9 @@ class SeedVariationsForProductJob implements ShouldQueue
             'source' => Product::SOURCE_SAZ_KALA,
             'product_id' => $product->id,
             'sku' => null,
-            'item_type' => Product::PRODUCT_UPDATE
+            'item_type' => Product::PRODUCT_UPDATE,
         ]);
 
         app(SazKalaCrawler::class)->crawl($variation);
     }
-
-
 }

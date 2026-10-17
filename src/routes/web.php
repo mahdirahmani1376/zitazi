@@ -3,14 +3,20 @@
 use App\Actions\ProductCompareAction;
 use App\Actions\Top100Action;
 use App\DTO\ZitaziUpdateDTO;
+use App\Enums\ImportStatusEnum;
 use App\Exports\NullVariationExport;
+use App\Exports\OutOfStockExport;
 use App\Exports\ProductExport;
+use App\Exports\SatreVariationExport;
 use App\Exports\SyncLogExport;
 use App\Exports\TorobProductsExport;
+use App\Exports\UnAvailableVariationExport;
 use App\Exports\VariationExport;
 use App\Imports\ImportVariationsAction;
 use App\Jobs\GenerateImportReportJob;
 use App\Jobs\NotifyUserOfCompletedExportJob;
+use App\Jobs\SeedJob;
+use App\Jobs\SeedVariationsForProductJob;
 use App\Jobs\SyncZitaziJob;
 use App\Jobs\UpdateJob;
 use App\Models\ImportBatch;
@@ -20,8 +26,11 @@ use App\Models\TorobProduct;
 use App\Models\Variation;
 use Filament\Notifications\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -90,6 +99,7 @@ Route::get('/update-products', function () {
     Cache::put('special-link-lock', true, 3600 * 3);
 
     UpdateJob::dispatch();
+
     return back()->with('success', 'آپدیت محصولات در حال انجام است');
 
 })->name('products.update');
@@ -105,7 +115,7 @@ Route::get('/zitazi-variation-download', function () {
 Route::get('/satre-variation-download', function () {
     $now = now()->toDateTimeString();
 
-    return Excel::download(new \App\Exports\SatreVariationExport, "satre-variations_{$now}.xlsx");
+    return Excel::download(new SatreVariationExport, "satre-variations_{$now}.xlsx");
 })->name('satre-variations.download');
 
 Route::get('/null-variation-download', function () {
@@ -137,32 +147,35 @@ Route::get('redis-test', function () {
 
 Route::get('/sync-logs-download', function () {
     $now = now()->toDateTimeString();
+
     return Excel::download(new SyncLogExport, "sync_logs_{$now}.xlsx");
 })->name('sync-logs.download');
 
 Route::get('/out-of-stock-logs-download', function () {
     $now = now()->toDateTimeString();
-    return Excel::download(new \App\Exports\OutOfStockExport(), "sync_logs_{$now}.xlsx");
+
+    return Excel::download(new OutOfStockExport, "sync_logs_{$now}.xlsx");
 })->name('out-of-stock-logs.download');
 
 Route::get('/unavailable-download', function () {
     $now = now()->toDateTimeString();
-    return Excel::download(new \App\Exports\UnAvailableVariationExport(), "unavailable_variations_{$now}.xlsx");
+
+    return Excel::download(new UnAvailableVariationExport, "unavailable_variations_{$now}.xlsx");
 })->name('unavailable-variations.download');
 
 Route::post('update-product', function (Request $request) {
     $product = Product::with('variations')->where([
         'own_id' => $request->get('own_id'),
-        'base_source' => Product::ZITAZI
+        'base_source' => Product::ZITAZI,
     ])->firstOrFail();
 
-    if (!$product->belongsToTrendyol()) {
+    if (! $product->belongsToTrendyol()) {
         return back()->withErrors([
-            'message' => 'فقط محصولات ترندیول قابلیت سینک لحظه ای دارند'
+            'message' => 'فقط محصولات ترندیول قابلیت سینک لحظه ای دارند',
         ]);
     }
 
-    \App\Jobs\SeedVariationsForProductJob::dispatchSync($product);
+    SeedVariationsForProductJob::dispatchSync($product);
     foreach ($product->variations as $variation) {
         if ($variation->status == Variation::AVAILABLE) {
             $updateData = ZitaziUpdateDTO::createFromArray([
@@ -177,15 +190,14 @@ Route::post('update-product', function (Request $request) {
         SyncZitaziJob::dispatchSync($variation, $updateData);
     }
 
-
     return back()->with('success', 'آپدیت محصول انجام شد');
 })->name('product.update');
 
 Route::post('seed-products', function () {
-    dispatch(new \App\Jobs\SeedJob())->onQueue('sync')->afterResponse();
+    dispatch(new SeedJob)->onQueue('sync')->afterResponse();
+
     return back()->with('success', 'بازخوانی محصولات در حال انجام است لطفا ۱۰ دقیقه صبر کنید');
 })->name('products.seed');
-
 
 Horizon::auth(function () {
     return true; // disables all auth checks
@@ -193,6 +205,7 @@ Horizon::auth(function () {
 
 Route::get('/movie', function () {
     $url = Storage::disk('local')->get('video_url.txt');
+
     return redirect(trim($url));
 });
 
@@ -200,7 +213,8 @@ Route::match(['get', 'post'], '/submit-video', function (Request $request) {
     if ($request->isMethod('post')) {
         $url = $request->input('url');
         Storage::disk('local')->put('video_url.txt', $url);
-        return "✅ Video link saved.";
+
+        return '✅ Video link saved.';
     }
 
     return view('submit-video');
@@ -208,9 +222,9 @@ Route::match(['get', 'post'], '/submit-video', function (Request $request) {
 
 Route::post('variation-delete', function (Request $request) {
     $variation = Variation::firstWhere([
-        'own_id' => $request->get('variation_own_id')
+        'own_id' => $request->get('variation_own_id'),
     ]);
-    if (!$variation) {
+    if (! $variation) {
         return back()->with('success', 'تنوعی یافت نشد');
     }
 
@@ -221,25 +235,25 @@ Route::post('variation-delete', function (Request $request) {
     SyncZitaziJob::dispatchSync($variation, $updateData);
 
     $variation->update([
-        'is_deleted' => true
+        'is_deleted' => true,
     ]);
 
     return back()->with('success', 'تنوع غیر فعال شد');
 })->name('variation.delete');
 
 Route::get('/health-check', function () {
-    \Illuminate\Support\Facades\Schema::getTables();
+    Schema::getTables();
 
-    \Illuminate\Support\Facades\Cache::set('test', 'test');
+    Illuminate\Support\Facades\Cache::set('test', 'test');
     Redis::get('test');
 
-    \Illuminate\Support\Facades\Cache::delete('test');
+    Illuminate\Support\Facades\Cache::delete('test');
 
-    \Illuminate\Support\Facades\Log::info('health check is ok');
-    \Illuminate\Support\Facades\Log::error('health check error is ok');
+    Log::info('health check is ok');
+    Log::error('health check error is ok');
 
     return response()->json([
-        'health' => 'ok'
+        'health' => 'ok',
     ]);
 });
 // http://zitazi-monitoring.ir
@@ -248,21 +262,22 @@ Route::get('/health-check', function () {
 //
 
 Route::get('command', function (Request $request) {
-    return \Illuminate\Support\Facades\Artisan::call($request->get('command'));
+    return Artisan::call($request->get('command'));
 })->middleware('auth');
 
 Route::match(['get', 'post'], '/file', function (Request $request) {
     if ($request->isMethod('post')) {
         $file = $request->file('file');
         Storage::disk('local')->put($file->getClientOriginalName(), $file->getContent());
-        return "✅ File saved.";
+
+        return '✅ File saved.';
     }
 
     return view('files');
 })->middleware('auth')->name('files');
 
 Route::get('retry-failed-tr', function () {
-    $trFailed = \App\Models\Product::query()
+    $trFailed = Product::query()
         ->select('id')
         ->whereHas('logs', function ($q) {
             $q
@@ -272,7 +287,6 @@ Route::get('retry-failed-tr', function () {
         ->whereNotNull('trendyol_source')
         ->whereRaw('trim(trendyol_source) != ""')
         ->get();
-
 
     Redis::pipeline(function ($pipe) use ($trFailed) {
         foreach ($trFailed as $product) {
@@ -314,7 +328,7 @@ Route::post('import', function (Request $request) {
         'user_id' => $user->id,
         'original_filename' => $file->getClientOriginalName(),
         'source_path' => $sourcePath,
-        'status' => \App\Enums\ImportStatusEnum::PENDING,
+        'status' => ImportStatusEnum::PENDING,
     ]);
 
     (new ImportVariationsAction($batch->id))
@@ -345,7 +359,7 @@ Route::post('import', function (Request $request) {
 
 Route::get('/import/{importBatch}/report', function (ImportBatch $importBatch) {
     abort_unless(
-        $importBatch->status === \App\Enums\ImportStatusEnum::COMPLETED
+        $importBatch->status === ImportStatusEnum::COMPLETED
         && $importBatch->report_path,
         404
     );
@@ -357,7 +371,7 @@ Route::get('/import/{importBatch}/report', function (ImportBatch $importBatch) {
 
     return Storage::disk('local')->download(
         $importBatch->report_path,
-        'import_result_' . $importBatch->id . '.xlsx'
+        'import_result_'.$importBatch->id.'.xlsx'
     );
 })
     ->middleware('auth')

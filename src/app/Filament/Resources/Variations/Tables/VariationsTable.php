@@ -42,7 +42,7 @@ class VariationsTable
                     ->sortable(),
                 TextColumn::make('url')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->url),
+                    ->tooltip(fn ($record) => $record->url),
                 TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
@@ -97,9 +97,9 @@ class VariationsTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
-                            fn(Builder $query, array $values) => $query->whereHas(
+                            fn (Builder $query, array $values) => $query->whereHas(
                                 'product',
-                                fn(Builder $productQuery) => $productQuery->whereIn('category', $values)
+                                fn (Builder $productQuery) => $productQuery->whereIn('category', $values)
                             )
                         );
                     }),
@@ -118,9 +118,9 @@ class VariationsTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
-                            fn(Builder $query, array $values) => $query->whereHas(
+                            fn (Builder $query, array $values) => $query->whereHas(
                                 'product',
-                                fn(Builder $productQuery) => $productQuery->whereIn('brand', $values)
+                                fn (Builder $productQuery) => $productQuery->whereIn('brand', $values)
                             )
                         );
                     }),
@@ -139,9 +139,9 @@ class VariationsTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
-                            fn(Builder $query, array $values) => $query->whereHas(
+                            fn (Builder $query, array $values) => $query->whereHas(
                                 'product',
-                                fn(Builder $productQuery) => $productQuery->whereIn('owner', $values)
+                                fn (Builder $productQuery) => $productQuery->whereIn('owner', $values)
                             )
                         );
                     }),
@@ -160,11 +160,11 @@ class VariationsTable
                         return $query
                             ->when(
                                 $data['min'] ?? null,
-                                fn(Builder $query, $value) => $query->where('price', '>=', $value)
+                                fn (Builder $query, $value) => $query->where('price', '>=', $value)
                             )
                             ->when(
                                 $data['max'] ?? null,
-                                fn(Builder $query, $value) => $query->where('price', '<=', $value)
+                                fn (Builder $query, $value) => $query->where('price', '<=', $value)
                             );
                     }),
                 Filter::make('rial_price')
@@ -181,11 +181,11 @@ class VariationsTable
                         return $query
                             ->when(
                                 $data['min'] ?? null,
-                                fn(Builder $query, $value) => $query->where('rial_price', '>=', $value)
+                                fn (Builder $query, $value) => $query->where('rial_price', '>=', $value)
                             )
                             ->when(
                                 $data['max'] ?? null,
-                                fn(Builder $query, $value) => $query->where('rial_price', '<=', $value)
+                                fn (Builder $query, $value) => $query->where('rial_price', '<=', $value)
                             );
                     }),
                 SelectFilter::make('stock')
@@ -204,11 +204,11 @@ class VariationsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date)
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)
                             );
                     }),
 
@@ -225,11 +225,11 @@ class VariationsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '>=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('updated_at', '>=', $date)
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '<=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('updated_at', '<=', $date)
                             );
                     }),
                 TernaryFilter::make('is_deleted'),
@@ -263,8 +263,8 @@ class VariationsTable
                             });
 
                         Bus::batch($jobs)
-                            ->then(fn() => Log::info('All Bulk Sync Products finished successfully.'))
-                            ->catch(fn() => Log::error('Some Bulk Sync Products failed.'))
+                            ->then(fn () => Log::info('All Bulk Sync Products finished successfully.'))
+                            ->catch(fn () => Log::error('Some Bulk Sync Products failed.'))
                             ->name('Bulk Sync Products')
                             ->dispatch();
                     })
@@ -283,6 +283,7 @@ class VariationsTable
                     ->color('info')
                     ->action(function (Collection $records) {
                         $now = now()->toDateTimeString();
+
                         return Excel::download(new FillamentVariationExport($records), "variations_{$now}.xlsx");
                     })
                     ->successNotificationTitle('export completed')

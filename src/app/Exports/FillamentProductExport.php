@@ -11,9 +11,7 @@ ini_set('memory_limit', '800M');
 
 class FillamentProductExport implements FromQuery, WithHeadings, WithMapping
 {
-    public function __construct(public $records)
-    {
-    }
+    public function __construct(public $records) {}
 
     public function query()
     {

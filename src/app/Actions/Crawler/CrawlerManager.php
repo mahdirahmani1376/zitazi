@@ -7,13 +7,11 @@ use App\Models\Product;
 class CrawlerManager
 {
     /**
-     * @param array<ProductAbstractCrawler> $crawlers
+     * @param  array<ProductAbstractCrawler>  $crawlers
      */
     public function __construct(
         protected array $crawlers = []
-    )
-    {
-    }
+    ) {}
 
     public function crawl(Product $product): void
     {

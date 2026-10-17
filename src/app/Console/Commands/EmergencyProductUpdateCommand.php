@@ -117,12 +117,12 @@ class EmergencyProductUpdateCommand extends Command
         $productQuery->chunk(16, function (Collection $chunk) use ($bar) {
             try {
                 $responses = Http::pool(function (Pool $pool) use ($chunk, $bar) {
-                    $result = $chunk->map(function ($product) use ($pool, $bar) {
-                        $baseURl = "https://zitazi.com";
+                    $result = $chunk->map(function ($product) use ($pool) {
+                        $baseURl = 'https://zitazi.com';
                         if ($product->base_source === Product::ZITAZI) {
                             $securityKey = config('services.zitazi.security_key');
                             $securityPass = config('services.zitazi.security_pass');
-                        } else if ($product->base_source === Product::SATRE) {
+                        } elseif ($product->base_source === Product::SATRE) {
                             $securityKey = config('services.satreh.security_key');
                             $securityPass = config('services.satreh.security_key');
                             $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
@@ -136,7 +136,7 @@ class EmergencyProductUpdateCommand extends Command
                         }
 
                         $fullBody = [
-                            "update" => $body
+                            'update' => $body,
                         ];
 
                         return $pool->as($product->product_own_id)->withBasicAuth($securityKey, $securityPass)->post($fullUrl, $fullBody);
@@ -153,7 +153,7 @@ class EmergencyProductUpdateCommand extends Command
 
                     $product = Product::firstWhere('own_id', $productOwnId);
 
-                    if (!$product) {
+                    if (! $product) {
                         continue;
                     }
 
@@ -165,7 +165,7 @@ class EmergencyProductUpdateCommand extends Command
 
             } catch (\Exception $e) {
                 Log::error('error-in-emergency update', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         });
@@ -180,12 +180,12 @@ class EmergencyProductUpdateCommand extends Command
         $productQuery->chunk(16, function (Collection $chunk) use ($bar) {
             try {
                 $responses = Http::pool(function (Pool $pool) use ($chunk, $bar) {
-                    $result = $chunk->map(function ($product) use ($pool, $bar) {
-                        $baseURl = "https://zitazi.com";
+                    $result = $chunk->map(function ($product) use ($pool) {
+                        $baseURl = 'https://zitazi.com';
                         if ($product->base_source === Product::ZITAZI) {
                             $securityKey = config('services.zitazi.security_key');
                             $securityPass = config('services.zitazi.security_pass');
-                        } else if ($product->base_source === Product::SATRE) {
+                        } elseif ($product->base_source === Product::SATRE) {
                             $securityKey = config('services.satreh.security_key');
                             $securityPass = config('services.satreh.security_key');
                             $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
@@ -199,6 +199,7 @@ class EmergencyProductUpdateCommand extends Command
 
                     });
                     $bar->advance();
+
                     return $result;
                 });
 
@@ -208,7 +209,7 @@ class EmergencyProductUpdateCommand extends Command
 
                     $product = Product::firstWhere('own_id', $productOwnId);
 
-                    if (!$product) {
+                    if (! $product) {
                         continue;
                     }
 
@@ -221,7 +222,7 @@ class EmergencyProductUpdateCommand extends Command
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
                 Log::error('error-in-emergency update', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         });
@@ -238,8 +239,8 @@ class EmergencyProductUpdateCommand extends Command
             ];
         } else {
             $result = [
-                "id" => $id,
-                ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock(stock: $stock, price: $price)
+                'id' => $id,
+                ...ZitaziUpdateDTO::getFullPayloadFromPriceAndStock(stock: $stock, price: $price),
             ];
         }
 
@@ -249,5 +250,4 @@ class EmergencyProductUpdateCommand extends Command
 
         return $result;
     }
-
 }

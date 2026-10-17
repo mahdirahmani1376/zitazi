@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Variation;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -10,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function collection()
     {
@@ -47,7 +48,7 @@ class UnAvailableVariationExport implements FromCollection, WithHeadings, WithMa
 
     public function map($row): array
     {
-        /** @var variation $row */
+        /** @var Variation $row */
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,

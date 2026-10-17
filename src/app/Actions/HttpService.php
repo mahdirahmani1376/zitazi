@@ -29,7 +29,7 @@ class HttpService
         } else {
             Log::error('error-in-sendWithCache', [
                 'url' => $url,
-                'error' => $response->json()
+                'error' => $response->json(),
             ]);
             throw new UnProcessableResponseException('Unprocessable response sendWithCache');
         }
@@ -57,7 +57,7 @@ class HttpService
         } else {
             Log::error('error-in-sendWithCache', [
                 'url' => $url,
-                'error' => $response->json()
+                'error' => $response->json(),
             ]);
             throw new UnProcessableResponseException('Unprocessable response sendWithCache');
         }
@@ -91,14 +91,14 @@ class HttpService
         /** @var Response $response */
         $url = env('CRAWLER_BASE_URL');
         $body = [
-            'url' => $product->torob_id
+            'url' => $product->torob_id,
         ];
 
         $response = Http::withHeaders($headers)->post($url, $body);
         if ($response->status() === \Symfony\Component\HttpFoundation\Response::HTTP_OK) {
             Cache::put($cacheKey, $response->json(), now()->addDay());
         } else {
-            throw UnProcessableResponseException::make("torob-ban");
+            throw UnProcessableResponseException::make('torob-ban');
         }
 
         return $response->json();
@@ -128,9 +128,9 @@ class HttpService
 
         $urlMd5 = md5($url);
 
-//        if ($response = Cache::get($urlMd5)) {
-//            return $response;
-//        }
+        //        if ($response = Cache::get($urlMd5)) {
+        //            return $response;
+        //        }
 
         /** @var Response $response */
         $response = Http::withHeaders($headers)->get($url);
@@ -147,22 +147,23 @@ class HttpService
         }
 
         $response = Http::asJson()->timeout(300)->connectTimeout(30)->post('zitazi-node:3000/seed', [
-            'url' => $url
+            'url' => $url,
         ]);
         Log::info('decathlon node response', [
             'response' => $response->body(),
-            'url' => $url
+            'url' => $url,
         ]);
 
         if ($response->successful() && $response->json('success')) {
             Cache::put($cacheKey, $response->json(), now()->addDay());
+
             /** @var Response $response */
             return $response->json();
         } else {
             if (app()->environment('local')) {
-//                dump('body', $response->body());
+                //                dump('body', $response->body());
             }
-            Log::error("decathlon response error log", [
+            Log::error('decathlon response error log', [
                 'body' => $response->body(),
             ]);
             throw new UnProcessableResponseException('decathlon response error');
@@ -176,7 +177,7 @@ class HttpService
             'contentId' => $contentId,
             'merchantId' => $merchantId,
         ]);
-        $fullUrl = $url . '?' . $params;
+        $fullUrl = $url.'?'.$params;
 
         $cacheKey = md5($fullUrl);
         if ($response = Cache::get($cacheKey)) {
@@ -201,6 +202,7 @@ class HttpService
 
         if ($response->successful()) {
             Cache::put($cacheKey, $response->json(), now()->addDay());
+
             /** @var Response $response */
             return $response->json();
         } else {
@@ -232,6 +234,7 @@ class HttpService
 
         if ($response->successful()) {
             Cache::put($cacheKey, $response->body(), now()->addDay());
+
             /** @var Response $response */
             return $response->body();
         } else {
@@ -239,8 +242,7 @@ class HttpService
                 'url' => $url,
                 'response' => $response->body(),
             ]);
-            throw new UnProcessableResponseException("error-in-elele-url");
+            throw new UnProcessableResponseException('error-in-elele-url');
         }
     }
-
 }

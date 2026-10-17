@@ -15,20 +15,13 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Row;
 
-class ImportVariationsAction implements
-    OnEachRow,
-    WithHeadingRow,
-    WithChunkReading,
-    ShouldQueue,
-    SkipsEmptyRows
+class ImportVariationsAction implements OnEachRow, ShouldQueue, SkipsEmptyRows, WithChunkReading, WithHeadingRow
 {
     use Importable;
 
     public function __construct(
         private readonly int $importBatchId,
-    )
-    {
-    }
+    ) {}
 
     public function chunkSize(): int
     {
@@ -64,18 +57,18 @@ class ImportVariationsAction implements
             ]);
         }
 
-//        /*
-//         * Broadcast every 50 rows.
-//         */
-//        $processed =
-//            $batch->successful_rows
-//            + $batch->failed_rows;
-//
-//        if ($processed % 50 === 0) {
-//            $batch->refresh();
-//
-//            ImportProgressUpdated::dispatch($batch);
-//        }
+        //        /*
+        //         * Broadcast every 50 rows.
+        //         */
+        //        $processed =
+        //            $batch->successful_rows
+        //            + $batch->failed_rows;
+        //
+        //        if ($processed % 50 === 0) {
+        //            $batch->refresh();
+        //
+        //            ImportProgressUpdated::dispatch($batch);
+        //        }
 
         $batch->refresh();
 
@@ -86,7 +79,7 @@ class ImportVariationsAction implements
     {
         $variationId = $row['شناسه تنوع در وب سرویس'] ?? null;
 
-        if (!$variationId) {
+        if (! $variationId) {
             throw new \RuntimeException(
                 'شناسه تنوع در وب سرویس وارد نشده است.'
             );
@@ -94,7 +87,7 @@ class ImportVariationsAction implements
 
         $baseSource = $row['مرجع'] ?? null;
 
-        if (!$baseSource) {
+        if (! $baseSource) {
             throw new \RuntimeException(
                 'ستون مرجع وجود ندارد'
             );
@@ -104,9 +97,9 @@ class ImportVariationsAction implements
             ->where('base_source', $row['مرجع'])
             ->first();
 
-        if (!$result) {
+        if (! $result) {
             throw new \RuntimeException(
-                "شناسه تنوع در وب سرویس اشتباه است - در ربات موجود نیست این تنوع"
+                'شناسه تنوع در وب سرویس اشتباه است - در ربات موجود نیست این تنوع'
             );
         }
 
@@ -140,5 +133,4 @@ class ImportVariationsAction implements
 
         return $result;
     }
-
 }

@@ -41,13 +41,13 @@ class BatchSyncZitaziProductsCommand extends Command
             });
 
         Bus::batch($jobs)
-            ->then(fn() => Log::info('All batch varations synced with zitazi successfully.'))
-            ->catch(fn() => Log::error('Some sync varations jobs failed.'))
+            ->then(fn () => Log::info('All batch varations synced with zitazi successfully.'))
+            ->catch(fn () => Log::error('Some sync varations jobs failed.'))
             ->name('Sync varations variations')
             ->dispatch();
     }
 
-    function getUpdateBody(Variation $variation, &$body): void
+    public function getUpdateBody(Variation $variation, &$body): void
     {
         if (empty($variation->own_id)) {
             return;
@@ -64,7 +64,7 @@ class BatchSyncZitaziProductsCommand extends Command
                 $otherSource = Product::SOURCE_TRENDYOL;
             }
 
-            if (!empty($otherSource)) {
+            if (! empty($otherSource)) {
                 if ($variation->item_type === Product::VARIATION_UPDATE) {
                     $otherSellerVariant =
                         Variation::query()
@@ -83,8 +83,7 @@ class BatchSyncZitaziProductsCommand extends Command
                             ->first();
                 }
 
-
-                if (!empty($otherSellerVariant)) {
+                if (! empty($otherSellerVariant)) {
                     $stock = $otherSellerVariant->stock;
                     $price = $otherSellerVariant->rial_price;
                 }
@@ -97,7 +96,6 @@ class BatchSyncZitaziProductsCommand extends Command
             'price' => $price,
         ]);
 
-
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
         if ($updateData->stock_quantity > 0) {
             $stockStatus = ZitaziUpdateDTO::IN_STOCK;
@@ -107,9 +105,9 @@ class BatchSyncZitaziProductsCommand extends Command
 
         $data['stock_status'] = $stockStatus;
 
-        if (!empty($dto?->price)) {
+        if (! empty($dto?->price)) {
             $data['sale_price'] = null;
-            $data['regular_price'] = '' . $dto->price;
+            $data['regular_price'] = ''.$dto->price;
         }
 
         $data['id'] = $variation->own_id;

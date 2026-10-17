@@ -3,9 +3,6 @@
 namespace App\Providers;
 
 use App\Actions\Crawler\CrawlerManager;
-use App\Actions\Crawler\DigikalaCrawler;
-use App\Actions\Crawler\EleleCrawler;
-use App\Actions\Crawler\TorobCrawler;
 use App\Services\CurrencyRate\CurrencyRateDriverInterface;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             $driverKey = config('services.currency-rate.driver');
             $class = config("services.currency-rate.drivers.$driverKey");
 
-            if (!class_exists($class)) {
+            if (! class_exists($class)) {
                 throw new InvalidArgumentException("Currency rate driver [$driverKey] not found.");
             }
 
@@ -49,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
         HeadingRowFormatter::default('none'); // Disable automatic transformation
 
         Bus::pipeThrough([
-            SkipIfBatchCancelled::class
+            SkipIfBatchCancelled::class,
         ]);
 
         if ($this->app->environment('production')) {

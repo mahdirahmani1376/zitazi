@@ -21,9 +21,7 @@ class SyncWoocommerceProductJob implements ShouldQueue
     public function __construct(
         public int $productId,
         public int $recommendedPrice,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -46,7 +44,7 @@ class SyncWoocommerceProductJob implements ShouldQueue
                     'body' => $data,
                     'response' => $response->body(),
                     'code' => $response->getStatusCode(),
-                    'message' => $message
+                    'message' => $message,
                 ]);
 
                 $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_UPDATE);
@@ -56,12 +54,11 @@ class SyncWoocommerceProductJob implements ShouldQueue
                     'response' => $response->body(),
                     'code' => $response->getStatusCode(),
                     'url' => $url,
-                    'message' => $message
+                    'message' => $message,
                 ]);
 
                 $product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
             }
-
 
             if ($code == 'woocommerce_rest_product_invalid_id') {
                 $product->setSyncStatus(SyncStatusEnum::INVALID_WOOCOMMERCE_ID);
@@ -79,6 +76,4 @@ class SyncWoocommerceProductJob implements ShouldQueue
             $product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
         }
     }
-
-
 }

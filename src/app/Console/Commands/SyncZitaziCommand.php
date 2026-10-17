@@ -36,7 +36,7 @@ class SyncZitaziCommand extends Command
                     $otherSource = Product::SOURCE_TRENDYOL;
                 }
 
-                if (!empty($otherSource)) {
+                if (! empty($otherSource)) {
                     if ($variation->item_type === Product::VARIATION_UPDATE) {
                         $otherSellerVariant =
                             Variation::query()
@@ -55,8 +55,7 @@ class SyncZitaziCommand extends Command
                                 ->first();
                     }
 
-
-                    if (!empty($otherSellerVariant)) {
+                    if (! empty($otherSellerVariant)) {
                         $stock = $otherSellerVariant->stock;
                         $price = $otherSellerVariant->rial_price;
                     }
@@ -73,8 +72,8 @@ class SyncZitaziCommand extends Command
         }
 
         Bus::batch($jobs)
-            ->then(fn() => Log::info('All variations synced with zitazi successfully.'))
-            ->catch(fn() => Log::error('Some sync zitazi jobs failed.'))
+            ->then(fn () => Log::info('All variations synced with zitazi successfully.'))
+            ->catch(fn () => Log::error('Some sync zitazi jobs failed.'))
             ->name('Sync Zitazi variations')
             ->dispatch();
     }

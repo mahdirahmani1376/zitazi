@@ -9,6 +9,7 @@ use App\Jobs\GenerateImportReportJob;
 use App\Jobs\NotifyUserOfCompletedExportJob;
 use App\Models\ImportBatch;
 use Filament\Actions;
+use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +26,7 @@ class ListImportBatches extends ListRecords
                 ->label('Upload Excel')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->schema([
-                    \Filament\Forms\Components\FileUpload::make('file')
+                    FileUpload::make('file')
                         ->label('Excel file')
                         ->required()
                         ->acceptedFileTypes([
@@ -54,7 +55,7 @@ class ListImportBatches extends ListRecords
             'original_filename' => basename($path),
             'source_path' => $path,
             'status' => ImportStatusEnum::PENDING,
-            'total_rows' => $totalRows
+            'total_rows' => $totalRows,
         ]);
 
         (new ImportVariationsAction($batch->id))

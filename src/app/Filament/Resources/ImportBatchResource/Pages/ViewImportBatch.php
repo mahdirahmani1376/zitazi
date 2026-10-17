@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 class ViewImportBatch extends ViewRecord
 {
     protected static string $resource = ImportBatchResource::class;
+
     public function infolist(Schema $schema): Schema
     {
         return $schema->components([
@@ -41,13 +42,13 @@ class ViewImportBatch extends ViewRecord
 
             TextEntry::make('error')
                 ->label('Import error')
-                ->visible(fn($record) => filled($record->error)),
+                ->visible(fn ($record) => filled($record->error)),
         ]);
     }
 
     public function importProgressUpdated(array $data): void
     {
-        if ((int)$data['id'] !== $this->record->id) {
+        if ((int) $data['id'] !== $this->record->id) {
             return;
         }
 
@@ -64,10 +65,10 @@ class ViewImportBatch extends ViewRecord
             Action::make('download')
                 ->label('Download report')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->visible(fn(ImportBatch $record) => $record->status === ImportStatusEnum::COMPLETED
+                ->visible(fn (ImportBatch $record) => $record->status === ImportStatusEnum::COMPLETED
                     && filled($record->report_path)
                 )
-                ->url(fn(ImportBatch $record) => route('variations.import-report', $record)
+                ->url(fn (ImportBatch $record) => route('variations.import-report', $record)
                 ),
         ];
     }
@@ -75,7 +76,7 @@ class ViewImportBatch extends ViewRecord
     protected function getListeners(): array
     {
         return [
-            'echo:imports-update,.import.progress' => 'importProgressUpdated'
+            'echo:imports-update,.import.progress' => 'importProgressUpdated',
         ];
     }
 }

@@ -41,8 +41,9 @@ class ScraperQueueService
             if (empty($product->getTrendyolFullUrl())) {
                 Log::error('no full_url for product', [
                     'product_id' => $product->id,
-                    'trendyol_source' => $product->trendyol_source
+                    'trendyol_source' => $product->trendyol_source,
                 ]);
+
                 return;
             }
             $key = config('queue.TR_QUEUE_IN');
@@ -58,16 +59,17 @@ class ScraperQueueService
             $data = json_encode([
                 'product' => $product->only([
                     'decathlon_url',
-                    'id'
+                    'id',
                 ]),
                 'bulk' => $bulk,
             ]);
         }
 
-        if (!$key) {
+        if (! $key) {
             Log::error('product does not have source', [
                 'product_id' => $product->id,
             ]);
+
             return;
         }
 

@@ -31,7 +31,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 
             $sellersCount = $variants->pluck('seller_id')->count();
 
-            if (!$digiPrice) {
+            if (! $digiPrice) {
                 $digiPrice = data_get($response, 'data.product.default_variant.price.selling_price');
                 LogManager::LogProduct($product, 'digikala zitazi not available', [
                     'url' => $digikalaUrl,
@@ -46,7 +46,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 
                 $zitazi_digikala_price_recommend = $minDigiPrice * (99.5 / 100);
 
-                if (!empty($product->min_price)) {
+                if (! empty($product->min_price)) {
                     if ($zitazi_digikala_price_recommend < $product->min_price) {
                         $zitazi_digikala_price_recommend = $product->min_price;
                     }
@@ -65,7 +65,7 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
                     'product_id' => $product->id,
                 ],
                 [
-                    'zitazi_digi_ratio' => !empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
+                    'zitazi_digi_ratio' => ! empty($minDigiPrice) ? $digiPrice / $minDigiPrice : null,
                     'zitazi_digikala_price_recommend' => $zitazi_digikala_price_recommend ?? null,
                     'digikala_zitazi_price' => $digiPrice,
                     'digikala_min_price' => $minDigiPrice,
@@ -81,6 +81,6 @@ class DigikalaCrawler extends BaseCrawler implements ProductAbstractCrawler
 
     public function supports(Product $product): bool
     {
-        return !empty($product->digikala_source);
+        return ! empty($product->digikala_source);
     }
 }

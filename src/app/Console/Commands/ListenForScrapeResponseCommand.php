@@ -30,7 +30,7 @@ class ListenForScrapeResponseCommand extends Command
                 $this->info('starting to listen for messages');
                 $this->listenForMessages();
             } catch (\Throwable $e) {
-                $this->error('error happened: ' . json_encode($e->getMessage()));
+                $this->error('error happened: '.json_encode($e->getMessage()));
             }
         }
     }
@@ -54,7 +54,6 @@ class ListenForScrapeResponseCommand extends Command
         }
     }
 
-
     private function listenForMessages(): void
     {
         $this->info('starting to listen');
@@ -63,10 +62,10 @@ class ListenForScrapeResponseCommand extends Command
 
         $messageArray = json_decode($message[1], true);
 
-        $this->info('Message received for product_id: ' . data_get($messageArray, 'product_id'));
+        $this->info('Message received for product_id: '.data_get($messageArray, 'product_id'));
 
         $product = null;
-        if (!empty($messageArray['product_id'])) {
+        if (! empty($messageArray['product_id'])) {
             $product = Product::findOrFail($messageArray['product_id']);
         }
 
@@ -78,7 +77,7 @@ class ListenForScrapeResponseCommand extends Command
             } catch (\Exception $e) {
                 Log::error('error in processing torob', [
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
 
@@ -87,7 +86,7 @@ class ListenForScrapeResponseCommand extends Command
             } else {
                 TorobServiceFacade::updateProductAndSync($product, $bulk);
             }
-        } else if (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
+        } elseif (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             }
@@ -102,19 +101,18 @@ class ListenForScrapeResponseCommand extends Command
                 $this->processDecathlonError($messageArray);
             }
 
-        } else if (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
+        } elseif (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
 
             if ($messageArray['source'] === 'Decathlon') {
                 app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
-            } else if ($messageArray['source'] === 'Trendyol') {
+            } elseif ($messageArray['source'] === 'Trendyol') {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
 
-
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
-            $this->error('unknown message structure scrape command message:' . json_encode($message));
+            $this->error('unknown message structure scrape command message:'.json_encode($message));
         }
     }
 
@@ -142,10 +140,9 @@ class ListenForScrapeResponseCommand extends Command
                 SyncLog::create($data);
             }
 
-
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => 0,
-                'price' => $variation->rial_price
+                'price' => $variation->rial_price,
             ]);
 
             $variation->update([
@@ -162,5 +159,4 @@ class ListenForScrapeResponseCommand extends Command
             'result' => $messageArray,
         ]);
     }
-
 }

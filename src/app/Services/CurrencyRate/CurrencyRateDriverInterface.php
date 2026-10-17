@@ -9,5 +9,4 @@ interface CurrencyRateDriverInterface
     public function getAEDRate();
 
     public function getEURRate();
-
 }

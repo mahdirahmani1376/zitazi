@@ -9,6 +9,7 @@ use Filament\Widgets\ChartWidget;
 class DecathlonVariationReport extends ChartWidget
 {
     protected ?string $heading = 'وضعیت تنوع های دکتلون';
+
     protected string $color = 'success';
 
     protected function getData(): array
@@ -23,10 +24,10 @@ class DecathlonVariationReport extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'تعداد محصولات',
-                    'data' => $data->map(fn($item) => $item->count),
+                    'data' => $data->map(fn ($item) => $item->count),
                 ],
             ],
-            'labels' => $data->map(fn($item) => $item->status ?? 'نامشخص'),
+            'labels' => $data->map(fn ($item) => $item->status ?? 'نامشخص'),
         ];
     }
 

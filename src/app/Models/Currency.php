@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Exceptions\UnsupportedCurrencyException;
 use App\Services\CurrencyRate\CurrencyRateDriverInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -12,8 +13,8 @@ use Illuminate\Support\Facades\Log;
  * @property int $id
  * @property int $rate
  * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Currency extends Model
 {
@@ -50,7 +51,7 @@ class Currency extends Model
                 }
             } catch (\Exception $e) {
                 Log::error('error fetching try rate', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $rate = static::lastTryRate() ?? 2400;
             }
@@ -75,7 +76,7 @@ class Currency extends Model
                 }
             } catch (\Exception $e) {
                 Log::error('error fetching eur rate', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $rate = static::lastEurRate() ?? 250000;
             }
@@ -84,7 +85,6 @@ class Currency extends Model
         });
     }
 
-
     /**
      * @throws UnsupportedCurrencyException
      */
@@ -92,8 +92,9 @@ class Currency extends Model
     {
         $rialPrice = static::syncTryRate() * $price;
         $rialPrice = $rialPrice * $ratio;
-        $rialPrice = (int)$rialPrice;
-        return (int)(floor($rialPrice / 1000) * 1000);
+        $rialPrice = (int) $rialPrice;
+
+        return (int) (floor($rialPrice / 1000) * 1000);
     }
 
     public static function syncDirhamRate()
@@ -112,7 +113,7 @@ class Currency extends Model
                 }
             } catch (\Exception $e) {
                 Log::error('error fetching dir rate', [
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
                 $rate = static::lastAedRate() ?? 200000;
             }
@@ -125,7 +126,6 @@ class Currency extends Model
     {
         $rialPrice = static::syncDirhamRate() * $price;
 
-        return (int)(floor(round($rialPrice) / 10000) * 10000);
+        return (int) (floor(round($rialPrice) / 10000) * 10000);
     }
-
 }

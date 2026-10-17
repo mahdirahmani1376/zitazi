@@ -11,7 +11,7 @@ class ProductResource extends JsonResource
     {
         return [
             'trUrl' => $this->trUrl,
-            'id' => $this->id
+            'id' => $this->id,
         ];
     }
 }

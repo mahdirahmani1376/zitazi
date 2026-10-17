@@ -52,7 +52,7 @@ class SyncProductsCommand extends Command
             ->where('trendyol_source', '=', '')
             ->where('elele_source', '=', '')
             ->get()
-            ->map(fn($product) => new SyncProductJob($product));
+            ->map(fn ($product) => new SyncProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {

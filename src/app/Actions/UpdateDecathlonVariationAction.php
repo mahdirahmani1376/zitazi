@@ -11,14 +11,12 @@ class UpdateDecathlonVariationAction
 {
     public function __construct(
         public SeedVariationsForDecathlonAction $seedVariationsForDecathlonAction,
-    )
-    {
-    }
+    ) {}
 
     public function execute(array $data): void
     {
         foreach ($data as $result) {
-            if (!$result['success']) {
+            if (! $result['success']) {
                 $this->logError($result);
             } else {
                 $this->seedVariationsForDecathlonAction->execute($result, $result['sync'] ?? false);

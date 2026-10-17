@@ -26,7 +26,7 @@ class SeedVariationsForTrendyolAction
         // 3603 only torob
         // 4307 only torob with no sellers
         // 4530 elele + torob
-        //todo ممکنه تنوع ها با ترب فرق کنن
+        // todo ممکنه تنوع ها با ترب فرق کنن
 
         $queue = $bulk ? 'bulk-sync-products' : 'sync-products';
 
@@ -57,7 +57,6 @@ class SeedVariationsForTrendyolAction
                     'status' => Variation::UNAVAILABLE_ON_SOURCE_SITE,
                     'stock' => 0,
                 ]);
-
 
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
             }
@@ -94,7 +93,7 @@ class SeedVariationsForTrendyolAction
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+                    $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
 
                     if ($recommendedPrice >= $lowestPossiblePrice) {
                         $originalPrice = $rialPrice;
@@ -105,12 +104,12 @@ class SeedVariationsForTrendyolAction
                 }
 
                 $variation = Variation::updateOrCreate([
-                    'item_number' => $item['itemNumber']
+                    'item_number' => $item['itemNumber'],
                 ], [
                     'size' => $item['value'] ?? null,
                     'price' => $price,
                     'rial_price' => $rialPrice,
-                    'stock' => !empty($item['inStock']) ? 88 : 0,
+                    'stock' => ! empty($item['inStock']) ? 88 : 0,
                     'barcode' => $item['barcode'],
                     'color' => $color,
                     'url' => Product::PRODUCT_UPDATE ? $product->trendyol_source : data_get($item, 'merchantListing.otherMerchants.0.url', $product->trendyol_source),
@@ -128,7 +127,7 @@ class SeedVariationsForTrendyolAction
                         'original_price' => $originalPrice,
                         'decreased_price' => $rialPrice,
                         'lowest_possible_price' => $lowestPossiblePrice,
-                        'rival_price' => $product->rival_min_price
+                        'rival_price' => $product->rival_min_price,
                     ]);
                 }
 
@@ -136,7 +135,7 @@ class SeedVariationsForTrendyolAction
 
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => $variation->stock,
-                    'price' => $rialPrice
+                    'price' => $rialPrice,
                 ]);
 
                 SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
@@ -200,7 +199,7 @@ class SeedVariationsForTrendyolAction
         } catch (Exception $e) {
             Log::error('seed variation for trendyol error', [
                 'error' => $e->getMessage(),
-                'product_id' => $product->id
+                'product_id' => $product->id,
             ]);
             LogManager::LogProduct($product, 'error-seed-variations', [
                 'product_id' => $product->id,

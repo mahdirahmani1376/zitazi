@@ -17,7 +17,7 @@ class StructuredFormatter extends JsonFormatter
             'context' => $this->normalizeContext($record->context),
         ];
 
-        return $this->toJson($data) . "\n";
+        return $this->toJson($data)."\n";
     }
 
     private function normalizeContext(array $context): array
@@ -62,17 +62,17 @@ class StructuredFormatter extends JsonFormatter
 
     private function isApplicationFile(?string $file): bool
     {
-        if (!$file) {
+        if (! $file) {
             return false;
         }
 
         $basePath = base_path();
 
         $allowed = [
-            $basePath . '/app/',
-            $basePath . '/routes/',
-            $basePath . '/database/',
-            $basePath . '/config/',
+            $basePath.'/app/',
+            $basePath.'/routes/',
+            $basePath.'/database/',
+            $basePath.'/config/',
         ];
 
         foreach ($allowed as $path) {

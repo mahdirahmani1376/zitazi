@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use Google\Client;
+use Google\Service\Sheets;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -21,20 +23,19 @@ class ProductSeeder extends Seeder
         $this->seedZitaziProducts();
         $this->seedSatreProducts();
 
-        if (!empty($this->notFoundProductIds)) {
+        if (! empty($this->notFoundProductIds)) {
             Log::error('not found product Ids', [
-                'data' => $this->notFoundProductIds
+                'data' => $this->notFoundProductIds,
             ]);
 
             Cache::put('deleted-products', $this->notFoundProductIds);
         }
 
-
     }
 
     public function seedZitaziProducts(): void
     {
-        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1!A:Z?valueRenderOption=FORMATTED_VALUE&key=' . env('GOOGLE_SHEET_API_KEY');
+        $sheetUrl = 'https://sheets.googleapis.com/v4/spreadsheets/1TUpUwYKVIIc3z7fQk3RVvSm08Kg9rJnB-YiYkFJSawg/values/Sheet1!A:Z?valueRenderOption=FORMATTED_VALUE&key='.env('GOOGLE_SHEET_API_KEY');
         $response = Http::acceptJson()->get($sheetUrl);
         $csvData = $response->json()['values'];
         $data = parse_sheet_response($csvData);
@@ -44,17 +45,18 @@ class ProductSeeder extends Seeder
             try {
                 $minPrice = null;
                 if (
-                    !empty($value['min_price'])
+                    ! empty($value['min_price'])
                     && is_numeric($value['min_price'])
                 ) {
-                    $minPrice = (int)$value['min_price'];
+                    $minPrice = (int) $value['min_price'];
                 }
 
                 $ownId = data_get($value, 'Woocomerce-ID');
                 if (empty($ownId)) {
                     Log::error('no own id for selected row', [
-                        'value' => $value
+                        'value' => $value,
                     ]);
+
                     continue;
                 }
                 $allOwnIds[] = $ownId;
@@ -75,12 +77,12 @@ class ProductSeeder extends Seeder
                     'decathlon_id' => data_get($value, 'decathlon_id'),
                     'digikala_source' => data_get($value, 'digikala_dkp'),
                     'torob_source' => urldecode(data_get($value, 'torob_link')),
-                    'torob_id' => !empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
+                    'torob_id' => ! empty($value) ? data_get(explode('/', urldecode(data_get($value, 'torob_link'))), 4) : null,
                     'elele_source' => data_get($value, 'Elele_link'),
                     'matilda_source' => data_get($value, 'matilda_source'),
                     'sazkala_source' => data_get($value, 'sazkala_url'),
-                    'amazon_source' => !empty($value) ? data_get(explode('/', data_get($value, 'amazon_source')), 4) : null,
-                    'promotion' => !empty($value['Promotion']) ? $value['Promotion'] : 0,
+                    'amazon_source' => ! empty($value) ? data_get(explode('/', data_get($value, 'amazon_source')), 4) : null,
+                    'promotion' => ! empty($value['Promotion']) ? $value['Promotion'] : 0,
                     'updated_at' => now()->toDateTimeString(),
                     'created_at' => now()->toDateTimeString(),
                     'base_source' => Product::ZITAZI,
@@ -91,12 +93,12 @@ class ProductSeeder extends Seeder
             } catch (Throwable $e) {
                 Log::error('product seeder error', [
                     'exception_message' => $e->getMessage(),
-                    'value' => $value
+                    'value' => $value,
                 ]);
             }
         }
 
-        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+        Product::query()->where('base_source', Product::ZITAZI)->whereNotIn('own_id', $allOwnIds)->each(function ($product) {
             $this->notFoundProductIds[] = $product->id;
             Log::error('product seeder not found', [
                 'product_id ' => $product->id,
@@ -107,11 +109,11 @@ class ProductSeeder extends Seeder
 
     public function seedSatreProducts(): void
     {
-        $client = new \Google\Client();
+        $client = new Client;
         $client->setAuthConfig(storage_path('app/private/google_key.json'));
-        $client->addScope(\Google\Service\Sheets::SPREADSHEETS_READONLY);
+        $client->addScope(Sheets::SPREADSHEETS_READONLY);
 
-        $service = new \Google\Service\Sheets($client);
+        $service = new Sheets($client);
 
         $spreadsheetId = '1BdY8s2jQ_VcNYlHSIZCSVo1_IfewB7xGNJYNiyF4SpA';
         $range = 'Sheet1!A:Z';
@@ -126,8 +128,9 @@ class ProductSeeder extends Seeder
                 $ownId = data_get($value, 'Woocomerce-ID');
                 if (empty($ownId)) {
                     Log::error('no own id for selected row', [
-                        'value' => $value
+                        'value' => $value,
                     ]);
+
                     continue;
                 }
                 $allOwnIds[] = $ownId;
@@ -151,19 +154,17 @@ class ProductSeeder extends Seeder
             } catch (Throwable $e) {
                 Log::error('product seeder error', [
                     'exception_message' => $e->getMessage(),
-                    'value' => $value
+                    'value' => $value,
                 ]);
             }
         }
 
-        Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) use ($allOwnIds) {
+        Product::query()->where('base_source', Product::SATRE)->whereNotIn('own_id', $allOwnIds)->each(function ($product) {
             $this->notFoundProductIds[] = $product->id;
             Log::error('product seeder not found', [
                 'product_id' => $product->id,
             ]);
         });
 
-
     }
-
 }

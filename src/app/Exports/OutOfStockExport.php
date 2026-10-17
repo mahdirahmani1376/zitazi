@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\SyncLog;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -10,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
 {
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function collection()
     {
@@ -38,15 +39,14 @@ class OutOfStockExport implements FromCollection, WithHeadings, WithMapping
             'created_at',
             'updated_at',
 
-
         ];
     }
 
     public function map($row): array
     {
         /** @var SyncLog $row */
-
         $product = $row->product();
+
         return [
             'id' => $row->id,
             'old_stock' => $row->old_stock,

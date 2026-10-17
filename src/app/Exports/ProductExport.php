@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Exports;
+
 ini_set('memory_limit', '800M');
 
 use App\Models\Product;
@@ -10,7 +11,6 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ProductExport implements FromQuery, WithHeadings, WithMapping
 {
-
     public function query()
     {
         return Product::query();

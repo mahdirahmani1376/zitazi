@@ -40,27 +40,22 @@ class ProductsTable
                     ->state(function (Product $record) {
                         return $record->sync_status;
                     })
-                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
+                    ->formatStateUsing(fn (SyncStatusEnum $state) => $state->label())
                     ->badge()
-                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
+                    ->color(fn (SyncStatusEnum $state) => $state->getBadgeColorForState()),
                 TextColumn::make('trendyol_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->trendyol_source)
-                ,
-                TextColumn::make('base_source')
-                ,
+                    ->tooltip(fn ($record) => $record->trendyol_source),
+                TextColumn::make('base_source'),
                 TextColumn::make('digikala_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->digikala_source)
-                ,
+                    ->tooltip(fn ($record) => $record->digikala_source),
                 TextColumn::make('sazkala_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->sazkala_source)
-                ,
+                    ->tooltip(fn ($record) => $record->sazkala_source),
                 TextColumn::make('torob_id')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->torob_id)
-                ,
+                    ->tooltip(fn ($record) => $record->torob_id),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -78,45 +73,35 @@ class ProductsTable
                 TextColumn::make('markup')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('category')
-                ,
-                TextColumn::make('brand')
-                ,
-                TextColumn::make('owner')
-                ,
-                TextColumn::make('product_name')
-                ,
+                TextColumn::make('category'),
+                TextColumn::make('brand'),
+                TextColumn::make('owner'),
+                TextColumn::make('product_name'),
                 TextColumn::make('decathlon_url')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->decathlon_url)
-                ,
+                    ->tooltip(fn ($record) => $record->decathlon_url),
                 TextColumn::make('eth_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->eth_source)
-                ,
-                TextColumn::make('decathlon_id')
-                ,
+                    ->tooltip(fn ($record) => $record->eth_source),
+                TextColumn::make('decathlon_id'),
                 TextColumn::make('elele_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->elele_source)
-                ,
+                    ->tooltip(fn ($record) => $record->elele_source),
                 TextColumn::make('matilda_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->matilda_source)
-                ,
+                    ->tooltip(fn ($record) => $record->matilda_source),
                 IconColumn::make('promotion')
                     ->boolean(),
                 TextColumn::make('amazon_source')
                     ->limit(10)
-                    ->tooltip(fn($record) => $record->amazon_source)
-                ,
+                    ->tooltip(fn ($record) => $record->amazon_source),
             ])
             ->filters([
                 SelectFilter::make('source')
                     ->preload()
                     ->options([
                         Product::SOURCE_TRENDYOL => Product::SOURCE_TRENDYOL,
-                        Product::SOURCE_DECATHLON => Product::SOURCE_DECATHLON
+                        Product::SOURCE_DECATHLON => Product::SOURCE_DECATHLON,
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -147,11 +132,11 @@ class ProductsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date)
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)
                             );
                     }),
                 Filter::make('updated_at')
@@ -167,11 +152,11 @@ class ProductsTable
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '>=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('updated_at', '>=', $date)
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('updated_at', '<=', $date)
+                                fn (Builder $query, $date): Builder => $query->whereDate('updated_at', '<=', $date)
                             );
                     }),
                 SelectFilter::make('category')
@@ -264,6 +249,7 @@ class ProductsTable
                                 ->title('Export started')
                                 ->body('The export job has been queued.')
                                 ->send();
+
                             return Excel::download(new FillamentProductExport($records), "products_{$now}.xlsx");
                         })
                         ->successNotificationTitle('export completed')
@@ -276,7 +262,7 @@ class ProductsTable
                         ->action(function (Collection $records) {
                             $records->each(function (Product $record) {
                                 $record->update([
-                                    'promotion' => true
+                                    'promotion' => true,
                                 ]);
                             });
                         })
@@ -290,7 +276,7 @@ class ProductsTable
                         ->action(function (Collection $records) {
                             $records->each(function (Product $record) {
                                 $record->update([
-                                    'promotion' => false
+                                    'promotion' => false,
                                 ]);
                             });
                         })

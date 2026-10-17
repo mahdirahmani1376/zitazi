@@ -11,7 +11,6 @@ enum ImportStatusEnum: string
     case COMPLETED = 'completed';
     case FAILED = 'failed';
 
-
     public function getBadgeColorForState(): string
     {
         return match ($this) {

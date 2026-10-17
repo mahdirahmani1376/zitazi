@@ -22,12 +22,9 @@ class ProductTest extends TestCase
         Cache::forget(Product::TOROB_LOCK_FOR_UPDATE);
 
         Http::fake([
-            'https://torob.com/p/420ddacd-40dd-400a-8bde-3e5c555b5614/%D9%84%DA%AF%D9%88-%D8%B3%D8%B1%DB%8C-cherry-blossoms-%DA%A9%D8%AF-40725/'
-            => Http::response(File::get(base_path('tests/Data/torob.txt')), 200),
-            'https://www.trendyol.com/lego/shpwave-kiraz-cicekleri-insa-edilebilen-cicek-buketi-40725-8-yas-icin-yapim-seti-430-p-796161952?boutiqueId=61&merchantId=234396'
-            => Http::response(File::get(base_path('tests/Data/trendyol.txt')), 200),
-            'https://api.digikala.com/v2/product/14243079/'
-            => Http::response(File::get(base_path('tests/Data/digikala.json')), 200),
+            'https://torob.com/p/420ddacd-40dd-400a-8bde-3e5c555b5614/%D9%84%DA%AF%D9%88-%D8%B3%D8%B1%DB%8C-cherry-blossoms-%DA%A9%D8%AF-40725/' => Http::response(File::get(base_path('tests/Data/torob.txt')), 200),
+            'https://www.trendyol.com/lego/shpwave-kiraz-cicekleri-insa-edilebilen-cicek-buketi-40725-8-yas-icin-yapim-seti-430-p-796161952?boutiqueId=61&merchantId=234396' => Http::response(File::get(base_path('tests/Data/trendyol.txt')), 200),
+            'https://api.digikala.com/v2/product/14243079/' => Http::response(File::get(base_path('tests/Data/digikala.json')), 200),
         ]);
     }
 
@@ -38,15 +35,15 @@ class ProductTest extends TestCase
             'trendyol_source' => 'https://www.trendyol.com/lego/shpwave-kiraz-cicekleri-insa-edilebilen-cicek-buketi-40725-8-yas-icin-yapim-seti-430-p-796161952?boutiqueId=61&merchantId=234396',
             'stock' => null,
             'price' => null,
-            'rial_price' => null
+            'rial_price' => null,
         ]);
 
         app(SyncProductsAction::class)->execute($product);
 
         $this->assertDatabaseHas('products', [
-            "id" => 1,
+            'id' => 1,
             'rial_price' => 2950000,
-            'stock' => 0
+            'stock' => 0,
         ]);
     }
 
@@ -59,7 +56,7 @@ class ProductTest extends TestCase
             'digikala_source' => 14243079,
             'stock' => null,
             'price' => null,
-            'rial_price' => null
+            'rial_price' => null,
         ]);
 
         app(SyncProductsAction::class)->execute($product);
@@ -67,16 +64,16 @@ class ProductTest extends TestCase
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
             'rial_price' => 2950000,
-            'stock' => 0
+            'stock' => 0,
         ]);
 
         $this->assertDatabaseHas('product_compares', [
             'product_id' => $product->id,
-            "zitazi_torob_price_recommend" => 2210000,
-            "zitazi_digi_ratio" => 1,
-            "zitazi_digikala_price_recommend" => 2338000,
-            "digikala_zitazi_price" => 2350000,
-            "digikala_min_price" => 2350000,
+            'zitazi_torob_price_recommend' => 2210000,
+            'zitazi_digi_ratio' => 1,
+            'zitazi_digikala_price_recommend' => 2338000,
+            'digikala_zitazi_price' => 2350000,
+            'digikala_min_price' => 2350000,
         ]);
     }
 
@@ -84,7 +81,7 @@ class ProductTest extends TestCase
     {
         $product = Product::factory()->create([
             'own_id' => 555750,
-            'elele_source' => 'https://www.elelebaby.com/elele-eronafix-360-donebilen-isofixli-oto-koltugu-0-36-kg-siyah-gri'
+            'elele_source' => 'https://www.elelebaby.com/elele-eronafix-360-donebilen-isofixli-oto-koltugu-0-36-kg-siyah-gri',
         ]);
 
         app(SyncProductsAction::class)->execute($product);
@@ -103,7 +100,7 @@ class ProductTest extends TestCase
             'digikala_source' => 14243079,
             'stock' => null,
             'price' => null,
-            'rial_price' => null
+            'rial_price' => null,
         ]);
 
         app(SyncProductsAction::class)->execute($product);
@@ -119,5 +116,4 @@ class ProductTest extends TestCase
 
         dd($response);
     }
-
 }

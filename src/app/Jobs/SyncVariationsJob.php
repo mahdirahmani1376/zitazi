@@ -16,7 +16,9 @@ class SyncVariationsJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable,SerializesModels;
 
     public $timeout = 1 * 60 * 10;
+
     public $tries = 2;
+
     public $backoff = [1 * 60 * 5];
 
     public function __construct(

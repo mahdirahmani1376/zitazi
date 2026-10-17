@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists('parse_csv')) {
+if (! function_exists('parse_csv')) {
     function parse_csv($csvData): array
     {
         $rows = array_map('str_getcsv', explode("\n", $csvData));
@@ -14,7 +14,7 @@ if (!function_exists('parse_csv')) {
     }
 }
 
-if (!function_exists('parse_sheet_response')) {
+if (! function_exists('parse_sheet_response')) {
     function parse_sheet_response($data): array
     {
         $header = array_shift($data);

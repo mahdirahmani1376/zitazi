@@ -11,6 +11,7 @@ use Filament\Tables\Table;
 class ProductRelationManager extends RelationManager
 {
     protected static string $relationship = 'product';
+
     public array $syncStatuses = [];
 
     protected static ?string $relatedResource = ProductResource::class;

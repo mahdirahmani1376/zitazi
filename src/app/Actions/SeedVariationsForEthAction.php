@@ -51,12 +51,12 @@ class SeedVariationsForEthAction
                     'variation_id' => $variation->id,
                     'data' => [
                         'stock_quantity' => $variation->stock,
-                        'price' => $variation->rial_price
-                    ]
+                        'price' => $variation->rial_price,
+                    ],
                 ]);
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => $variation->stock,
-                    'price' => $variation->rial_price
+                    'price' => $variation->rial_price,
                 ]);
                 SyncZitaziJob::dispatchSync($variation, $updateData);
             }
@@ -84,7 +84,7 @@ class SeedVariationsForEthAction
 
         $defaultVariation = $product->defaultVariation();
 
-        if (!empty($defaultVariation)) {
+        if (! empty($defaultVariation)) {
             $price = $defaultVariation->price;
             $rialPrice = $defaultVariation->rial_price;
             $minPrice = $rialPrice * 1.2;
@@ -108,7 +108,7 @@ class SeedVariationsForEthAction
             if ($sync) {
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => 0,
-                    'price' => $variation->rial_price
+                    'price' => $variation->rial_price,
                 ]);
                 SyncZitaziJob::dispatch($variation, $updateData);
             }
@@ -118,7 +118,6 @@ class SeedVariationsForEthAction
             ]);
         }
         );
-
 
     }
 }

@@ -16,13 +16,13 @@ class LogModelInfolist
                 TextEntry::make('message'),
                 TextEntry::make('data')
                     ->label('Raw Data')
-                    ->state(fn($record) => json_encode($record->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)),
-//                KeyValueEntry::make('data.body')->label('Update Body'),
-//                KeyValueEntry::make('data.response')->label('Response Body'),
+                    ->state(fn ($record) => json_encode($record->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)),
+                //                KeyValueEntry::make('data.body')->label('Update Body'),
+                //                KeyValueEntry::make('data.response')->label('Response Body'),
                 TextEntry::make('created_at')
                     ->dateTime(),
                 TextEntry::make('updated_at')
-                    ->dateTime()
+                    ->dateTime(),
             ]);
     }
 }

@@ -28,7 +28,7 @@ class EditProduct extends EditRecord
                 ->successNotificationTitle('Record Updated')
                 ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                     return 'Failed to update any record';
-                })
+                }),
         ];
     }
 }

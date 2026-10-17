@@ -17,11 +17,9 @@ class EmergencySyncJob implements ShouldQueue
      */
     public function __construct(
         public ?string $source = null,
-        public bool  $invalid = false,
+        public bool $invalid = false,
         public array $ids = []
-    )
-    {
-    }
+    ) {}
 
     public function onQueue($queue)
     {
@@ -36,7 +34,7 @@ class EmergencySyncJob implements ShouldQueue
         Artisan::call('emergency:product-update', [
             '--source' => $this->source,
             '--invalid' => $this->invalid,
-            '--id' => $this->ids
+            '--id' => $this->ids,
         ]);
     }
 }

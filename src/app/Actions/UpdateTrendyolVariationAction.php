@@ -11,14 +11,12 @@ class UpdateTrendyolVariationAction
 {
     public function __construct(
         public SeedVariationsForTrendyolAction $seedVariationsForTrendyolAction,
-    )
-    {
-    }
+    ) {}
 
     public function execute(array $data): void
     {
         foreach ($data as $result) {
-            if (!$result['success']) {
+            if (! $result['success']) {
                 $this->logError($result);
             } else {
                 $this->seedVariationsForTrendyolAction->execute($result, $result['sync'] ?? false);

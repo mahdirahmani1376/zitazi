@@ -16,20 +16,29 @@ class Product extends Model
     use HasFactory;
 
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
+
     public const SOURCE_TRENDYOL = 'trendyol';
+
     public const SOURCE_DECATHLON = 'decathlon';
+
     public const SOURCE_ETH = 'eth';
+
     public const SOURCE_AMAZON = 'amazon';
+
     public const SOURCE_SAZ_KALA = 'saz_kala';
+
     public const SOURCE_Elele = 'elele';
+
     public const PRODUCT_UPDATE = 'product';
+
     public const VARIATION_UPDATE = 'variation';
 
     public const SATRE = 'satre';
+
     public const ZITAZI = 'zitazi';
 
     protected $casts = [
-        'sync_status' => SyncStatusEnum::class
+        'sync_status' => SyncStatusEnum::class,
     ];
 
     public static function getAllSourceLabels()
@@ -46,43 +55,42 @@ class Product extends Model
 
     public function belongsToTrendyol(): bool
     {
-        return !empty($this->trendyol_source);
+        return ! empty($this->trendyol_source);
     }
 
     public function belongsToElele(): bool
     {
-        return !empty($this->elele_source);
+        return ! empty($this->elele_source);
     }
 
     public function belongsToSazKala(): bool
     {
-        return !empty($this->sazkala_source);
+        return ! empty($this->sazkala_source);
     }
 
     public function belongsToIran(): bool
     {
-        return !empty($this->digikala_source) || !empty($this->torob_source) && !$this->belongsToDecalthon();
+        return ! empty($this->digikala_source) || ! empty($this->torob_source) && ! $this->belongsToDecalthon();
     }
 
     public function belongsToTorob()
     {
-        return !empty($this->torob_source);
+        return ! empty($this->torob_source);
     }
 
     public function belongsToDigikala(): bool
     {
-        return !empty($this->digikala_source);
+        return ! empty($this->digikala_source);
     }
 
     public function onlyHasTorobSource(): bool
     {
-        return !empty($this->torob_source) && empty($this->trendyol_source);
+        return ! empty($this->torob_source) && empty($this->trendyol_source);
     }
-
 
     public function belongsToTrendyolAndTorob(): bool
     {
-        return !empty($this->torob_source) && !empty($this->trendyol_source);
+        return ! empty($this->torob_source) && ! empty($this->trendyol_source);
     }
 
     public function productCompare(): HasOne
@@ -105,17 +113,17 @@ class Product extends Model
 
     public function belongsToDecalthon()
     {
-        return !empty($this->decathlon_url);
+        return ! empty($this->decathlon_url);
     }
 
     public function belongsToAmazon()
     {
-        return !empty($this->amazon_source);
+        return ! empty($this->amazon_source);
     }
 
     public function hasTorobUrl(): bool
     {
-        return !empty($this->torob_source);
+        return ! empty($this->torob_source);
     }
 
     public function decathlonVariation(): HasOne
@@ -136,7 +144,7 @@ class Product extends Model
     public function getRatio()
     {
         $ratio = 1.6;
-        if (!empty($this->markup)) {
+        if (! empty($this->markup)) {
             $ratio = 1 + ($this->markup / 100);
         }
 
@@ -146,22 +154,24 @@ class Product extends Model
     public function getTrendyolContentId(): ?string
     {
         $contentId = null;
-        if (!empty($this->trendyol_source)) {
+        if (! empty($this->trendyol_source)) {
             if (preg_match('/-p-(\d+)/', $this->trendyol_source, $m)) {
                 $contentId = $m[1];
             }
         }
+
         return $contentId;
     }
 
     public function getTrendyolMerchantId(): ?string
     {
         $contentId = null;
-        if (!empty($this->trendyol_source)) {
+        if (! empty($this->trendyol_source)) {
             if (preg_match('/merchantId=(\d+)/', $this->trendyol_source, $m)) {
                 $contentId = $m[1];
             }
         }
+
         return $contentId;
     }
 
@@ -178,7 +188,7 @@ class Product extends Model
     public function setSyncStatus(SyncStatusEnum $statusEnum, bool $broadcast = true): void
     {
         $this->update([
-            'sync_status' => $statusEnum
+            'sync_status' => $statusEnum,
         ]);
 
         if ($broadcast) {
@@ -203,16 +213,17 @@ class Product extends Model
         $params = http_build_query([
             'contentId' => $contentId,
             'merchantId' => $this->getTrendyolMerchantId(),
-            'countryCode' => 'TR'
+            'countryCode' => 'TR',
         ]);
-        return $url . '?' . $params;
+
+        return $url.'?'.$params;
     }
 
     public function getTrendyolQueueScrapeData(): array
     {
         return [
             'id' => $this->id,
-            'full_url' => $this->getTrendyolFullUrl()
+            'full_url' => $this->getTrendyolFullUrl(),
         ];
     }
 
@@ -226,14 +237,15 @@ class Product extends Model
         $params = http_build_query([
             'prk' => $this->torob_id,
         ]);
-        return $url . '?' . $params;
+
+        return $url.'?'.$params;
     }
 
     public function getTorobQueueScrapeData(): array
     {
         return [
             'id' => $this->id,
-            'full_url' => $this->getTorobFullUrl()
+            'full_url' => $this->getTorobFullUrl(),
         ];
     }
 

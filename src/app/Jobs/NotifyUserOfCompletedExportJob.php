@@ -18,9 +18,7 @@ class NotifyUserOfCompletedExportJob implements ShouldQueue
 
     public function __construct(
         public readonly int $importBatchId,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {

@@ -5,18 +5,20 @@ use App\Actions\UpdateDecathlonVariationAction;
 use App\Actions\UpdateEthVariationAction;
 use App\Actions\UpdateTrendyolVariationAction;
 use App\DTO\ZitaziUpdateDTO;
+use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::get('amazon-list', function () {
-//    return \Illuminate\Support\Facades\Response::json([
-//        'data' => [
-//            'https://www.amazon.ae/dp/B09NLFPD4Q',
-//            'https://www.amazon.ae/dp/B09HL1JM1N'
-//        ]
-//    ]);
+    //    return \Illuminate\Support\Facades\Response::json([
+    //        'data' => [
+    //            'https://www.amazon.ae/dp/B09NLFPD4Q',
+    //            'https://www.amazon.ae/dp/B09HL1JM1N'
+    //        ]
+    //    ]);
     $results = [];
 
     $amazonVariations = Variation::where([
@@ -26,23 +28,23 @@ Route::get('amazon-list', function () {
     foreach ($amazonVariations as $variation) {
         $results[] = [
             'id' => $variation->id,
-            'url' => "https://www.amazon.ae/dp/{$variation->url}"
+            'url' => "https://www.amazon.ae/dp/{$variation->url}",
         ];
     }
 
     return Response::json([
-        'data' => $results
+        'data' => $results,
     ]);
 
 });
 
 Route::put('/variations/{variation}/update', function (
-    Variation            $variation,
-    Request              $request,
+    Variation $variation,
+    Request $request,
     BaseVariationCrawler $baseVariationCrawler
 ) {
 
-    $rialPrice = \App\Models\Currency::convertDirhamToRial($request->get('price'));
+    $rialPrice = Currency::convertDirhamToRial($request->get('price'));
 
     $data = [
         'price' => $request->get('price'),
@@ -59,9 +61,9 @@ Route::put('/variations/{variation}/update', function (
 
     $baseVariationCrawler->syncZitazi($variation, $dto);
 
-    return \Illuminate\Support\Facades\Response::json(
+    return Illuminate\Support\Facades\Response::json(
         [
-            'status' => 'success'
+            'status' => 'success',
         ]
     );
 });
@@ -71,7 +73,7 @@ Route::get('decathlon-list', function () {
         'data' => Product::query()
             ->whereNotNull('decathlon_url')
             ->orderBy('updated_at', 'asc')
-            ->paginate()
+            ->paginate(),
     ]);
 });
 
@@ -89,13 +91,13 @@ Route::get('trendyol-list', function () {
                 'merchantId' => $product->getTrendyolMerchantId(),
             ]);
 
-            $product->full_url = $url . '?' . $params;
+            $product->full_url = $url.'?'.$params;
 
             return $product;
         });
 
     return Response::json([
-        'data' => $data
+        'data' => $data,
     ]);
 });
 
@@ -104,22 +106,25 @@ Route::get('decathlon-list-retry', function () {
         'data' => Product::query()
             ->whereNotNull('decathlon_url')
             ->whereDoesntHave('variations')
-            ->paginate()
+            ->paginate(),
     ]);
 });
 
 Route::post('store-decathlon', function (Request $request, UpdateDecathlonVariationAction $action) {
     $action->execute($request->all());
+
     return response()->json(['status' => 'ok']);
 });
 
 Route::post('store-trendyol', function (Request $request, UpdateTrendyolVariationAction $action) {
     $action->execute($request->all());
+
     return response()->json(['status' => 'ok']);
 });
 
 Route::post('store-eth', function (Request $request, UpdateEthVariationAction $action) {
     $action->execute($request->all());
+
     return response()->json(['status' => 'ok']);
 });
 
@@ -128,22 +133,23 @@ Route::post('update-decathlon-product', function (Request $request) {
     $product = Product::firstWhere('own_id', $request->get('decathlon_own_id'))?->toArray();
     if (empty($product)) {
         return back()->withErrors([
-            'message' => 'محصولی با شناسه تنوع مورد نظر یافت نشد'
+            'message' => 'محصولی با شناسه تنوع مورد نظر یافت نشد',
         ]);
     }
 
-    if (!empty($product->decathlon_url)) {
+    if (! empty($product->decathlon_url)) {
         return back()->withErrors([
-            'message' => 'لینک دکتلون خالی است'
+            'message' => 'لینک دکتلون خالی است',
         ]);
     }
 
-    $response = \Illuminate\Support\Facades\Http::post('172.18.0.1:3000/scrape', $product);
-    if (!$response->successful()) {
+    $response = Http::post('172.18.0.1:3000/scrape', $product);
+    if (! $response->successful()) {
         return back()->withErrors([
-            'message' => 'خطایی رخ داد'
+            'message' => 'خطایی رخ داد',
         ]);
     }
+
     return back()->with('success', 'آپدیت محصول انجام شد');
 
 })->name('product.update.decathlon');
@@ -153,7 +159,7 @@ Route::get('decathlon-list-test', function () {
         'data' => Product::query()
             ->whereNotNull('decathlon_url')
             ->orderBy('updated_at', 'asc')
-            ->pluck('id')
+            ->pluck('id'),
     ]);
 });
 
@@ -162,7 +168,7 @@ Route::get('eth-list', function () {
         'data' => Product::query()
             ->whereNotNull('elele_source')
             ->orderBy('updated_at', 'asc')
-            ->paginate()
+            ->paginate(),
     ]);
 });
 
@@ -274,16 +280,16 @@ Route::match(['post', 'get'], 'get-1249', function () {
     $data = [
         [
             'key' => 'key1',
-            'product' => 'test'
+            'product' => 'test',
         ],
         [
             'key' => 'key2',
-            'product' => 'test2'
+            'product' => 'test2',
         ],
         [
             'key' => 'key3',
-            'product' => 'test3'
-        ]
+            'product' => 'test3',
+        ],
     ];
 
     return response()->json($data, 200);
@@ -297,11 +303,11 @@ Route::match(['post', 'get'], 'itest', function (Request $request) {
 
     return response()->json([
         'error' => 'test error',
-        'test_body' => 'hi'
+        'test_body' => 'hi',
     ], 403);
-//    throw new Exception('test');
+    //    throw new Exception('test');
 
     return response()->json([
-        'data' => 'hi'
+        'data' => 'hi',
     ]);
 });

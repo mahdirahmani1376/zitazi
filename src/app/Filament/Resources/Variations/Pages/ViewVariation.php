@@ -35,7 +35,7 @@ class ViewVariation extends ViewRecord
                 ->action(function (Variation $variation) {
                     GetSourceDataAction::executeVariation($variation);
                 })
-                ->after(fn() => $this->dispatch('refreshLogs'))
+                ->after(fn () => $this->dispatch('refreshLogs'))
                 ->successNotificationTitle('Record Updated')
                 ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                     return 'Failed to update records';
@@ -49,7 +49,7 @@ class ViewVariation extends ViewRecord
                 ->successNotificationTitle('Record Updated')
                 ->failureNotificationTitle(function (int $successCount, int $totalCount): string {
                     return 'Failed to update records';
-                })
+                }),
         ];
     }
 }

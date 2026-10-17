@@ -43,7 +43,7 @@ class VariationResource extends Resource
     {
         return [
             ProductRelationManager::class,
-            LogsRelationManager::class
+            LogsRelationManager::class,
         ];
     }
 

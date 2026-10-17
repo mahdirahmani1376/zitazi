@@ -23,10 +23,10 @@ class TrendyolVariationsStockReport extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'تعداد محصولات',
-                    'data' => $data->map(fn($item) => $item->total),
+                    'data' => $data->map(fn ($item) => $item->total),
                 ],
             ],
-            'labels' => $data->map(fn($item) => $item->stock ?? 'نامشخص'),
+            'labels' => $data->map(fn ($item) => $item->stock ?? 'نامشخص'),
         ];
     }
 

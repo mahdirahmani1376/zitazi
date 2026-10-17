@@ -39,16 +39,17 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
             ],
             [
                 'zitazi_torob_price_recommend' => $zitaziTorobPriceRecommend,
-                'zitazi_torob_ratio' => !empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
+                'zitazi_torob_ratio' => ! empty($torobMinPrice) ? $zitaziTorobPrice / $torobMinPrice : null,
                 'zitazi_torob_price' => $zitaziTorobPrice,
                 'torob_min_price' => $torobMinPrice,
             ]
         );
 
         $this->syncProductWithZitazi($product, ZitaziUpdateDTO::createFromArray([
-            'price' => '' . $zitaziTorobPriceRecommend,
+            'price' => ''.$zitaziTorobPriceRecommend,
         ]));
     }
+
     private function setMinPriceOfProductForTrendyol(Product $product): void
     {
         $minPrice = $product->price * Currency::syncTryRate() * 1.2;
@@ -60,17 +61,18 @@ class TorobCrawler extends BaseCrawler implements ProductAbstractCrawler
     {
         $zitazi_torob_price_recommend = $torobMinPrice * (99.5 / 100);
 
-        if (!empty($product->min_price)) {
+        if (! empty($product->min_price)) {
             if ($zitazi_torob_price_recommend < $product->min_price) {
                 $zitazi_torob_price_recommend = $product->min_price;
             }
 
         }
+
         return floor($zitazi_torob_price_recommend / 10000) * 10000;
     }
+
     public function supports(Product $product): bool
     {
-        return !empty($product->rival_min_price);
+        return ! empty($product->rival_min_price);
     }
-
 }

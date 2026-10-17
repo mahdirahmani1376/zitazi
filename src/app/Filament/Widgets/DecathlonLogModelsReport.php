@@ -21,7 +21,7 @@ class DecathlonLogModelsReport extends ChartWidget
                     ->select('message')
                     ->whereColumn('log_models.product_id', '=', 'products.id')
                     ->orderByDesc('created_at')
-                    ->limit(1)
+                    ->limit(1),
             ])
             ->whereNotNull('decathlon_url')
             ->groupByRaw('message')
@@ -31,10 +31,10 @@ class DecathlonLogModelsReport extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'تعداد محصولات',
-                    'data' => $data->map(fn($item) => $item->count),
+                    'data' => $data->map(fn ($item) => $item->count),
                 ],
             ],
-            'labels' => $data->map(fn($item) => $item->message ?? 'نامشخص'),
+            'labels' => $data->map(fn ($item) => $item->message ?? 'نامشخص'),
         ];
     }
 

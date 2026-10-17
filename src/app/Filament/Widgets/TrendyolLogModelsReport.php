@@ -9,6 +9,7 @@ use Filament\Widgets\ChartWidget;
 class TrendyolLogModelsReport extends ChartWidget
 {
     protected ?string $heading = 'وضعیت محصولات ترندیول';
+
     protected string $color = 'success';
 
     protected function getData(): array
@@ -20,7 +21,7 @@ class TrendyolLogModelsReport extends ChartWidget
                     ->select('message')
                     ->whereColumn('log_models.product_id', '=', 'products.id')
                     ->orderByDesc('created_at')
-                    ->limit(1)
+                    ->limit(1),
             ])
             ->whereNotNull('trendyol_source')
             ->groupByRaw('message')
@@ -30,10 +31,10 @@ class TrendyolLogModelsReport extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'تعداد محصولات',
-                    'data' => $data->map(fn($item) => $item->count),
+                    'data' => $data->map(fn ($item) => $item->count),
                 ],
             ],
-            'labels' => $data->map(fn($item) => $item->message ?? 'نامشخص'),
+            'labels' => $data->map(fn ($item) => $item->message ?? 'نامشخص'),
         ];
     }
 

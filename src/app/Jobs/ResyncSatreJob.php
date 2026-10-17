@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Actions\LogManager;
 use App\DTO\ZitaziUpdateDTO;
 use App\Models\Product;
+use Database\Seeders\ProductSeeder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,13 +16,11 @@ class ResyncSatreJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function handle(): void
     {
-        app(\Database\Seeders\ProductSeeder::class)->seedSatreProducts();
+        app(ProductSeeder::class)->seedSatreProducts();
         foreach (Product::where('base_source', Product::SATRE)->get() as $product) {
             try {
                 SeedVariationsForProductJob::dispatchSync($product);
@@ -29,14 +28,14 @@ class ResyncSatreJob implements ShouldQueue
                     try {
                         $updateData = ZitaziUpdateDTO::createFromArray([
                             'stock_quantity' => $variation->stock,
-                            'price' => $variation->rial_price
+                            'price' => $variation->rial_price,
                         ]);
                         SyncZitaziJob::dispatch($variation, $updateData);
                     } catch (\Throwable $th) {
                         LogManager::LogVariation($variation, 'error in satreh', [
                             'product' => $product->id,
                             'variation' => $variation->id,
-                            'error' => $th->getMessage()
+                            'error' => $th->getMessage(),
                         ]);
                     }
                 }
@@ -44,7 +43,7 @@ class ResyncSatreJob implements ShouldQueue
                 LogManager::LogProduct($product, 'error in satreh', [
                     'product' => $product->id,
                     'own_id' => $product->own_id,
-                    'error' => $th->getMessage()
+                    'error' => $th->getMessage(),
                 ]);
             }
 

@@ -1,21 +1,25 @@
 <?php
 
+use App\Actions\HttpService;
 use App\DTO\ZitaziUpdateDTO;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Currency;
 use App\Models\Product;
 use App\Models\Variation;
 use App\Services\WoocommerceService;
+use Illuminate\Bus\BatchRepository;
+use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 Artisan::command('cancel-batch {batch}', function ($batch) {
-    \Illuminate\Container\Container::getInstance()->make(\Illuminate\Bus\BatchRepository::class)?->find($batch)?->cancel();
+    Container::getInstance()->make(BatchRepository::class)?->find($batch)?->cancel();
 });
 
-Artisan::command('test-arzdigital', function (\App\Actions\HttpService $httpService) {
+Artisan::command('test-arzdigital', function (HttpService $httpService) {
     Currency::syncTryRate();
 
     $url = 'https://lake.arzdigital.com/web/api/v1/pub/coins?type=fiat';
@@ -32,7 +36,7 @@ Artisan::command('batch-update-test', function () {
     $productSData = [
         'update' => [
 
-        ]
+        ],
     ];
     $woo = WoocommerceService::getClient();
 
@@ -53,8 +57,8 @@ Artisan::command('batch-update-test', function () {
                 'data' => [
                     'update' => [
 
-                    ]
-                ]
+                    ],
+                ],
             ];
             foreach ($product->variations as $variation) {
                 if ($variation->status == Variation::AVAILABLE) {
@@ -77,15 +81,15 @@ Artisan::command('batch-update-test', function () {
 
                 $data['stock_status'] = $stockStatus;
 
-                if (!empty($dto->price)) {
+                if (! empty($dto->price)) {
                     $data['sale_price'] = null;
-                    $data['regular_price'] = '' . $dto->price;
+                    $data['regular_price'] = ''.$dto->price;
                 }
 
                 if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
                     $data['id'] = $variation->product->own_id;
                     $productSData['update'][] = $data;
-                } elseif (!empty($variation->own_id)) {
+                } elseif (! empty($variation->own_id)) {
                     $data['id'] = $variation->own_id;
                     $massVariationUpdateData['data']['update'][] = $data;
                 } else {
@@ -95,13 +99,13 @@ Artisan::command('batch-update-test', function () {
             }
         });
 
-//    foreach (collect($productSData)->chunk(10) as $chunk) {
-//        $response = $woo->post("products/batch",$productSData);
-//        Log::info('response batch product',[
-//            'response' => $response,
-//        ]);
-//    }
-// 6520
+    //    foreach (collect($productSData)->chunk(10) as $chunk) {
+    //        $response = $woo->post("products/batch",$productSData);
+    //        Log::info('response batch product',[
+    //            'response' => $response,
+    //        ]);
+    //    }
+    // 6520
 
     dd(json_encode($variationsData));
     $unavailableVariations = [];
@@ -111,16 +115,16 @@ Artisan::command('batch-update-test', function () {
         dd($data);
         $response = $woo->post($url, $data);
         foreach ($response->update as $responseData) {
-            if (!empty($responseData->error)) {
+            if (! empty($responseData->error)) {
                 Log::error('error in zitazi sync', [
                     'response' => json_encode($responseData),
                     'data' => $variation['data'],
                     'url' => $url,
                 ]);
-//                $unavailableVariations[] = $variation
+                //                $unavailableVariations[] = $variation
             } else {
                 Log::info(
-                    "batch-variation-update",
+                    'batch-variation-update',
                     [
                         'body' => $data,
                         'product' => $variation['product_id'],
@@ -129,20 +133,20 @@ Artisan::command('batch-update-test', function () {
                 );
             }
         }
-//        if ($response->sy)
+        //        if ($response->sy)
     }
 
-//    Log::error('WooCommerce error variation', [
-//        'code' => $json['code'] ?? 'unknown',
-//        'message' => $json['message'] ?? 'No message',
-//        'variation_id' => $variation->id,
-//        'json' => $json,
-//        'body' => $body
-//    ]);
-//
-//    $variation->update([
-//        'status' => Variation::UNAVAILABLE_ON_ZITAZI,
-//    ]);
+    //    Log::error('WooCommerce error variation', [
+    //        'code' => $json['code'] ?? 'unknown',
+    //        'message' => $json['message'] ?? 'No message',
+    //        'variation_id' => $variation->id,
+    //        'json' => $json,
+    //        'body' => $body
+    //    ]);
+    //
+    //    $variation->update([
+    //        'status' => Variation::UNAVAILABLE_ON_ZITAZI,
+    //    ]);
 
 });
 
@@ -152,31 +156,30 @@ Artisan::command('sync-zitazi-all {id}', function ($id) {
     foreach ($product->variations as $variation) {
         $updateData = ZitaziUpdateDTO::createFromArray([
             'stock_quantity' => $variation->stock,
-            'price' => $variation->rial_price
+            'price' => $variation->rial_price,
         ]);
 
         SyncZitaziJob::dispatchSync($variation, $updateData);
     }
 
-
 });
 
 Artisan::command('app:clean-deleted-products', function () {
-    $deletedProducts = \Illuminate\Support\Facades\Cache::get('deleted-products');
+    $deletedProducts = Cache::get('deleted-products');
     foreach (Product::whereIn('id', $deletedProducts)->get() as $product) {
         foreach ($product->variations as $variation) {
             $variation->update([
-                'stock' => 0
+                'stock' => 0,
             ]);
 
             SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
-                'stock_quantity' => 0
+                'stock_quantity' => 0,
             ]));
 
             Log::info('variation deleted', [
                 'variation_id' => $variation->id,
                 'woocommerce_id' => $variation->product->own_id,
-                'data' => $variation->toArray()
+                'data' => $variation->toArray(),
             ]);
 
             $variation->delete();
@@ -185,7 +188,7 @@ Artisan::command('app:clean-deleted-products', function () {
         Log::info('product deleted', [
             'product_id' => $product->id,
             'woocommerce_id' => $product->own_id,
-            'data' => $product->toArray()
+            'data' => $product->toArray(),
         ]);
 
         $product->delete();

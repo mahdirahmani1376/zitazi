@@ -16,7 +16,7 @@ class TorobService
         if ($response['success'] === false) {
             Log::error('torob sync error', [
                 'product_id' => $product->id,
-                'response' => $response
+                'response' => $response,
             ]);
 
             $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH_TOROB);
@@ -27,6 +27,7 @@ class TorobService
             if (empty(data_get($response, 'response_data.result'))) {
                 LogManager::logProduct($product, 'product has no seller in torob');
                 $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
+
                 return;
             }
 
@@ -41,7 +42,7 @@ class TorobService
                 LogManager::logProduct($product, 'no valid shops found', $validShops->toArray());
 
                 $product->update([
-                    'rival_min_price' => null
+                    'rival_min_price' => null,
                 ]);
             } else {
                 $minShop = $validShops
@@ -54,25 +55,24 @@ class TorobService
                 if ($rivalShop !== config('services.zitazi.torob_shop_id')) {
                     LogManager::logProduct($product, 'rival shop found', [
                         'shop_name' => $minShop['shop_name'],
-                        'shop_price' => $minPrice
+                        'shop_price' => $minPrice,
                     ]);
 
                     $product->update([
-                        'rival_min_price' => $minPrice
+                        'rival_min_price' => $minPrice,
                     ]);
 
                 } else {
                     LogManager::logProduct($product, 'zitazi has min price', [
                         'shop_name' => $minShop['shop_name'],
-                        'shop_price' => $minPrice
+                        'shop_price' => $minPrice,
                     ]);
 
                     $product->update([
-                        'rival_min_price' => null
+                        'rival_min_price' => null,
                     ]);
                 }
             }
-
 
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
 
@@ -83,7 +83,7 @@ class TorobService
     {
         $rivalMinPrice = $product->rival_min_price;
 
-        if (!$rivalMinPrice) {
+        if (! $rivalMinPrice) {
             return;
         }
 
@@ -91,21 +91,23 @@ class TorobService
 
         $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-        $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+        $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
 
         if ($recommendedPrice < $lowestPossiblePrice) {
             return;
         }
 
-        if (!Cache::get('sync_enabled', config('sync_enabled'))) {
+        if (! Cache::get('sync_enabled', config('sync_enabled'))) {
             LogManager::logProduct($product, 'sync is disabled in config');
             $product->setSyncStatus(SyncStatusEnum::ENV_DISABLED);
+
             return;
         }
 
         if ($product->onPromotion()) {
             LogManager::logProduct($product, 'product on promotion');
             $product->setSyncStatus(SyncStatusEnum::VARIATION_HAS_PROMOTION_ACTIVE);
+
             return;
         }
 

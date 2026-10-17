@@ -19,11 +19,9 @@ class BatchSyncZitaziJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public Product          $product,
+        public Product $product,
         public array|Collection $variationData,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -35,7 +33,7 @@ class BatchSyncZitaziJob implements ShouldQueue
             $response = $woocommerce->post($url, $this->variationData);
             LogManager::logProduct($product, 'batch update success', [
                 'product_id' => $product->id,
-                'response' => json_encode($response)
+                'response' => json_encode($response),
             ]);
         } catch (\Exception $e) {
             LogManager::logProduct($product, 'batch update error', [

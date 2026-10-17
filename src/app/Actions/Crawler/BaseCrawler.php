@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\Log;
 class BaseCrawler
 {
     protected mixed $rate;
+
     private Client $woocommerce;
+
     protected HttpService $httpService;
 
     public function __construct()
@@ -34,7 +36,7 @@ class BaseCrawler
         }
 
         $stockStatus = ZitaziUpdateDTO::OUT_OF_STOCK;
-        if (!empty($dto->stock_quantity > 0)) {
+        if (! empty($dto->stock_quantity > 0)) {
             $stockStatus = ZitaziUpdateDTO::IN_STOCK;
         }
 
@@ -42,9 +44,9 @@ class BaseCrawler
 
         $data['stock_status'] = $stockStatus;
 
-        if (!empty($dto->price)) {
+        if (! empty($dto->price)) {
             $data['sale_price'] = null;
-            $data['regular_price'] = '' . $dto->price;
+            $data['regular_price'] = ''.$dto->price;
         }
 
         try {
@@ -108,7 +110,7 @@ class BaseCrawler
             'code' => $json['code'] ?? 'unknown',
             'message' => $json['message'] ?? 'No message',
             'product_id' => $product->id,
-            'own_id' => $product->own_id
+            'own_id' => $product->own_id,
         ]);
     }
 

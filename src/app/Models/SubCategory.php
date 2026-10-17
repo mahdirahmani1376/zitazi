@@ -4,15 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property string|null $parent_category
  * @property string|null $name
  * @property int|null $external_product_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\ExternalProduct|null $externalProduct
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read ExternalProduct|null $externalProduct
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SubCategory newQuery()

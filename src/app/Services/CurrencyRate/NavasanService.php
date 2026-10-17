@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Http;
 
 class NavasanService extends CurrencyRateService implements CurrencyRateDriverInterface
 {
-
     public function getTRYRate()
     {
         $response = Http::acceptJson()->withQueryParameters([

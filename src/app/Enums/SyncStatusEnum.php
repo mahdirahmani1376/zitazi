@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Enums;
+
 enum SyncStatusEnum: string
 {
     use EnumMethods;
@@ -71,5 +72,4 @@ enum SyncStatusEnum: string
             self::INVALID_WOOCOMMERCE_ID => 'شناسه ووکامرس محصول اشتباه هست',
         };
     }
-
 }

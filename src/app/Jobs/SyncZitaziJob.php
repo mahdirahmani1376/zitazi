@@ -15,12 +15,11 @@ use Illuminate\Queue\SerializesModels;
 class SyncZitaziJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
     public function __construct(
-        public Variation       $variation,
+        public Variation $variation,
         public ZitaziUpdateDTO $zitaziUpdateDTO
-    )
-    {
-    }
+    ) {}
 
     public function handle(BaseVariationCrawler $baseVariationCrawler): void
     {
@@ -35,5 +34,4 @@ class SyncZitaziJob implements ShouldQueue
     {
         return 2;
     }
-
 }

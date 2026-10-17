@@ -69,5 +69,4 @@ class EmergencyUpdate extends Widget implements HasActions, HasSchemas
                     ->send();
             });
     }
-
 }

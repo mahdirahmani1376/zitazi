@@ -15,9 +15,7 @@ class ImportProgressUpdated implements ShouldBroadcastNow
 
     public function __construct(
         public ImportBatch $importBatch,
-    )
-    {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {
@@ -53,11 +51,9 @@ class ImportProgressUpdated implements ShouldBroadcastNow
 
             'total' => $this->importBatch->total_rows,
 
-            'successful' =>
-                $this->importBatch->successful_rows,
+            'successful' => $this->importBatch->successful_rows,
 
-            'failed' =>
-                $this->importBatch->failed_rows,
+            'failed' => $this->importBatch->failed_rows,
 
             'processed' => $processed,
 

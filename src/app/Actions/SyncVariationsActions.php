@@ -9,6 +9,6 @@ class SyncVariationsActions
 {
     public function execute(Variation $variation): void
     {
-            BaseVariationCrawler::crawlVariation($variation);
+        BaseVariationCrawler::crawlVariation($variation);
     }
 }

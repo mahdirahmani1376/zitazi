@@ -17,7 +17,9 @@ class BulkScrapeProductsCommand extends Command
     protected $description = 'sends all products to sync message queue';
 
     public int $total = 0;
+
     public int $enqueued = 0;
+
     public int $invalid = 0;
 
     public function handle(): void
@@ -48,7 +50,7 @@ class BulkScrapeProductsCommand extends Command
                                 );
                                 $this->enqueued++;
                             }
-                        } else if ($product->belongsToDecalthon()) {
+                        } elseif ($product->belongsToDecalthon()) {
 
                             $product->setSyncStatus(SyncStatusEnum::ENQUEUED, false);
                             LogManager::logProduct($product, 'product enqueued for batch processing');
@@ -57,14 +59,14 @@ class BulkScrapeProductsCommand extends Command
                                 json_encode([
                                     'product' => $product->only([
                                         'decathlon_url',
-                                        'id'
+                                        'id',
                                     ]),
                                     'bulk' => true,
                                 ])
                             );
                             $this->enqueued++;
 
-                        } else if ($product->belongsToTrendyol()) {
+                        } elseif ($product->belongsToTrendyol()) {
                             $fullUrl = $product->getTrendyolFullUrl();
                             if (empty($fullUrl)) {
                                 LogManager::logProduct($product, 'full url can not be set');

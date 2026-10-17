@@ -9,7 +9,7 @@ class PushToTorobQueueAction
 {
     public static function execute(Product $product): void
     {
-        if (!empty($product->getTorobMinPrice())) {
+        if (! empty($product->getTorobMinPrice())) {
 
         } else {
             Redis::rpush(

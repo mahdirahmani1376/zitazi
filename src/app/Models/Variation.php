@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $url
  * @property int|null $stock
  * @property string|null $size
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Product|null $product
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Variation newModelQuery()
@@ -44,15 +45,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Variation extends Model
 {
     public const AVAILABLE = 'available';
+
     public const UNAVAILABLE = 'unavailable';
+
     public const UNAVAILABLE_ON_ZITAZI = 'unavailable_on_zitazi';
+
     public const INVALID_PRODUCT_ID = 'invalid_product_id';
+
     public const INVALID_VARIATION_ID = 'invalid_variation_id';
+
     public const UNAVAILABLE_ON_SOURCE_SITE = 'unavailable_on_source_site';
+
     public const INVALID_CURRENCY = 'invalid_currency';
+
     public const GENERAL_ERROR = 'general error';
+
     public const EMPTY_BODY = 'empty body';
+
     public const STATUS_504 = 'status 504';
+
     protected $guarded = [
 
     ];
@@ -67,7 +78,7 @@ class Variation extends Model
         self::INVALID_VARIATION_ID,
         self::INVALID_PRODUCT_ID,
         self::STATUS_504,
-        self::INVALID_CURRENCY
+        self::INVALID_CURRENCY,
     ];
 
     public static function TableFilters(): array
@@ -82,7 +93,7 @@ class Variation extends Model
             self::INVALID_PRODUCT_ID => self::INVALID_PRODUCT_ID,
             self::INVALID_VARIATION_ID => self::INVALID_VARIATION_ID,
             self::STATUS_504 => self::STATUS_504,
-            self::INVALID_CURRENCY => self::INVALID_CURRENCY
+            self::INVALID_CURRENCY => self::INVALID_CURRENCY,
         ];
     }
 
@@ -90,7 +101,6 @@ class Variation extends Model
     {
         return static::query()->distinct('product_id')->pluck('product_id')->toArray();
     }
-
 
     public static function baseSources(): array
     {
@@ -114,5 +124,4 @@ class Variation extends Model
     {
         return $this->hasMany(LogModel::class, 'variation_id');
     }
-
 }

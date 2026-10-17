@@ -9,9 +9,7 @@ class SyncProductsAction
 {
     public function __construct(
         public CrawlerManager $crawlerManager
-    )
-    {
-    }
+    ) {}
 
     public function execute(Product $product): void
     {

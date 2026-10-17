@@ -16,8 +16,11 @@ class SyncProductJob implements ShouldQueue
     use Batchable, Dispatchable, InteractsWithQueue, Queueable,SerializesModels;
 
     public $timeout = 3600;
+
     public $tries = 2;
+
     public $backoff = [1 * 60 * 60 * 8];
+
     public function __construct(
         public Product $product,
     ) {}

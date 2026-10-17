@@ -35,7 +35,6 @@ class SeedVariationsForDecathlonAction
 
             $price = $variationRawData['price'];
 
-
             try {
                 if ($variationRawData['priceCurrency'] !== 'try') {
                     UnsupportedCurrencyException::throwException();
@@ -59,7 +58,7 @@ class SeedVariationsForDecathlonAction
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+                    $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
 
                     if ($recommendedPrice >= $lowestPossiblePrice) {
                         $originalPrice = $rialPrice;
@@ -75,7 +74,7 @@ class SeedVariationsForDecathlonAction
                 foreach ($product->variations as $variation) {
                     $updateData = ZitaziUpdateDTO::createFromArray([
                         'stock_quantity' => 0,
-                        'price' => $variation->rial_price
+                        'price' => $variation->rial_price,
                     ]);
 
                     $variation->update([
@@ -88,7 +87,6 @@ class SeedVariationsForDecathlonAction
 
                 return;
             }
-
 
             $createData = [
                 'product_id' => $product->id,
@@ -116,17 +114,16 @@ class SeedVariationsForDecathlonAction
                     'original_price' => $originalPrice,
                     'decreased_price' => $rialPrice,
                     'lowest_possible_price' => $lowestPossiblePrice,
-                    'rival_price' => $product->rival_min_price
+                    'rival_price' => $product->rival_min_price,
                 ]);
             }
 
             $updateData = ZitaziUpdateDTO::createFromArray([
                 'stock_quantity' => $variation->stock,
-                'price' => $rialPrice
+                'price' => $rialPrice,
             ]);
 
             SyncZitaziJob::dispatch($variation, $updateData)->onQueue($queue);
-
 
             $oldStock = $variation->stock;
             $oldPrice = $variation->rial_price;
@@ -147,7 +144,7 @@ class SeedVariationsForDecathlonAction
 
         $defaultVariation = $product->defaultVariation();
 
-        if (!empty($defaultVariation)) {
+        if (! empty($defaultVariation)) {
             $price = $defaultVariation->price;
             $rialPrice = $defaultVariation->rial_price;
             $minPrice = $rialPrice * 1.2;
@@ -181,7 +178,7 @@ class SeedVariationsForDecathlonAction
             if ($itemType === Product::VARIATION_UPDATE) {
                 $updateData = ZitaziUpdateDTO::createFromArray([
                     'stock_quantity' => 0,
-                    'price' => $variation->rial_price
+                    'price' => $variation->rial_price,
                 ]);
 
                 $variation->update([
@@ -197,7 +194,6 @@ class SeedVariationsForDecathlonAction
 
         }
         );
-
 
     }
 }

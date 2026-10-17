@@ -13,7 +13,7 @@ class CustomizeFormatter
     {
         foreach ($logger->getHandlers() as $handler) {
             $handler->setFormatter(
-                new StructuredFormatter()
+                new StructuredFormatter
             );
         }
     }

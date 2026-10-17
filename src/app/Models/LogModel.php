@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LogModel extends Model
 {
     use MassPrunable;
+
     protected $casts = [
-        'data' => 'json'
+        'data' => 'json',
     ];
 
     public function prunable()

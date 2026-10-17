@@ -26,9 +26,7 @@ class SyncChunkProductsWithZitaziJob implements ShouldQueue
 
     public function __construct(
         private Collection $batch
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -48,13 +46,13 @@ class SyncChunkProductsWithZitaziJob implements ShouldQueue
                 $response = $response->json();
 
                 $price = null;
-                if (!empty($response['price'])) {
+                if (! empty($response['price'])) {
                     $price = $response['price'];
                 }
 
                 $stock = data_get($response, 'stock_status', null) == 'instock' ? 5 : 0;
                 $results[] = [
-                    'own_id' => (int)$response['id'],
+                    'own_id' => (int) $response['id'],
                     'rial_price' => $price,
                     'stock' => $stock,
                     'updated_at' => now()->toDateString(),

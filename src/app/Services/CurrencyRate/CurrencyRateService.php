@@ -8,8 +8,6 @@ class CurrencyRateService
 {
     public function __construct(
         public HttpService $httpService
-    )
-    {
-    }
+    ) {}
 
 }

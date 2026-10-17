@@ -43,7 +43,7 @@ class LogModelResource extends Resource
     {
         return [
             VariationRelationManager::class,
-            ProductRelationManager::class
+            ProductRelationManager::class,
         ];
     }
 

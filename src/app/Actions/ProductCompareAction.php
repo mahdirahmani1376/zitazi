@@ -35,7 +35,7 @@ class ProductCompareAction
 
     private function getDigiCellColor($productCompare)
     {
-        if (!$productCompare->digikala_zitazi_price) {
+        if (! $productCompare->digikala_zitazi_price) {
             return 'yellow';
         }
         if ($productCompare->digikala_zitazi_price == $productCompare->digikala_min_price) {
@@ -51,7 +51,7 @@ class ProductCompareAction
 
     private function getTorobCellColor($productCompare)
     {
-        if (!$productCompare->zitazi_torob_price) {
+        if (! $productCompare->zitazi_torob_price) {
             return 'yellow';
         }
         if ($productCompare->zitazi_torob_price == $productCompare->torob_min_price) {

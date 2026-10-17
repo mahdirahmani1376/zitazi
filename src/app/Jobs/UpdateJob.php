@@ -6,7 +6,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 class UpdateJob implements ShouldQueue
@@ -39,7 +38,7 @@ class UpdateJob implements ShouldQueue
         Artisan::call('db:seed');
         Artisan::call('app:sync-products');
         Artisan::call('app:sync-variations');
-//        Artisan::call('app:sheet-report');
+        //        Artisan::call('app:sheet-report');
 
         $endTime = microtime(true);
         $duration = $endTime - $startTime;

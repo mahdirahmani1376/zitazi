@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class GenerateImportReportJob implements ShouldQueue
@@ -22,9 +23,7 @@ class GenerateImportReportJob implements ShouldQueue
 
     public function __construct(
         public readonly int $importBatchId,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -49,9 +48,9 @@ class GenerateImportReportJob implements ShouldQueue
          */
         $highestColumn = $sheet->getHighestColumn();
 
-        $statusColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString(
-                $highestColumn
-            ) + 1;
+        $statusColumn = Coordinate::columnIndexFromString(
+            $highestColumn
+        ) + 1;
 
         $errorColumn = $statusColumn + 1;
 

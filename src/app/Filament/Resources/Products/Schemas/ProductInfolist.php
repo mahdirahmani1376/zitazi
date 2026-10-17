@@ -17,10 +17,10 @@ class ProductInfolist
                 TextEntry::make('own_id'),
                 TextEntry::make('sync_status')
                     ->label('Sync Status')
-                    ->state(fn(Product $record) => $record->sync_status)
-                    ->formatStateUsing(fn(SyncStatusEnum $state) => $state->label())
+                    ->state(fn (Product $record) => $record->sync_status)
+                    ->formatStateUsing(fn (SyncStatusEnum $state) => $state->label())
                     ->badge()
-                    ->color(fn(SyncStatusEnum $state) => $state->getBadgeColorForState()),
+                    ->color(fn (SyncStatusEnum $state) => $state->getBadgeColorForState()),
                 TextEntry::make('trendyol_source')
                     ->placeholder('-'),
                 TextEntry::make('base_source'),

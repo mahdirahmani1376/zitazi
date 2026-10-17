@@ -15,9 +15,7 @@ class ImportCompleted implements ShouldBroadcastNow
 
     public function __construct(
         public ImportBatch $importBatch,
-    )
-    {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

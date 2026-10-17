@@ -12,7 +12,6 @@ class VariationRelationManager extends RelationManager
 
     protected static ?string $relatedResource = VariationResource::class;
 
-
     public function table(Table $table): Table
     {
         return $table

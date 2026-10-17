@@ -23,15 +23,15 @@ class VariationSeeder extends Seeder
             ->orWhereNot('elele_source', '=', '')
             ->orWhereNot('sazkala_source', '=', '')
             ->get()
-            ->map(fn($product) => new SeedVariationsForProductJob($product));
+            ->map(fn ($product) => new SeedVariationsForProductJob($product));
 
         Bus::batch($jobs)
             ->then(function () use ($startTime) {
                 $endTime = microtime(true);
 
                 $duration = $endTime - $startTime;
-                $text = 'Finished seed variations at ' . Carbon::now()->toDateTimeString() .
-                    '. Duration: ' . number_format($duration, 2) . ' seconds.';
+                $text = 'Finished seed variations at '.Carbon::now()->toDateTimeString().
+                    '. Duration: '.number_format($duration, 2).' seconds.';
                 Log::info($text);
             })
             ->catch(function (Batch $batch, Throwable $e) {

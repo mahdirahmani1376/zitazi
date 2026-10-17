@@ -24,10 +24,10 @@ class ListenForSyncStatusCommand extends Command
                 ['product_sync_status_changed'],
                 function ($message) {
                     $messageFormatted = is_array($message) ? json_encode($message) : $message;
-                    $this->info('listen:sync-status message arrived with message: ' . $messageFormatted);
+                    $this->info('listen:sync-status message arrived with message: '.$messageFormatted);
 
                     $data = json_decode($message, true);
-                    if (!empty($data['product_id'] && !empty($data['status']))) {
+                    if (! empty($data['product_id'] && ! empty($data['status']))) {
                         ProductSyncStatusChangedEvent::dispatch($data['product_id'], SyncStatusEnum::tryFrom($data['status']));
                     }
                     Log::error('product sync status message corrupted', $message);
@@ -35,9 +35,8 @@ class ListenForSyncStatusCommand extends Command
             );
         } catch (Exception $e) {
             Log::error('error in listen:sync-status command', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
-
 }

@@ -42,8 +42,8 @@ class SyncSatrehCommand extends Command
         }
 
         Bus::batch($jobs)
-            ->then(fn() => Log::info('All variations synced with satreh successfully.'))
-            ->catch(fn() => Log::error('Some sync satreh jobs failed.'))
+            ->then(fn () => Log::info('All variations synced with satreh successfully.'))
+            ->catch(fn () => Log::error('Some sync satreh jobs failed.'))
             ->name('Sync satreh variations')
             ->dispatch();
     }

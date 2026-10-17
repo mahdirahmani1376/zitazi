@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Exports;
+
 ini_set('memory_limit', '800M');
 
 use App\Models\Variation;
@@ -12,9 +13,7 @@ class FillamentVariationExport implements FromQuery, WithHeadings, WithMapping
 {
     public function __construct(
         public $records
-    )
-    {
-    }
+    ) {}
 
     public function query()
     {
@@ -49,7 +48,7 @@ class FillamentVariationExport implements FromQuery, WithHeadings, WithMapping
 
     public function map($row): array
     {
-        /** @var variation $row */
+        /** @var Variation $row */
         return [
             'id' => $row->id,
             'product_id' => $row->product_id,

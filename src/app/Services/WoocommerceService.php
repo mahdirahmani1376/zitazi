@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Http;
 
 class WoocommerceService
 {
-
     public static function sendRequest($url, $body = [], $method = 'get', string $source = Product::ZITAZI): Response
     {
         $securityPass = null;
@@ -19,7 +18,7 @@ class WoocommerceService
             $securityKey = config('services.zitazi.security_key');
             $securityPass = config('services.zitazi.security_pass');
             $baseURl = config('services.zitazi.base_url');
-        } else if ($source === Product::SATRE) {
+        } elseif ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
             $securityPass = config('services.satreh.security_key');
             $baseURl = config('services.satreh.base_url');
@@ -40,12 +39,12 @@ class WoocommerceService
     {
         $securityPass = null;
         $securityKey = null;
-        $baseURl = "https://zitazi.com";
+        $baseURl = 'https://zitazi.com';
 
         if ($source === Product::ZITAZI) {
             $securityKey = config('services.zitazi.security_key');
             $securityPass = config('services.zitazi.security_pass');
-        } else if ($source === Product::SATRE) {
+        } elseif ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
             $securityPass = config('services.satreh.security_key');
             $baseURl = 'https://proxy.mahdi-rahmani.ir/satreh';
