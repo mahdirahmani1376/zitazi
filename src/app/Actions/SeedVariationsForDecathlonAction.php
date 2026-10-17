@@ -67,8 +67,8 @@ class SeedVariationsForDecathlonAction
                     }
                 }
             } catch (UnsupportedCurrencyException $e) {
-                LogManager::logProduct($product->id, 'invalid currency for product', [
-                    'product_id' => $product->id,
+                LogManager::logProduct($product, 'invalid currency for product', [
+                    'product_id' => $product,
                 ]);
 
                 foreach ($product->variations as $variation) {
