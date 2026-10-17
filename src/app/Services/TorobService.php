@@ -35,7 +35,7 @@ class TorobService
                 data_get($response, 'response_data.result')
             )
                 ->filter(function ($item) {
-                    return $item['price'] != 0;
+                    return $item['price'] != 0 && $item['is_price_unreliable'] != true;
                 });
 
             if ($validShops->isEmpty()) {
