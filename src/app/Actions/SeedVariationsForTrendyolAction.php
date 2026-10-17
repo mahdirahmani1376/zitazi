@@ -71,7 +71,7 @@ class SeedVariationsForTrendyolAction
             $originalPrice = false;
             $lowestPossiblePrice = null;
 
-            if (data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency') !== 'try') {
+            if (strtolower(data_get($response, 'response_data.result.merchantListing.winnerVariant.price.currency')) !== 'try') {
                 UnsupportedCurrencyException::throwException();
             }
 

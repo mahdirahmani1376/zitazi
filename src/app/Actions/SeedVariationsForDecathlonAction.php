@@ -36,7 +36,7 @@ class SeedVariationsForDecathlonAction
             $price = $variationRawData['price'];
 
             try {
-                if ($variationRawData['priceCurrency'] !== 'try') {
+                if (strtolower($variationRawData['priceCurrency']) !== 'try') {
                     UnsupportedCurrencyException::throwException();
                 }
 
