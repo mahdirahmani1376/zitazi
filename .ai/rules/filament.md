@@ -22,3 +22,7 @@ paths:
 ## Broadcasting
 
 - `ListProducts` (and `ViewProduct`, `ProductRelationManager`) listen on `echo:product-sync,.product.sync.status.updated` and write to a public `$syncStatuses` array. Every broadcast re-renders the whole page — in production with many concurrent syncs this breaks the filter dropdown. Prefer a small widget or `->skipRender()` over a public array if touching this.
+
+## Sync toggle widgets
+
+- The old single `SyncWidget` was split into `SyncZitaziWidget` + `SyncSatrehWidget` (each `columnSpan = 1`, on the dashboard). They toggle per-store cache keys `sync_zitazi_enabled` / `sync_satreh_enabled`, falling back to `services.zitazi_sync_enabled` / `services.satreh_sync_enabled`. Use these same keys anywhere a per-store "sync enabled" gate is needed.

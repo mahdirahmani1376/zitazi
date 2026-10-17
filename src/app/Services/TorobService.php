@@ -97,7 +97,12 @@ class TorobService
             return;
         }
 
-        if (! Cache::get('sync_enabled', config('sync_enabled'))) {
+        $isSatreh = $product->base_source === Product::SATRE;
+
+        $cacheKey = $isSatreh ? 'sync_satreh_enabled' : 'sync_zitazi_enabled';
+        $configKey = $isSatreh ? 'services.satreh_sync_enabled' : 'services.zitazi_sync_enabled';
+
+        if (! Cache::get($cacheKey, config($configKey))) {
             LogManager::logProduct($product, 'sync is disabled in config');
             $product->setSyncStatus(SyncStatusEnum::ENV_DISABLED);
 

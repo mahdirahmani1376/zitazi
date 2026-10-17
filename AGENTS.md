@@ -194,7 +194,7 @@ data to Zitazi's WooCommerce store.
 
 ## Architecture
 
-- **Laravel 11 app** (`src/`) - API, admin panel (Filament), queue workers
+- **Laravel app** (`src/`) - API, admin panel (Filament), queue workers
 - **Node.js scraper** (`scraper/`) - Puppeteer-based headless scraping via Redis queues
 - **Docker Compose** - Separate dev/prod configurations
 
@@ -205,6 +205,7 @@ Scraping uses Redis pub/sub with specific queue names:
 1. **Input queues** (Laravel → Scraper):
     - `trendyol_scrape_product` (Trendyol products)
     - `decathlon_scrape_product` (Decathlon products)
+    - `torob_scrape_product` (Torob products — checked **first**)
 
 2. **Output queue** (Scraper → Laravel):
     - `scrape_result`
@@ -214,9 +215,19 @@ Scraping uses Redis pub/sub with specific queue names:
 Queue names defined in `src/config/queue.php`:
 
 ```php
-'TR_QUEUE_IN' => 'trendyol_scrape_product',
-'DE_QUEUE_IN' => 'decathlon_scrape_product',
+'TR_QUEUE_IN'    => 'trendyol_scrape_product',
+'DE_QUEUE_IN'    => 'decathlon_scrape_product',
+'TOROB_QUEUE_IN' => 'torob_scrape_product',
 ```
+
+Routing lives in `ScraperQueueService` (`sendToAllScraperQueues` / `addToForeignQueue`): Torob products are pushed to the Torob queue first; Trendyol/Decathlon products to their foreign queue. `ENQUEUED` is set before `Redis::lPush`.
+
+## Torob Pricing (Business Logic)
+
+- Before pricing a Decathlon/Trendyol product, the Torob price is fetched first to discover the lowest competing seller → stored in `products.rival_min_price` (`null` when Zitazi's own shop — `services.zitazi.torob_shop_id` — is cheapest or there are no valid sellers).
+- **20% min profit floor**: the destination price never goes below `Currency::convertToRial($sourcePrice, 1.20)`.
+- **99.5% rule**: recommended price = `rival_min_price * 0.995`, rounded down to the nearest 1000, clamped above the 20% floor.
+- Foreign products (Torob + Trendyol/Decathlon) are re-pushed to the foreign queue after the Torob response so pricing applies against the rival. Pure-Torob products go through `TorobService::updateProductAndSync` → `SyncWoocommerceProductJob`.
 
 ## Development Commands
 
@@ -275,6 +286,11 @@ SOURCE_SAZ_KALA = 'saz_kala'
 SOURCE_Elele = 'elele'
 ```
 
+## Destination Stores
+
+- `base_source` on `products`/`variations` is `Product::ZITAZI` ('zitazi') or `Product::SATRE` ('satre') — never raw strings elsewhere.
+- Per-store sync toggle: cache keys `sync_zitazi_enabled` / `sync_satreh_enabled` (fallback `services.zitazi_sync_enabled` / `services.satreh_sync_enabled`), selected by `base_source`. There is **no** single `sync_enabled` key anymore.
+
 ## Testing
 
 - Framework: PHPUnit
@@ -295,6 +311,8 @@ SOURCE_Elele = 'elele'
 |---------------------------------------------------------------|---------------------------------------------------|
 | `src/config/queue.php`                                        | Queue configuration including scraper queue names |
 | `src/app/Console/Commands/ListenForScrapeResponseCommand.php` | Scraping result processor                         |
+| `src/app/Services/ScraperQueueService.php`                    | Torob-first scrape queue routing                  |
+| `src/app/Services/TorobService.php`                           | Torob rival pricing + pure-Torob sync             |
 | `scraper/daemon.js`                                           | Scraper entry point with queue listeners          |
 | `docker-compose.dev.yml`                                      | Development services                              |
 | `docker-compose.prod.yml`                                     | Production services with monitoring stack         |
