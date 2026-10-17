@@ -19,8 +19,7 @@ class BaseVariationCrawler
 
     public function __construct(
         public HttpService $httpService
-    )
-    {
+    ) {
         $this->rate = Currency::syncTryRate();
     }
 
@@ -31,22 +30,22 @@ class BaseVariationCrawler
                 'variation_id' => $variation->id,
                 'own_id' => $variation->own_id,
             ]);
-            return;
-        };
 
-        return;
-//        if ($variation->source == Product::SOURCE_TRENDYOL) {
-//            app(TrendyolVariationCrawler::class)->crawl($variation);
-//        } else if ($variation->source == Product::SOURCE_DECATHLON) {
-//            app(DecathlonCrawler::class)->crawl($variation);
-//        } else if ($variation->source == Product::SOURCE_Elele) {
-//            app(EleleCrawler::class)->crawl($variation);
-//        };
+            return;
+        }
+
+        //        if ($variation->source == Product::SOURCE_TRENDYOL) {
+        //            app(TrendyolVariationCrawler::class)->crawl($variation);
+        //        } else if ($variation->source == Product::SOURCE_DECATHLON) {
+        //            app(DecathlonCrawler::class)->crawl($variation);
+        //        } else if ($variation->source == Product::SOURCE_Elele) {
+        //            app(EleleCrawler::class)->crawl($variation);
+        //        };
     }
 
     protected function getProfitRatioForVariation(Variation $variation): float|int
     {
-        if (!empty($variation->product->markup)) {
+        if (! empty($variation->product->markup)) {
             return 1 + ($variation->product->markup / 100);
         }
 
@@ -55,7 +54,12 @@ class BaseVariationCrawler
 
     public function syncZitazi(Variation $variation, ZitaziUpdateDTO $dto): int
     {
-        if (!Cache::get('sync_enabled', config('sync_enabled'))) {
+        $isSatreh = $variation->base_source === Product::SATRE;
+
+        $cacheKey = $isSatreh ? 'sync_satreh_enabled' : 'sync_zitazi_enabled';
+        $configKey = $isSatreh ? 'services.satreh_sync_enabled' : 'services.zitazi_sync_enabled';
+
+        if (! Cache::get($cacheKey, config($configKey))) {
             LogManager::logVariation($variation, 'sync is disabled in config', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
@@ -97,21 +101,22 @@ class BaseVariationCrawler
 
         $data['stock_status'] = $stockStatus;
 
-        if (!empty($dto?->price)) {
+        if (! empty($dto?->price)) {
             $data['sale_price'] = null;
-            $data['regular_price'] = '' . $dto->price;
+            $data['regular_price'] = ''.$dto->price;
         }
         if ($variation->item_type == Product::PRODUCT_UPDATE and empty($variation->own_id)) {
             $url = "products/{$variation->product->own_id}";
-        } else if ($variation->product->variations()->count() === 1 && empty($variation->own_id)) {
+        } elseif ($variation->product->variations()->count() === 1 && empty($variation->own_id)) {
 
             $url = "products/{$variation->product->own_id}";
-        } elseif (!empty($variation->own_id)) {
+        } elseif (! empty($variation->own_id)) {
 
             $url = "products/{$variation->product->own_id}/variations/{$variation->own_id}";
         } else {
             LogManager::logVariation($variation, 'skipping sync for variation', []);
             $variation->product->setSyncStatus(SyncStatusEnum::NO_ROUTE_FOUND_FOR_VARIATION);
+
             return 1;
         }
 
@@ -123,13 +128,13 @@ class BaseVariationCrawler
                 LogManager::logVariation($variation, 'update successful', [
                     'body' => $data,
                     'response' => $response->body(),
-                    'code' => $response->getStatusCode()
+                    'code' => $response->getStatusCode(),
                 ]);
                 $variation->update([
                     'status' => Variation::AVAILABLE,
                 ]);
 
-                if (!$variation->product->hasSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH)) {
+                if (! $variation->product->hasSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH)) {
                     $variation->product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_UPDATE);
                 }
 
@@ -139,29 +144,29 @@ class BaseVariationCrawler
                     'body' => $data,
                     'response' => $response->body(),
                     'code' => $response->getStatusCode(),
-                    'url' => $url
+                    'url' => $url,
                 ]);
 
                 $variation->product->setSyncStatus(SyncStatusEnum::FAILED_UPDATE);
             }
 
-
             if ($code == 'woocommerce_rest_product_variation_invalid_id') {
                 $variation->update([
                     'status' => Variation::INVALID_VARIATION_ID,
                 ]);
-            } else if ($code == 'woocommerce_rest_product_invalid_id') {
+            } elseif ($code == 'woocommerce_rest_product_invalid_id') {
                 $variation->update([
                     'status' => Variation::INVALID_PRODUCT_ID,
                 ]);
-            } else if ($response->getStatusCode() === 504) {
+            } elseif ($response->getStatusCode() === 504) {
                 $variation->update([
                     'status' => Variation::STATUS_504,
                 ]);
-            } else if ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
+            } elseif ($code === 'unknown' && $message === 'No message' && $response->getStatusCode() !== 504) {
                 $variation->update([
                     'status' => Variation::EMPTY_BODY,
                 ]);
+
                 return 3;
             } else {
                 $variation->update([
@@ -214,5 +219,4 @@ class BaseVariationCrawler
         }
 
     }
-
 }

@@ -1,5 +1,8 @@
 <?php
 
+use App\Services\CurrencyRate\ArzDigitalService;
+use App\Services\CurrencyRate\NavasanService;
+
 return [
 
     /*
@@ -37,22 +40,23 @@ return [
     'currency-rate' => [
         'driver' => env('RATE_DRIVER', 'arzdigital'),
         'drivers' => [
-            'arzdigital' => App\Services\CurrencyRate\ArzDigitalService::class,
-            'navasan' => App\Services\CurrencyRate\NavasanService::class,
-        ]
+            'arzdigital' => ArzDigitalService::class,
+            'navasan' => NavasanService::class,
+        ],
     ],
 
-    'sync_enabled' => env('SYNC_ENABLED', true),
+    'zitazi_sync_enabled' => env('ZITAZI_SYNC_ENABLED', true),
+    'satreh_sync_enabled' => env('SATREH_SYNC_ENABLED', true),
 
     'zitazi' => [
         'security_key' => env('SECURITY_KEY'),
         'security_pass' => env('SECURITY_PASS'),
-        'base_url' => env('ZITAZI_BASE_URL')
+        'base_url' => env('ZITAZI_BASE_URL'),
     ],
     'satreh' => [
         'security_key' => env('SATRE_SECURITY_KEY'),
         'security_pass' => env('SATRE_SECURITY_PASS'),
-        'base_url' => env('SATRE_BASE_URL')
-    ]
+        'base_url' => env('SATRE_BASE_URL'),
+    ],
 
 ];
