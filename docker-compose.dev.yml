@@ -14,6 +14,7 @@ x-laravel: &laravel
   volumes:
     - ./src:/var/www/html
     - ./.env:/var/www/html/.env
+    - ./src/.env.testing:/var/www/html/.env.testing
     - ./infra/dev.php.ini:/usr/local/etc/php/php.ini
   extra_hosts:
     - "host.docker.internal:host-gateway"
