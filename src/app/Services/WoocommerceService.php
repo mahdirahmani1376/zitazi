@@ -20,7 +20,7 @@ class WoocommerceService
             $baseURl = config('services.zitazi.base_url');
         } elseif ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
-            $securityPass = config('services.satreh.security_key');
+            $securityPass = config('services.satreh.security_pass');
             $baseURl = config('services.satreh.base_url');
         }
 
