@@ -9,8 +9,7 @@ const cliArgs = process.argv.slice(2);
 const directFlag = cliArgs.includes('--direct');
 const positionalProxy = cliArgs.find((arg) => !arg.startsWith('--'));
 
-// const testUrl = process.env.TOROB_TEST_URL || 'https://api.torob.com/v4/base-product/details/?prk=26fa627c-9479-4cf6-a521-f1dddbd814ef';
-const testUrl = process.env.TOROB_TEST_URL || 'https://torob.com/p/7effdb3d-4e90-4432-adf5-54960dc91ea1/حافظه-اس-اس-دی-اینترنال-لکسار-مدل-ns100-ظرفیت-256-گیگابایت/';
+const testUrl = process.env.TOROB_TEST_URL || 'https://api.torob.com/v4/base-product/details/?prk=26fa627c-9479-4cf6-a521-f1dddbd814ef';
 
 function envValue(names, defaultValue) {
     for (const name of names) {
@@ -72,8 +71,7 @@ async function test() {
     const args = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'];
 
     if (proxy && !directFlag) {
-        // args.push(`--proxy-server=${proxy.protocol}//${proxy.host}:${proxy.port}`);
-        args.push(`--proxy-server=socks5://127.0.0.1:1080`);
+        args.push(`--proxy-server=${proxy.protocol}//${proxy.host}:${proxy.port}`);
     }
 
     const browser = await puppeteer.launch({

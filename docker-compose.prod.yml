@@ -68,6 +68,8 @@ services:
     stop_grace_period: 30s
     container_name: zitazi-scraper
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - app-network
     environment:
