@@ -1,6 +1,6 @@
 const Redis = require('ioredis');
 
-const COOLDOWN_ARRAY = [15, 60, 300, 600];
+const COOLDOWN_ARRAY = [300, 600];
 const MAX_RETRIES = COOLDOWN_ARRAY.length;
 const BACKOFF_JITTER = 0.2;
 const QUEUE_OUT = 'laravel_database_scrape_result';
