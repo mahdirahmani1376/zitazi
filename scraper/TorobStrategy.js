@@ -25,7 +25,6 @@ class TorobStrategy extends BaseStrategy {
             const contentType = responseHeaders['content-type'] ?? '';
 
             if ([418, 429, 490].includes(status) || contentType.includes('text/html')) {
-                console.error(JSON.stringify({message: 'Torob bot blocked', data, level: 'error', status, content_type: contentType}));
                 return {
                     product_id: data.id,
                     response_status: status,

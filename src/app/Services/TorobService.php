@@ -23,7 +23,8 @@ class TorobService
 
             LogManager::logProduct($product, 'error fetching torob data', $response);
 
-        } else {
+        }
+        else {
             if (empty(data_get($response, 'response_data.result'))) {
                 LogManager::logProduct($product, 'product has no seller in torob');
                 $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);

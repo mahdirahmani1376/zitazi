@@ -7,12 +7,12 @@ use App\Actions\SeedVariationsForDecathlonAction;
 use App\Actions\SeedVariationsForTrendyolAction;
 use App\DTO\ZitaziUpdateDTO;
 use App\Enums\SyncStatusEnum;
+use App\Facades\ScraperQueueServiceFacade;
 use App\Facades\TorobServiceFacade;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
-use App\Services\ScraperQueueService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
@@ -82,7 +82,7 @@ class ListenForScrapeResponseCommand extends Command
             }
 
             if ($product->belongsToTrendyol() || $product->belongsToDecalthon()) {
-                app(ScraperQueueService::class)->addToForeignQueue($product, $bulk);
+                ScraperQueueServiceFacade::addToForeignQueue($product, $bulk);
             } else {
                 TorobServiceFacade::updateProductAndSync($product, $bulk);
             }
