@@ -5,6 +5,7 @@ namespace App\Exports;
 ini_set('memory_limit', '800M');
 
 use App\Models\Variation;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -15,7 +16,7 @@ class FillamentVariationExport implements FromQuery, WithHeadings, WithMapping
         public $records
     ) {}
 
-    public function query()
+    public function query(): EloquentBuilder
     {
         return Variation::with('product')
             ->whereIn('id', $this->records->pluck('id'))

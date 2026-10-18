@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -13,7 +14,7 @@ class FillamentProductExport implements FromQuery, WithHeadings, WithMapping
 {
     public function __construct(public $records) {}
 
-    public function query()
+    public function query(): EloquentBuilder
     {
         return Product::query()
             ->whereIn('id', $this->records->pluck('id'));

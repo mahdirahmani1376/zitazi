@@ -6,17 +6,19 @@ ini_set('memory_limit', '800M');
 
 use App\Models\Product;
 use App\Models\Variation;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
 class SatreVariationExport implements FromQuery, WithHeadings, WithMapping
 {
-    public function query()
+    public function query(): EloquentBuilder
     {
         return Variation::with('product')
             ->where('base_source', Product::SATRE)
-            ->orderBy('product_id');
+            ->orderBy('product_id')
+            ->orderBy('id');
     }
 
     public function headings(): array
