@@ -18,6 +18,9 @@ class TorobStrategy extends BaseStrategy {
             const browser = await this.ensureBrowser();
             page = await browser.newPage();
 
+            const preDelayTime = Math.floor(Math.random() * 15000 + 5000);
+            await delay(preDelayTime);
+
             response = await page.goto(data.full_url, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
 
             const status = response?.status();
@@ -35,9 +38,6 @@ class TorobStrategy extends BaseStrategy {
                     retry_count: data.retry_count ?? 0,
                 };
             }
-
-            const delayTime = Math.floor(Math.random() * 15000 + 5000);
-            await delay(delayTime);
 
             const responseData = await page.evaluate(() => JSON.parse(document.body.innerText));
 
@@ -74,7 +74,7 @@ class TorobStrategy extends BaseStrategy {
                     response_headers: response?.headers(),
                     full_url: data.full_url,
                     success: false,
-                    blocked: true,
+                    blocked: false,
                     retry_count: data.retry_count ?? 0,
                 };
             }
