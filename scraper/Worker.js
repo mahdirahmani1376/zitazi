@@ -1,6 +1,8 @@
 const Redis = require('ioredis');
 
-const COOLDOWN_ARRAY = [15, 60, 300, 600, 12000]
+const COOLDOWN_ARRAY = [15, 60, 300, 600];
+const MAX_RETRIES = COOLDOWN_ARRAY.length;
+const BACKOFF_JITTER = 0.2;
 const QUEUE_OUT = 'laravel_database_scrape_result';
 
 class Worker {
@@ -39,7 +41,11 @@ class Worker {
 
                 const response = await scrapeFn(this.name, data.product);
 
-                await this.handleBlocked(data, response);
+                const retried = await this.handleBlocked(data, response);
+                if (retried) {
+                    continue;
+                }
+
                 await this.handleInvalidCurrency(data, response);
 
                 response.bulk = data.bulk ?? false
@@ -103,38 +109,49 @@ class Worker {
     }
 
     async handleBlocked(data, response) {
-        if (!response.blocked) return;
+        if (!response.blocked) return false;
 
         let retryCount = data.retry_count ?? 0;
 
-        if (retryCount <= 3) {
-            let cooldownSeconds = COOLDOWN_ARRAY[retryCount];
-
-            data.retry_count = retryCount + 1;
-
-            await this.publishStatus(data.product.id, 'no_response_retrying');
-
-            await this.redis.setex(
-                this.cooldownKey,
-                cooldownSeconds,
-                '1',
-            );
-
-            await this.redis.lpush(
-                this.queueIn,
-                JSON.stringify(data)
-            );
-
-            await this.publishStatus(data.product.id, 'cooldown');
-
-            console.error(
-                JSON.stringify({
-                    message: `${this.name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
-                    level: 'error',
-                    current_retry: retryCount
-                })
-            )
+        if (retryCount >= MAX_RETRIES) {
+            return false;
         }
+
+        const retryAfter = Number(response.response_headers?.['retry-after'] ?? response.response_headers?.['Retry-After']);
+        const baseSeconds = (Number.isFinite(retryAfter) && retryAfter > 0)
+            ? retryAfter
+            : COOLDOWN_ARRAY[retryCount];
+        const jitter = baseSeconds * BACKOFF_JITTER * (Math.random() * 2 - 1);
+        const cooldownSeconds = Math.max(1, Math.round(baseSeconds + jitter));
+
+        data.retry_count = retryCount + 1;
+
+        await this.publishStatus(data.product.id, 'no_response_retrying');
+
+        await this.redis.setex(
+            this.cooldownKey,
+            cooldownSeconds,
+            '1',
+        );
+
+        await this.redis.lpush(
+            this.queueIn,
+            JSON.stringify(data)
+        );
+
+        await this.publishStatus(data.product.id, 'cooldown');
+
+        console.error(
+            JSON.stringify({
+                message: `${this.name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
+                level: 'error',
+                current_retry: retryCount + 1,
+                next_retry_in_seconds: cooldownSeconds,
+                response_status: response.response_status ?? null,
+            })
+        );
+
+        return true;
     }
 
     async handleInvalidCurrency(data, response) {
