@@ -129,6 +129,11 @@ services:
     environment:
       TZ: Asia/Tehran
       NODE_ENV: development
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      PROXY_IP : ${PROXY_IP}
+      PROXY_USER : ${PROXY_USER}
+      PROXY_PASSWORD : ${PROXY_PASSWORD}
+
     shm_size: "1gb"
     mem_limit: 1500m
     command: sleep infinity
