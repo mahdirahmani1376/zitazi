@@ -7,6 +7,7 @@ use App\Enums\SyncStatusEnum;
 use App\Exports\FillamentProductExport;
 use App\Jobs\EmergencySyncJob;
 use App\Models\Product;
+use App\Facades\ProductFilterCacheServiceFacade;
 use App\Services\ScraperQueueService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -23,6 +24,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Cache\CacheServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
@@ -162,39 +164,15 @@ class ProductsTable
                 SelectFilter::make('category')
                     ->multiple()
                     ->preload()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('category')
-                            ->where('category', '!=', '')
-                            ->distinct('category')
-                            ->orderBy('category')
-                            ->pluck('category', 'category')
-                            ->toArray()
-                    ),
+                    ->options(ProductFilterCacheServiceFacade::categoryOptions()),
                 SelectFilter::make('brand')
                     ->multiple()
                     ->preload()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('brand')
-                            ->where('brand', '!=', '')
-                            ->distinct('brand')
-                            ->orderBy('brand')
-                            ->pluck('brand', 'brand')
-                            ->toArray()
-                    ),
+                    ->options(ProductFilterCacheServiceFacade::brandOptions()),
                 SelectFilter::make('owner')
                     ->preload()
                     ->multiple()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('owner')
-                            ->where('owner', '!=', '')
-                            ->distinct('owner')
-                            ->orderBy('owner')
-                            ->pluck('owner', 'owner')
-                            ->toArray()
-                    ),
+                    ->options(ProductFilterCacheServiceFacade::ownerOptions()),
                 SelectFilter::make('base_source')
                     ->multiple()
                     ->options([

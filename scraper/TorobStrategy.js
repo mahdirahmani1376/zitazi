@@ -20,7 +20,7 @@ class TorobStrategy extends BaseStrategy {
 
             response = await page.goto(data.full_url, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
 
-            const delayTime = Math.floor(Math.random() * (5000 - 2000) + 5000);
+            const delayTime = Math.floor(Math.random() * 15000 + 5000);
             await delay(delayTime);
 
             const responseData = await page.evaluate(() => JSON.parse(document.body.innerText));
@@ -67,7 +67,14 @@ class TorobStrategy extends BaseStrategy {
                 closeBrowser = true;
             }
 
-            return {product_id: data.id, full_url: data.full_url, success: false, error};
+            return {
+                product_id: data.id,
+                full_url: data.full_url,
+                success: false,
+                response_status: response?.status(),
+                response_headers: response?.headers(),
+                error
+            };
         } finally {
             if (page) await safeClose(() => page.close());
             if (closeBrowser || isShuttingDown()) await this.closeBrowser();

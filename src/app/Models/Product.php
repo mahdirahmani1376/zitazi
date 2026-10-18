@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SyncStatusEnum;
 use App\Events\ProductSyncStatusChangedEvent;
+use App\Services\ProductFilterCacheService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -40,6 +41,23 @@ class Product extends Model
     protected $casts = [
         'sync_status' => SyncStatusEnum::class,
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function (): void {
+            app(ProductFilterCacheService::class)->forget();
+        });
+
+        static::updated(function (Product $product): void {
+            if ($product->wasChanged(['category', 'brand', 'owner'])) {
+                app(ProductFilterCacheService::class)->forget();
+            }
+        });
+
+        static::deleted(function (): void {
+            app(ProductFilterCacheService::class)->forget();
+        });
+    }
 
     public static function getAllSourceLabels()
     {

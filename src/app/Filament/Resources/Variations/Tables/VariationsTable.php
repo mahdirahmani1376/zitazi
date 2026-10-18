@@ -8,6 +8,7 @@ use App\Jobs\EmergencySyncJob;
 use App\Jobs\SendScrapeMessageJob;
 use App\Models\Product;
 use App\Models\Variation;
+use App\Services\ProductFilterCacheService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -85,15 +86,7 @@ class VariationsTable
                 SelectFilter::make('category')
                     ->multiple()
                     ->preload()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('category')
-                            ->where('category', '!=', '')
-                            ->distinct('category')
-                            ->orderBy('category')
-                            ->pluck('category', 'category')
-                            ->toArray()
-                    )
+                    ->options(app(ProductFilterCacheService::class)->categoryOptions())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
@@ -106,15 +99,7 @@ class VariationsTable
                 SelectFilter::make('brand')
                     ->multiple()
                     ->preload()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('brand')
-                            ->where('brand', '!=', '')
-                            ->distinct('brand')
-                            ->orderBy('brand')
-                            ->pluck('brand', 'brand')
-                            ->toArray()
-                    )
+                    ->options(app(ProductFilterCacheService::class)->brandOptions())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
@@ -127,15 +112,7 @@ class VariationsTable
                 SelectFilter::make('owner')
                     ->multiple()
                     ->preload()
-                    ->options(
-                        Product::query()
-                            ->whereNotNull('owner')
-                            ->where('owner', '!=', '')
-                            ->distinct('owner')
-                            ->orderBy('owner')
-                            ->pluck('owner', 'owner')
-                            ->toArray()
-                    )
+                    ->options(app(ProductFilterCacheService::class)->ownerOptions())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['values'] ?? null,
