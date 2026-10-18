@@ -32,7 +32,7 @@ class TorobStrategy extends BaseStrategy {
                     response_headers: responseHeaders,
                     full_url: data.full_url,
                     success: false,
-                    blocked: true,
+                    blocked: false,
                     retry_count: data.retry_count ?? 0,
                 };
             }
