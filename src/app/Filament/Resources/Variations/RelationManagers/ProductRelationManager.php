@@ -15,6 +15,7 @@ class ProductRelationManager extends RelationManager
     public array $syncStatuses = [];
 
     protected static ?string $relatedResource = ProductResource::class;
+    protected static bool $isLazy = false;
 
     public function table(Table $table): Table
     {

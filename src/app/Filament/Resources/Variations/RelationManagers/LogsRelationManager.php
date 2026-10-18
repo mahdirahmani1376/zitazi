@@ -11,6 +11,7 @@ class LogsRelationManager extends RelationManager
     protected static string $relationship = 'logs';
 
     protected static ?string $relatedResource = LogModelResource::class;
+    protected static bool $isLazy = false;
 
     protected $listeners = [
         'refreshLogs' => '$refresh',

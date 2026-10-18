@@ -11,6 +11,7 @@ class VariationRelationManager extends RelationManager
     protected static string $relationship = 'variation';
 
     protected static ?string $relatedResource = VariationResource::class;
+    protected static bool $isLazy = false;
 
     public function table(Table $table): Table
     {

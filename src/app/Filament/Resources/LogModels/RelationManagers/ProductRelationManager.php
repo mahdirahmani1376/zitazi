@@ -12,6 +12,7 @@ class ProductRelationManager extends RelationManager
 
     protected static ?string $relatedResource = ProductResource::class;
 
+    protected static bool $isLazy = false;
     public function table(Table $table): Table
     {
         return $table
