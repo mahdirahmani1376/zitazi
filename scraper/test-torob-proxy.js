@@ -97,6 +97,10 @@ async function test() {
 
     const startedAt = Date.now();
     const response = await page.goto(testUrl, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
+
+    await new Promise((r) => setTimeout(r, 20000));
+
+
     const elapsedMs = Date.now() - startedAt;
 
     const status = response?.status();
@@ -114,6 +118,11 @@ async function test() {
 
     const challengePattern = /آیا شما یک|ربات|captcha|challenge/i;
     const blocked = !parseable || [403, 418, 429, 490].includes(status) || challengePattern.test(body);
+
+    if (blocked) {
+        console.log(`[torob-proxy-test] body preview : ${body.slice(0, 300).replace(/\s+/g, ' ')}`);
+        console.log(`[torob-proxy-test] html scripts : ${html.slice(0, 600).replace(/\s+/g, ' ')}`);
+    }
 
     console.log(`[torob-proxy-test] status       : ${status}`);
     console.log(`[torob-proxy-test] final url    : ${response?.url()}`);

@@ -82,7 +82,19 @@ const checkUrl = process.env.CHECK_URL || 'https://api.ipify.org';
         await page.authenticate(proxy.auth);
     }
 
+    const startedAt = Date.now();
+
     await page.goto(checkUrl, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
+
+    // If status is 490, wait 8 seconds to see if the JS browser check auto-solves and reloads
+    if (response?.status() === 490) {
+        console.log('[torob-proxy-test] 490 challenge detected, waiting 8s for JS verification...');
+        await new Promise((r) => setTimeout(r, 8000));
+    }
+
+    const elapsedMs = Date.now() - startedAt;
+    const body = await page.evaluate(() => document.body.innerText);
+    const html = await page.content();
 
     const content = await page.content();
     console.log('Current IP seen by the website:', content);
