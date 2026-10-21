@@ -10,6 +10,12 @@ class DecathlonStrategy extends BaseStrategy {
             return {product_data: productData, success: false, message: 'empty url provided'};
         }
 
+        return {
+            product_id: productData.id,
+            success: false,
+            blocked: false
+        };
+
         let page = null;
         let response = null;
         let closeBrowser = false;
