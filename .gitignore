@@ -42,3 +42,4 @@ src/public/.well-known
 infra/alertmanager/telegram_bot_token
 /test.json
 /opencode.json
+/scraper/chrome-profile/
