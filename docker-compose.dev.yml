@@ -123,6 +123,10 @@ services:
       dockerfile: docker/Dockerfile.scraper.dev
     volumes:
       - ./scraper:/app
+      # Host Chrome profile, read-only: the container never writes/locks it.
+      - ${CHROME_DATA_DIR:-$HOME/.config/google-chrome}:/host/chrome-profile:ro
+      # Writable container-local copy that Chromium actually uses.
+      - chrome-profile-data:/app/chrome-profile
     restart: unless-stopped
     networks:
       - app-network
@@ -133,10 +137,17 @@ services:
       PROXY_IP : ${PROXY_IP}
       PROXY_USER : ${PROXY_USER}
       PROXY_PASSWORD : ${PROXY_PASSWORD}
+      CHROME_USER_DATA_DIR: /app/chrome-profile
 
+    ports:
+      - "9229:9229"
     shm_size: "1gb"
     mem_limit: 1500m
-    command: sleep infinity
+    command: >
+      sh -c "mkdir -p /app/chrome-profile &&
+             cp -a /host/chrome-profile/. /app/chrome-profile/ &&
+             rm -f /app/chrome-profile/Singleton* &&
+             sleep infinity"
     depends_on:
       redis:
         condition: service_healthy
@@ -146,6 +157,8 @@ volumes:
     name: zitazi-mysql-data
   redis-data:
     name: zitazi-redis-data
+  chrome-profile-data:
+    name: zitazi-chrome-profile-data
 
 networks:
   app-network:

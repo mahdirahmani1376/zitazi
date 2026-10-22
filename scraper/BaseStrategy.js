@@ -13,10 +13,13 @@ function isShuttingDown() {
     return scraperShuttingDown;
 }
 
+const userDataDir = process.env.CHROME_USER_DATA_DIR;
+
 const puppeteerOptions = {
     headless: 'new',
     protocolTimeout: 120000,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    ...(userDataDir ? {userDataDir} : {}),
 };
 
 const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
