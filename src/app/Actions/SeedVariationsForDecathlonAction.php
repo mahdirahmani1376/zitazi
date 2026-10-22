@@ -92,11 +92,13 @@ class SeedVariationsForDecathlonAction
 
             $createData = [
                 'product_id' => $product->id,
-                'sku' => $variationRawData['sku'],
                 'price' => $price,
                 'url' => $variationRawData['url'],
                 'stock' => $variationRawData['stock'],
                 'size' => $variationRawData['size'],
+                'sku' => $variationRawData['sku'],
+                'source_product_id' => $variationRawData['decathlon_product_id'],
+                'source_variation_id' => $variationRawData['source_variation_id'],
                 'color' => $color,
                 'rial_price' => $rialPrice,
                 'source' => Product::SOURCE_DECATHLON,
@@ -108,8 +110,10 @@ class SeedVariationsForDecathlonAction
             $availableVariations[] = $variationRawData['sku'];
 
             $variation = Variation::updateOrCreate([
-                'sku' => $variationRawData['sku'],
-            ], $createData);
+                'source_product_id' => $variationRawData['decathlon_product_id'],
+                'source_variation_id' => $variationRawData['source_variation_id'],
+                'size' => $variationRawData['size'],
+                ], $createData);
 
             if ($logVariationForTorobChange) {
                 LogManager::logVariation($variation, 'torob decrease step', [

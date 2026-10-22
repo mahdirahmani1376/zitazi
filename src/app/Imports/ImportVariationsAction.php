@@ -57,19 +57,6 @@ class ImportVariationsAction implements OnEachRow, ShouldQueue, SkipsEmptyRows, 
             ]);
         }
 
-        //        /*
-        //         * Broadcast every 50 rows.
-        //         */
-        //        $processed =
-        //            $batch->successful_rows
-        //            + $batch->failed_rows;
-        //
-        //        if ($processed % 50 === 0) {
-        //            $batch->refresh();
-        //
-        //            ImportProgressUpdated::dispatch($batch);
-        //        }
-
         $batch->refresh();
 
         ImportProgressUpdated::dispatch($batch);
