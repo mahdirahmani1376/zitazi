@@ -9,3 +9,4 @@ src/bootstrap/cache/*.php
 src/.env
 scraper/node_modules
 scraper/.cache
+scraper/chrome-profile

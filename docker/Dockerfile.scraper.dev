@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     libxfixes3 \
     xvfb \
     xauth \
+    x11vnc \
     wget \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*

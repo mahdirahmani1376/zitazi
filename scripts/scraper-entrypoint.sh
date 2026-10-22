@@ -2,28 +2,18 @@
 set -e
 
 # Dev scraper entrypoint:
-#   1. Copy the host Chrome profile into the writable container volume
-#      (one-time snapshot at container start).
-#   2. Clean stale Chrome singleton locks from the copied profile.
-#   3. Start Xvfb so headful Chromium has a display (headful passes the
+#   1. Start Xvfb so headful Chromium has a display (headful passes the
 #      Cloudflare "Just a moment" challenge that blocks headless Chromium).
-#   4. Run the scraper daemon.
+#   2. Run the scraper daemon.
 #
-# Controlled by the same env vars the compose files set:
-#   CHROME_USER_DATA_DIR - writable profile location
-#   /host/chrome-profile - read-only host profile source (optional)
+# The Chrome profile is fully container-local (anonymous volume bound to
+# CHROME_USER_DATA_DIR), so the host never sees or locks it.
 
-if [ -z "${CHROME_USER_DATA_DIR}" ]; then
-    echo "[entrypoint] CHROME_USER_DATA_DIR is not set; skipping profile copy"
-else
-    mkdir -p "${CHROME_USER_DATA_DIR}"
-    if [ -d /host/chrome-profile ] && [ "$(ls -A /host/chrome-profile 2>/dev/null)" ]; then
-        echo "[entrypoint] copying host Chrome profile snapshot..."
-        cp -a /host/chrome-profile/. "${CHROME_USER_DATA_DIR}/"
-        rm -f "${CHROME_USER_DATA_DIR}"/Singleton*
-    else
-        echo "[entrypoint] /host/chrome-profile empty or missing; starting with fresh profile"
-    fi
+# The dev image does not bake node_modules in (./scraper is bind-mounted and
+# shadows /app), so install dependencies if the mounted host dir has none.
+if [ ! -d /app/node_modules ] || [ -z "$(ls -A /app/node_modules 2>/dev/null)" ]; then
+    echo "[entrypoint] node_modules missing; installing dependencies..."
+    npm install --no-audit --no-fund
 fi
 
 # Start Xvfb on :99 if not already running.
@@ -32,6 +22,22 @@ if [ -n "${DISPLAY}" ] && ! pgrep -f "Xvfb ${DISPLAY}" >/dev/null 2>&1; then
     rm -f "/tmp/.X${DISPLAY#:}-lock"
     Xvfb "${DISPLAY}" -screen 0 1280x1024x24 -nolisten tcp >/tmp/xvfb.log 2>&1 &
     sleep 2
+fi
+
+# Start x11vnc so the host can watch the headful Chromium. The compose file
+# binds the VNC port to 127.0.0.1 on the host, so exposing it without a
+# password is safe for local dev. Kill a stale x11vnc holding port 5900.
+if [ -n "${DISPLAY}" ] && ! pgrep -f "x11vnc -display ${DISPLAY}" >/dev/null 2>&1; then
+    echo "[entrypoint] starting x11vnc on :5900..."
+    pkill -f "x11vnc -display ${DISPLAY}" 2>/dev/null || true
+    x11vnc -display "${DISPLAY}" \
+        -forever \
+        -shared \
+        -rfbport 5900 \
+        -nopw \
+        -quiet \
+        >/tmp/x11vnc.log 2>&1 &
+    sleep 1
 fi
 
 echo "[entrypoint] starting scraper daemon..."

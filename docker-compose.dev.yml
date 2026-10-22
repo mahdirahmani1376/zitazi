@@ -123,10 +123,6 @@ services:
       dockerfile: docker/Dockerfile.scraper.dev
     volumes:
       - ./scraper:/app
-      # Host Chrome profile, read-only: the container never writes/locks it.
-      - ${CHROME_DATA_DIR:-$HOME/.config/google-chrome}:/host/chrome-profile:ro
-      # Writable container-local copy that Chromium actually uses.
-      - chrome-profile-data:/app/chrome-profile
     restart: unless-stopped
     networks:
       - app-network
@@ -145,6 +141,7 @@ services:
 
     ports:
       - "9229:9229"
+      - "127.0.0.1:5900:5900"
     shm_size: "1gb"
     mem_limit: 1500m
     command: ["/usr/local/bin/scraper-entrypoint.sh"]
@@ -157,8 +154,6 @@ volumes:
     name: zitazi-mysql-data
   redis-data:
     name: zitazi-redis-data
-  chrome-profile-data:
-    name: zitazi-chrome-profile-data
 
 networks:
   app-network:
