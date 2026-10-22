@@ -60,7 +60,7 @@ class SeedVariationsForDecathlonAction
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-                    $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
+                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
 
                     if ($recommendedPrice >= $lowestPossiblePrice) {
                         $originalPrice = $rialPrice;
@@ -112,8 +112,8 @@ class SeedVariationsForDecathlonAction
             $variation = Variation::updateOrCreate([
                 'source_product_id' => $variationRawData['decathlon_product_id'],
                 'source_variation_id' => $variationRawData['source_variation_id'],
-                'size' => $variationRawData['size'],
-                ], $createData);
+                'sku' => $variationRawData['sku'],
+            ], $createData);
 
             if ($logVariationForTorobChange) {
                 LogManager::logVariation($variation, 'torob decrease step', [
@@ -150,7 +150,7 @@ class SeedVariationsForDecathlonAction
 
         $defaultVariation = $product->defaultVariation();
 
-        if (! empty($defaultVariation)) {
+        if (!empty($defaultVariation)) {
             $price = $defaultVariation->price;
             $rialPrice = $defaultVariation->rial_price;
             $minPrice = $rialPrice * 1.2;

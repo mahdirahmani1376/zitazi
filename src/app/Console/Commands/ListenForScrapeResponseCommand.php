@@ -98,14 +98,14 @@ class ListenForScrapeResponseCommand extends Command
             if ($messageArray['source'] === 'Trendyol') {
                 $this->processTrendyolError($messageArray);
             } elseif ($messageArray['source'] === 'Decathlon') {
-//                $this->processDecathlonError($messageArray);
+                $this->processDecathlonError($messageArray);
             }
 
         } elseif (data_get($messageArray, 'success') === true && array_key_exists('source', $messageArray)) {
             $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH);
 
             if ($messageArray['source'] === 'Decathlon') {
-//                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
+                app(SeedVariationsForDecathlonAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             } elseif ($messageArray['source'] === 'Trendyol') {
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }

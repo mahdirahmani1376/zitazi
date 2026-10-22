@@ -103,8 +103,6 @@ class DecathlonStrategy extends BaseStrategy {
                 closeBrowser = true;
             }
 
-            await this.saveDomSnapshot(page);
-
             return {
                 product_id: productData.id,
                 success: false,
