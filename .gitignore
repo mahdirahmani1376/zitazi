@@ -45,3 +45,5 @@ infra/alertmanager/telegram_bot_token
 /scraper/chrome-profile/
 /scraper/decathlon-page.html
 /TOROB_BOT.md
+/scraper/client_browser_data/
+/scraper/ignores/

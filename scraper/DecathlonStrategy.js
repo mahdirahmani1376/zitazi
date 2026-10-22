@@ -1,16 +1,37 @@
-const {BaseStrategy, delay, safeClose, isShuttingDown} = require('./BaseStrategy');
 const fs = require('fs');
+const {BaseStrategy, delay, safeClose, isShuttingDown} = require('./BaseStrategy');
+const {extractItemGroupFromHtml} = require('./parse-next-flight');
 
-const CURRENCY_SYMBOL_TO_CODE = {
-    '₺': 'try',
-    '€': 'eur',
-    '$': 'usd',
-    '£': 'gbp',
-};
+/**
+ * Decathlon product scraper.
+ *
+ * Instead of clicking through every color/size tile and reading CSS selectors,
+ * the strategy extracts the product catalog from the Next.js RSC "flight"
+ * payload (`self.__next_f` chunks) embedded in the page. See
+ * `parse-next-flight.js` for the payload extraction.
+ *
+ * The flight data provides an `itemGroup` object:
+ *
+ *   itemGroup
+ *   ├── id                         → decathlon_product_id (e.g. "306417")
+ *   ├── skuGroups[]                → one per color/variation
+ *   │   ├── modelId                → source_variation_id (the ?mc= value)
+ *   │   ├── varianceAttributes.colors[].name → color name(s) for the group
+ *   │   └── skus[]                 → every size in this color
+ *   │       ├── skuId              → sku_id (source sku UUID)
+ *   │       ├── providerSkuCode.skuCode → sku (matches existing DB values)
+ *   │       ├── sizeGridValue      → size
+ *   │       ├── isAvailable        → stock (true/false)
+ *   │       ├── offers[].fixedPrices[].typeTargets[].currencies.main
+ *   │       │     .valueWithTaxes/.currency → price (integer, TRY)
+ *   │       ├── brand.name         → brand
+ *   │       └── url                → relative product URL
+ */
 class DecathlonStrategy extends BaseStrategy {
     constructor() {
         super('Decathlon');
     }
+
     async scrape(productData) {
         if (!productData.decathlon_url?.trim()) {
             return {product_data: productData, success: false, message: 'empty url provided'};
@@ -53,95 +74,21 @@ class DecathlonStrategy extends BaseStrategy {
                 };
             }
 
-            const elHandle = await page.waitForSelector('script[type="application/ld+json"]', {timeout: 15000});
-            const el = await page.evaluate((e) => e.textContent, elHandle);
-            const targetData = JSON.parse(el);
+            // Wait until the page has rendered the flight payload so the
+            // product catalog is present. The chunks are pushed into the
+            // `window.__next_f` array by plain <script> tags.
+            await page.waitForFunction(() => Array.isArray(window.__next_f) && window.__next_f.length > 0, {timeout: 15000});
 
-            const sourceProductId = targetData['@graph'][0]['productGroupID']
-            const brand = targetData['@graph'][0]['brand']['name']
+            const html = await page.content();
+            const itemGroups = extractItemGroupFromHtml(html);
+            const itemGroup = itemGroups[0];
 
-            const variations = [];
-
-            const variationIdSelector = 'div.product-info span.vp-caption'
-            const colorSelector = '#content > article div.tiled-layout div.variant-image-tile'
-            const priceSelector = '#content article.product-view section.buy-box__section span.vp-price-amount'
-            const stockSelector = '#content article.product-view section.buy-box__section span.vp-price-label'
-            const colorNameSelector = '#content > article fieldset[aria-labelledby="variant-selector-colour"] div.variant-selector-headline__value p.vp-body-s'
-            const singleSizeSelector = '#content > article fieldset[aria-labelledby="variant-selector-size"] div.variant-selector-headline__value p.vp-body-s'
-            const sizesSelector = '#content > article fieldset[aria-labelledby="variant-selector-size"] div.variant-text-tile'
-
-
-            let hasColors = false;
-            try {
-                // 1. Wait for at least one element to load to ensure the section is ready
-                await page.waitForSelector(colorSelector, { timeout: 15000 });
-                hasColors = true;
-            } catch (e) {
-
+            if (!itemGroup) {
+                throw new Error('itemGroup not found in next flight data');
             }
 
-            // When the product has no color selector, treat it as a single
-            // "pseudo-color" so both cases share the same loop below.
-            const colorHandles = hasColors ? await page.$$(colorSelector) : [null];
-
-            // Loop through each color (or the single pseudo-color) and collect variations.
-            for (const handle of colorHandles) {
-                if (handle) await handle.click();
-
-                const sourceVariationId = await this.extractVariationId(page, variationIdSelector);
-                const url = page.url();
-                const color = await this.readElementText(page, colorNameSelector);
-                const sizeHandles = await page.$$(sizesSelector);
-
-                if (sizeHandles.length > 0) {
-                    for (let i = 0; i < sizeHandles.length; i++) {
-                        // Re-query the tile fresh on each iteration. After a click the DOM
-                        // re-renders and previously collected handles get detached
-                        // ("Node is detached from document"). A fresh handle also lets us
-                        // read the size text straight from the element we clicked instead
-                        // of scanning the whole DOM again.
-                        const sizeHandle = (await page.$$(sizesSelector))[i];
-                        if (!sizeHandle) continue;
-
-                        const size = await this.readSizeFromHandle(page, sizeHandle);
-                        await sizeHandle.click();
-
-                        const {price, variationPriceCurrency, stock} = await this.extractPriceAndStock(page, priceSelector, stockSelector);
-
-                        if ((size === "36" || size === 36) && (sourceVariationId === 8547764 || sourceVariationId === "8547764")) {
-                            console.log('saving dome')
-                        }
-
-                        variations.push(this.buildVariation({
-                            sourceProductId,
-                            sourceVariationId,
-                            price,
-                            url,
-                            stock,
-                            priceCurrency: variationPriceCurrency,
-                            brand,
-                            size,
-                            color,
-                        }));
-                    }
-                } else {
-                    const {price, variationPriceCurrency, stock} = await this.extractPriceAndStock(page, priceSelector, stockSelector);
-                    const size = await this.readSingleSize(page, singleSizeSelector);
-
-                    variations.push(this.buildVariation({
-                        sourceProductId,
-                        sourceVariationId,
-                        price,
-                        url,
-                        stock,
-                        priceCurrency: variationPriceCurrency,
-                        brand,
-                        size,
-                        color,
-                    }));
-                }
-            }
-
+            const origin = page.url();
+            const variations = this.buildVariationsFromItemGroup(itemGroup, origin);
 
             return {
                 product_id: productData.id,
@@ -149,7 +96,6 @@ class DecathlonStrategy extends BaseStrategy {
                 success: (response?.status() >= 200 && response?.status() < 400),
                 response_status: response ? response.status() : null
             };
-
         } catch (err) {
             const error = {name: err.name, message: err.message};
             if (error.name === 'TimeoutError' || error.message.includes('Target.createTarget timed out')) {
@@ -157,12 +103,7 @@ class DecathlonStrategy extends BaseStrategy {
                 closeBrowser = true;
             }
 
-            let deleted = false;
-            if (error.message === 'offers is not iterable') {
-                deleted = true
-            }
-
-            await this.saveDomSnapshot(page)
+            await this.saveDomSnapshot(page);
 
             return {
                 product_id: productData.id,
@@ -171,7 +112,7 @@ class DecathlonStrategy extends BaseStrategy {
                 response_headers: response?.headers(),
                 error,
                 blocked: false,
-                deleted: deleted
+                deleted: false
             };
         } finally {
             if (page) await safeClose(() => page.close());
@@ -180,102 +121,58 @@ class DecathlonStrategy extends BaseStrategy {
     }
 
     /**
-     * Parse a Decathlon price shown in the DOM, e.g. "₺395,00" or "₺1.410,00".
-     *
-     * - Extracts the leading currency symbol and maps it to a currency code (₺ -> try).
-     * - Drops everything after the decimal comma, including the comma.
-     * - Strips thousand separators and whitespace.
-     *
-     * Returns e.g. { price: '395', priceCurrency: 'try' } or { price: '1410', priceCurrency: 'try' }.
+     * Flatten the flight payload's `itemGroup` into the variation rows the PHP
+     * side expects. One row per (color × size) sku.
      */
-    parseDecathlonPrice(rawPrice) {
-        const text = String(rawPrice ?? '').trim();
-        if (!text) {
-            return {price: '', priceCurrency: null};
-        }
+    buildVariationsFromItemGroup(itemGroup, origin) {
+        const variations = [];
 
-        const symbol = text[0];
-        const priceCurrency = CURRENCY_SYMBOL_TO_CODE[symbol] ?? null;
+        for (const skuGroup of itemGroup.skuGroups ?? []) {
+            // Color(s) for this variation group, e.g. "füme siyah / Neon yavruağzı".
+            const colors = (skuGroup.varianceAttributes?.colors ?? [])
+                .map((color) => color.name)
+                .filter(Boolean)
+                .join(' / ');
 
-        const amount = text
-            .slice(1)               // drop the currency symbol
-            .split(',')[0]          // drop the decimal part and comma
-            .replace(/[.\s]/g, ''); // strip thousand separators and whitespace
+            for (const sku of skuGroup.skus ?? []) {
+                const main = sku.offers?.[0]?.fixedPrices?.[0]?.typeTargets?.[0]?.currencies?.main;
 
-        return {price: amount,priceCurrency: priceCurrency};
-    }
+                const url = this.toAbsoluteUrl(origin, sku.url);
 
-    async extractPriceAndCurrency(page, priceSelector) {
-        let rawPrice = await page.$eval(priceSelector, el => {
-            // Find all child nodes of the span
-            for (const node of el.childNodes) {
-                // Node.TEXT_NODE means it's raw text (not an inner HTML tag like <span>)
-                if (node.nodeType === Node.TEXT_NODE) {
-                    const text = node.textContent.trim();
-                    // If the text node actually contains characters (and isn't just whitespace)
-                    if (text) {
-                        return text;
-                    }
-                }
+                variations.push(this.buildVariation({
+                    sourceProductId: itemGroup.id,
+                    sourceVariationId: skuGroup.modelId,
+                    skuId: sku.skuId,
+                    sku: sku.providerSkuCode?.skuCode ?? sku.skuId ?? null,
+                    price: main?.valueWithTaxes ?? null,
+                    priceCurrency: main?.currency?.toLowerCase() ?? null,
+                    url,
+                    stock: sku.isAvailable ? 88 : 0,
+                    brand: sku.brand?.name ?? null,
+                    size: sku.sizeGridValue ?? null,
+                    color: colors,
+                }));
             }
-            return '';
-        });
-
-        const {price, priceCurrency: variationPriceCurrency} = this.parseDecathlonPrice(rawPrice);
-        return {price, variationPriceCurrency};
-    }
-
-    /**
-     * Read the variation id from the "product info" caption and normalize it:
-     * "Ürün No: 123 456" -> "123456".
-     */
-    async extractVariationId(page, variationIdSelector) {
-        const raw = await this.readElementText(page, variationIdSelector);
-        return raw.split(' ')[1].replace(/[.\s]/g, '');
-    }
-
-    /**
-     * Read the text content of the first element matching the selector,
-     * waiting up to 15s for it to appear.
-     */
-    async readElementText(page, selector, {timeout = 15000} = {}) {
-        const handle = await page.waitForSelector(selector, {timeout});
-        return page.evaluate((e) => e.textContent, handle);
-    }
-
-    /**
-     * Read and normalize the size text straight from the clicked tile handle
-     * ("M" -> "M", "39/40" -> "39/40"). On failure, save a DOM snapshot for debugging.
-     */
-    async readSizeFromHandle(page, sizeHandle) {
-        const size = await page.evaluate((el) => el.textContent.trim(), sizeHandle);
-        return size.replace(/[.\s]/g, '');
-    }
-
-    /**
-     * Read the single (no size-tiles) size label and normalize it.
-     */
-    async readSingleSize(page, singleSizeSelector) {
-        let raw = null
-        try {
-            raw = (await this.readElementText(page, singleSizeSelector)).replace(/[.\s]/g, '');
-        } catch (e) {
-
         }
 
-        return raw;
+        return variations;
     }
 
     /**
-     * Extract the price (with currency) and the stock state for the currently
-     * selected variant. If the stock label element is found, the variant is
-     * considered out of stock (0); otherwise it's in stock (88).
+     * Resolve the relative product URL from the flight payload against the
+     * page origin, e.g. "/p/_/R-p-306417?mc=8547764" ->
+     * "https://www.decathlon.com.tr/p/_/R-p-306417?mc=8547764".
      */
-    async extractPriceAndStock(page, priceSelector, stockSelector) {
-        const {price, variationPriceCurrency} = await this.extractPriceAndCurrency(page, priceSelector);
-        const outOfStock = await page.$(stockSelector);
+    toAbsoluteUrl(origin, relativeUrl) {
+        if (!relativeUrl) {
+            return null;
+        }
 
-        return {price, variationPriceCurrency, stock: outOfStock ? 0 : 88};
+        if (/^https?:\/\//i.test(relativeUrl)) {
+            return relativeUrl;
+        }
+
+        return new URL(relativeUrl, origin).toString();
     }
 
     /**
@@ -293,18 +190,19 @@ class DecathlonStrategy extends BaseStrategy {
     }
 
     /**
-     * Build a single variation row. Normalizes brand, and uses `stock` already
-     * resolved to 0 (out of stock) or 88 (in stock).
+     * Build a single variation row.
      */
-    buildVariation({sourceProductId, sourceVariationId, price, url, stock, priceCurrency, brand, size, color}) {
+    buildVariation({sourceProductId, sourceVariationId, skuId, sku, price, priceCurrency, url, stock, brand, size, color}) {
         return {
             decathlon_product_id: sourceProductId,
             source_variation_id: sourceVariationId,
+            sku_id: skuId,
+            sku,
             price,
+            priceCurrency,
             url: url ?? null,
             stock,
-            priceCurrency,
-            brand: brand.replace(/[.\s]/g, ''),
+            brand: brand?.replace(/[.\s]/g, '') ?? null,
             size,
             color,
         };

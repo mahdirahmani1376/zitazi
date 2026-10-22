@@ -29,9 +29,11 @@ class SeedVariationsForDecathlonAction
         $availableVariations = [];
         foreach ($variationsRawData as $variationRawData) {
             $url = $variationRawData['url'];
-            $color = parse_url($url, PHP_URL_QUERY);
-            parse_str($color, $query);
-            $color = $query['c'] ?? null;
+            $color = $variationRawData['color'] ?? null;
+            if ($color === null) {
+                parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $query);
+                $color = $query['c'] ?? null;
+            }
 
             $price = $variationRawData['price'];
 
