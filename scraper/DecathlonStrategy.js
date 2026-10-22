@@ -77,6 +77,14 @@ class DecathlonStrategy extends BaseStrategy {
                 };
             }
 
+            // Deleted products 302 to a category page but still return HTTP 200.
+            // Detect that here (before the flight-payload wait) so we do not
+            // burn 15s waiting on a page that will never contain the product.
+            const deleted = this.deletedResultIfRedirected(productData, response, page.url());
+            if (deleted) {
+                return deleted;
+            }
+
             try {
                 // Wait until the page has rendered the flight payload so the
                 // product catalog is present. The chunks are pushed into the
@@ -115,13 +123,14 @@ class DecathlonStrategy extends BaseStrategy {
                         blocked: true
                     };
                 } else {
-                    return {
-                        product_id: productData.id,
-                        success: false,
-                        response_status: response.status(),
-                        response_headers: response.headers(),
-                        blocked: false
-                    };
+                    return this.deletedResultIfRedirected(productData, response, page.url())
+                        ?? {
+                            product_id: productData.id,
+                            success: false,
+                            response_status: response.status(),
+                            response_headers: response.headers(),
+                            blocked: false
+                        };
                 }
             }
 
@@ -156,12 +165,47 @@ class DecathlonStrategy extends BaseStrategy {
                 response_headers: response?.headers(),
                 error,
                 blocked: false,
-                deleted: false
+                deleted: true
             };
         } finally {
             if (page) await safeClose(() => page.close());
             if (isShuttingDown() || closeBrowser) await this.closeBrowser();
         }
+    }
+
+    productIdFromUrl(url) {
+        return url?.match(/R-p-(\d+)/i)?.[1] ?? null;
+    }
+
+    /**
+     * Deleted Decathlon products 302 to a category page while still returning
+     * HTTP 200 (`/p/.../_/R-p-340989` -> `/tum-sporlar/binicilik/eyer`).
+     * Detect it by the product id disappearing from the final URL. A redirect
+     * that keeps a product id (same or replacement) is left to normal handling.
+     */
+    deletedResultIfRedirected(productData, response, finalUrl) {
+        const requestedProductId = this.productIdFromUrl(productData.decathlon_url);
+
+        if (!requestedProductId || this.productIdFromUrl(finalUrl)) {
+            return null;
+        }
+
+        console.error(JSON.stringify({
+            message: 'decathlon product deleted (redirected away)',
+            requested_url: productData.decathlon_url,
+            final_url: finalUrl,
+            data: productData,
+            level: 'error',
+        }));
+
+        return {
+            product_id: productData.id,
+            success: false,
+            blocked: false,
+            deleted: true,
+            response_status: response?.status() ?? null,
+            response_headers: response?.headers() ?? {},
+        };
     }
 
     /**
