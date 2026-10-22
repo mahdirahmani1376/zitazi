@@ -67,6 +67,7 @@ class VariationsTable
                     ->label('Woocommerce id')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('sku'),
                 TextColumn::make('color'),
                 TextColumn::make('item_type'),
                 TextColumn::make('status'),
