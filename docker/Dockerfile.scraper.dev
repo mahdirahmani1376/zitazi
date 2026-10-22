@@ -21,6 +21,8 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     libxext6 \
     libxfixes3 \
+    xvfb \
+    xauth \
     wget \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
@@ -29,3 +31,6 @@ WORKDIR /app
 
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+COPY ./scripts/scraper-entrypoint.sh /usr/local/bin/scraper-entrypoint.sh
+RUN chmod +x /usr/local/bin/scraper-entrypoint.sh

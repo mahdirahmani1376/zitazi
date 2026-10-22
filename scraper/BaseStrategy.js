@@ -15,10 +15,21 @@ function isShuttingDown() {
 
 const userDataDir = process.env.CHROME_USER_DATA_DIR;
 
+// Headful mode (under Xvfb) passes Cloudflare's "Just a moment" challenge
+// that blocks headless Chromium from Decathlon. Enable it for the scraper
+// container via SCRAPER_HEADFUL=1 + a running DISPLAY (see docker-compose).
+const headful = process.env.SCRAPER_HEADFUL === '1';
+
 const puppeteerOptions = {
-    headless: 'new',
+    headless: headful ? false : 'new',
     protocolTimeout: 120000,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        ...(headful ? ['--window-size=1280,1024'] : []),
+    ],
     ...(userDataDir ? {userDataDir} : {}),
 };
 

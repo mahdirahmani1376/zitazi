@@ -138,16 +138,16 @@ services:
       PROXY_USER : ${PROXY_USER}
       PROXY_PASSWORD : ${PROXY_PASSWORD}
       CHROME_USER_DATA_DIR: /app/chrome-profile
+      # Headful Chromium under Xvfb passes Cloudflare's challenge that blocks
+      # headless Chromium from Decathlon.
+      SCRAPER_HEADFUL: "1"
+      DISPLAY: ":99"
 
     ports:
       - "9229:9229"
     shm_size: "1gb"
     mem_limit: 1500m
-    command: >
-      sh -c "mkdir -p /app/chrome-profile &&
-             cp -a /host/chrome-profile/. /app/chrome-profile/ &&
-             rm -f /app/chrome-profile/Singleton* &&
-             sleep infinity"
+    command: ["/usr/local/bin/scraper-entrypoint.sh"]
     depends_on:
       redis:
         condition: service_healthy

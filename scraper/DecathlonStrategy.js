@@ -58,6 +58,9 @@ class DecathlonStrategy extends BaseStrategy {
             response = await page.goto(productData.decathlon_url, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
 
             if ([403, 429].includes(response.status())) {
+                // A 403 here is usually the Cloudflare "Just a moment..."
+                // challenge page rather than a Decathlon rate limit. Either
+                // way it is an anti-bot block: re-queue with backoff.
                 console.error(JSON.stringify({
                     message: 'decathlon rate limit',
                     status: response.status(),
@@ -74,10 +77,53 @@ class DecathlonStrategy extends BaseStrategy {
                 };
             }
 
-            // Wait until the page has rendered the flight payload so the
-            // product catalog is present. The chunks are pushed into the
-            // `window.__next_f` array by plain <script> tags.
-            await page.waitForFunction(() => Array.isArray(window.__next_f) && window.__next_f.length > 0, {timeout: 15000});
+            try {
+                // Wait until the page has rendered the flight payload so the
+                // product catalog is present. The chunks are pushed into the
+                // `window.__next_f` array by plain <script> tags. However, in
+                // headless runs the inline `self.__next_f.push(...)` scripts can
+                // fail to execute (the global stays an empty array) even though
+                // the raw HTML already contains the full flight payload. So wait
+                // for the flight marker inside the rendered DOM instead.
+                await page.waitForFunction(() => {
+                    const scripts = document.querySelectorAll('script');
+                    for (const s of scripts) {
+                        if ((s.textContent || '').includes('self.__next_f.push([1,"')) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }, {timeout: 25000});
+            } catch (e) {
+                // Cloudflare sometimes serves the interstitial challenge with a
+                // 200 status. Detect it by the challenge page's distinctive title
+                // before burning 15s on the flight-payload wait below.
+                const challengeTitle = await page.evaluate(() => document.title).catch(() => '');
+                if (challengeTitle.includes('Just a moment')) {
+                    console.error(JSON.stringify({
+                        message: 'decathlon cloudflare challenge (200)',
+                        status: response.status(),
+                        data: productData,
+                        level: 'error'
+                    }));
+                    closeBrowser = true;
+                    return {
+                        product_id: productData.id,
+                        success: false,
+                        response_status: response.status(),
+                        response_headers: response.headers(),
+                        blocked: true
+                    };
+                } else {
+                    return {
+                        product_id: productData.id,
+                        success: false,
+                        response_status: response.status(),
+                        response_headers: response.headers(),
+                        blocked: false
+                    };
+                }
+            }
 
             const html = await page.content();
             const itemGroups = extractItemGroupFromHtml(html);
