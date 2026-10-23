@@ -53,6 +53,11 @@ services:
     command: php artisan listen:scrape
     container_name: zitazi-scrape-result
 
+  torob-listener:
+    <<: *laravel
+    command: php artisan listen:torob
+    container_name: zitazi-torob-listener
+
   sync-status:
     <<: *laravel
     command: php artisan listen:sync-status

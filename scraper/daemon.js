@@ -19,7 +19,8 @@ process.on('unhandledRejection', (reason) => {
 const workers = [
     new Worker("Trendyol", 'laravel_database_trendyol_scrape_product'),
     new Worker("Decathlon", 'laravel_database_decathlon_scrape_product'),
-    new Worker("Torob", 'laravel_database_torob_scrape_product'),
+    // Torob scraping moved to PHP (listen:torob + FetchTorobWithScrapeOpsJob).
+    // TorobStrategy is kept in the repo but intentionally unregistered here.
 ];
 
 const workerPromises = workers.map(w => w.run(beginScrape, () => shuttingDown));

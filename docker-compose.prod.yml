@@ -48,6 +48,13 @@ services:
     environment:
       APP_SERVICE: scrape-result
 
+  torob-listener:
+    <<: *laravel
+    command: php artisan listen:torob
+    container_name: zitazi-torob-listener
+    environment:
+      APP_SERVICE: torob-listener
+
   sync-status:
     <<: *laravel
     command: php artisan listen:sync-status
