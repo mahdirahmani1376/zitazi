@@ -53,7 +53,7 @@ class TorobService
                 $minPrice = $minShop['price'];
                 $rivalShop = $minShop['shop_id'];
 
-                if ($rivalShop !== config('services.zitazi.torob_shop_id')) {
+                if ($rivalShop != config('services.zitazi.torob_shop_id')) {
                     LogManager::logProduct($product, 'rival shop found', [
                         'shop_name' => $minShop['shop_name'],
                         'shop_price' => $minPrice,
