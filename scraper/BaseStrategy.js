@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
@@ -13,7 +15,7 @@ function isShuttingDown() {
     return scraperShuttingDown;
 }
 
-const userDataDir = process.env.CHROME_USER_DATA_DIR;
+const userDataDirBase = process.env.CHROME_USER_DATA_DIR;
 
 // Headful mode (under Xvfb) passes Cloudflare's "Just a moment" challenge
 // that blocks headless Chromium from Decathlon. Enable it for the scraper
@@ -30,7 +32,6 @@ const puppeteerOptions = {
         '--disable-gpu',
         ...(headful ? ['--window-size=1280,1024'] : []),
     ],
-    ...(userDataDir ? {userDataDir} : {}),
 };
 
 const BROWSER_RESTART_INTERVAL = 30 * 60 * 1000;
@@ -53,6 +54,34 @@ class BaseStrategy {
         this.initialTime = Date.now();
     }
 
+    /**
+     * Per-strategy Chrome profile directory. Chrome allows only one process
+     * per profile directory (SingletonLock); sharing a single
+     * CHROME_USER_DATA_DIR between the Trendyol/Decathlon strategies makes a
+     * second launch abort while the first strategy's browser is alive.
+     */
+    userDataDir() {
+        return userDataDirBase ? path.join(userDataDirBase, this.name.toLowerCase()) : undefined;
+    }
+
+    /**
+     * Strip stale Chrome singleton lock files from this strategy's profile so
+     * a hard-crashed browser cannot block the next launch.
+     */
+    cleanSingletonLocks() {
+        const dir = this.userDataDir();
+        if (!dir) {
+            return;
+        }
+
+        try {
+            fs.readdirSync(dir)
+                .filter((f) => f.startsWith('Singleton'))
+                .forEach((f) => fs.rmSync(path.join(dir, f), {force: true}));
+        } catch (e) {
+        }
+    }
+
     async ensureBrowser() {
         if (scraperShuttingDown) throw new Error('Scraper is shutting down');
 
@@ -63,7 +92,13 @@ class BaseStrategy {
         }
 
         if (!this.browser) {
-            this.browser = await puppeteer.launch(puppeteerOptions);
+            this.cleanSingletonLocks();
+
+            const dir = this.userDataDir();
+            this.browser = await puppeteer.launch({
+                ...puppeteerOptions,
+                ...(dir ? {userDataDir: dir} : {}),
+            });
             this.initialTime = Date.now();
         }
 

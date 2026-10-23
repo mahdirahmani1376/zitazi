@@ -40,5 +40,15 @@ if [ -n "${DISPLAY}" ] && ! pgrep -f "x11vnc -display ${DISPLAY}" >/dev/null 2>&
     sleep 1
 fi
 
+# Start websockify (noVNC) so the headful Chromium can be watched from a
+# browser tab at http://localhost:6080/vnc.html. It serves the noVNC static
+# files and proxies WebSocket to x11vnc on :5900.
+if [ -n "${DISPLAY}" ] && ! pgrep -f "websockify --web=/usr/share/novnc" >/dev/null 2>&1; then
+    echo "[entrypoint] starting websockify (noVNC) on :6080..."
+    pkill -f "websockify --web=/usr/share/novnc" 2>/dev/null || true
+    websockify --web=/usr/share/novnc 6080 localhost:5900 >/tmp/websockify.log 2>&1 &
+    sleep 1
+fi
+
 echo "[entrypoint] starting scraper daemon..."
 exec node daemon.js

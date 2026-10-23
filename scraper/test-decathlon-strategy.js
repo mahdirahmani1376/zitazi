@@ -57,19 +57,8 @@ class CaptureHtmlDecathlonStrategy extends DecathlonStrategy {
     async ensureBrowser() {
         // The copied host profile may carry stale Chrome singleton lock files
         // ("The profile appears to be in use by another Chromium process").
-        // Strip them so Chromium can launch with the profile.
-        const {readdirSync, rmSync} = require('fs');
-        const userDataDir = process.env.CHROME_USER_DATA_DIR;
-        if (userDataDir) {
-            try {
-                readdirSync(userDataDir)
-                    .filter((f) => f.startsWith('Singleton'))
-                    .forEach((f) => rmSync(`${userDataDir}/${f}`, {force: true}));
-            } catch (err) {
-                console.error('Failed to clean Singleton lock files:', err.message);
-            }
-        }
-
+        // Strip them so Chromium can launch with the profile. The base class
+        // now does this per-strategy; call it and keep wrapping newPage.
         const browser = await super.ensureBrowser();
 
         // Wrap newPage so we can grab the page instance the strategy creates

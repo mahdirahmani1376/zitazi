@@ -165,7 +165,10 @@ class DecathlonStrategy extends BaseStrategy {
                 response_headers: response?.headers(),
                 error,
                 blocked: false,
-                deleted: true
+                // A browser crash / timeout is NOT a deletion. Only the
+                // explicit redirect check (deletedResultIfRedirected) may mark
+                // a product as deleted.
+                deleted: false
             };
         } finally {
             if (page) await safeClose(() => page.close());

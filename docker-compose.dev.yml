@@ -147,6 +147,7 @@ services:
     ports:
       - "9229:9229"
       - "127.0.0.1:5900:5900"
+      - "127.0.0.1:6080:6080"
     shm_size: "1gb"
     mem_limit: 1500m
     command: ["/usr/local/bin/scraper-entrypoint.sh"]
