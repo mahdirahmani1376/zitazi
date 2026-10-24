@@ -199,10 +199,6 @@ Route::post('seed-products', function () {
     return back()->with('success', 'بازخوانی محصولات در حال انجام است لطفا ۱۰ دقیقه صبر کنید');
 })->name('products.seed');
 
-Horizon::auth(function () {
-    return true; // disables all auth checks
-});
-
 Route::get('/movie', function () {
     $url = Storage::disk('local')->get('video_url.txt');
 

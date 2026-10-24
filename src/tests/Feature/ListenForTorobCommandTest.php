@@ -2,15 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\FetchTorobWithScrapeOpsJob;
-use App\Services\ScrapeOpsService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Sleep;
 use Tests\TestCase;
 
-class FetchTorobWithScrapeOpsJobTest extends TestCase
+class ListenForTorobCommandTest extends TestCase
 {
     private const DATA = [
         'product' => ['id' => 42, 'full_url' => 'https://api.torob.com/v4/base-product/details/?prk=abc123'],
@@ -28,6 +26,16 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
         config(['services.scrapeops.sleep_seconds' => 0]);
     }
 
+    private function runOnce(array $message): void
+    {
+        Redis::shouldReceive('blpop')
+            ->once()
+            ->with('torob_scrape_product', 0)
+            ->andReturn(['torob_scrape_product', json_encode($message)]);
+
+        $this->artisan('listen:torob', ['--once' => true])->run();
+    }
+
     public function test_success_caches_response_and_pushes_result(): void
     {
         Http::fake([
@@ -41,7 +49,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
             ], 200),
         ]);
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Redis::shouldHaveReceived('rpush')
             ->once()
@@ -62,7 +70,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
     {
         Cache::put('torob:scrapeops:42', ['result' => [['price' => 500]]], now()->addMonth());
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Http::assertNothingSent();
 
@@ -79,7 +87,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
     {
         Cache::put('scrapeops:requests', 800);
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Http::assertNothingSent();
 
@@ -100,7 +108,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
             'proxy.scrapeops.io/*' => Http::response('Not Found', 404),
         ]);
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Redis::shouldHaveReceived('rpush')
             ->once()
@@ -118,7 +126,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
             'proxy.scrapeops.io/*' => Http::response('<html>challenge</html>', 200),
         ]);
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Redis::shouldHaveReceived('rpush')
             ->once()
@@ -134,7 +142,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
     {
         $data = ['product' => ['id' => 42, 'full_url' => ''], 'bulk' => false];
 
-        (new FetchTorobWithScrapeOpsJob($data))->handle(app(ScrapeOpsService::class));
+        $this->runOnce($data);
 
         Http::assertNothingSent();
 
@@ -155,7 +163,7 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
 
         Sleep::fake();
 
-        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
+        $this->runOnce(self::DATA);
 
         Sleep::assertSlept(fn ($duration) => (int) $duration->totalSeconds === 7, 1);
 

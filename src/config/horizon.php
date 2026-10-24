@@ -253,21 +253,6 @@ return [
                 'nice' => 0,
                 'balance' => 'auto',
             ],
-            'supervisor-torob-scrape' => [
-                // Single process only: the job itself sleeps 7s before each
-                // request, so one worker keeps ScrapeOps under the request
-                // budget. More processes would burst past it.
-                'queue' => ['torob-scrape'],
-                'connection' => 'redis',
-                'maxProcesses' => 1,
-                'tries' => 1,
-                'timeout' => 3600,
-                'autoScalingStrategy' => 'time',
-                'maxTime' => 0,
-                'maxJobs' => 200,
-                'nice' => 0,
-                'balance' => 'auto',
-            ],
         ],
 
         'local' => [
@@ -299,21 +284,6 @@ return [
             ],
             'supervisor-emergency' => [
                 'queue' => ['emergency'],
-                'connection' => 'redis',
-                'maxProcesses' => 1,
-                'tries' => 1,
-                'timeout' => 3600,
-                'autoScalingStrategy' => 'time',
-                'maxTime' => 0,
-                'maxJobs' => 200,
-                'nice' => 0,
-                'balance' => 'auto',
-            ],
-            'supervisor-torob-scrape' => [
-                // Single process only: the job itself sleeps 7s before each
-                // request, so one worker keeps ScrapeOps under the request
-                // budget. More processes would burst past it.
-                'queue' => ['torob-scrape'],
                 'connection' => 'redis',
                 'maxProcesses' => 1,
                 'tries' => 1,
