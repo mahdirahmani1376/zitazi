@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Sleep;
 
 /**
  * Fetches a Torob product's sellers via ScrapeOps and pushes the result back
@@ -21,8 +22,8 @@ use Illuminate\Support\Facades\Redis;
  *  - the job never retries automatically (a retry would burn another request),
  *  - successful responses are cached for a month per product,
  *  - a global request counter stops at the configured cap (default 800),
- *  - requests are spaced so at most `rate_limit_per_minute` HTTP calls are
- *    made per minute (the job sleeps until the minute boundary when full).
+ *  - a fixed pause before each HTTP request keeps the free-tier proxy calm
+ *    (default 7 seconds, configurable via `scrapeops.sleep_seconds`).
  */
 class FetchTorobWithScrapeOpsJob implements ShouldQueue
 {
@@ -34,7 +35,12 @@ class FetchTorobWithScrapeOpsJob implements ShouldQueue
 
     public function __construct(
         public array $data,
-    ) {}
+    ) {
+        // Dedicated single-process queue so concurrent Horizon workers cannot
+        // burst past the ScrapeOps request budget (see horizon.php
+        // `supervisor-torob-scrape`).
+        $this->onQueue('torob-scrape');
+    }
 
     public function handle(ScrapeOpsService $scrapeOpsService): void
     {
@@ -65,11 +71,9 @@ class FetchTorobWithScrapeOpsJob implements ShouldQueue
             return;
         }
 
-        // Rate limit: space out actual HTTP requests so at most
-        // `rate_limit_per_minute` fire in a minute. Once the per-minute
-        // bucket is full the job sleeps until the minute rolls over, resets
-        // the bucket, then proceeds. No requeue needed.
-        $this->waitForRateLimitSlot();
+        // Space out requests with a fixed pause so the free-tier proxy is not
+        // hammered. A plain sleep (no bucket, no log noise).
+        $this->sleepBetweenRequests();
 
         $this->incrementUsage();
 
@@ -127,52 +131,12 @@ class FetchTorobWithScrapeOpsJob implements ShouldQueue
     }
 
     /**
-     * Space HTTP requests so at most `rate_limit_per_minute` are sent per
-     * minute. Uses a per-minute bucket: once full, sleep until the next
-     * minute boundary, then reset the bucket and return.
+     * Pause before sending an HTTP request so requests are spaced out.
+     * Duration comes from `scrapeops.sleep_seconds` (default 7 seconds).
      */
-    private function waitForRateLimitSlot(): void
+    private function sleepBetweenRequests(): void
     {
-        $rateLimit = (int) config('services.scrapeops.rate_limit_per_minute', 4);
-
-        if ($rateLimit <= 0) {
-            return;
-        }
-
-        $usageKey = $this->rateLimitUsageKey();
-
-        $used = (int) Cache::get($usageKey, 0);
-
-        if ($used < $rateLimit) {
-            // Seed the bucket with a TTL the first time it is used so the key
-            // expires instead of accumulating in Redis.
-            if ($used === 0) {
-                Cache::add($usageKey, 1, 70);
-            } else {
-                Cache::increment($usageKey);
-            }
-
-            return;
-        }
-
-        $secondsToMinuteBoundary = 60 - (int) now()->format('s');
-        $secondsToMinuteBoundary = max(1, $secondsToMinuteBoundary);
-
-        Log::info('torob rate limit reached, sleeping', [
-            'rate_limit_per_minute' => $rateLimit,
-            'sleep_seconds' => $secondsToMinuteBoundary,
-            'time' => now()->format('H:i:s'),
-        ]);
-
-        sleep($secondsToMinuteBoundary);
-
-        // New minute: reset the bucket and consume the first slot.
-        Cache::add($usageKey, 1, 70);
-    }
-
-    private function rateLimitUsageKey(): string
-    {
-        return 'scrapeops:rate_limit:usage:'.now()->format('Y-m-d-Hi');
+        Sleep::for((int) config('services.scrapeops.sleep_seconds', 7))->seconds();
     }
 
     private function incrementUsage(): void

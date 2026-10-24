@@ -7,6 +7,7 @@ use App\Services\ScrapeOpsService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Sleep;
 use Tests\TestCase;
 
 class FetchTorobWithScrapeOpsJobTest extends TestCase
@@ -22,6 +23,9 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
 
         Cache::flush();
         Redis::spy();
+
+        // Keep the inter-request pause out of the way unless a test opts in.
+        config(['services.scrapeops.sleep_seconds' => 0]);
     }
 
     public function test_success_caches_response_and_pushes_result(): void
@@ -141,27 +145,20 @@ class FetchTorobWithScrapeOpsJobTest extends TestCase
             }));
     }
 
-    public function test_rate_limit_sleeps_and_resets_when_minute_full(): void
+    public function test_sleeps_between_requests_before_http_call(): void
     {
         Http::fake([
             'proxy.scrapeops.io/*' => Http::response(['products_info' => ['result' => []]], 200),
         ]);
 
-        $data = [
-            'product' => ['id' => 99, 'full_url' => 'https://api.torob.com/v4/base-product/details/?prk=xyz99'],
-            'bulk' => false,
-        ];
+        config(['services.scrapeops.sleep_seconds' => 7]);
 
-        // Travel to :59 of the current minute so the sleep is only 1 second,
-        // and pre-seed the per-minute bucket at the limit.
-        $this->travelTo(now()->startOfMinute()->addSeconds(59));
-        $usageKey = 'scrapeops:rate_limit:usage:'.now()->format('Y-m-d-Hi');
-        Cache::put($usageKey, 4, 70);
+        Sleep::fake();
 
-        (new FetchTorobWithScrapeOpsJob($data))->handle(app(ScrapeOpsService::class));
+        (new FetchTorobWithScrapeOpsJob(self::DATA))->handle(app(ScrapeOpsService::class));
 
-        // The bucket was full, so the job slept past the boundary and still
-        // made the HTTP request (no requeue, no drop).
+        Sleep::assertSlept(fn ($duration) => (int) $duration->totalSeconds === 7, 1);
+
         Http::assertSentCount(1);
 
         Redis::shouldHaveReceived('rpush')

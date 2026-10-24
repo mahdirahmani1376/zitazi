@@ -23,6 +23,10 @@ class ScrapeOpsService
     {
         $response = Http::withHeaders([
             'api_key' => config('services.scrapeops.key'),
+            // ScrapeOps responds with brotli by default; a truncated br stream
+            // surfaces as cURL error 61 (CURLE_BAD_CONTENT_ENCODING). Request
+            // gzip instead, which the proxy also supports and decodes reliably.
+            'Accept-Encoding' => 'gzip',
         ])
             ->connectTimeout(15)
             ->timeout(90)

@@ -64,7 +64,7 @@ return [
         'key' => env('SCRAPE_OPS_KEY'),
         'max_requests' => (int) env('SCRAPE_OPS_MAX_REQUESTS', 800),
         'cache_ttl_days' => (int) env('SCRAPE_OPS_CACHE_TTL_DAYS', 30),
-        'rate_limit_per_minute' => (int) env('SCRAPE_OPS_RATE_LIMIT_PER_MINUTE', 4),
+        'sleep_seconds' => (int) env('SCRAPE_OPS_SLEEP_SECONDS', 7),
     ],
 
 ];
