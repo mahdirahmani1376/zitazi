@@ -15,6 +15,12 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         parent::boot();
 
+        // Disable all Horizon auth checks. The default gate approach rejects
+        // unauthenticated users (a non-nullable `$user` param means Laravel's
+        // Gate never invokes the closure for guests), so override the auth
+        // callback to allow everyone through.
+        Horizon::auth(fn () => true);
+
         // Horizon::routeSmsNotificationsTo('15556667777');
         // Horizon::routeMailNotificationsTo('example@example.com');
         // Horizon::routeSlackNotificationsTo('slack-webhook-url', '#channel');
