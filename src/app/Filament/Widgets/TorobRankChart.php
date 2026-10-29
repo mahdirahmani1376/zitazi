@@ -22,6 +22,7 @@ class TorobRankChart extends ChartWidget
         $rankCounts = Product::query()
             ->whereNotNull('torob_id')
             ->where('torob_id', '!=', '')
+            ->where('promotion','!=',1)
             ->selectRaw('torob_rank, COUNT(*) as products_count')
             ->groupBy('torob_rank')
             ->orderBy('torob_rank')
