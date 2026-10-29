@@ -76,15 +76,6 @@ class ListenForTorobCommand extends Command
             return;
         }
 
-        if ($this->quotaExceeded()) {
-            $this->pushResult($this->failure($productId, $fullUrl, 'ScrapeOps quota exceeded', [
-                'name' => 'ScrapeOpsQuotaExceeded',
-                'message' => 'ScrapeOps request quota exceeded',
-            ]));
-
-            return;
-        }
-
         // Space out requests with a fixed pause so the free-tier proxy is not
         // hammered. A plain sleep (no bucket, no log noise).
         $this->sleepBetweenRequests();
