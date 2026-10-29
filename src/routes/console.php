@@ -195,8 +195,3 @@ Artisan::command('app:clean-deleted-products', function () {
 
     }
 });
-
-Artisan::command('testx', function () {
-    $hi = 'hi';
-    dd(1);
-});

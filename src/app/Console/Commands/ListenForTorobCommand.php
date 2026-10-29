@@ -119,7 +119,7 @@ class ListenForTorobCommand extends Command
                 'product' => data_get($json, 'products_info'),
             ];
 
-            Cache::put($cacheKey, $payload, now()->addDays((int) config('services.scrapeops.cache_ttl_days', 30)));
+            Cache::put($cacheKey, $payload, now()->addDays((int) config('services.scrapeops.cache_ttl_days', 1)));
 
             $this->pushResult($this->success($productId, $payload, $fullUrl, $bulk, $response['status']));
         } catch (\Throwable $e) {
