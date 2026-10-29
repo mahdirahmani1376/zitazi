@@ -11,6 +11,7 @@ use App\Filament\Widgets\DecathlonVariationsStockReport;
 use App\Filament\Widgets\EmergencyUpdate;
 use App\Filament\Widgets\SyncSatrehWidget;
 use App\Filament\Widgets\SyncZitaziWidget;
+use App\Filament\Widgets\TorobRankChart;
 use App\Filament\Widgets\TrendyolLogModelsReport;
 use App\Filament\Widgets\TrendyolProductSyncStatusReport;
 use App\Filament\Widgets\TrendyolVariationReport;
@@ -25,6 +26,7 @@ class Dashboard extends BaseDashboard
             SyncZitaziWidget::class,
             SyncSatrehWidget::class,
             CurrencyRefreshWidget::class,
+            TorobRankChart::class,
             CurrencyWidget::class,
             TrendyolVariationsStockReport::class,
             DecathlonVariationsStockReport::class,
