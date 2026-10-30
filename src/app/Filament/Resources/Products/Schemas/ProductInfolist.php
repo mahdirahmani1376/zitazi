@@ -33,6 +33,10 @@ class ProductInfolist
                     ->columnSpanFull(),
                 TextEntry::make('torob_id')
                     ->placeholder('-'),
+                TextEntry::make('torob_rank')
+                    ->placeholder('-'),
+                TextEntry::make('torob_shop_counts')
+                    ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

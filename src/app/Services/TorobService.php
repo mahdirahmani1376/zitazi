@@ -28,7 +28,6 @@ class TorobService
             if (empty(data_get($response, 'response_data.result'))) {
                 LogManager::logProduct($product, 'product has no seller in torob');
                 $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
-
                 return;
             }
 
@@ -44,11 +43,14 @@ class TorobService
 
                 $product->update([
                     'rival_min_price' => null,
+                    'torob_shop_counts' => null
                 ]);
             } else {
                 $minShop = $validShops
                     ->sortBy('price')
                     ->first();
+
+                $torob_shop_counts = $validShops->count();
 
                 $zitaziRank = null;
                 foreach ($validShops as $key => $shop) {
@@ -68,7 +70,8 @@ class TorobService
 
                     $product->update([
                         'rival_min_price' => $minPrice,
-                        'torob_rank' => $zitaziRank
+                        'torob_rank' => $zitaziRank,
+                        'torob_shop_counts' => $torob_shop_counts,
                     ]);
 
                 } else {
@@ -79,7 +82,8 @@ class TorobService
 
                     $product->update([
                         'rival_min_price' => null,
-                        'torob_rank' => 1
+                        'torob_rank' => 1,
+                        'torob_shop_counts' => $torob_shop_counts,
                     ]);
                 }
             }

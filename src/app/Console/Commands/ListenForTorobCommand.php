@@ -128,13 +128,6 @@ class ListenForTorobCommand extends Command
         }
     }
 
-    private function quotaExceeded(): bool
-    {
-        $limit = (int) config('services.scrapeops.max_requests', 800);
-
-        return (int) Cache::get($this->usageKey(), 0) >= $limit;
-    }
-
     /**
      * Pause before sending an HTTP request so requests are spaced out.
      * Duration comes from `scrapeops.sleep_seconds` (default 7 seconds).
