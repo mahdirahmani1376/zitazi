@@ -50,6 +50,10 @@ class TorobService
                     ->sortBy('price')
                     ->first();
 
+                $secondMinShop = $validShops
+                    ->sortBy('price')
+                    ->get(1);
+
                 $torob_shop_counts = $validShops->count();
 
                 $zitaziRank = null;
@@ -80,8 +84,12 @@ class TorobService
                         'shop_price' => $minPrice,
                     ]);
 
+                    if (!empty($secondMinShop) && ($secondMinShop['shop_name'] ?? '' != config('services.zitazi.torob_shop_id'))) {
+                        $minPrice = $secondMinShop['price'];
+                    }
+
                     $product->update([
-                        'rival_min_price' => null,
+                        'rival_min_price' => $minPrice,
                         'torob_rank' => 1,
                         'torob_shop_counts' => $torob_shop_counts,
                     ]);
