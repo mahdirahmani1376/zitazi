@@ -10,9 +10,6 @@ x-laravel: &laravel
     - app-network
   volumes:
     - ./src:/var/www/html
-    # Single source of truth: the root .env is mounted as the Laravel env file.
-    # It is NOT injected as container env vars (env_file), so Laravel's own
-    # .env loader (and --env=testing's .env.testing) actually take effect.
     - ./.env:/var/www/html/.env:ro
     - ./src/.env.testing:/var/www/html/.env.testing
     - ./infra/dev.php.ini:/usr/local/etc/php/php.ini
