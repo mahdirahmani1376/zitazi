@@ -1,7 +1,4 @@
 x-laravel: &laravel
-  env_file:
-    - path: ./.env
-      required: true
   build:
     context: .
     dockerfile: ./docker/Dockerfile.dev
@@ -13,7 +10,10 @@ x-laravel: &laravel
     - app-network
   volumes:
     - ./src:/var/www/html
-    - ./.env:/var/www/html/.env
+    # Single source of truth: the root .env is mounted as the Laravel env file.
+    # It is NOT injected as container env vars (env_file), so Laravel's own
+    # .env loader (and --env=testing's .env.testing) actually take effect.
+    - ./.env:/var/www/html/.env:ro
     - ./src/.env.testing:/var/www/html/.env.testing
     - ./infra/dev.php.ini:/usr/local/etc/php/php.ini
   extra_hosts:
@@ -83,11 +83,10 @@ services:
     restart: unless-stopped
 
   mysql:
-    env_file:
-      - path: ./.env
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: ${TZ:-Asia/Tehran}
     ports:
       - "3308:3306"
     volumes:
