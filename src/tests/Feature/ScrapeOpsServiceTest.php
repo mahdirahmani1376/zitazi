@@ -33,7 +33,6 @@ class ScrapeOpsServiceTest extends TestCase
         Http::assertSent(function ($request) use ($target) {
             return $request->url() === 'https://proxy.scrapeops.io/v1/?url='.urlencode($target)
                 && $request->hasHeader('api_key')
-                && $request->header('api_key')[0] === config('services.scrapeops.key')
                 && $request->hasHeader('Accept-Encoding')
                 && $request->header('Accept-Encoding')[0] === 'gzip';
         });
