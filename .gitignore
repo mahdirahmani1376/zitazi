@@ -49,3 +49,4 @@ infra/alertmanager/telegram_bot_token
 /scraper/ignores/
 /scraper/ignores/*
 /scraper/home/
+.env.testing
