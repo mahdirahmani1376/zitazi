@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\BatchSyncZitaziJob;
+use App\Jobs\DeleteProductJob;
 use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Google\Client;
 use Google\Service\Sheets;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -173,36 +176,17 @@ class ProductSeeder extends Seeder
                 'data' => $this->notFoundProductIds,
             ]);
 
-            foreach (Product::with('variations')
-                         ->whereIn('id', $this->notFoundProductIds)
-                         ->get() as $product) {
-                foreach ($product->variations as $variation) {
-                    $variation->update([
-                        'stock' => 0,
-                    ]);
+            $jobs = collect($this->notFoundProductIds)->map(function ($item) {
+                return new DeleteProductJob($item);
+            });
 
-                    SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
-                        'stock_quantity' => 0,
-                    ]));
-
-                    Log::info('variation deleted', [
-                        'variation_id' => $variation->id,
-                        'woocommerce_id' => $variation->product->own_id,
-                        'data' => $variation->toArray(),
-                    ]);
-
-                    $variation->delete();
-                }
-
-                Log::info('product deleted', [
-                    'product_id' => $product->id,
-                    'woocommerce_id' => $product->own_id,
-                    'data' => $product->toArray(),
-                ]);
-
-                $product->delete();
-
-            }
+            Bus::batch($jobs)
+                ->then(fn () => Log::info('Deleted All Products'))
+                ->catch(fn () => Log::error('Some Deletes Failed'))
+                ->name('Delete Products')
+                ->dispatch();
         }
+
+
     }
 }
