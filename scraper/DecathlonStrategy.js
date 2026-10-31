@@ -230,6 +230,12 @@ class DecathlonStrategy extends BaseStrategy {
 
                 const url = this.toAbsoluteUrl(origin, sku.url);
 
+                let stock = 88;
+                let tagArray = sku.offers[0]?.tags ?? []
+                if (tagArray.includes("LOCAL_STOCK_ONLY")) {
+                    stock = 0;
+                }
+
                 variations.push(this.buildVariation({
                     sourceProductId: itemGroup.id,
                     sourceVariationId: skuGroup.modelId,
@@ -238,7 +244,8 @@ class DecathlonStrategy extends BaseStrategy {
                     price: main?.valueWithTaxes ?? null,
                     priceCurrency: main?.currency?.toLowerCase() ?? null,
                     url,
-                    stock: sku.isAvailable ? 88 : 0,
+                    // stock: sku.isAvailable ? 88 : 0,
+                    stock: stock,
                     brand: sku.brand?.name ?? null,
                     size: sku.sizeGridValue ?? null,
                     color: colors,
