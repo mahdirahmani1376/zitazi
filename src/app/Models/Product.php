@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 
 /** @property $full_url */
 class Product extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     public const TOROB_LOCK_FOR_UPDATE = 'torob_lock_for_update';
 

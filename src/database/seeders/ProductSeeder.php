@@ -2,11 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\DTO\ZitaziUpdateDTO;
+use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Google\Client;
 use Google\Service\Sheets;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -23,13 +24,7 @@ class ProductSeeder extends Seeder
         $this->seedZitaziProducts();
         $this->seedSatreProducts();
 
-        if (! empty($this->notFoundProductIds)) {
-            Log::error('not found product Ids', [
-                'data' => $this->notFoundProductIds,
-            ]);
-
-            Cache::put('deleted-products', $this->notFoundProductIds);
-        }
+        $this->deleteNotFoundProducts();
 
     }
 
@@ -166,5 +161,48 @@ class ProductSeeder extends Seeder
             ]);
         });
 
+    }
+
+    /**
+     * @return void
+     */
+    private function deleteNotFoundProducts(): void
+    {
+        if (!empty($this->notFoundProductIds)) {
+            Log::error('not found product Ids', [
+                'data' => $this->notFoundProductIds,
+            ]);
+
+            foreach (Product::with('variations')
+                         ->whereIn('id', $this->notFoundProductIds)
+                         ->get() as $product) {
+                foreach ($product->variations as $variation) {
+                    $variation->update([
+                        'stock' => 0,
+                    ]);
+
+                    SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
+                        'stock_quantity' => 0,
+                    ]));
+
+                    Log::info('variation deleted', [
+                        'variation_id' => $variation->id,
+                        'woocommerce_id' => $variation->product->own_id,
+                        'data' => $variation->toArray(),
+                    ]);
+
+                    $variation->delete();
+                }
+
+                Log::info('product deleted', [
+                    'product_id' => $product->id,
+                    'woocommerce_id' => $product->own_id,
+                    'data' => $product->toArray(),
+                ]);
+
+                $product->delete();
+
+            }
+        }
     }
 }

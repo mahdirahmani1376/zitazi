@@ -163,35 +163,3 @@ Artisan::command('sync-zitazi-all {id}', function ($id) {
     }
 
 });
-
-Artisan::command('app:clean-deleted-products', function () {
-    $deletedProducts = Cache::get('deleted-products');
-    foreach (Product::whereIn('id', $deletedProducts)->get() as $product) {
-        foreach ($product->variations as $variation) {
-            $variation->update([
-                'stock' => 0,
-            ]);
-
-            SyncZitaziJob::dispatch($variation, ZitaziUpdateDTO::createFromArray([
-                'stock_quantity' => 0,
-            ]));
-
-            Log::info('variation deleted', [
-                'variation_id' => $variation->id,
-                'woocommerce_id' => $variation->product->own_id,
-                'data' => $variation->toArray(),
-            ]);
-
-            $variation->delete();
-        }
-
-        Log::info('product deleted', [
-            'product_id' => $product->id,
-            'woocommerce_id' => $product->own_id,
-            'data' => $product->toArray(),
-        ]);
-
-        $product->delete();
-
-    }
-});

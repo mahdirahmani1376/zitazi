@@ -59,7 +59,9 @@ class BaseVariationCrawler
         $cacheKey = $isSatreh ? 'sync_satreh_enabled' : 'sync_zitazi_enabled';
         $configKey = $isSatreh ? 'services.satreh_sync_enabled' : 'services.zitazi_sync_enabled';
 
-        if (! Cache::get($cacheKey, config($configKey))) {
+        $useConfig = app()->environment('production');
+
+        if (! Cache::get($cacheKey, $useConfig ? config($configKey) : false)) {
             LogManager::logVariation($variation, 'sync is disabled in config', [
                 'variation_id' => $variation->id,
                 'data' => $dto->getUpdateBody(),
