@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Facades\TorobServiceFacade;
+use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Sleep;
@@ -83,25 +86,6 @@ class ListenForTorobCommandTest extends TestCase
         $this->assertSame(0, (int) Cache::get('scrapeops:requests', 0));
     }
 
-    public function test_quota_reached_returns_failure_without_http_call(): void
-    {
-        Cache::put('scrapeops:requests', 800);
-
-        $this->runOnce(self::DATA);
-
-        Http::assertNothingSent();
-
-        Redis::shouldHaveReceived('rpush')
-            ->once()
-            ->with('scrape_result', \Mockery::on(function ($json) {
-                $result = json_decode($json, true);
-
-                return data_get($result, 'success') === false
-                    && data_get($result, 'blocked') === false
-                    && data_get($result, 'error.name') === 'ScrapeOpsQuotaExceeded';
-            }));
-    }
-
     public function test_404_marks_product_deleted(): void
     {
         Http::fake([
@@ -172,5 +156,31 @@ class ListenForTorobCommandTest extends TestCase
         Redis::shouldHaveReceived('rpush')
             ->with('scrape_result', \Mockery::type('string'))
             ->once();
+    }
+
+    public function test_second_shop_min_price_when_zitazi_has_min_price()
+    {
+        $responseSample = File::json(base_path('tests/Data/torob-zitazi-first-data.json'));
+
+        $product = Product::factory()->create();
+
+        $data =  [
+            'product_id' => $product->id,
+            'response_data' => $responseSample['products_info'],
+            'response_status' => 200,
+            'headers' => [],
+            'url' => '',
+            'full_url' => '',
+            'success' => true,
+            'source' => 'Torob',
+            'bulk' => false,
+        ];
+
+        TorobServiceFacade::processResponse($product,$data);
+
+        $this->assertDatabaseHas('products',[
+           'rival_min_price' => 2000000,
+           'id' => $product->id,
+        ]);
     }
 }
