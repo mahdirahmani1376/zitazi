@@ -36,7 +36,8 @@ class TorobService
             )
                 ->filter(function ($item) {
                     return $item['price'] > 0 && $item['is_price_unreliable'] === false && $item['is_adv'] === false;
-                });
+                })
+                ->values();
 
             if ($validShops->isEmpty()) {
                 LogManager::logProduct($product, 'no valid shops found', $validShops->toArray());
@@ -84,12 +85,13 @@ class TorobService
                         'shop_price' => $minPrice,
                     ]);
 
-                    if (!empty($secondMinShop) && ($secondMinShop['shop_name'] ?? '' != config('services.zitazi.torob_shop_id'))) {
-                        $minPrice = $secondMinShop['price'];
+                    $rivalMinPrice = null;
+                    if (!empty($secondMinShop) && ($secondMinShop['shop_id'] != config('services.zitazi.torob_shop_id'))) {
+                        $rivalMinPrice = $secondMinShop['price'];
                     }
 
                     $product->update([
-                        'rival_min_price' => $minPrice,
+                        'rival_min_price' => $rivalMinPrice,
                         'torob_rank' => 1,
                         'torob_shop_counts' => $torob_shop_counts,
                     ]);
