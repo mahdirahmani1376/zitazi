@@ -25,6 +25,7 @@ enum SyncStatusEnum: string
     case NO_RESPONSE_RETRYING = 'no_response_retrying';
     case INVALID_CURRENCY = 'invalid_currency';
     case INVALID_WOOCOMMERCE_ID = 'invalid_woocommerce_id';
+    case MIN_PRICE_EMPTY = 'min_price_empty';
 
     public function getBadgeColorForState(): string
     {
@@ -32,7 +33,7 @@ enum SyncStatusEnum: string
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH, self::SUCCESSFUL_DATA_FETCH_TOROB => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_DATA_FETCH_TOROB, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_DATA_FETCH_TOROB, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING, self::MIN_PRICE_EMPTY => 'danger',
             default => 'gray',
         };
     }
@@ -70,6 +71,7 @@ enum SyncStatusEnum: string
             self::NO_RESPONSE_RETRYING => 'پاسخی دریافت نشد محصول به صف سینک مجدد اضافه شده',
             self::INVALID_CURRENCY => 'ارز اشتباهی دریافت شده',
             self::INVALID_WOOCOMMERCE_ID => 'شناسه ووکامرس محصول اشتباه هست',
+            self::MIN_PRICE_EMPTY => 'ستون min_price خالی است پر شود',
         };
     }
 }

@@ -19,9 +19,14 @@ class TorobService
                 'response' => $response,
             ]);
 
-            $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH_TOROB);
+            if (data_get($response,'error.name') === 'ProductDoesNotHaveMinPriceException') {
+                $product->setSyncStatus(SyncStatusEnum::MIN_PRICE_EMPTY,true);
+                LogManager::logProduct($product, 'product does not have min price', $response);
+            } else {
+                $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH_TOROB);
+                LogManager::logProduct($product, 'error fetching torob data', $response);
+            }
 
-            LogManager::logProduct($product, 'error fetching torob data', $response);
 
         }
         else {

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\SyncStatusEnum;
+use App\Models\Product;
 use App\Services\ScrapeOpsService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -68,6 +70,16 @@ class ListenForTorobCommand extends Command
             return;
         }
 
+        $product = Product::find($productId);
+        if (!$product->belongsToTrendyol() && !$product->belongsToDecalthon() && empty($product->min_price)) {
+            $this->pushResult($this->failure($productId, $fullUrl, 'product does not have min_price', [
+                'name' => 'ProductDoesNotHaveMinPriceException',
+                'message' => 'Product does not have min price',
+            ], deleted: false));
+
+            return;
+        }
+
         $cacheKey = "torob:scrapeops:{$productId}";
 
         if ($cached = Cache::get($cacheKey)) {
@@ -110,7 +122,12 @@ class ListenForTorobCommand extends Command
                 'product' => data_get($json, 'products_info'),
             ];
 
-            Cache::put($cacheKey, $payload, now()->addDays((int) config('services.scrapeops.cache_ttl_days', 1)));
+            $cacheLimit = (int) config('services.scrapeops.cache_ttl_days', 1);
+            if ($product->torob_shop_counts < 2) {
+                $cacheLimit = 7;
+            }
+
+            Cache::put($cacheKey, $payload, now()->addDays($cacheLimit));
 
             $this->pushResult($this->success($productId, $payload, $fullUrl, $bulk, $response['status']));
         } catch (\Throwable $e) {
