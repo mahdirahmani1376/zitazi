@@ -137,9 +137,6 @@ jobs:
             
             echo "Running migrations..."
             docker compose exec -T php php artisan migrate --force
-            
-            echo "Optimizing app..."
-            docker compose exec -T php php artisan optimize:clear
 
             echo "Optimizing filament"
             docker compose exec -T php php artisan filament:optimize
