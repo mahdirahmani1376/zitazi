@@ -143,7 +143,7 @@ class DecathlonStrategy extends BaseStrategy {
             }
 
             const origin = page.url();
-            const variations = this.buildVariationsFromItemGroup(itemGroup, origin);
+            const variations = await this.buildVariationsFromItemGroup(itemGroup, origin, page);
 
             return {
                 product_id: productData.id,
@@ -215,8 +215,10 @@ class DecathlonStrategy extends BaseStrategy {
      * Flatten the flight payload's `itemGroup` into the variation rows the PHP
      * side expects. One row per (color × size) sku.
      */
-    buildVariationsFromItemGroup(itemGroup, origin) {
+    async buildVariationsFromItemGroup(itemGroup, origin, page) {
         const variations = [];
+
+        const stockResponse = await this.fetchStocks(page, itemGroup);
 
         for (const skuGroup of itemGroup.skuGroups ?? []) {
             // Color(s) for this variation group, e.g. "füme siyah / Neon yavruağzı".
@@ -227,14 +229,7 @@ class DecathlonStrategy extends BaseStrategy {
 
             for (const sku of skuGroup.skus ?? []) {
                 const main = sku.offers?.[0]?.fixedPrices?.[0]?.typeTargets?.[0]?.currencies?.main;
-
                 const url = this.toAbsoluteUrl(origin, sku.url);
-
-                let stock = 88;
-                let tagArray = sku.offers[0]?.tags ?? []
-                if (tagArray.includes("LOCAL_STOCK_ONLY")) {
-                    stock = 0;
-                }
 
                 variations.push(this.buildVariation({
                     sourceProductId: itemGroup.id,
@@ -244,13 +239,15 @@ class DecathlonStrategy extends BaseStrategy {
                     price: main?.valueWithTaxes ?? null,
                     priceCurrency: main?.currency?.toLowerCase() ?? null,
                     url,
-                    // stock: sku.isAvailable ? 88 : 0,
-                    stock: stock,
                     brand: sku.brand?.name ?? null,
                     size: sku.sizeGridValue ?? null,
                     color: colors,
                 }));
             }
+        }
+
+        for (const variation of variations) {
+            variation.stock = stockResponse.stocks[variation.sku_id]?.home?.isAvailable ? 88 : 0
         }
 
         return variations;
@@ -290,7 +287,7 @@ class DecathlonStrategy extends BaseStrategy {
     /**
      * Build a single variation row.
      */
-    buildVariation({sourceProductId, sourceVariationId, skuId, sku, price, priceCurrency, url, stock, brand, size, color}) {
+    buildVariation({sourceProductId, sourceVariationId, skuId, sku, price, priceCurrency, url, brand, size, color}) {
         return {
             decathlon_product_id: sourceProductId,
             source_variation_id: sourceVariationId,
@@ -299,11 +296,35 @@ class DecathlonStrategy extends BaseStrategy {
             price,
             priceCurrency,
             url: url ?? null,
-            stock,
             brand: brand?.replace(/[.\s]/g, '') ?? null,
             size,
             color,
         };
+    }
+
+    async fetchStocks(page, itemGroup) {
+        const items = [];
+        for (const skuGroup of itemGroup.skuGroups ?? []) {
+            for (const sku of skuGroup.skus ?? []) {
+                const offer = sku.offers?.[0];
+                if (!sku.skuId || !offer?.optionId) { continue; }
+                items.push({skuId: sku.skuId, optionId: String(offer.optionId), fulfillerId: offer.fulfiller?.id ?? 'dkt-fulfiller-tr'});
+            }
+        }
+        if (!items.length) { return {stocks: {}, status: null}; }
+
+        const result = await page.evaluate(async (body) => {
+            const res = await fetch('https://www.decathlon.com.tr/api/product/tr-TR/availabilities/stocks', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {'Content-Type': 'application/json', 'Accept': '*/*'},
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) { return {status: res.status, data: null}; }
+            return {status: res.status, data: await res.json()};
+        }, {items});
+
+        return {stocks: result.data ?? {}, status: result.status};
     }
 }
 
