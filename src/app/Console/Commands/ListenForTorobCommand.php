@@ -80,13 +80,15 @@ class ListenForTorobCommand extends Command
             return;
         }
 
-        $cacheKey = "torob:scrapeops:{$productId}";
 
-        if ($cached = Cache::get($cacheKey)) {
-            $this->pushResult($this->success($productId, $cached, $fullUrl, $bulk));
-
-            return;
+        if ($product->torob_shop_counts < 2) {
+            $cacheKey = "torob:scrapeops:{$productId}";
+            if ($cached = Cache::get($cacheKey)) {
+                $this->pushResult($this->success($productId, $cached, $fullUrl, $bulk));
+                return;
+            }
         }
+
 
         // Space out requests with a fixed pause so the free-tier proxy is not
         // hammered. A plain sleep (no bucket, no log noise).
@@ -122,12 +124,11 @@ class ListenForTorobCommand extends Command
                 'product' => data_get($json, 'products_info'),
             ];
 
-            $cacheLimit = (int) config('services.scrapeops.cache_ttl_days', 1);
             if ($product->torob_shop_counts < 2) {
+                $cacheKey = "torob:scrapeops:{$productId}";
                 $cacheLimit = 7;
+                Cache::put($cacheKey, $payload, now()->addDays($cacheLimit));
             }
-
-            Cache::put($cacheKey, $payload, now()->addDays($cacheLimit));
 
             $this->pushResult($this->success($productId, $payload, $fullUrl, $bulk, $response['status']));
         } catch (\Throwable $e) {
