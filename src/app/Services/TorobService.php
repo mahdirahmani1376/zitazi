@@ -42,6 +42,7 @@ class TorobService
                 ->filter(function ($item) {
                     return $item['price'] > 0 && $item['is_price_unreliable'] === false && $item['is_adv'] === false;
                 })
+                ->sortBy('price')
                 ->values();
 
             if ($validShops->isEmpty()) {
@@ -53,11 +54,9 @@ class TorobService
                 ]);
             } else {
                 $minShop = $validShops
-                    ->sortBy('price')
                     ->first();
 
                 $secondMinShop = $validShops
-                    ->sortBy('price')
                     ->get(1);
 
                 $torob_shop_counts = $validShops->count();
