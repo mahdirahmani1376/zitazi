@@ -66,6 +66,22 @@ class SeedVariationsForDecathlonAction
                         $originalPrice = $rialPrice;
                         $logVariationForTorobChange = true;
                         $rialPrice = $recommendedPrice;
+
+                        LogManager::logProduct($product,'decreasing price for rival',compact(
+                            'originalPrice',
+                            'rialPrice',
+                            'priceDecreaseStep',
+                            'rialPrice'
+                        ));
+                    } else {
+                        $rialPrice = $lowestPossiblePrice;
+
+                        LogManager::logProduct($product,'lower price reached',[
+                            'lowest_possible_price' => $lowestPossiblePrice,
+                            'recommended_price' => $recommendedPrice,
+                            'price' => $price,
+                            'rial_price' => $rialPrice
+                        ]);
                     }
                 }
             } catch (UnsupportedCurrencyException $e) {
