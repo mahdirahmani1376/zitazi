@@ -66,6 +66,7 @@ class ListenForScrapeResponseCommand extends Command
 
         $product = null;
         if (! empty($messageArray['product_id'])) {
+            /** @var Product $product */
             $product = Product::findOrFail($messageArray['product_id']);
         }
 

@@ -100,6 +100,8 @@ class SeedVariationsForTrendyolAction
                         $logVariationForTorobChange = true;
 
                         $rialPrice = $recommendedPrice;
+                    } else {
+                        $rialPrice = $lowestPossiblePrice;
                     }
                 }
 
