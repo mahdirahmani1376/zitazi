@@ -94,27 +94,13 @@ class SeedVariationsForTrendyolAction
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
                     $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
+                    $logVariationForTorobChange = true;
 
                     if ($recommendedPrice >= $lowestPossiblePrice) {
                         $originalPrice = $rialPrice;
-                        $logVariationForTorobChange = true;
-
                         $rialPrice = $recommendedPrice;
-
-                        LogManager::logProduct($product,'decreasing price for rival',compact(
-                            'originalPrice',
-                            'rialPrice',
-                            'priceDecreaseStep',
-                            'rialPrice'
-                        ));
                     } else {
                         $rialPrice = $lowestPossiblePrice;
-                        LogManager::logProduct($product,'lower price reached',[
-                            'lowest_possible_price' => $lowestPossiblePrice,
-                            'recommended_price' => $recommendedPrice,
-                            'price' => $price,
-                            'rial_price' => $rialPrice
-                        ]);
                     }
                 }
 
