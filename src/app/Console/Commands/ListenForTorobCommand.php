@@ -81,7 +81,7 @@ class ListenForTorobCommand extends Command
         }
 
 
-        if ($product->torob_shop_counts < 2) {
+        if ($product->torob_shop_counts < 2 || ! app()->environment('production')) {
             $cacheKey = "torob:scrapeops:{$productId}";
             if ($cached = Cache::get($cacheKey)) {
                 $this->pushResult($this->success($productId, $cached, $fullUrl, $bulk));
@@ -124,7 +124,7 @@ class ListenForTorobCommand extends Command
                 'product' => data_get($json, 'products_info'),
             ];
 
-            if ($product->torob_shop_counts < 2) {
+            if ($product->torob_shop_counts < 2 || ! app()->environment('production')) {
                 $cacheKey = "torob:scrapeops:{$productId}";
                 $cacheLimit = 7;
                 Cache::put($cacheKey, $payload, now()->addDays($cacheLimit));

@@ -70,6 +70,7 @@ class TorobService
 
                 $minPrice = $minShop['price'];
                 $rivalShop = $minShop['shop_id'];
+                $previousRank = $product->torob_rank;
 
                 if ($rivalShop != config('services.zitazi.torob_shop_id')) {
                     LogManager::logProduct($product, 'rival shop found', [
@@ -81,6 +82,7 @@ class TorobService
                         'rival_min_price' => $minPrice,
                         'torob_rank' => $zitaziRank,
                         'torob_shop_counts' => $torob_shop_counts,
+                        'previous_torob_rank' => $previousRank
                     ]);
 
                 } else {
@@ -98,6 +100,7 @@ class TorobService
                         'rival_min_price' => $rivalMinPrice,
                         'torob_rank' => 1,
                         'torob_shop_counts' => $torob_shop_counts,
+                        'previous_torob_rank' => $previousRank
                     ]);
                 }
             }
