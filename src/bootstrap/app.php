@@ -1,11 +1,12 @@
 <?php
 
+use App\Providers\HorizonServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-$app =  Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -20,12 +21,13 @@ $app =  Application::configure(basePath: dirname(__DIR__))
         $schedule->command('db:seed --force')->dailyAt('12:30');
         $schedule->command('app:bulk-scrape')->dailyAt('13:00');
         $schedule->command('model:prune')->dailyAt('00:00');
+        $schedule->command('app:check-store-health')->hourly()->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })
     ->withProviders([
-        \App\Providers\HorizonServiceProvider::class,
+        HorizonServiceProvider::class,
     ])
     ->create();
 

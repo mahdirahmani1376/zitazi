@@ -52,12 +52,24 @@ return [
         'security_key' => env('SECURITY_KEY'),
         'security_pass' => env('SECURITY_PASS'),
         'base_url' => env('ZITAZI_BASE_URL'),
+        'fallback_url' => env('ZITAZI_FALLBACK_URL'),
         'torob_shop_id' => env('TOROB_SHOP_ID'),
     ],
     'satreh' => [
         'security_key' => env('SATRE_SECURITY_KEY'),
         'security_pass' => env('SATRE_SECURITY_PASS'),
         'base_url' => env('SATRE_BASE_URL'),
+    ],
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
+    'store_health' => [
+        'endpoint' => env('STORE_HEALTH_ENDPOINT', '/wp-json/wc/v3'),
+        'timeout' => (int) env('STORE_HEALTH_TIMEOUT', 15),
+        'connect_timeout' => (int) env('STORE_HEALTH_CONNECT_TIMEOUT', 5),
     ],
 
     'scrapeops' => [

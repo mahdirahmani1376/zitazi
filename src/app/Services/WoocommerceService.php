@@ -17,11 +17,11 @@ class WoocommerceService
         if ($source === Product::ZITAZI) {
             $securityKey = config('services.zitazi.security_key');
             $securityPass = config('services.zitazi.security_pass');
-            $baseURl = config('services.zitazi.base_url');
+            $baseURl = StoreHealthService::baseUrlFor(Product::ZITAZI);
         } elseif ($source === Product::SATRE) {
             $securityKey = config('services.satreh.security_key');
             $securityPass = config('services.satreh.security_pass');
-            $baseURl = config('services.satreh.base_url');
+            $baseURl = StoreHealthService::baseUrlFor(Product::SATRE);
         }
 
         $fullUrl = "{$baseURl}/wp-json/wc/v3/{$url}";
