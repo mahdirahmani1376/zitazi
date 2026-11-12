@@ -60,7 +60,8 @@ class SeedVariationsForDecathlonAction
 
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-                    $recommendedPrice = (int)(floor($priceDecreaseStep / 1000) * 1000);
+                    $recommendedPrice = Currency::prettify($priceDecreaseStep);
+
                     $logVariationForTorobChange = true;
 
                     if ($recommendedPrice >= $lowestPossiblePrice) {

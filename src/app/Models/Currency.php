@@ -92,9 +92,8 @@ class Currency extends Model
     {
         $rialPrice = static::syncTryRate() * $price;
         $rialPrice = $rialPrice * $ratio;
-        $rialPrice = (int) $rialPrice;
 
-        return (int) (floor($rialPrice / 1000) * 1000);
+        return static::prettify($rialPrice);
     }
 
     public static function syncDirhamRate()
@@ -127,5 +126,22 @@ class Currency extends Model
         $rialPrice = static::syncDirhamRate() * $price;
 
         return (int) (floor(round($rialPrice) / 10000) * 10000);
+    }
+
+    public static function prettify($rialPrice): int
+    {
+        $digits = strlen((string) abs($rialPrice));
+
+        if ($digits >= 9) {
+            $prettifiedValue = (int) (floor($rialPrice / 100000) * 100000);
+        } else if ($digits >= 6) {
+            $prettifiedValue = (int) (floor($rialPrice / 10000) * 10000);
+        } else if ($digits > 3) {
+            $prettifiedValue = (int) (floor($rialPrice / 1000) * 1000);
+        } else {
+            $prettifiedValue = 1000;
+        }
+
+        return  $prettifiedValue;
     }
 }

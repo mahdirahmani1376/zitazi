@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Actions\LogManager;
 use App\Enums\SyncStatusEnum;
 use App\Jobs\SyncWoocommerceProductJob;
+use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -122,7 +123,8 @@ class TorobService
 
         $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
-        $recommendedPrice = (int) (floor($priceDecreaseStep / 1000) * 1000);
+        $recommendedPrice = Currency::prettify($priceDecreaseStep);
+
 
         if ($recommendedPrice < $lowestPossiblePrice) {
             return;
