@@ -98,7 +98,7 @@ class TorobService
                         $minPriceTolerance = $minPrice * 1.055;
                         if ($rivalMinPrice > $minPriceTolerance) {
 
-                            LogManager::logProduct($product, 'second ship is too more expensive', [
+                            LogManager::logProduct($product, 'second shop is too much expensive', [
                                 'shop_name' => $secondMinShop['shop_name'],
                                 'shop_price' => $secondMinShop['price'],
                             ]);
