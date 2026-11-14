@@ -95,6 +95,16 @@ class TorobService
                     $rivalMinPrice = null;
                     if (!empty($secondMinShop) && ($secondMinShop['shop_id'] != config('services.zitazi.torob_shop_id'))) {
                         $rivalMinPrice = $secondMinShop['price'];
+                        $minPriceTolerance = $minPrice * 1.055;
+                        if ($rivalMinPrice > $minPriceTolerance) {
+
+                            LogManager::logProduct($product, 'second ship is too more expensive', [
+                                'shop_name' => $secondMinShop['shop_name'],
+                                'shop_price' => $secondMinShop['price'],
+                            ]);
+
+                            $rivalMinPrice = $minPriceTolerance;
+                        }
                     }
 
                     $product->update([
