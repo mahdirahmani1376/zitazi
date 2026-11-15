@@ -91,6 +91,11 @@ class SeedVariationsForTrendyolAction
                         1.20
                     );
 
+                    $highestPossiblePrice = Currency::convertToRial(
+                        $price,
+                        1.60
+                    );
+
                     $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
                     $recommendedPrice = Currency::prettify($priceDecreaseStep);
@@ -101,6 +106,14 @@ class SeedVariationsForTrendyolAction
                         $rialPrice = $recommendedPrice;
                     } else {
                         $rialPrice = $lowestPossiblePrice;
+                    }
+
+                    if ($rialPrice > $highestPossiblePrice) {
+                        LogManager::logProduct($product, 'product got its max price', [
+                            'highest_possible_price' => $highestPossiblePrice,
+                            'recommenced_price' => $rialPrice
+                        ]);
+                        $rialPrice = $highestPossiblePrice;
                     }
                 }
 
