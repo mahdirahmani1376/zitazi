@@ -52,8 +52,18 @@ class Worker {
                 const useFallback = this.isFallbackAvailable() && hardBan;
                 const skipBrowser = coolingDown && useFallback;
 
+                // Full cooldown sleep: every blocked scrape sets this key so
+                // the source backs off for the configured ladder step (5m →
+                // 15m → 60m → 300m). The sleep still respects shutdown signals
+                // through the 200ms tick, so the worker can always be stopped.
                 if (coolingDown && !skipBrowser) {
-                    await this.sleep(Math.min(ttl, 60) * 1000, shuttingDown);
+                    console.info(JSON.stringify({
+                        message: `${this.name} cooling down for ${ttl}s`,
+                        cooldown_ttl: ttl,
+                        level: 'info',
+                    }));
+
+                    await this.sleep(ttl * 1000, shuttingDown);
                     continue;
                 }
 
@@ -63,6 +73,15 @@ class Worker {
                 }
 
                 const data = JSON.parse(result[1]);
+
+                // Per-product backoff: the product itself carries a timestamp
+                // from its last block. Skip it silently until that time passes,
+                // so a product blocked for 300m doesn't burn a CPU cycle every
+                // 60 seconds only to get blocked again.
+                if (data.retry_after && Date.now() < data.retry_after) {
+                    await this.publishStatus(data.product.id, 'rate_limited');
+                    continue;
+                }
 
                 await this.publishStatus(data.product.id, 'processing');
 
@@ -278,6 +297,7 @@ class Worker {
         const {streak, cooldownSeconds} = await this.nextCooldownSeconds();
 
         data.retry_count = (data.retry_count ?? 0) + 1;
+        data.retry_after = Date.now() + cooldownSeconds * 1000;
 
         await this.publishStatus(data.product.id, 'no_response_retrying');
 
