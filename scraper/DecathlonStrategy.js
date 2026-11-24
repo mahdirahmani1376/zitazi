@@ -21,20 +21,25 @@ const {extractItemGroupFromHtml} = require('./parse-next-flight');
  *   │       ├── skuId              → sku_id (source sku UUID)
  *   │       ├── providerSkuCode.skuCode → sku (matches existing DB values)
  *   │       ├── sizeGridValue      → size
- *   │       ├── isAvailable        → stock (true/false) — authoritative
- *   │       ├── isHomeOrStoreDeliveryAvailable → stock fallback when isAvailable is absent
+ *   │       ├── offers[].optionId  → optionId sent to the stocks endpoint
  *   │       ├── offers[].fixedPrices[].typeTargets[].currencies.main
  *   │       │     .valueWithTaxes/.currency → price (integer, TRY)
  *   │       ├── brand.name         → brand
  *   │       └── url                → relative product URL
  *
- * Stock must come from this payload, never from the
- * `/api/product/tr-TR/availabilities/stocks` endpoint: that call returns 403
- * while the IP is challenged, and treating an empty answer as "out of stock"
- * zeroed every variation in the catalogue. When availability cannot be read
- * from the payload the product is reported as blocked instead.
+ * Stock comes from Decathlon's internal availability endpoint,
+ * `POST /api/product/tr-TR/availabilities/stocks` — that is the only valid
+ * source. `sku.isAvailable` in the payload is NOT reliable enough to price and
+ * publish stock on, so it is only logged as a cross-check.
  *
- * When the native browser is blocked by Cloudflare the product is fetched
+ * The endpoint must never be trusted when it fails: a blocked (403),
+ * malformed or empty answer used to be read as "everything out of stock",
+ * which zeroed every variation and soft-deleted them on the destination store.
+ * Any such answer is now reported as a block so the product is re-queued and
+ * the previous stock is left untouched. A genuine all-zero answer from the
+ * endpoint is respected, since some products really are fully sold out.
+ *
+ * When the native browser is blocked by Cloudflare the product page is fetched
  * through ScrapeOps instead (see `scrapeViaScrapeOps`), so a hard ban does not
  * stall the queue.
  */
@@ -180,11 +185,30 @@ class DecathlonStrategy extends BaseStrategy {
             }
 
             const origin = page.url();
-            const result = this.buildVariationsFromItemGroup(itemGroup, origin);
+            const result = await this.buildVariationsFromItemGroup(itemGroup, origin, productData, {page});
+
+            if (result.deleted) {
+                console.error(JSON.stringify({
+                    message: 'decathlon product deleted (stocks endpoint reports not found)',
+                    block_reason: result.block_reason,
+                    product_id: productData.id,
+                    data: productData,
+                    level: 'error',
+                }));
+
+                return {
+                    product_id: productData.id,
+                    success: false,
+                    blocked: false,
+                    deleted: true,
+                    response_status: response?.status() ?? null,
+                    response_headers: response?.headers() ?? {},
+                };
+            }
 
             if (result.blocked) {
                 console.error(JSON.stringify({
-                    message: 'decathlon payload is not trustworthy',
+                    message: 'decathlon stocks are not trustworthy',
                     block_reason: result.block_reason,
                     product_id: productData.id,
                     data: productData,
@@ -296,11 +320,29 @@ class DecathlonStrategy extends BaseStrategy {
                 return null;
             }
 
-            const result = this.buildVariationsFromItemGroup(itemGroup, targetUrl);
+            const result = await this.buildVariationsFromItemGroup(itemGroup, targetUrl, productData, {viaScrapeOps: true});
+
+            if (result.deleted) {
+                console.error(JSON.stringify({
+                    message: 'decathlon product deleted (stocks endpoint reports not found via scrapeops)',
+                    block_reason: result.block_reason,
+                    product_id: productData.id,
+                    level: 'error',
+                }));
+
+                return {
+                    product_id: productData.id,
+                    success: false,
+                    blocked: false,
+                    deleted: true,
+                    scrapeops_fallback: true,
+                    response_status: response.status,
+                };
+            }
 
             if (result.blocked) {
                 console.error(JSON.stringify({
-                    message: 'decathlon scrapeops payload is not trustworthy',
+                    message: 'decathlon scrapeops stocks are not trustworthy',
                     block_reason: result.block_reason,
                     product_id: productData.id,
                     level: 'error',
@@ -512,13 +554,20 @@ class DecathlonStrategy extends BaseStrategy {
      * Flatten the flight payload's `itemGroup` into the variation rows the PHP
      * side expects. One row per (color × size) sku.
      *
-     * Returns `{variations, blocked, block_reason}`. `blocked` is set — and no
-     * variations are returned — when the payload cannot be trusted, so a bad
-     * payload can never be reported as "everything out of stock".
+     * Stock is taken from the internal availability endpoint
+     * (`fetchStocks`), which is the only valid source. When that call fails —
+     * blocked, non-2xx, malformed or empty — the whole product is reported as
+     * `blocked` and no variations are returned, so the previous stock is never
+     * overwritten with zeros. When the payload is too incomplete to even ask the
+     * question, the request is skipped and the product is blocked as well.
+     *
+     * A 404/410 or an explicit not-found body is reported as `deleted` instead,
+     * because that is a real product state rather than a temporary block.
+     *
+     * @returns {Promise<{variations: Array<object>, blocked: boolean, deleted: boolean, block_reason: string|null}>}
      */
-    buildVariationsFromItemGroup(itemGroup, origin) {
+    async buildVariationsFromItemGroup(itemGroup, origin, productData, transport = {}) {
         const variations = [];
-        let availabilityKnown = 0;
 
         for (const skuGroup of itemGroup.skuGroups ?? []) {
             // Color(s) for this variation group, e.g. "füme siyah / Neon yavruağzı".
@@ -531,10 +580,6 @@ class DecathlonStrategy extends BaseStrategy {
                 const main = sku.offers?.[0]?.fixedPrices?.[0]?.typeTargets?.[0]?.currencies?.main;
                 const url = this.toAbsoluteUrl(origin, sku.url);
 
-                if (this.hasAvailability(sku)) {
-                    availabilityKnown++;
-                }
-
                 variations.push(this.buildVariation({
                     sourceProductId: itemGroup.id,
                     sourceVariationId: skuGroup.modelId,
@@ -543,7 +588,6 @@ class DecathlonStrategy extends BaseStrategy {
                     price: main?.valueWithTaxes ?? null,
                     priceCurrency: main?.currency?.toLowerCase() ?? null,
                     url,
-                    stock: this.stockFor(sku),
                     brand: sku.brand?.name ?? null,
                     size: sku.sizeGridValue ?? null,
                     color: colors,
@@ -551,46 +595,388 @@ class DecathlonStrategy extends BaseStrategy {
             }
         }
 
-        // Decathlon dropped/renamed the availability fields: this is a payload
-        // change, not a sold-out catalogue. Reporting it as a block keeps the
-        // previous stock intact instead of zeroing every variation.
-        if (variations.length > 0 && availabilityKnown === 0) {
+        if (variations.length === 0) {
+            return {variations: [], blocked: false, deleted: false, block_reason: null};
+        }
+
+        const stockResponse = await this.fetchStocks(itemGroup, productData, transport);
+
+        if (stockResponse.deleted) {
             return {
                 variations: [],
-                blocked: true,
-                block_reason: 'payload_missing_availability',
+                blocked: false,
+                deleted: true,
+                block_reason: stockResponse.block_reason,
             };
         }
 
-        // Every size out of stock at once is far more likely a bad payload than
-        // a real sold-out product, so treat it as suspect rather than fact.
-        if (variations.length > 0 && variations.every((variation) => variation.stock === 0)) {
+        if (stockResponse.blocked) {
             return {
                 variations: [],
                 blocked: true,
-                block_reason: 'all_stock_zero_suspicious',
+                deleted: false,
+                block_reason: stockResponse.block_reason,
             };
         }
 
-        return {variations, blocked: false, block_reason: null};
-    }
+        const stocks = stockResponse.stocks;
+        const unknownSkuIds = [];
+        const stocksByVariation = [];
 
-    hasAvailability(sku) {
-        return typeof sku.isAvailable === 'boolean'
-            || typeof sku.isHomeOrStoreDeliveryAvailable === 'boolean';
+        for (const variation of variations) {
+            const availability = this.availabilityFor(stocks, variation.sku_id);
+
+            if (availability === null) {
+                unknownSkuIds.push(variation.sku_id);
+
+                continue;
+            }
+
+            stocksByVariation.push({variation, availability});
+        }
+
+        // A sku the endpoint never described must never be read as "out of
+        // stock": that silent default is what zeroed live variations. A partial
+        // answer is just as unusable as an empty one, so the whole product is
+        // blocked and the previous stock is left alone.
+        if (unknownSkuIds.length > 0) {
+            console.error(JSON.stringify({
+                message: 'decathlon stocks response did not describe every sku',
+                product_id: productData?.id ?? null,
+                variations_requested: variations.length,
+                skus_returned: Object.keys(stocks).length,
+                unknown_sku_ids: unknownSkuIds,
+                level: 'error',
+            }));
+
+            return {
+                variations: [],
+                blocked: true,
+                deleted: false,
+                block_reason: 'stocks_payload_incomplete',
+            };
+        }
+
+        for (const {variation, availability} of stocksByVariation) {
+            variation.stock = availability ? 88 : 0;
+        }
+
+        // Note: an all-zero result is NOT treated as a failure. Some products are
+        // genuinely fully sold out, and the stocks endpoint is the authoritative
+        // source, so a real "everything unavailable" answer is respected.
+
+        return {variations, blocked: false, deleted: false, block_reason: null};
     }
 
     /**
-     * Stock from the flight payload only. `isAvailable` wins;
-     * `isHomeOrStoreDeliveryAvailable` is only used when it is absent.
-     * `LOCAL_STOCK_ONLY` is intentionally ignored — it appears on in-stock
-     * items too, so using it zeroes products that are actually sellable.
+     * Look up one sku in the stocks answer.
+     *
+     * The endpoint returns `{[skuId]: {home: {isAvailable}, ...}}`, but older
+     * shapes nested the same flag differently, so all known shapes are accepted.
+     * Returns `null` when the sku is not described at all, which the caller
+     * treats as "unusable answer" rather than "out of stock".
      */
-    stockFor(sku) {
-        const inStock = sku.isAvailable === true
-            || (sku.isAvailable === undefined && sku.isHomeOrStoreDeliveryAvailable === true);
+    availabilityFor(stocks, skuId) {
+        const entry = stocks?.[skuId];
 
-        return inStock ? 88 : 0;
+        if (!entry || typeof entry !== 'object') {
+            return null;
+        }
+
+        const candidates = [
+            entry.home?.isAvailable,
+            entry.isAvailable,
+            entry.home,
+        ];
+
+        for (const candidate of candidates) {
+            if (typeof candidate === 'boolean') {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Build the sku list for the availability POST.
+     *
+     * Every sku must carry a `skuId` and an `optionId`. When one is missing the
+     * payload is incomplete: Decathlon answers with no entry for that sku, which
+     * used to be read as "out of stock" and zeroed the variation. Such skus are
+     * collected in `invalid` so the caller can skip the request entirely instead
+     * of asking an unanswerable question.
+     *
+     * @returns {{items: Array<object>, invalid: Array<object>}}
+     */
+    collectStockItems(itemGroup) {
+        const items = [];
+        const invalid = [];
+
+        for (const skuGroup of itemGroup?.skuGroups ?? []) {
+            for (const sku of skuGroup.skus ?? []) {
+                const offer = sku.offers?.[0];
+
+                if (!sku.skuId || !offer?.optionId) {
+                    invalid.push({
+                        model_id: skuGroup.modelId ?? null,
+                        sku_id: sku.skuId ?? null,
+                        option_id: offer?.optionId ?? null,
+                        has_offers: Array.isArray(sku.offers) && sku.offers.length > 0,
+                    });
+
+                    continue;
+                }
+
+                items.push({
+                    skuId: sku.skuId,
+                    optionId: String(offer.optionId),
+                    fulfillerId: offer.fulfiller?.id ?? 'dkt-fulfiller-tr',
+                });
+            }
+        }
+
+        return {items, invalid};
+    }
+
+    /**
+     * POST the sku list to Decathlon's internal availability endpoint and return
+     * the per-sku flags.
+     *
+     * Stock is only ever read from here. Every outcome is logged with the status,
+     * headers and body summary so a failure is traceable instead of silently
+     * becoming "everything out of stock".
+     *
+     * Two transports:
+     *   - `{page}`         → the sku POST runs inside the already-open product
+     *                        page (cookies + same origin, the default path);
+     *   - `{viaScrapeOps}` → the same POST is sent through the ScrapeOps proxy,
+     *                        used when the native browser is banned.
+     *
+     * @returns {Promise<{stocks: object, blocked: boolean, deleted: boolean, block_reason: string|null}>}
+     */
+    async fetchStocks(itemGroup, productData, transport = {}) {
+        const {items, invalid} = this.collectStockItems(itemGroup);
+
+        // Pre-flight: do not send the availability POST when the payload cannot
+        // answer it. A partial payload returns no entries for the missing skus
+        // and the old code turned that silence into `stock = 0`, wiping live
+        // variations. Skipping the request keeps the previous stock untouched.
+        if (invalid.length > 0) {
+            console.error(JSON.stringify({
+                type: 'decathlon-stocks-skipped',
+                product_id: productData?.id ?? null,
+                reason: 'stocks_items_incomplete',
+                valid_items: items.length,
+                invalid_items: invalid.length,
+                invalid,
+                level: 'error',
+            }));
+
+            return {stocks: {}, blocked: true, deleted: false, block_reason: 'stocks_items_incomplete'};
+        }
+
+        if (items.length === 0) {
+            // No sellable skus in the payload at all: nothing to ask about, and
+            // the caller already knows the product has no variations.
+            return {stocks: {}, blocked: false, deleted: false, block_reason: null};
+        }
+
+        const body = {items};
+        const viaScrapeOps = transport.viaScrapeOps === true;
+
+        let status = null;
+        let headers = {};
+        let payload = null;
+        let error = null;
+
+        try {
+            if (viaScrapeOps) {
+                ({status, headers, payload, error} = await this.postStocksViaScrapeOps(body));
+            } else if (transport.page) {
+                ({status, headers, payload, error} = await this.postStocksInPage(transport.page, body));
+            } else {
+                error = {name: 'NoTransport', message: 'no page and no proxy transport available'};
+            }
+        } catch (err) {
+            error = {name: err.name, message: err.message};
+        }
+
+        // Always log the full outcome: this is the call that silently zeroed the
+        // catalogue, so every detail has to be traceable.
+        console.info(JSON.stringify({
+            type: 'decathlon-stocks-response',
+            product_id: productData?.id ?? null,
+            transport: viaScrapeOps ? 'scrapeops' : 'browser',
+            items_requested: items.length,
+            status,
+            content_type: headers?.['content-type'] ?? headers?.['Content-Type'] ?? null,
+            headers,
+            skus_returned: payload && typeof payload === 'object' ? Object.keys(payload).length : 0,
+            body_preview: this.previewPayload(payload),
+            error,
+            level: status === 200 && ! error ? 'info' : 'error',
+        }));
+
+        if (error) {
+            return {stocks: {}, blocked: true, deleted: false, block_reason: 'stocks_request_error'};
+        }
+
+        // A missing product is the one case where the answer is trustworthy
+        // enough to act on: Decathlon answers 404/410 (or an explicit not-found
+        // error body) for a delisted product. Every other non-200 is a block.
+        const deleted = this.deletedFromStocksResponse(status, payload);
+
+        if (deleted) {
+            return {stocks: {}, blocked: false, deleted: true, block_reason: 'stocks_product_deleted'};
+        }
+
+        if (status === 403 || status === 429) {
+            return {stocks: {}, blocked: true, deleted: false, block_reason: `stocks_http_${status}`};
+        }
+
+        if (status !== 200) {
+            return {stocks: {}, blocked: true, deleted: false, block_reason: `stocks_http_${status ?? 'unknown'}`};
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            return {stocks: {}, blocked: true, deleted: false, block_reason: 'stocks_not_json'};
+        }
+
+        return {stocks: payload, blocked: false, deleted: false, block_reason: null};
+    }
+
+    /**
+     * Decide whether a stocks answer means "this product no longer exists".
+     *
+     * Only strong signals count: a 404/410 status, or an explicit not-found
+     * error in the body. Anything weaker stays a block, because a wrong
+     * "deleted" would delist a live product while a wrong "blocked" only
+     * delays the next attempt.
+     */
+    deletedFromStocksResponse(status, payload) {
+        if (status === 404 || status === 410) {
+            return true;
+        }
+
+        if (!payload || typeof payload !== 'object') {
+            return false;
+        }
+
+        const code = String(payload.code ?? payload.errorCode ?? payload.status ?? '').toUpperCase();
+        const message = String(payload.message ?? payload.error ?? '').toLowerCase();
+
+        return ['PRODUCT_NOT_FOUND', 'SKU_NOT_FOUND', 'NOT_FOUND'].includes(code)
+            || message.includes('product not found')
+            || message.includes('ürün bulunamadı');
+    }
+
+    /**
+     * Short, log-safe preview of a stocks payload.
+     */
+    previewPayload(payload) {
+        if (payload === null || payload === undefined) {
+            return null;
+        }
+
+        if (typeof payload !== 'object') {
+            return String(payload).slice(0, 300);
+        }
+
+        try {
+            return JSON.stringify(payload).slice(0, 600);
+        } catch (e) {
+            return '[unserializable]';
+        }
+    }
+
+    /**
+     * Run the stocks POST inside the already-open product page so the request
+     * carries the same cookies/origin as a real browser visit.
+     */
+    async postStocksInPage(page, body) {
+        const result = await page.evaluate(async (requestBody) => {
+            try {
+                const res = await fetch('https://www.decathlon.com.tr/api/product/tr-TR/availabilities/stocks', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {'Content-Type': 'application/json', 'Accept': '*/*'},
+                    body: JSON.stringify(requestBody),
+                });
+
+                const text = await res.text();
+                let json = null;
+
+                try {
+                    json = JSON.parse(text);
+                } catch (e) {
+                    json = null;
+                }
+
+                return {
+                    status: res.status,
+                    headers: Object.fromEntries(res.headers.entries()),
+                    payload: json,
+                    text: json === null ? text.slice(0, 500) : null,
+                };
+            } catch (e) {
+                return {error: {name: e.name, message: e.message}};
+            }
+        }, body);
+
+        if (result.error) {
+            return {error: result.error};
+        }
+
+        if (result.payload === null && result.text) {
+            // Keep the raw body visible when the answer is not JSON.
+            return {status: result.status, headers: result.headers, payload: null, error: null, text: result.text};
+        }
+
+        return {status: result.status, headers: result.headers, payload: result.payload, error: null};
+    }
+
+    /**
+     * Send the stocks POST through the ScrapeOps proxy (used when the native
+     * browser is hard-banned). ScrapeOps POST forwarding requires
+     * `keep_headers=true` so the JSON content type is preserved.
+     */
+    async postStocksViaScrapeOps(body) {
+        const apiKey = process.env.SCRAPE_OPS_KEY;
+
+        if (!apiKey) {
+            return {error: {name: 'ScrapeOpsNotConfigured', message: 'SCRAPE_OPS_KEY is not set'}};
+        }
+
+        const params = new URLSearchParams({
+            api_key: apiKey,
+            url: 'https://www.decathlon.com.tr/api/product/tr-TR/availabilities/stocks',
+            keep_headers: 'true',
+            country: 'tr',
+        });
+
+        const response = await fetch(`https://proxy.scrapeops.io/v1/?${params.toString()}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'Accept': '*/*', 'Accept-Encoding': 'gzip'},
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(180000),
+        });
+
+        const text = await response.text();
+        let payload = null;
+
+        try {
+            payload = JSON.parse(text);
+        } catch (e) {
+            payload = null;
+        }
+
+        return {
+            status: response.status,
+            headers: Object.fromEntries(response.headers.entries()),
+            payload,
+            error: null,
+        };
     }
 
     /**
