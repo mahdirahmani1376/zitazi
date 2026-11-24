@@ -13,13 +13,14 @@ use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
+use App\Services\ScrapeOpsFallbackReporter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 class ListenForScrapeResponseCommand extends Command
 {
-    protected $signature = 'listen:scrape';
+    protected $signature = 'listen:scrape {--once : Process a single message and exit}';
 
     protected $description = 'this command listens for scrape-response message';
 
@@ -31,6 +32,10 @@ class ListenForScrapeResponseCommand extends Command
                 $this->listenForMessages();
             } catch (\Throwable $e) {
                 $this->error('error happened: '.json_encode($e->getMessage()));
+            }
+
+            if ($this->option('once')) {
+                break;
             }
         }
     }
@@ -87,6 +92,25 @@ class ListenForScrapeResponseCommand extends Command
             } else {
                 TorobServiceFacade::updateProductAndSync($product, $bulk);
             }
+        } elseif (data_get($messageArray, 'blocked') === true) {
+            // An anti-bot block (Cloudflare 403 / challenge) is not a data
+            // failure: the product is already re-queued by the scraper with
+            // exponential backoff. Only the sync status changes here — stock,
+            // price and variations must stay exactly as they are, otherwise a
+            // temporary block would empty the destination store.
+            $product?->setSyncStatus(SyncStatusEnum::RATE_LIMITED);
+
+            if ($product) {
+                LogManager::logProduct($product, 'scrape rate limited', [
+                    'block_reason' => data_get($messageArray, 'block_reason'),
+                    'response_status' => data_get($messageArray, 'response_status'),
+                    'retry_count' => data_get($messageArray, 'retry_count'),
+                ]);
+            }
+
+            $this->warn('product '.data_get($messageArray, 'product_id').' rate limited ('
+                .data_get($messageArray, 'block_reason', 'unknown').'), left untouched');
+
         } elseif (data_get($messageArray, 'success') === false && array_key_exists('source', $messageArray)) {
             if (data_get($messageArray, 'blocked') === false) {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
@@ -111,9 +135,23 @@ class ListenForScrapeResponseCommand extends Command
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
 
+            $this->reportScrapeOpsFallback($messageArray);
+
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             $this->error('unknown message structure scrape command message:'.json_encode($message));
+        }
+    }
+
+    private function reportScrapeOpsFallback(array $messageArray): void
+    {
+        try {
+            app(ScrapeOpsFallbackReporter::class)->report($messageArray);
+        } catch (\Throwable $e) {
+            // Reporting must never break scrape processing.
+            Log::error('error in scrapeops fallback reporting', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 

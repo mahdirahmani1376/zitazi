@@ -1,9 +1,25 @@
 const Redis = require('ioredis');
 
-const COOLDOWN_ARRAY = [300, 600];
-const MAX_RETRIES = COOLDOWN_ARRAY.length;
+/**
+ * Exponential backoff ladder, in seconds: 5m → 15m → 60m → 300m.
+ * The last step is the cap: a blocked product is never dropped, it keeps
+ * cycling until the ban lifts.
+ */
+const COOLDOWN_STEPS_SECONDS = [5 * 60, 15 * 60, 60 * 60, 300 * 60];
 const BACKOFF_JITTER = 0.2;
 const QUEUE_OUT = 'laravel_database_scrape_result';
+
+/**
+ * A failed backoff run is expiring on its own; the streak counter only needs
+ * to survive long enough to keep the ladder climbing.
+ */
+const BLOCK_STREAK_TTL = 6 * 60 * 60;
+
+/**
+ * How many consecutive blocks before the native browser is considered hard
+ * banned and requests go through the ScrapeOps fallback instead.
+ */
+const HARD_BAN_STREAK = 3;
 
 class Worker {
     constructor(name, queueIn) {
@@ -15,7 +31,9 @@ class Worker {
             port: 6379,
             password: process.env.REDIS_PASSWORD,
         });
-        this.cooldownKey = `scraper:cooldown:${name.toLowerCase()}`;
+        this.slug = name.toLowerCase();
+        this.cooldownKey = `scraper:cooldown:${this.slug}`;
+        this.blockStreakKey = `scraper:block-streak:${this.slug}`;
     }
 
     async run(scrapeFn, shuttingDown) {
@@ -24,13 +42,22 @@ class Worker {
         while (!shuttingDown()) {
             try {
                 const ttl = await this.redis.ttl(this.cooldownKey);
+                const coolingDown = ttl > 0;
+                const streak = Number(await this.redis.get(this.blockStreakKey)) || 0;
+                const hardBan = streak >= HARD_BAN_STREAK;
 
-                if (ttl > 0) {
+                // Once the ban looks hard, drain the queue through the ScrapeOps
+                // fallback instead of stalling. A single block just backs off,
+                // so no credits are spent on something a short pause would fix.
+                const useFallback = this.isFallbackAvailable() && hardBan;
+                const skipBrowser = coolingDown && useFallback;
+
+                if (coolingDown && !skipBrowser) {
                     await this.sleep(Math.min(ttl, 60) * 1000, shuttingDown);
                     continue;
                 }
 
-                const result = await this.redis.blpop(this.queueIn, 1)
+                const result = await this.redis.blpop(this.queueIn, 1);
                 if (!result) {
                     continue;
                 }
@@ -39,7 +66,10 @@ class Worker {
 
                 await this.publishStatus(data.product.id, 'processing');
 
-                const response = await scrapeFn(this.name, data.product);
+                const response = await scrapeFn(this.name, data.product, {
+                    skipBrowser,
+                    allowFallback: useFallback,
+                });
 
                 const retried = await this.handleBlocked(data, response);
                 if (retried) {
@@ -47,6 +77,22 @@ class Worker {
                 }
 
                 await this.handleInvalidCurrency(data, response);
+
+                if (response.native_blocked === true) {
+                    // The native browser was blocked but the fallback rescued
+                    // the product: escalate the streak and arm the cooldown so
+                    // the next items skip straight to the fallback.
+                    await this.registerNativeBlock();
+                    await this.publishStatus(data.product.id, 'rate_limited');
+                } else if (response.success === true) {
+                    // A genuine success (native or fallback) means the ban is
+                    // gone, so the ladder starts over at 5m on the next block.
+                    await this.clearBlockStreak();
+                }
+
+                if (response.scrapeops_fallback === true) {
+                    response.scrapeops_requests_today = await this.recordFallbackUsage();
+                }
 
                 response.bulk = data.bulk ?? false
                 response.source = this.name
@@ -108,48 +154,175 @@ class Worker {
         );
     }
 
-    async handleBlocked(data, response) {
-        if (!response.blocked) return false;
-
-        let retryCount = data.retry_count ?? 0;
-
-        if (retryCount >= MAX_RETRIES) {
+    /**
+     * The ScrapeOps fallback is available whenever a key is configured. There
+     * is no request budget: the daily counter is reporting only.
+     */
+    isFallbackAvailable() {
+        if (process.env.SCRAPE_OPS_FALLBACK_ENABLED === '0') {
             return false;
         }
 
-        const retryAfter = Number(response.response_headers?.['retry-after'] ?? response.response_headers?.['Retry-After']);
-        const baseSeconds = (Number.isFinite(retryAfter) && retryAfter > 0)
-            ? retryAfter
-            : COOLDOWN_ARRAY[retryCount];
-        const jitter = baseSeconds * BACKOFF_JITTER * (Math.random() * 2 - 1);
-        const cooldownSeconds = Math.max(1, Math.round(baseSeconds + jitter));
+        return Boolean(process.env.SCRAPE_OPS_KEY);
+    }
 
-        data.retry_count = retryCount + 1;
+    /**
+     * Count one fallback request for today's Telegram report. Never gates the
+     * request — it only exists so the daily cost is visible.
+     */
+    async recordFallbackUsage() {
+        try {
+            const key = `scrapeops:fallback:requests:${this.todayKey()}`;
+            const count = await this.redis.incr(key);
+
+            if (count === 1) {
+                await this.redis.expire(key, 2 * 24 * 60 * 60);
+            }
+
+            return count;
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: 'failed to record scrapeops fallback usage',
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+
+            return null;
+        }
+    }
+
+    todayKey() {
+        const timeZone = process.env.TZ || 'Asia/Tehran';
+
+        return new Intl.DateTimeFormat('en-CA', {timeZone}).format(new Date());
+    }
+
+    /**
+     * Count one consecutive block and return the cooldown it earns.
+     * Steps climb 5m → 15m → 60m → 300m and stay at the last one.
+     */
+    async nextCooldownSeconds() {
+        let streak = 1;
+
+        try {
+            streak = await this.redis.incr(this.blockStreakKey);
+            await this.redis.expire(this.blockStreakKey, BLOCK_STREAK_TTL);
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: 'failed to read block streak, using first step',
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+        }
+
+        const step = COOLDOWN_STEPS_SECONDS[Math.min(streak, COOLDOWN_STEPS_SECONDS.length) - 1];
+        const jitter = step * BACKOFF_JITTER * (Math.random() * 2 - 1);
+
+        return {
+            streak,
+            cooldownSeconds: Math.max(1, Math.round(step + jitter)),
+        };
+    }
+
+    /**
+     * The native browser was blocked but the fallback delivered the product.
+     * Count the block (so a hard ban still escalates to the fallback) and arm
+     * the cooldown so following items skip straight to the fallback. The native
+     * browser is retried once the cooldown expires, which is how we check
+     * periodically whether the ban has lifted.
+     */
+    async registerNativeBlock() {
+        const {cooldownSeconds} = await this.nextCooldownSeconds();
+
+        try {
+            await this.redis.setex(this.cooldownKey, cooldownSeconds, '1');
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: 'failed to arm cooldown',
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+        }
+    }
+
+    async clearBlockStreak() {
+        try {
+            const streak = await this.redis.get(this.blockStreakKey);
+
+            if (streak) {
+                console.info(JSON.stringify({
+                    message: `${this.name} block streak cleared after a successful scrape`,
+                    previous_streak: Number(streak),
+                    level: 'info',
+                }));
+            }
+
+            await this.redis.del(this.blockStreakKey);
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: 'failed to clear block streak',
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+        }
+    }
+
+    /**
+     * Handle an anti-bot block: climb the ladder, cool down the whole source,
+     * requeue the product and report the block to Laravel so the product is
+     * marked `rate_limited` without touching stock, price or WooCommerce.
+     */
+    async handleBlocked(data, response) {
+        if (!response.blocked) return false;
+
+        const {streak, cooldownSeconds} = await this.nextCooldownSeconds();
+
+        data.retry_count = (data.retry_count ?? 0) + 1;
 
         await this.publishStatus(data.product.id, 'no_response_retrying');
 
-        await this.redis.setex(
-            this.cooldownKey,
-            cooldownSeconds,
-            '1',
-        );
+        try {
+            await this.redis.setex(this.cooldownKey, cooldownSeconds, '1');
+            await this.redis.lpush(this.queueIn, JSON.stringify(data));
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: `${this.name} failed to requeue blocked product`,
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+        }
 
-        await this.redis.lpush(
-            this.queueIn,
-            JSON.stringify(data)
-        );
-
-        await this.publishStatus(data.product.id, 'cooldown');
+        await this.publishStatus(data.product.id, 'rate_limited');
 
         console.error(
             JSON.stringify({
                 message: `${this.name} bot detected. Product ${data.product.id} returned to queue. Cooldown: ${cooldownSeconds}s`,
                 level: 'error',
-                current_retry: retryCount + 1,
+                product_id: data.product.id,
+                url: data.product.decathlon_url ?? data.product.full_url ?? null,
+                block_reason: response.block_reason ?? null,
+                block_streak: streak,
+                hard_ban: streak >= HARD_BAN_STREAK,
                 next_retry_in_seconds: cooldownSeconds,
                 response_status: response.response_status ?? null,
             })
         );
+
+        // Send the block onward so Laravel can mark the product `rate_limited`.
+        // The payload carries no `response_data`, so PHP only changes the sync
+        // status — stock, price and variations are left untouched.
+        response.bulk = data.bulk ?? false;
+        response.source = this.name;
+
+        try {
+            await this.redis.rpush(this.queueOut, JSON.stringify(response));
+        } catch (e) {
+            console.error(JSON.stringify({
+                message: `${this.name} failed to publish blocked result`,
+                error: {name: e.name, message: e.message},
+                level: 'error',
+            }));
+        }
 
         return true;
     }

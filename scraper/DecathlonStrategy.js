@@ -21,22 +21,82 @@ const {extractItemGroupFromHtml} = require('./parse-next-flight');
  *   │       ├── skuId              → sku_id (source sku UUID)
  *   │       ├── providerSkuCode.skuCode → sku (matches existing DB values)
  *   │       ├── sizeGridValue      → size
- *   │       ├── isAvailable        → stock (true/false)
+ *   │       ├── isAvailable        → stock (true/false) — authoritative
+ *   │       ├── isHomeOrStoreDeliveryAvailable → stock fallback when isAvailable is absent
  *   │       ├── offers[].fixedPrices[].typeTargets[].currencies.main
  *   │       │     .valueWithTaxes/.currency → price (integer, TRY)
  *   │       ├── brand.name         → brand
  *   │       └── url                → relative product URL
+ *
+ * Stock must come from this payload, never from the
+ * `/api/product/tr-TR/availabilities/stocks` endpoint: that call returns 403
+ * while the IP is challenged, and treating an empty answer as "out of stock"
+ * zeroed every variation in the catalogue. When availability cannot be read
+ * from the payload the product is reported as blocked instead.
+ *
+ * When the native browser is blocked by Cloudflare the product is fetched
+ * through ScrapeOps instead (see `scrapeViaScrapeOps`), so a hard ban does not
+ * stall the queue.
  */
 class DecathlonStrategy extends BaseStrategy {
+    /** Cloudflare / WAF interstitial markers (checked in title, DOM and body text). */
+    static CHALLENGE_PATTERN = /just a moment|attention required|cf-challenge|challenge-platform|verifying you are human|checking your browser/i;
+
+    /**
+     * Minimum time to wait before any judgement is made. Cloudflare interstitials
+     * often resolve themselves in a few seconds and reload the real page, so
+     * calling it a ban earlier than this would produce false positives that
+     * cost a whole cooldown cycle.
+     */
+    static MIN_JUDGE_WINDOW_MS = 15000;
+
+    /** How long to keep polling for the payload before giving up. */
+    static PAYLOAD_POLL_TIMEOUT_MS = 45000;
+
+    /** Extra time granted when a challenge is still visibly resolving. */
+    static CHALLENGE_GRACE_TIMEOUT_MS = 90000;
+
     constructor() {
         super('Decathlon');
     }
 
-    async scrape(productData) {
+    /**
+     * @param {object} productData queue payload (`{id, decathlon_url}`)
+     * @param {{skipBrowser?: boolean, allowFallback?: boolean}} [options]
+     *        `skipBrowser` is set by the worker while the native browser is
+     *        cooling down after a hard ban; `allowFallback` enables the
+     *        ScrapeOps fallback. Both are false during a normal block so a
+     *        short ban is handled by backoff alone, without spending credits.
+     */
+    async scrape(productData, options = {}) {
         if (!productData.decathlon_url?.trim()) {
             return {product_data: productData, success: false, message: 'empty url provided'};
         }
 
+        // While a hard ban is in effect, go straight to the proxy fallback.
+        // The native browser is retried as soon as the cooldown expires, so the
+        // switch back to the default path is automatic once the ban lifts.
+        if (options.skipBrowser === true) {
+            return (await this.scrapeViaScrapeOps(productData))
+                ?? this.blockedResult(productData, {block_reason: 'browser_cooling_down'});
+        }
+
+        const native = await this.scrapeWithBrowser(productData);
+
+        if (native.blocked !== true || options.allowFallback !== true) {
+            return native;
+        }
+
+        // Native attempt was blocked during a hard ban: try the proxy fallback
+        // so the queue keeps flowing. If the fallback is unavailable or fails,
+        // hand back the native result so the worker re-queues with backoff.
+        return (await this.scrapeViaScrapeOps(productData, native)) ?? native;
+    }
+
+    /**
+     * Scrape through the real headful browser (the default path).
+     */
+    async scrapeWithBrowser(productData) {
         let page = null;
         let response = null;
         let closeBrowser = false;
@@ -55,83 +115,60 @@ class DecathlonStrategy extends BaseStrategy {
             const preDelay = Math.floor(Math.random() * 15000 + 5000);
             await delay(preDelay);
 
-            response = await page.goto(productData.decathlon_url, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
-
-            if ([403, 429].includes(response.status())) {
-                // A 403 here is usually the Cloudflare "Just a moment..."
-                // challenge page rather than a Decathlon rate limit. Either
-                // way it is an anti-bot block: re-queue with backoff.
+            try {
+                response = await page.goto(productData.decathlon_url, {waitUntil: 'domcontentloaded', timeout: 1000 * 60});
+            } catch (err) {
+                // A navigation that dies mid-flight can still leave the real page
+                // behind (Cloudflare reloads it), so let the settle loop decide.
                 console.error(JSON.stringify({
-                    message: 'decathlon rate limit',
-                    status: response.status(),
+                    message: 'decathlon navigation error',
+                    error: {name: err.name, message: err.message},
                     data: productData,
-                    level: 'error'
+                    level: 'error',
                 }));
-                closeBrowser = true;
+            }
+
+            // Wait for the product payload to settle. Cloudflare commonly serves
+            // "Just a moment..." (sometimes with a 403 status) and then resolves
+            // the challenge on its own and reloads the real page. That is NOT a
+            // ban, so a challenge or a 403 seen here is only a reason to keep
+            // waiting — never an immediate block.
+            const settled = await this.waitForProductPayload(page, productData);
+
+            if (settled.deleted) {
+                return settled.deleted;
+            }
+
+            if (!settled.ok) {
+                const httpBlocked = [403, 429].includes(response?.status());
+
+                if (settled.challengeSeen || httpBlocked) {
+                    console.error(JSON.stringify({
+                        message: 'decathlon anti-bot block persisted after waiting',
+                        block_reason: settled.challengeSeen ? 'challenge_page' : 'http_403',
+                        status: response?.status() ?? null,
+                        waited_ms: settled.waitedMs,
+                        data: productData,
+                        level: 'error',
+                    }));
+                    closeBrowser = true;
+                    return this.blockedResult(productData, {
+                        block_reason: settled.challengeSeen ? 'challenge_page' : 'http_403',
+                        response_status: response?.status() ?? null,
+                        response_headers: response?.headers() ?? {},
+                    });
+                }
+
+                // No challenge, no payload, no block status: a genuine data
+                // failure rather than a ban, so the product is marked failed
+                // instead of being re-queued forever.
                 return {
                     product_id: productData.id,
                     success: false,
-                    response_status: response.status(),
-                    response_headers: response.headers(),
-                    blocked: true
+                    response_status: response?.status() ?? null,
+                    response_headers: response?.headers() ?? {},
+                    blocked: false,
                 };
-            }
-
-            // Deleted products 302 to a category page but still return HTTP 200.
-            // Detect that here (before the flight-payload wait) so we do not
-            // burn 15s waiting on a page that will never contain the product.
-            const deleted = this.deletedResultIfRedirected(productData, response, page.url());
-            if (deleted) {
-                return deleted;
-            }
-
-            try {
-                // Wait until the page has rendered the flight payload so the
-                // product catalog is present. The chunks are pushed into the
-                // `window.__next_f` array by plain <script> tags. However, in
-                // headless runs the inline `self.__next_f.push(...)` scripts can
-                // fail to execute (the global stays an empty array) even though
-                // the raw HTML already contains the full flight payload. So wait
-                // for the flight marker inside the rendered DOM instead.
-                await page.waitForFunction(() => {
-                    const scripts = document.querySelectorAll('script');
-                    for (const s of scripts) {
-                        if ((s.textContent || '').includes('self.__next_f.push([1,"')) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }, {timeout: 25000});
-            } catch (e) {
-                // Cloudflare sometimes serves the interstitial challenge with a
-                // 200 status. Detect it by the challenge page's distinctive title
-                // before burning 15s on the flight-payload wait below.
-                const challengeTitle = await page.evaluate(() => document.title).catch(() => '');
-                if (challengeTitle.includes('Just a moment')) {
-                    console.error(JSON.stringify({
-                        message: 'decathlon cloudflare challenge (200)',
-                        status: response.status(),
-                        data: productData,
-                        level: 'error'
-                    }));
-                    closeBrowser = true;
-                    return {
-                        product_id: productData.id,
-                        success: false,
-                        response_status: response.status(),
-                        response_headers: response.headers(),
-                        blocked: true
-                    };
-                } else {
-                    return this.deletedResultIfRedirected(productData, response, page.url())
-                        ?? {
-                            product_id: productData.id,
-                            success: false,
-                            response_status: response.status(),
-                            response_headers: response.headers(),
-                            blocked: false
-                        };
-                }
             }
 
             const html = await page.content();
@@ -143,11 +180,27 @@ class DecathlonStrategy extends BaseStrategy {
             }
 
             const origin = page.url();
-            const variations = await this.buildVariationsFromItemGroup(itemGroup, origin, page);
+            const result = this.buildVariationsFromItemGroup(itemGroup, origin);
+
+            if (result.blocked) {
+                console.error(JSON.stringify({
+                    message: 'decathlon payload is not trustworthy',
+                    block_reason: result.block_reason,
+                    product_id: productData.id,
+                    data: productData,
+                    level: 'error',
+                }));
+
+                return this.blockedResult(productData, {
+                    block_reason: result.block_reason,
+                    response_status: response?.status() ?? null,
+                    response_headers: response?.headers() ?? {},
+                });
+            }
 
             return {
                 product_id: productData.id,
-                response_data: variations,
+                response_data: result.variations,
                 success: (response?.status() >= 200 && response?.status() < 400),
                 response_status: response ? response.status() : null
             };
@@ -174,6 +227,250 @@ class DecathlonStrategy extends BaseStrategy {
             if (page) await safeClose(() => page.close());
             if (isShuttingDown() || closeBrowser) await this.closeBrowser();
         }
+    }
+
+    /**
+     * Fetch the product page through the ScrapeOps proxy and parse the same
+     * Next.js flight payload out of the returned HTML.
+     *
+     * Used when the native browser hits a Cloudflare block, so a hard ban does
+     * not stall the queue. The proxy renders JavaScript server-side, so no
+     * browser is needed and no stocks API call is made — stock comes from the
+     * payload exactly like the native path.
+     *
+     * Returns `null` when the fallback is unconfigured or fails; the caller
+     * then uses the native blocked result so the worker re-queues normally.
+     * There is no request budget cap: the daily counter is telemetry for the
+     * Telegram report, not a limiter.
+     */
+    async scrapeViaScrapeOps(productData, nativeResult = null) {
+        const apiKey = process.env.SCRAPE_OPS_KEY;
+        const targetUrl = productData.decathlon_url;
+
+        if (!apiKey) {
+            console.error(JSON.stringify({
+                message: 'decathlon scrapeops fallback skipped: SCRAPE_OPS_KEY is not set',
+                product_id: productData.id,
+                level: 'error',
+            }));
+
+            return null;
+        }
+
+        try {
+            const params = new URLSearchParams({
+                api_key: apiKey,
+                url: targetUrl,
+                render_js: 'true',
+                country: 'tr',
+            });
+
+            const response = await fetch(`https://proxy.scrapeops.io/v1/?${params.toString()}`, {
+                headers: {'Accept-Encoding': 'gzip'},
+                signal: AbortSignal.timeout(180000),
+            });
+
+            const html = await response.text();
+
+            if (!response.ok) {
+                console.error(JSON.stringify({
+                    message: 'decathlon scrapeops fallback failed',
+                    product_id: productData.id,
+                    status: response.status,
+                    level: 'error',
+                }));
+
+                return null;
+            }
+
+            const itemGroup = extractItemGroupFromHtml(html)[0];
+
+            if (!itemGroup) {
+                console.error(JSON.stringify({
+                    message: 'decathlon scrapeops fallback found no itemGroup',
+                    product_id: productData.id,
+                    final_url: targetUrl,
+                    level: 'error',
+                }));
+
+                return null;
+            }
+
+            const result = this.buildVariationsFromItemGroup(itemGroup, targetUrl);
+
+            if (result.blocked) {
+                console.error(JSON.stringify({
+                    message: 'decathlon scrapeops payload is not trustworthy',
+                    block_reason: result.block_reason,
+                    product_id: productData.id,
+                    level: 'error',
+                }));
+
+                return null;
+            }
+
+            console.info(JSON.stringify({
+                message: 'decathlon scraped through scrapeops fallback',
+                product_id: productData.id,
+                variations: result.variations.length,
+                previous_block_reason: nativeResult?.block_reason ?? null,
+                level: 'info',
+            }));
+
+            return {
+                product_id: productData.id,
+                response_data: result.variations,
+                success: true,
+                scrapeops_fallback: true,
+                // The native browser was blocked and the fallback rescued this
+                // product: the worker escalates the streak and arms the
+                // cooldown so following items skip straight to the fallback.
+                native_blocked: nativeResult?.blocked === true,
+                response_status: response.status,
+            };
+        } catch (err) {
+            console.error(JSON.stringify({
+                message: 'decathlon scrapeops fallback error',
+                product_id: productData.id,
+                error: {name: err.name, message: err.message},
+                level: 'error',
+            }));
+
+            return null;
+        }
+    }
+
+    /**
+     * Detect a Cloudflare / WAF interstitial served with a 200 status.
+     */
+    async isChallengePage(page) {
+        return this.challengeState(page);
+    }
+
+    /**
+     * Light challenge probe: title, Cloudflare's challenge DOM nodes, and the
+     * first chunk of visible text. Cheap enough to poll while a challenge
+     * resolves itself.
+     */
+    async challengeState(page) {
+        return page.evaluate((patternSource) => {
+            const re = new RegExp(patternSource, 'i');
+
+            if (re.test(document.title || '')) {
+                return true;
+            }
+
+            if (document.querySelector('#challenge-form, #cf-challenge-running, #challenge-stage, #cf-please-wait')) {
+                return true;
+            }
+
+            const text = (document.body?.innerText || '').slice(0, 2000);
+
+            return re.test(text);
+        }, DecathlonStrategy.CHALLENGE_PATTERN.source).catch(() => false);
+    }
+
+    /**
+     * True once the Next.js flight payload is present in the DOM.
+     */
+    async hasFlightPayload(page) {
+        return page.evaluate(() => {
+            const scripts = document.querySelectorAll('script');
+
+            for (const script of scripts) {
+                if ((script.textContent || '').includes('self.__next_f.push([1,"')) {
+                    return true;
+                }
+            }
+
+            return false;
+        }).catch(() => false);
+    }
+
+    /**
+     * Wait for the product payload while tolerating Cloudflare interstitials.
+     *
+     * Cloudflare frequently serves "Just a moment..." — sometimes with a 403
+     * status — and then resolves the challenge on its own and reloads the real
+     * page. Those cases are NOT a ban, so:
+     *
+     *   - a payload that arrives is always a success, however early;
+     *   - a challenge or 403 is only a reason to keep waiting, never to judge;
+     *   - nothing is ever declared blocked before MIN_JUDGE_WINDOW_MS (15s) has
+     *     elapsed, so a self-resolving challenge is never mistaken for a ban.
+     *
+     * @returns {Promise<{ok: boolean, challengeSeen: boolean, waitedMs: number, deleted?: object}>}
+     */
+    async waitForProductPayload(page, productData) {
+        const startedAt = Date.now();
+        let challengeSeen = false;
+
+        while (true) {
+            const elapsedMs = Date.now() - startedAt;
+
+            if (await this.hasFlightPayload(page)) {
+                return {ok: true, challengeSeen, waitedMs: elapsedMs};
+            }
+
+            if (await this.challengeState(page)) {
+                challengeSeen = true;
+            }
+
+            // Only treat a redirect as a deletion when we are past the judge
+            // window, the page is not a challenge (a challenge lives on
+            // challenges.cloudflare.com, which has no product id either), and
+            // the URL is still on Decathlon's own domain.
+            const finalUrl = page.url();
+            const onDecathlon = /(^|\.)decathlon\.com\.tr/i.test(this.hostOf(finalUrl));
+
+            if (! challengeSeen && onDecathlon && elapsedMs >= DecathlonStrategy.MIN_JUDGE_WINDOW_MS) {
+                const deleted = this.deletedResultIfRedirected(productData, null, finalUrl);
+
+                if (deleted) {
+                    return {ok: false, challengeSeen, waitedMs: elapsedMs, deleted};
+                }
+            }
+
+            if (elapsedMs >= DecathlonStrategy.PAYLOAD_POLL_TIMEOUT_MS) {
+                // A self-resolving challenge gets a final grace period instead of
+                // being judged the moment the poll timeout hits.
+                if (challengeSeen && elapsedMs < DecathlonStrategy.CHALLENGE_GRACE_TIMEOUT_MS) {
+                    await delay(1000);
+                    continue;
+                }
+
+                return {ok: false, challengeSeen, waitedMs: elapsedMs};
+            }
+
+            await delay(1000 + Math.floor(Math.random() * 250));
+        }
+    }
+
+    /**
+     * Hostname of a URL, or an empty string when it cannot be parsed.
+     */
+    hostOf(url) {
+        try {
+            return new URL(url).host;
+        } catch (e) {
+            return '';
+        }
+    }
+
+    /**
+     * Uniform "anti-bot block" result. It carries no `response_data`, so the
+     * PHP side only moves the product to `rate_limited` and never touches
+     * variation stock, price or WooCommerce.
+     */
+    blockedResult(productData, {block_reason, response_status = null, response_headers = {}}) {
+        return {
+            product_id: productData.id,
+            success: false,
+            blocked: true,
+            block_reason,
+            response_status,
+            response_headers,
+        };
     }
 
     productIdFromUrl(url) {
@@ -214,11 +511,14 @@ class DecathlonStrategy extends BaseStrategy {
     /**
      * Flatten the flight payload's `itemGroup` into the variation rows the PHP
      * side expects. One row per (color × size) sku.
+     *
+     * Returns `{variations, blocked, block_reason}`. `blocked` is set — and no
+     * variations are returned — when the payload cannot be trusted, so a bad
+     * payload can never be reported as "everything out of stock".
      */
-    async buildVariationsFromItemGroup(itemGroup, origin, page) {
+    buildVariationsFromItemGroup(itemGroup, origin) {
         const variations = [];
-
-        const stockResponse = await this.fetchStocks(page, itemGroup);
+        let availabilityKnown = 0;
 
         for (const skuGroup of itemGroup.skuGroups ?? []) {
             // Color(s) for this variation group, e.g. "füme siyah / Neon yavruağzı".
@@ -231,6 +531,10 @@ class DecathlonStrategy extends BaseStrategy {
                 const main = sku.offers?.[0]?.fixedPrices?.[0]?.typeTargets?.[0]?.currencies?.main;
                 const url = this.toAbsoluteUrl(origin, sku.url);
 
+                if (this.hasAvailability(sku)) {
+                    availabilityKnown++;
+                }
+
                 variations.push(this.buildVariation({
                     sourceProductId: itemGroup.id,
                     sourceVariationId: skuGroup.modelId,
@@ -239,6 +543,7 @@ class DecathlonStrategy extends BaseStrategy {
                     price: main?.valueWithTaxes ?? null,
                     priceCurrency: main?.currency?.toLowerCase() ?? null,
                     url,
+                    stock: this.stockFor(sku),
                     brand: sku.brand?.name ?? null,
                     size: sku.sizeGridValue ?? null,
                     color: colors,
@@ -246,11 +551,46 @@ class DecathlonStrategy extends BaseStrategy {
             }
         }
 
-        for (const variation of variations) {
-            variation.stock = stockResponse.stocks[variation.sku_id]?.home?.isAvailable ? 88 : 0
+        // Decathlon dropped/renamed the availability fields: this is a payload
+        // change, not a sold-out catalogue. Reporting it as a block keeps the
+        // previous stock intact instead of zeroing every variation.
+        if (variations.length > 0 && availabilityKnown === 0) {
+            return {
+                variations: [],
+                blocked: true,
+                block_reason: 'payload_missing_availability',
+            };
         }
 
-        return variations;
+        // Every size out of stock at once is far more likely a bad payload than
+        // a real sold-out product, so treat it as suspect rather than fact.
+        if (variations.length > 0 && variations.every((variation) => variation.stock === 0)) {
+            return {
+                variations: [],
+                blocked: true,
+                block_reason: 'all_stock_zero_suspicious',
+            };
+        }
+
+        return {variations, blocked: false, block_reason: null};
+    }
+
+    hasAvailability(sku) {
+        return typeof sku.isAvailable === 'boolean'
+            || typeof sku.isHomeOrStoreDeliveryAvailable === 'boolean';
+    }
+
+    /**
+     * Stock from the flight payload only. `isAvailable` wins;
+     * `isHomeOrStoreDeliveryAvailable` is only used when it is absent.
+     * `LOCAL_STOCK_ONLY` is intentionally ignored — it appears on in-stock
+     * items too, so using it zeroes products that are actually sellable.
+     */
+    stockFor(sku) {
+        const inStock = sku.isAvailable === true
+            || (sku.isAvailable === undefined && sku.isHomeOrStoreDeliveryAvailable === true);
+
+        return inStock ? 88 : 0;
     }
 
     /**
@@ -287,7 +627,7 @@ class DecathlonStrategy extends BaseStrategy {
     /**
      * Build a single variation row.
      */
-    buildVariation({sourceProductId, sourceVariationId, skuId, sku, price, priceCurrency, url, brand, size, color}) {
+    buildVariation({sourceProductId, sourceVariationId, skuId, sku, price, priceCurrency, url, stock, brand, size, color}) {
         return {
             decathlon_product_id: sourceProductId,
             source_variation_id: sourceVariationId,
@@ -296,35 +636,11 @@ class DecathlonStrategy extends BaseStrategy {
             price,
             priceCurrency,
             url: url ?? null,
+            stock,
             brand: brand?.replace(/[.\s]/g, '') ?? null,
             size,
             color,
         };
-    }
-
-    async fetchStocks(page, itemGroup) {
-        const items = [];
-        for (const skuGroup of itemGroup.skuGroups ?? []) {
-            for (const sku of skuGroup.skus ?? []) {
-                const offer = sku.offers?.[0];
-                if (!sku.skuId || !offer?.optionId) { continue; }
-                items.push({skuId: sku.skuId, optionId: String(offer.optionId), fulfillerId: offer.fulfiller?.id ?? 'dkt-fulfiller-tr'});
-            }
-        }
-        if (!items.length) { return {stocks: {}, status: null}; }
-
-        const result = await page.evaluate(async (body) => {
-            const res = await fetch('https://www.decathlon.com.tr/api/product/tr-TR/availabilities/stocks', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {'Content-Type': 'application/json', 'Accept': '*/*'},
-                body: JSON.stringify(body),
-            });
-            if (!res.ok) { return {status: res.status, data: null}; }
-            return {status: res.status, data: await res.json()};
-        }, {items});
-
-        return {stocks: result.data ?? {}, status: result.status};
     }
 }
 

@@ -23,6 +23,7 @@ enum SyncStatusEnum: string
     case FAILED_UPDATE = 'failed_update';
     case COOLDOWN = 'cooldown';
     case NO_RESPONSE_RETRYING = 'no_response_retrying';
+    case RATE_LIMITED = 'rate_limited';
     case INVALID_CURRENCY = 'invalid_currency';
     case INVALID_WOOCOMMERCE_ID = 'invalid_woocommerce_id';
     case MIN_PRICE_EMPTY = 'min_price_empty';
@@ -33,7 +34,7 @@ enum SyncStatusEnum: string
             self::PROCESSING, self::SUCCESSFUL_DATA_FETCH, self::SUCCESSFUL_DATA_FETCH_TOROB => 'info',
             self::SKIPPED_UPDATE, self::ENV_DISABLED, self::VARIATION_HAS_PROMOTION_ACTIVE, self::NO_ROUTE_FOUND_FOR_VARIATION => 'warning',
             self::SUCCESSFUL_UPDATE => 'success',
-            self::FAILED_DATA_FETCH, self::FAILED_DATA_FETCH_TOROB, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING, self::MIN_PRICE_EMPTY => 'danger',
+            self::FAILED_DATA_FETCH, self::FAILED_DATA_FETCH_TOROB, self::FAILED_UPDATE, self::COOLDOWN, self::PRODUCT_GOT_DELETED, self::INVALID_CURRENCY, self::NO_RESPONSE_RETRYING, self::RATE_LIMITED, self::MIN_PRICE_EMPTY => 'danger',
             default => 'gray',
         };
     }
@@ -43,6 +44,7 @@ enum SyncStatusEnum: string
         return match ($this) {
             self::ENQUEUED => 10,
             self::PROCESSING, self::FAILED_DATA_FETCH => 40,
+            self::RATE_LIMITED, self::NO_RESPONSE_RETRYING, self::COOLDOWN => 40,
             self::SUCCESSFUL_DATA_FETCH, self::FAILED_UPDATE, self::SKIPPED_UPDATE => 70,
             self::SUCCESSFUL_UPDATE => 100,
             self::NOT_ENQUEUED => 0,
@@ -69,6 +71,7 @@ enum SyncStatusEnum: string
             self::COOLDOWN => 'ربات مسدوده شده لطفا صبر کنید',
             self::PRODUCT_GOT_DELETED => 'محصول از سایت اصلی پاک شده لینک چک شود',
             self::NO_RESPONSE_RETRYING => 'پاسخی دریافت نشد محصول به صف سینک مجدد اضافه شده',
+            self::RATE_LIMITED => 'محدودیت ربات (403) — محصول به صورت خودکار دوباره تلاش می‌شود',
             self::INVALID_CURRENCY => 'ارز اشتباهی دریافت شده',
             self::INVALID_WOOCOMMERCE_ID => 'شناسه ووکامرس محصول اشتباه هست',
             self::MIN_PRICE_EMPTY => 'ستون min_price خالی است پر شود',
