@@ -303,7 +303,7 @@ class Worker {
 
         try {
             await this.redis.setex(this.cooldownKey, cooldownSeconds, '1');
-            await this.redis.lpush(this.queueIn, JSON.stringify(data));
+            await this.redis.rpush(this.queueIn, JSON.stringify(data));
         } catch (e) {
             console.error(JSON.stringify({
                 message: `${this.name} failed to requeue blocked product`,
