@@ -133,7 +133,8 @@ class Product extends Model
 
     public function belongsToDecalthon()
     {
-        return ! empty($this->decathlon_url);
+        return ! empty($this->decathlon_url)
+            && str_contains($this->decathlon_url, 'decathlon.com.tr');
     }
 
     public function belongsToAmazon()

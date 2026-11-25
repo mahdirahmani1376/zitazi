@@ -134,14 +134,14 @@ class Currency extends Model
 
         if ($digits >= 9) {
             $prettifiedValue = (int) (floor($rialPrice / 100000) * 100000);
-        } else if ($digits >= 6) {
+        } elseif ($digits >= 6) {
             $prettifiedValue = (int) (floor($rialPrice / 10000) * 10000);
-        } else if ($digits > 3) {
+        } elseif ($digits > 3) {
             $prettifiedValue = (int) (floor($rialPrice / 1000) * 1000);
         } else {
             $prettifiedValue = 1000;
         }
 
-        return  $prettifiedValue;
+        return $prettifiedValue;
     }
 }

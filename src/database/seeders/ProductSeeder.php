@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\DTO\ZitaziUpdateDTO;
-use App\Jobs\BatchSyncZitaziJob;
 use App\Jobs\DeleteProductJob;
-use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use Google\Client;
 use Google\Service\Sheets;
@@ -166,12 +163,9 @@ class ProductSeeder extends Seeder
 
     }
 
-    /**
-     * @return void
-     */
     private function deleteNotFoundProducts(): void
     {
-        if (!empty($this->notFoundProductIds)) {
+        if (! empty($this->notFoundProductIds)) {
             Log::error('not found product Ids', [
                 'data' => $this->notFoundProductIds,
             ]);
@@ -186,7 +180,6 @@ class ProductSeeder extends Seeder
                 ->name('Delete Products')
                 ->dispatch();
         }
-
 
     }
 }

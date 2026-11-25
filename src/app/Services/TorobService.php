@@ -20,20 +20,19 @@ class TorobService
                 'response' => $response,
             ]);
 
-            if (data_get($response,'error.name') === 'ProductDoesNotHaveMinPriceException') {
-                $product->setSyncStatus(SyncStatusEnum::MIN_PRICE_EMPTY,true);
+            if (data_get($response, 'error.name') === 'ProductDoesNotHaveMinPriceException') {
+                $product->setSyncStatus(SyncStatusEnum::MIN_PRICE_EMPTY, true);
                 LogManager::logProduct($product, 'product does not have min price', $response);
             } else {
                 $product->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH_TOROB);
                 LogManager::logProduct($product, 'error fetching torob data', $response);
             }
 
-
-        }
-        else {
+        } else {
             if (empty(data_get($response, 'response_data.result'))) {
                 LogManager::logProduct($product, 'product has no seller in torob');
                 $product->setSyncStatus(SyncStatusEnum::SUCCESSFUL_DATA_FETCH_TOROB);
+
                 return;
             }
 
@@ -51,7 +50,7 @@ class TorobService
 
                 $product->update([
                     'rival_min_price' => null,
-                    'torob_shop_counts' => null
+                    'torob_shop_counts' => null,
                 ]);
             } else {
                 $minShop = $validShops
@@ -83,7 +82,7 @@ class TorobService
                         'rival_min_price' => $minPrice,
                         'torob_rank' => $zitaziRank,
                         'torob_shop_counts' => $torob_shop_counts,
-                        'previous_torob_rank' => $previousRank
+                        'previous_torob_rank' => $previousRank,
                     ]);
 
                 } else {
@@ -93,7 +92,7 @@ class TorobService
                     ]);
 
                     $rivalMinPrice = null;
-                    if (!empty($secondMinShop) && ($secondMinShop['shop_id'] != config('services.zitazi.torob_shop_id'))) {
+                    if (! empty($secondMinShop) && ($secondMinShop['shop_id'] != config('services.zitazi.torob_shop_id'))) {
                         $rivalMinPrice = $secondMinShop['price'];
                         $minPriceTolerance = Currency::prettify($minPrice * 1.055);
                         if ($rivalMinPrice > $minPriceTolerance) {
@@ -111,7 +110,7 @@ class TorobService
                         'rival_min_price' => $rivalMinPrice,
                         'torob_rank' => 1,
                         'torob_shop_counts' => $torob_shop_counts,
-                        'previous_torob_rank' => $previousRank
+                        'previous_torob_rank' => $previousRank,
                     ]);
                 }
             }
@@ -134,7 +133,6 @@ class TorobService
         $priceDecreaseStep = $rivalMinPrice * (99.5 / 100);
 
         $recommendedPrice = Currency::prettify($priceDecreaseStep);
-
 
         if ($recommendedPrice < $lowestPossiblePrice) {
             return;

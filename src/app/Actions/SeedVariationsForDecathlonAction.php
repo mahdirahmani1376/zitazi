@@ -79,7 +79,7 @@ class SeedVariationsForDecathlonAction
                     if ($rialPrice > $highestPossiblePrice) {
                         LogManager::logProduct($product, 'product got its max price', [
                             'highest_possible_price' => $highestPossiblePrice,
-                            'recommenced_price' => $rialPrice
+                            'recommenced_price' => $rialPrice,
                         ]);
                         $rialPrice = $highestPossiblePrice;
                     }
@@ -166,7 +166,7 @@ class SeedVariationsForDecathlonAction
 
         $defaultVariation = $product->defaultVariation();
 
-        if (!empty($defaultVariation)) {
+        if (! empty($defaultVariation)) {
             $price = $defaultVariation->price;
             $rialPrice = $defaultVariation->rial_price;
             $minPrice = $rialPrice * 1.2;

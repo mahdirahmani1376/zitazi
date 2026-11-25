@@ -111,7 +111,7 @@ class SeedVariationsForTrendyolAction
                     if ($rialPrice > $highestPossiblePrice) {
                         LogManager::logProduct($product, 'product got its max price', [
                             'highest_possible_price' => $highestPossiblePrice,
-                            'recommenced_price' => $rialPrice
+                            'recommenced_price' => $rialPrice,
                         ]);
                         $rialPrice = $highestPossiblePrice;
                     }

@@ -46,6 +46,7 @@ use Illuminate\Support\Carbon;
 class Variation extends Model
 {
     use SoftDeletes;
+
     public const AVAILABLE = 'available';
 
     public const UNAVAILABLE = 'unavailable';

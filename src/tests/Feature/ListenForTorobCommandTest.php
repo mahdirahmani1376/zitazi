@@ -164,7 +164,7 @@ class ListenForTorobCommandTest extends TestCase
 
         $product = Product::factory()->create();
 
-        $data =  [
+        $data = [
             'product_id' => $product->id,
             'response_data' => $responseSample['products_info'],
             'response_status' => 200,
@@ -176,11 +176,11 @@ class ListenForTorobCommandTest extends TestCase
             'bulk' => false,
         ];
 
-        TorobServiceFacade::processResponse($product,$data);
+        TorobServiceFacade::processResponse($product, $data);
 
-        $this->assertDatabaseHas('products',[
-           'rival_min_price' => 2000000,
-           'id' => $product->id,
+        $this->assertDatabaseHas('products', [
+            'rival_min_price' => 2000000,
+            'id' => $product->id,
         ]);
     }
 }

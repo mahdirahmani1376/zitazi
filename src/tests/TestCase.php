@@ -13,7 +13,6 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-
         if (config('database.connections.mysql.database') !== 'zitazi_test') {
             throw new \RuntimeException('Tests must run against the zitazi_test database, not the live zitazi database.');
         }

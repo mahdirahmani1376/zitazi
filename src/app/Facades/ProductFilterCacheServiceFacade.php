@@ -3,7 +3,6 @@
 namespace App\Facades;
 
 use App\Services\ProductFilterCacheService;
-use App\Services\TorobService;
 use Illuminate\Support\Facades\Facade;
 
 /**

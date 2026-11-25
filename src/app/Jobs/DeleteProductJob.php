@@ -14,11 +14,9 @@ use Illuminate\Support\Facades\Log;
 
 class DeleteProductJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(private readonly int $productId)
-    {
-    }
+    public function __construct(private readonly int $productId) {}
 
     public function handle(): void
     {

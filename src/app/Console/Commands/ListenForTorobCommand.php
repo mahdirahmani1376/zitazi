@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\SyncStatusEnum;
 use App\Models\Product;
 use App\Services\ScrapeOpsService;
 use Illuminate\Console\Command;
@@ -23,6 +22,7 @@ class ListenForTorobCommand extends Command
     protected $signature = 'listen:torob {--once : Process a single message and exit}';
 
     protected $description = 'listens for torob scrape requests and fetches each through ScrapeOps';
+
     public function handle(): void
     {
         $this->info('listen:torob listener command started');
@@ -71,7 +71,7 @@ class ListenForTorobCommand extends Command
         }
 
         $product = Product::find($productId);
-        if (!$product->belongsToTrendyol() && !$product->belongsToDecalthon() && empty($product->min_price)) {
+        if (! $product->belongsToTrendyol() && ! $product->belongsToDecalthon() && empty($product->min_price)) {
             $this->pushResult($this->failure($productId, $fullUrl, 'product does not have min_price', [
                 'name' => 'ProductDoesNotHaveMinPriceException',
                 'message' => 'Product does not have min price',
@@ -80,15 +80,14 @@ class ListenForTorobCommand extends Command
             return;
         }
 
-
         if ($product->torob_shop_counts < 2 || ! app()->environment('production')) {
             $cacheKey = "torob:scrapeops:{$productId}";
             if ($cached = Cache::get($cacheKey)) {
                 $this->pushResult($this->success($productId, $cached, $fullUrl, $bulk));
+
                 return;
             }
         }
-
 
         // Space out requests with a fixed pause so the free-tier proxy is not
         // hammered. A plain sleep (no bucket, no log noise).
