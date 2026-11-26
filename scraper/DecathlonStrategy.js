@@ -39,9 +39,9 @@ const {extractItemGroupFromHtml} = require('./parse-next-flight');
  * the previous stock is left untouched. A genuine all-zero answer from the
  * endpoint is respected, since some products really are fully sold out.
  *
- * When the native browser is blocked by Cloudflare the product page is fetched
- * through ScrapeOps instead (see `scrapeViaScrapeOps`), so a hard ban does not
- * stall the queue.
+ * When Cloudflare blocks the browser the product is reported as `blocked` and
+ * the worker backs the whole source off (5m → 1h → 3h → 6h → 24h) before the
+ * next attempt. No second transport is used.
  */
 class DecathlonStrategy extends BaseStrategy {
     /** Cloudflare / WAF interstitial markers (checked in title, DOM and body text). */
@@ -67,35 +67,13 @@ class DecathlonStrategy extends BaseStrategy {
 
     /**
      * @param {object} productData queue payload (`{id, decathlon_url}`)
-     * @param {{skipBrowser?: boolean, allowFallback?: boolean}} [options]
-     *        `skipBrowser` is set by the worker while the native browser is
-     *        cooling down after a hard ban; `allowFallback` enables the
-     *        ScrapeOps fallback. Both are false during a normal block so a
-     *        short ban is handled by backoff alone, without spending credits.
      */
-    async scrape(productData, options = {}) {
+    async scrape(productData) {
         if (!productData.decathlon_url?.trim()) {
             return {product_data: productData, success: false, message: 'empty url provided'};
         }
 
-        // While a hard ban is in effect, go straight to the proxy fallback.
-        // The native browser is retried as soon as the cooldown expires, so the
-        // switch back to the default path is automatic once the ban lifts.
-        if (options.skipBrowser === true) {
-            return (await this.scrapeViaScrapeOps(productData))
-                ?? this.blockedResult(productData, {block_reason: 'browser_cooling_down'});
-        }
-
-        const native = await this.scrapeWithBrowser(productData);
-
-        if (native.blocked !== true || options.allowFallback !== true) {
-            return native;
-        }
-
-        // Native attempt was blocked during a hard ban: try the proxy fallback
-        // so the queue keeps flowing. If the fallback is unavailable or fails,
-        // hand back the native result so the worker re-queues with backoff.
-        return (await this.scrapeViaScrapeOps(productData, native)) ?? native;
+        return this.scrapeWithBrowser(productData);
     }
 
     /**
@@ -250,135 +228,6 @@ class DecathlonStrategy extends BaseStrategy {
         } finally {
             if (page) await safeClose(() => page.close());
             if (isShuttingDown() || closeBrowser) await this.closeBrowser();
-        }
-    }
-
-    /**
-     * Fetch the product page through the ScrapeOps proxy and parse the same
-     * Next.js flight payload out of the returned HTML.
-     *
-     * Used when the native browser hits a Cloudflare block, so a hard ban does
-     * not stall the queue. The proxy renders JavaScript server-side, so no
-     * browser is needed and no stocks API call is made — stock comes from the
-     * payload exactly like the native path.
-     *
-     * Returns `null` when the fallback is unconfigured or fails; the caller
-     * then uses the native blocked result so the worker re-queues normally.
-     * There is no request budget cap: the daily counter is telemetry for the
-     * Telegram report, not a limiter.
-     */
-    async scrapeViaScrapeOps(productData, nativeResult = null) {
-        const apiKey = process.env.SCRAPE_OPS_KEY;
-        const targetUrl = productData.decathlon_url;
-
-        if (!apiKey) {
-            console.error(JSON.stringify({
-                message: 'decathlon scrapeops fallback skipped: SCRAPE_OPS_KEY is not set',
-                product_id: productData.id,
-                level: 'error',
-            }));
-
-            return null;
-        }
-
-        try {
-            const params = new URLSearchParams({
-                api_key: apiKey,
-                url: targetUrl,
-                render_js: 'true',
-                country: 'tr',
-            });
-
-            const response = await fetch(`https://proxy.scrapeops.io/v1/?${params.toString()}`, {
-                headers: {'Accept-Encoding': 'gzip'},
-                signal: AbortSignal.timeout(180000),
-            });
-
-            const html = await response.text();
-
-            if (!response.ok) {
-                console.error(JSON.stringify({
-                    message: 'decathlon scrapeops fallback failed',
-                    product_id: productData.id,
-                    status: response.status,
-                    level: 'error',
-                }));
-
-                return null;
-            }
-
-            const itemGroup = extractItemGroupFromHtml(html)[0];
-
-            if (!itemGroup) {
-                console.error(JSON.stringify({
-                    message: 'decathlon scrapeops fallback found no itemGroup',
-                    product_id: productData.id,
-                    final_url: targetUrl,
-                    level: 'error',
-                }));
-
-                return null;
-            }
-
-            const result = await this.buildVariationsFromItemGroup(itemGroup, targetUrl, productData, {viaScrapeOps: true});
-
-            if (result.deleted) {
-                console.error(JSON.stringify({
-                    message: 'decathlon product deleted (stocks endpoint reports not found via scrapeops)',
-                    block_reason: result.block_reason,
-                    product_id: productData.id,
-                    level: 'error',
-                }));
-
-                return {
-                    product_id: productData.id,
-                    success: false,
-                    blocked: false,
-                    deleted: true,
-                    scrapeops_fallback: true,
-                    response_status: response.status,
-                };
-            }
-
-            if (result.blocked) {
-                console.error(JSON.stringify({
-                    message: 'decathlon scrapeops stocks are not trustworthy',
-                    block_reason: result.block_reason,
-                    product_id: productData.id,
-                    level: 'error',
-                }));
-
-                return null;
-            }
-
-            console.info(JSON.stringify({
-                message: 'decathlon scraped through scrapeops fallback',
-                product_id: productData.id,
-                variations: result.variations.length,
-                previous_block_reason: nativeResult?.block_reason ?? null,
-                level: 'info',
-            }));
-
-            return {
-                product_id: productData.id,
-                response_data: result.variations,
-                success: true,
-                scrapeops_fallback: true,
-                // The native browser was blocked and the fallback rescued this
-                // product: the worker escalates the streak and arms the
-                // cooldown so following items skip straight to the fallback.
-                native_blocked: nativeResult?.blocked === true,
-                response_status: response.status,
-            };
-        } catch (err) {
-            console.error(JSON.stringify({
-                message: 'decathlon scrapeops fallback error',
-                product_id: productData.id,
-                error: {name: err.name, message: err.message},
-                level: 'error',
-            }));
-
-            return null;
         }
     }
 
@@ -747,12 +596,6 @@ class DecathlonStrategy extends BaseStrategy {
      * headers and body summary so a failure is traceable instead of silently
      * becoming "everything out of stock".
      *
-     * Two transports:
-     *   - `{page}`         → the sku POST runs inside the already-open product
-     *                        page (cookies + same origin, the default path);
-     *   - `{viaScrapeOps}` → the same POST is sent through the ScrapeOps proxy,
-     *                        used when the native browser is banned.
-     *
      * @returns {Promise<{stocks: object, blocked: boolean, deleted: boolean, block_reason: string|null}>}
      */
     async fetchStocks(itemGroup, productData, transport = {}) {
@@ -783,7 +626,6 @@ class DecathlonStrategy extends BaseStrategy {
         }
 
         const body = {items};
-        const viaScrapeOps = transport.viaScrapeOps === true;
 
         let status = null;
         let headers = {};
@@ -791,12 +633,10 @@ class DecathlonStrategy extends BaseStrategy {
         let error = null;
 
         try {
-            if (viaScrapeOps) {
-                ({status, headers, payload, error} = await this.postStocksViaScrapeOps(body));
-            } else if (transport.page) {
+            if (transport.page) {
                 ({status, headers, payload, error} = await this.postStocksInPage(transport.page, body));
             } else {
-                error = {name: 'NoTransport', message: 'no page and no proxy transport available'};
+                error = {name: 'NoTransport', message: 'no page transport available'};
             }
         } catch (err) {
             error = {name: err.name, message: err.message};
@@ -807,7 +647,7 @@ class DecathlonStrategy extends BaseStrategy {
         console.info(JSON.stringify({
             type: 'decathlon-stocks-response',
             product_id: productData?.id ?? null,
-            transport: viaScrapeOps ? 'scrapeops' : 'browser',
+            transport: 'browser',
             items_requested: items.length,
             status,
             content_type: headers?.['content-type'] ?? headers?.['Content-Type'] ?? null,
@@ -934,49 +774,6 @@ class DecathlonStrategy extends BaseStrategy {
         }
 
         return {status: result.status, headers: result.headers, payload: result.payload, error: null};
-    }
-
-    /**
-     * Send the stocks POST through the ScrapeOps proxy (used when the native
-     * browser is hard-banned). ScrapeOps POST forwarding requires
-     * `keep_headers=true` so the JSON content type is preserved.
-     */
-    async postStocksViaScrapeOps(body) {
-        const apiKey = process.env.SCRAPE_OPS_KEY;
-
-        if (!apiKey) {
-            return {error: {name: 'ScrapeOpsNotConfigured', message: 'SCRAPE_OPS_KEY is not set'}};
-        }
-
-        const params = new URLSearchParams({
-            api_key: apiKey,
-            url: 'https://www.decathlon.com.tr/api/product/tr-TR/availabilities/stocks',
-            keep_headers: 'true',
-            country: 'tr',
-        });
-
-        const response = await fetch(`https://proxy.scrapeops.io/v1/?${params.toString()}`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json', 'Accept': '*/*', 'Accept-Encoding': 'gzip'},
-            body: JSON.stringify(body),
-            signal: AbortSignal.timeout(180000),
-        });
-
-        const text = await response.text();
-        let payload = null;
-
-        try {
-            payload = JSON.parse(text);
-        } catch (e) {
-            payload = null;
-        }
-
-        return {
-            status: response.status,
-            headers: Object.fromEntries(response.headers.entries()),
-            payload,
-            error: null,
-        };
     }
 
     /**

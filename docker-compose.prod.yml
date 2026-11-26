@@ -83,10 +83,8 @@ services:
       TZ: Asia/Tehran
       NODE_ENV: production
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      # Decathlon ScrapeOps fallback: used automatically once the native
-      # browser looks hard-banned. No daily cap; usage is reported to Telegram.
+      # ScrapeOps is still used by the Torob listener (PHP side).
       SCRAPE_OPS_KEY: ${SCRAPE_OPS_KEY}
-      SCRAPE_OPS_FALLBACK_ENABLED: ${SCRAPE_OPS_FALLBACK_ENABLED:-1}
     shm_size: "1gb"
     mem_limit: 1500m
     command: node daemon.js

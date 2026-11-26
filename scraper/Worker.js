@@ -1,25 +1,20 @@
 const Redis = require('ioredis');
 
 /**
- * Exponential backoff ladder, in seconds: 5m → 15m → 60m → 300m.
- * The last step is the cap: a blocked product is never dropped, it keeps
- * cycling until the ban lifts.
+ * Exponential backoff ladder for a blocked source (the ban is per IP, so one
+ * ladder is shared by every product of that source):
+ *   5m → 1h → 3h → 6h → 24h, then stay at 24h forever.
+ * A single successful scrape deletes the rung, so the next block starts at 5m
+ * again.
  */
-const COOLDOWN_STEPS_SECONDS = [5 * 60, 15 * 60, 60 * 60, 300 * 60];
-const BACKOFF_JITTER = 0.2;
+const COOLDOWN_STEPS_SECONDS = [
+    5 * 60,          // 5 minutes
+    60 * 60,         // 1 hour
+    3 * 60 * 60,     // 3 hours
+    6 * 60 * 60,     // 6 hours
+    24 * 60 * 60,    // 1 day (repeats)
+];
 const QUEUE_OUT = 'laravel_database_scrape_result';
-
-/**
- * A failed backoff run is expiring on its own; the streak counter only needs
- * to survive long enough to keep the ladder climbing.
- */
-const BLOCK_STREAK_TTL = 6 * 60 * 60;
-
-/**
- * How many consecutive blocks before the native browser is considered hard
- * banned and requests go through the ScrapeOps fallback instead.
- */
-const HARD_BAN_STREAK = 3;
 
 class Worker {
     constructor(name, queueIn) {
@@ -33,7 +28,10 @@ class Worker {
         });
         this.slug = name.toLowerCase();
         this.cooldownKey = `scraper:cooldown:${this.slug}`;
-        this.blockStreakKey = `scraper:block-streak:${this.slug}`;
+        // Current rung of the ladder (1..5). Deliberately has no TTL: an
+        // abandoned high rung only means "keep waiting a day", and a success
+        // resets it to the first step.
+        this.ladderKey = `scraper:ladder:${this.slug}`;
     }
 
     async run(scrapeFn, shuttingDown) {
@@ -42,21 +40,11 @@ class Worker {
         while (!shuttingDown()) {
             try {
                 const ttl = await this.redis.ttl(this.cooldownKey);
-                const coolingDown = ttl > 0;
-                const streak = Number(await this.redis.get(this.blockStreakKey)) || 0;
-                const hardBan = streak >= HARD_BAN_STREAK;
 
-                // Once the ban looks hard, drain the queue through the ScrapeOps
-                // fallback instead of stalling. A single block just backs off,
-                // so no credits are spent on something a short pause would fix.
-                const useFallback = this.isFallbackAvailable() && hardBan;
-                const skipBrowser = coolingDown && useFallback;
-
-                // Full cooldown sleep: every blocked scrape sets this key so
-                // the source backs off for the configured ladder step (5m →
-                // 15m → 60m → 300m). The sleep still respects shutdown signals
-                // through the 200ms tick, so the worker can always be stopped.
-                if (coolingDown && !skipBrowser) {
+                // The cooldown is the whole point of the backoff: sleep its
+                // full remaining time. Skipping or capping this sleep is what
+                // turned a 5-hour cooldown into a request every ~2 minutes.
+                if (ttl > 0) {
                     console.info(JSON.stringify({
                         message: `${this.name} cooling down for ${ttl}s`,
                         cooldown_ttl: ttl,
@@ -74,21 +62,9 @@ class Worker {
 
                 const data = JSON.parse(result[1]);
 
-                // Per-product backoff: the product itself carries a timestamp
-                // from its last block. Skip it silently until that time passes,
-                // so a product blocked for 300m doesn't burn a CPU cycle every
-                // 60 seconds only to get blocked again.
-                if (data.retry_after && Date.now() < data.retry_after) {
-                    await this.publishStatus(data.product.id, 'rate_limited');
-                    continue;
-                }
-
                 await this.publishStatus(data.product.id, 'processing');
 
-                const response = await scrapeFn(this.name, data.product, {
-                    skipBrowser,
-                    allowFallback: useFallback,
-                });
+                const response = await scrapeFn(this.name, data.product);
 
                 const retried = await this.handleBlocked(data, response);
                 if (retried) {
@@ -97,20 +73,10 @@ class Worker {
 
                 await this.handleInvalidCurrency(data, response);
 
-                if (response.native_blocked === true) {
-                    // The native browser was blocked but the fallback rescued
-                    // the product: escalate the streak and arm the cooldown so
-                    // the next items skip straight to the fallback.
-                    await this.registerNativeBlock();
-                    await this.publishStatus(data.product.id, 'rate_limited');
-                } else if (response.success === true) {
-                    // A genuine success (native or fallback) means the ban is
-                    // gone, so the ladder starts over at 5m on the next block.
-                    await this.clearBlockStreak();
-                }
-
-                if (response.scrapeops_fallback === true) {
-                    response.scrapeops_requests_today = await this.recordFallbackUsage();
+                if (response.success === true) {
+                    // A fresh success means the ban is gone: the next block
+                    // starts the ladder over at 5 minutes.
+                    await this.resetLadder();
                 }
 
                 response.bulk = data.bulk ?? false
@@ -152,9 +118,12 @@ class Worker {
 
     async sleep(ms, shuttingDown) {
         const started = Date.now();
+        // Wake periodically so a deploy can shut the worker down promptly, but
+        // not so often that a day-long cooldown burns CPU.
+        const tick = Math.min(5000, ms);
 
         while (!shuttingDown() && Date.now() - started < ms) {
-            await new Promise(resolve => setTimeout(resolve, Math.min(200, ms)));
+            await new Promise(resolve => setTimeout(resolve, tick));
         }
     }
 
@@ -174,112 +143,49 @@ class Worker {
     }
 
     /**
-     * The ScrapeOps fallback is available whenever a key is configured. There
-     * is no request budget: the daily counter is reporting only.
+     * Advance the shared ladder by one rung and return the cooldown that rung
+     * earned. Rungs climb 5m → 1h → 3h → 6h → 24h and then stay at 24h.
      */
-    isFallbackAvailable() {
-        if (process.env.SCRAPE_OPS_FALLBACK_ENABLED === '0') {
-            return false;
-        }
-
-        return Boolean(process.env.SCRAPE_OPS_KEY);
-    }
-
-    /**
-     * Count one fallback request for today's Telegram report. Never gates the
-     * request — it only exists so the daily cost is visible.
-     */
-    async recordFallbackUsage() {
-        try {
-            const key = `scrapeops:fallback:requests:${this.todayKey()}`;
-            const count = await this.redis.incr(key);
-
-            if (count === 1) {
-                await this.redis.expire(key, 2 * 24 * 60 * 60);
-            }
-
-            return count;
-        } catch (e) {
-            console.error(JSON.stringify({
-                message: 'failed to record scrapeops fallback usage',
-                error: {name: e.name, message: e.message},
-                level: 'error',
-            }));
-
-            return null;
-        }
-    }
-
-    todayKey() {
-        const timeZone = process.env.TZ || 'Asia/Tehran';
-
-        return new Intl.DateTimeFormat('en-CA', {timeZone}).format(new Date());
-    }
-
-    /**
-     * Count one consecutive block and return the cooldown it earns.
-     * Steps climb 5m → 15m → 60m → 300m and stay at the last one.
-     */
-    async nextCooldownSeconds() {
-        let streak = 1;
+    async nextCooldown() {
+        let rawRung = 1;
 
         try {
-            streak = await this.redis.incr(this.blockStreakKey);
-            await this.redis.expire(this.blockStreakKey, BLOCK_STREAK_TTL);
+            rawRung = await this.redis.incr(this.ladderKey);
         } catch (e) {
             console.error(JSON.stringify({
-                message: 'failed to read block streak, using first step',
+                message: 'failed to advance the cooldown ladder, using the first step',
                 error: {name: e.name, message: e.message},
                 level: 'error',
             }));
         }
 
-        const step = COOLDOWN_STEPS_SECONDS[Math.min(streak, COOLDOWN_STEPS_SECONDS.length) - 1];
-        const jitter = step * BACKOFF_JITTER * (Math.random() * 2 - 1);
+        // Clamp to the last rung: after 24h every further block keeps 24h.
+        const rung = Math.min(rawRung, COOLDOWN_STEPS_SECONDS.length);
+        const cooldownSeconds = COOLDOWN_STEPS_SECONDS[rung - 1];
 
-        return {
-            streak,
-            cooldownSeconds: Math.max(1, Math.round(step + jitter)),
-        };
+        return {rung, cooldownSeconds};
     }
 
     /**
-     * The native browser was blocked but the fallback delivered the product.
-     * Count the block (so a hard ban still escalates to the fallback) and arm
-     * the cooldown so following items skip straight to the fallback. The native
-     * browser is retried once the cooldown expires, which is how we check
-     * periodically whether the ban has lifted.
+     * Drop the ladder back to the first rung. Called after any successful
+     * scrape: the ban has lifted, so the next block waits only 5 minutes.
      */
-    async registerNativeBlock() {
-        const {cooldownSeconds} = await this.nextCooldownSeconds();
-
+    async resetLadder() {
         try {
-            await this.redis.setex(this.cooldownKey, cooldownSeconds, '1');
-        } catch (e) {
-            console.error(JSON.stringify({
-                message: 'failed to arm cooldown',
-                error: {name: e.name, message: e.message},
-                level: 'error',
-            }));
-        }
-    }
+            const rung = Number(await this.redis.get(this.ladderKey)) || 0;
 
-    async clearBlockStreak() {
-        try {
-            const streak = await this.redis.get(this.blockStreakKey);
-
-            if (streak) {
+            if (rung > 0) {
                 console.info(JSON.stringify({
-                    message: `${this.name} block streak cleared after a successful scrape`,
-                    previous_streak: Number(streak),
+                    message: `${this.name} cooldown ladder reset after a successful scrape`,
+                    previous_rung: rung,
                     level: 'info',
                 }));
             }
 
-            await this.redis.del(this.blockStreakKey);
+            await this.redis.del(this.ladderKey);
         } catch (e) {
             console.error(JSON.stringify({
-                message: 'failed to clear block streak',
+                message: 'failed to reset the cooldown ladder',
                 error: {name: e.name, message: e.message},
                 level: 'error',
             }));
@@ -294,10 +200,9 @@ class Worker {
     async handleBlocked(data, response) {
         if (!response.blocked) return false;
 
-        const {streak, cooldownSeconds} = await this.nextCooldownSeconds();
+        const {rung, cooldownSeconds} = await this.nextCooldown();
 
         data.retry_count = (data.retry_count ?? 0) + 1;
-        data.retry_after = Date.now() + cooldownSeconds * 1000;
 
         await this.publishStatus(data.product.id, 'no_response_retrying');
 
@@ -321,8 +226,7 @@ class Worker {
                 product_id: data.product.id,
                 url: data.product.decathlon_url ?? data.product.full_url ?? null,
                 block_reason: response.block_reason ?? null,
-                block_streak: streak,
-                hard_ban: streak >= HARD_BAN_STREAK,
+                ladder_rung: rung,
                 next_retry_in_seconds: cooldownSeconds,
                 response_status: response.response_status ?? null,
             })

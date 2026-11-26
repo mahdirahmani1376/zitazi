@@ -13,7 +13,6 @@ use App\Jobs\SyncZitaziJob;
 use App\Models\Product;
 use App\Models\SyncLog;
 use App\Models\Variation;
-use App\Services\ScrapeOpsFallbackReporter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
@@ -135,23 +134,9 @@ class ListenForScrapeResponseCommand extends Command
                 app(SeedVariationsForTrendyolAction::class)->execute($messageArray, $messageArray['bulk'] ?? false);
             }
 
-            $this->reportScrapeOpsFallback($messageArray);
-
         } else {
             $product?->setSyncStatus(SyncStatusEnum::FAILED_DATA_FETCH);
             $this->error('unknown message structure scrape command message:'.json_encode($message));
-        }
-    }
-
-    private function reportScrapeOpsFallback(array $messageArray): void
-    {
-        try {
-            app(ScrapeOpsFallbackReporter::class)->report($messageArray);
-        } catch (\Throwable $e) {
-            // Reporting must never break scrape processing.
-            Log::error('error in scrapeops fallback reporting', [
-                'error' => $e->getMessage(),
-            ]);
         }
     }
 

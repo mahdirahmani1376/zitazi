@@ -135,9 +135,8 @@ services:
       PROXY_USER : ${PROXY_USER}
       PROXY_PASSWORD : ${PROXY_PASSWORD}
       CHROME_USER_DATA_DIR: /app/chrome-profile
-      # Decathlon ScrapeOps fallback (used once the native browser is hard-banned).
+      # ScrapeOps is still used by the Torob listener (PHP side).
       SCRAPE_OPS_KEY: ${SCRAPE_OPS_KEY}
-      SCRAPE_OPS_FALLBACK_ENABLED: ${SCRAPE_OPS_FALLBACK_ENABLED:-1}
       # Headful Chromium under Xvfb passes Cloudflare's challenge that blocks
       # headless Chromium from Decathlon.
       SCRAPER_HEADFUL: "1"
