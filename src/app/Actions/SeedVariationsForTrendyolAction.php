@@ -88,7 +88,7 @@ class SeedVariationsForTrendyolAction
                 if ($rivalMinPrice) {
                     $lowestPossiblePrice = Currency::convertToRial(
                         $price,
-                        1.20
+                        1.30
                     );
 
                     $highestPossiblePrice = Currency::convertToRial(
